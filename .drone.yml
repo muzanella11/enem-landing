@@ -1,0 +1,275 @@
+---
+kind: pipeline
+name: code-sanitize-webapps
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+steps:
+- name: "[git-clone-webapps]::[push,pull_request]::[master,"
+  image: alpine/git
+  commands:
+  - git clone -b $DRONE_BRANCH --single-branch --depth 1 https://github.com/muzanella11/enem-landing.git .
+  - git checkout -b $DRONE_COMMIT
+  when:
+    branch:
+      exclude:
+      - master
+      - demo
+      - develop
+      - release/*
+    event:
+    - push
+    - pull_request
+
+- name: "[code-sanitize-webapps]::[push,pull_request]::[mast"
+  image: node:12.20.1-alpine
+  commands:
+  - apk update && apk upgrade
+  - apk add git
+  - apk add python make g++
+  - yarn install
+  - yarn lint
+  when:
+    branch:
+      exclude:
+      - master
+      - demo
+      - develop
+      - release/*
+    event:
+    - push
+    - pull_request
+
+trigger:
+  branch:
+    exclude:
+    - master
+    - demo
+    - develop
+    - release/*
+  event:
+  - push
+  - pull_request
+
+---
+kind: pipeline
+name: deploy-to-prod
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+steps:
+- name: "[deploying-prod]::[push,pull_request]::[master,"
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: SSH_HOST
+    username:
+      from_secret: SSH_USER
+    password:
+      from_secret: SSH_PASSWORD
+    port: 22
+    script:
+      - cd ./deploy/prod
+      - rm -rf ./enem-landing/
+      - mkdir enem-landing
+      - cd ./enem-landing
+      - pwd
+      - git clone git@github.com:muzanella11/enem-landing.git .
+      - git checkout -b master origin/master
+      - docker stop enem-landing-apps-prod || true
+      - docker rm enem-landing-apps-prod || true
+      - docker rmi enem-landing-apps-images-prod || true
+      - docker build -f Dockerfile.prod -t enem-landing-apps-images-prod .
+      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+      - docker run -d -p 4004:4004 --restart=on-failure --name enem-landing-apps-prod enem-landing-apps-images-prod
+      - cd ./../
+      - rm -rf ./enem-landing/
+  when:
+    branch:
+      include:
+      - master
+    event:
+    - push
+    - pull_request
+
+trigger:
+  branch:
+    include:
+    - master
+  event:
+  - push
+  - pull_request
+
+---
+kind: pipeline
+name: deploy-to-staging
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+steps:
+- name: "[deploying-staging]::[push,pull_request]::[staging,"
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: SSH_HOST
+    username:
+      from_secret: SSH_USER
+    password:
+      from_secret: SSH_PASSWORD
+    port: 22
+    script:
+      - cd ./deploy/staging
+      - rm -rf ./enem-landing/
+      - mkdir enem-landing
+      - cd ./enem-landing
+      - pwd
+      - git clone git@github.com:muzanella11/enem-landing.git .
+      - git checkout -b staging origin/staging
+      - docker stop enem-landing-apps-staging || true
+      - docker rm enem-landing-apps-staging || true
+      - docker rmi enem-landing-apps-images-staging || true
+      - docker build -f Dockerfile.staging -t enem-landing-apps-images-staging .
+      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+      - docker run -d -p 4002:4002 --restart=on-failure --name enem-landing-apps-staging enem-landing-apps-images-staging
+      - cd ./../
+      - rm -rf ./enem-landing/
+  when:
+    branch:
+      include:
+      - staging
+    event:
+    - push
+    - pull_request
+
+trigger:
+  branch:
+    include:
+    - staging
+  event:
+  - push
+  - pull_request
+
+---
+kind: pipeline
+name: deploy-to-dev
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+steps:
+- name: "[deploying-dev]::[push,pull_request]::[develop,"
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: SSH_HOST
+    username:
+      from_secret: SSH_USER
+    password:
+      from_secret: SSH_PASSWORD
+    port: 22
+    script:
+      - cd ./deploy/dev
+      - rm -rf ./enem-landing/
+      - mkdir enem-landing
+      - cd ./enem-landing
+      - pwd
+      - git clone git@github.com:muzanella11/enem-landing.git .
+      - git checkout -b develop origin/develop
+      - docker stop enem-landing-apps-dev || true
+      - docker rm enem-landing-apps-dev || true
+      - docker rmi enem-landing-apps-images-dev || true
+      - docker build -f Dockerfile.develop -t enem-landing-apps-images-dev .
+      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+      - docker run -d -p 4002:4002 --restart=on-failure --name enem-landing-apps-dev enem-landing-apps-images-dev
+      - cd ./../
+      - rm -rf ./enem-landing/
+  when:
+    branch:
+      include:
+      - develop
+    event:
+    - push
+    - pull_request
+
+trigger:
+  branch:
+    include:
+    - develop
+  event:
+  - push
+  - pull_request
+
+---
+kind: pipeline
+name: deploy-to-demo
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+steps:
+- name: "[deploying-demo]::[push,pull_request]::[demo,"
+  image: appleboy/drone-ssh
+  settings:
+    host:
+      from_secret: SSH_HOST
+    username:
+      from_secret: SSH_USER
+    password:
+      from_secret: SSH_PASSWORD
+    port: 22
+    script:
+      - cd ./deploy/demo
+      - rm -rf ./enem-landing/
+      - mkdir enem-landing
+      - cd ./enem-landing
+      - pwd
+      - git clone git@github.com:muzanella11/enem-landing.git .
+      - git checkout -b demo origin/demo
+      - docker stop enem-landing-apps-demo || true
+      - docker rm enem-landing-apps-demo || true
+      - docker rmi enem-landing-apps-images-demo || true
+      - docker build -f Dockerfile.demo -t enem-landing-apps-images-demo .
+      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+      - docker run -d -p 4001:4001 --restart=on-failure --name enem-landing-apps-demo enem-landing-apps-images-demo
+      - cd ./../
+      - rm -rf ./enem-landing/
+  when:
+    branch:
+      include:
+      - demo
+    event:
+    - push
+    - pull_request
+
+trigger:
+  branch:
+    include:
+    - demo
+  event:
+  - push
+  - pull_request
+
+...
