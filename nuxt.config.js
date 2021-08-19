@@ -3,11 +3,12 @@ require('dotenv').config()
 const VERSION = require('./package.json').version || '0.0.1'
 const ENVIRONMENT = process.env.ENVIRONMENT || 'local'
 const CONFIGENVIRONMENT = require(`./config/${ENVIRONMENT.toLowerCase()}.json`)
+const PORT = process.env.NUXT_PORT || 4000
 
 export default {
   // Port Config
   server: {
-    port: 4000
+    port: PORT
   },
 
   // Environment config
@@ -54,20 +55,11 @@ export default {
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios',
-    // https://go.nuxtjs.dev/pwa
-    '@nuxtjs/pwa'
+    '@nuxtjs/axios'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},
-
-  // PWA module configuration: https://go.nuxtjs.dev/pwa
-  pwa: {
-    manifest: {
-      lang: 'en'
-    }
-  },
 
   /*
    ** Customize the progress-bar color

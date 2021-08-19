@@ -145,7 +145,7 @@ steps:
       - docker rmi enem-landing-apps-images-staging || true
       - docker build -f Dockerfile.staging -t enem-landing-apps-images-staging .
       - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
-      - docker run -d -p 4002:4002 --restart=on-failure --name enem-landing-apps-staging enem-landing-apps-images-staging
+      - docker run -d -p 4003:4003 --restart=on-failure --name enem-landing-apps-staging enem-landing-apps-images-staging
       - cd ./../
       - rm -rf ./enem-landing/
   when:
@@ -195,8 +195,8 @@ steps:
       - git clone git@github.com:muzanella11/enem-landing.git .
       - git checkout -b develop origin/develop
       - docker stop enem-landing-apps-dev || true
-      # - docker rm enem-landing-apps-dev || true
-      # - docker rmi enem-landing-apps-images-dev || true
+      - docker rm enem-landing-apps-dev || true
+      - docker rmi enem-landing-apps-images-dev || true
       - docker build -f Dockerfile.develop -t enem-landing-apps-images-dev .
       - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
       - docker run -d -p 4002:4002 --restart=on-failure --name enem-landing-apps-dev enem-landing-apps-images-dev
