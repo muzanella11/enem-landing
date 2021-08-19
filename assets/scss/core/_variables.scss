@@ -1,0 +1,24 @@
+/******************************************
+  Variables
+******************************************/
+
+/************** Font **************/
+$font-example:                                'Example Fonts';
+$font-example-path:                           './../fonts/example/';
+$font-example-typeface:                       'Example Fonts', sans-serif;
+
+$font-roboto-typeface:                        'Roboto', sans-serif;
+$font-lato-typeface:                          'Lato', sans-serif;
+
+$typeface-primary:                            $font-roboto-typeface;
+
+/* ************************************ */
+
+/************** Theme Color **************/
+$color-header:                                 $color-red;
+$color-body:                                   $color-white;
+$color-main-text:                              $color-black;
+$color-line:                                   $color-dark-light-gray;
+$color-success:                                $color-green;
+
+/* ************************************ */

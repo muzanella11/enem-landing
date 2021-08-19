@@ -1,0 +1,30 @@
+/******************************************
+  Themes Example
+******************************************/
+
+/******************************************
+  Themes could override base style of layouts or block components.
+  Use BEM methodology
+  .block{}
+  .block__element{}
+  .block--modifier{}
+
+  > .block represents the high level element of the module
+  > .block__element represents a descendent of .block
+  > .block--modifier represents a different version of .block
+******************************************/
+
+/** This Place For Modules Style **/
+@import "example/_modules";
+
+/* ************************************ */
+
+/** This Place For Layout Style **/
+@import "example/_layouts";
+
+/* ************************************ */
+
+/** This Place For State Style **/
+@import "example/_state";
+
+/* ************************************ */

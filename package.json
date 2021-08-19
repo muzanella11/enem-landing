@@ -1,0 +1,41 @@
+{
+  "name": "enem-landing",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint:js": "eslint --ext .js,.vue --ignore-path .eslintignore .",
+    "lint:js:fix": "eslint --ext .js,.vue . --fix",
+    "lint:style": "stylelint ./**/*.{vue,css,s*ss} --ignore-path .stylelintignore",
+    "lint:style:fix": "stylelint ./**/*.{vue,css,s*ss} --fix",
+    "lint": "npm-run-all --parallel lint:js lint:style",
+    "lint:fix": "npm-run-all --parallel lint:*:fix"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/pwa": "^3.3.5",
+    "bootstrap": "^4.6.0",
+    "bootstrap-vue": "^2.21.2",
+    "core-js": "^3.15.1",
+    "dotenv": "^10.0.0",
+    "node-sass": "^6.0.1",
+    "nuxt": "^2.15.7",
+    "prettier": "^2.3.2",
+    "sass": "^1.38.0",
+    "sass-loader": "10"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.14.7",
+    "@nuxtjs/eslint-config": "^6.0.1",
+    "@nuxtjs/eslint-module": "^3.0.2",
+    "@nuxtjs/stylelint-module": "^4.0.0",
+    "eslint": "^7.29.0",
+    "eslint-plugin-nuxt": "^2.0.0",
+    "eslint-plugin-vue": "^7.12.1",
+    "stylelint": "^13.13.1",
+    "stylelint-config-standard": "^22.0.0"
+  }
+}

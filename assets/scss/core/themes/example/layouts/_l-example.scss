@@ -1,0 +1,21 @@
+/******************************************
+  Themes >> Layouts
+******************************************/
+
+/******************************************
+  Some tips for creating layouts :
+  - Add `l` prefix before the name of layouts
+  - Or Just copy paste this structure of styling code into your new layouts styling file
+  - Dont forget to register your layouts into `themes/_layouts.scss`
+******************************************/
+
+/** This Place For Layouts Example **/
+body[data-app-theme="example"] {
+  &.#{namespace} {
+    & .l-example {
+      // create an awesome styling here
+    }
+  }
+}
+
+/* ************************************ */

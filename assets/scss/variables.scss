@@ -1,0 +1,52 @@
+/********** For Prefix and Namespace *********/
+$prefix:               enem !default;
+$namespace:            #{$prefix}-themes !default;
+
+/* ************************************ */
+
+/********** For Media Queries *********/
+
+/** For Extra Small Screen / Phone **/
+$screen-xs:            480px !default;
+$screen-xs:            $screen-xs !default;
+$screen-phone:         $screen-xs !default;
+
+/** For Small Screen / Tablet **/
+$screen-sm:            768px !default;
+$screen-sm-min:        $screen-sm !default;
+$screen-tablet:        $screen-sm-min !default;
+
+/** For Medium Screen / Desktop **/
+$screen-md:            992px !default;
+$screen-md-min:        $screen-md !default;
+$screen-medium:        $screen-md-min !default;
+
+/** For Large Screen / Wide Desktop **/
+$screen-lg:            1200px !default;
+$screen-lg-min:        $screen-lg !default;
+$screen-large:         $screen-lg-min !default;
+
+/** For Screen Max **/
+$screen-xs-max:                  ($screen-sm-min - 1) !default;
+$screen-sm-max:                  ($screen-md-min - 1) !default;
+$screen-md-max:                  ($screen-lg-min - 1) !default;
+
+/* ************************************ */
+
+/************** Theme Color **************/
+$color-white: #FFF;
+$color-red: #E43C57;
+$color-black: #414141;
+$color-gray: #B2B2B2;
+$color-dark-light-gray: #DADCE0;
+$color-light-gray: #F4F4F4;
+$color-gray-darken: #818181;
+$color-green: #4CAF50;
+$color-blue: #1074BF;
+$color-blue-light: #17A2B8;
+
+$color-primary: $color-blue;
+$color-secondary: $color-black;
+$color-tertiary: $color-gray;
+
+/* ************************************ */

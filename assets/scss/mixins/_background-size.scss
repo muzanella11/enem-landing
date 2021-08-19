@@ -1,0 +1,10 @@
+/******************************************
+  Mixin Background Size
+******************************************/
+
+@mixin background-size($background-size) {
+  -webkit-background-size: $background-size;
+  -moz-background-size: $background-size;
+  -o-background-size: $background-size;
+  background-size: $background-size;
+}

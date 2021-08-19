@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html lang="en-US" class="lt-ie9 ie9" {{ HTML_ATTRS }}><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html {{ HTML_ATTRS }}><!--<![endif]-->
+<head>
+  <script type="text/javascript">
+  // Sorry we prevent accessing our pages from iframe :)
+  if (top.location !== window.location) {
+    let enLogStyle = [
+      'font-size: 8rem',
+      'text-align: center',
+      'display: block',
+      'text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)'
+    ].join(';');
+
+    console.log('%Where are you going ?', enLogStyle);
+    console.log('%cWhat do you want to do ?', enLogStyle);
+    console.log('%c:)', enLogStyle);
+    window.location = '/sorry-dude'
+  }
+  </script>
+  {{ HEAD }}
+</head>
+<body data-version="{{ ENV.version }}" class="enem-themes" {{ BODY_ATTRS }}>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    var gtmSelector = document.querySelectorAll('[data-gtm-event]');
+    if (gtmSelector.length) {
+        gtmSelector.forEach(function (x) {
+            x.addEventListener("click", function () {
+                dataLayer.push({
+                    'data-gtm-event': x.getAttribute('data-gtm-event')
+                });
+            })
+        })
+    }
+  </script>
+
+  <noscript>
+    <strong>
+      We're sorry but shipowner doesn't work
+      properly without JavaScript enabled. Please enable it to
+      continue.
+    </strong>
+  </noscript>
+
+  {{ APP }}
+</body>
+</html>
