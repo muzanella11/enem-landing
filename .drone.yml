@@ -195,8 +195,8 @@ steps:
       - git clone git@github.com:muzanella11/enem-landing.git .
       - git checkout -b develop origin/develop
       - docker stop enem-landing-apps-dev || true
-      - docker rm enem-landing-apps-dev || true
-      - docker rmi enem-landing-apps-images-dev || true
+      # - docker rm enem-landing-apps-dev || true
+      # - docker rmi enem-landing-apps-images-dev || true
       - docker build -f Dockerfile.develop -t enem-landing-apps-images-dev .
       - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
       - docker run -d -p 4002:4002 --restart=on-failure --name enem-landing-apps-dev enem-landing-apps-images-dev
