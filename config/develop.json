@@ -1,9 +1,11 @@
 {
   "env": {
     "environment": "develop",
+    "hostname": "https://www.dev.muzanella.com",
     "copywrite": {
       "title": "Nurfirliana Muzanella",
-      "description": "Nurfirliana Muzanella"
+      "sitename": "Nurfirliana Muzanella",
+      "description": "Hello, my name is Nurfirliana Muzanella. I'm Frontend Engineer. Combine the art of design with the art of programming. Have good experience on layouting html and play with css and javascript for more attractive layouting. Make the layout fit with all screen device. So if you interesting with me, you can send me a message or call me. Let's talk :)"
     }
   }
 }

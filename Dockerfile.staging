@@ -14,7 +14,8 @@ COPY . /usr/src/enem-landing-app/
 RUN yarn install
 
 # local development env variable
-ENV ENVIRONMENT=staging
+ENV ENVIRONMENT=staging \
+    GOOGLE_ANALYTICS_ID=
 
 # build necessary, even if no static files are needed,
 # since it builds the server as well
