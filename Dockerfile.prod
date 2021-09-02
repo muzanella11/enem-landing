@@ -15,7 +15,7 @@ RUN yarn install
 
 # local development env variable
 ENV ENVIRONMENT=production \
-    GOOGLE_ANALYTICS_ID=UA-83375408-2
+    GOOGLE_ANALYTICS_ID=UA-83375408-1
 
 # build necessary, even if no static files are needed,
 # since it builds the server as well

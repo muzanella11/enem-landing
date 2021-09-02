@@ -29,18 +29,26 @@ export default {
       { name: 'robots', content: 'index, follow' },
       { hid: 'http-equiv', 'http-equiv': 'X-UA-Compatible', content: 'IE=edge,chrome=1' },
       { hid: 'description', name: 'description', content: copywrite.description },
-      { hid: 'og:type', name: 'og:type', content: 'website' },
-      { hid: 'og:title', name: 'og:title', content: copywrite.title },
-      { hid: 'og:site_name', name: 'og:site_name', content: copywrite.sitename },
-      { hid: 'og:url', name: 'og:url', content: hostname },
-      { hid: 'og:description', name: 'og:description', content: copywrite.description },
-      { hid: 'og:image', name: 'og:image', content: `${hostname}/enem.png` },
+      { hid: 'keywords', name: 'keywords', content: copywrite.keywords },
+      { hid: 'og:type', property: 'og:type', content: 'website' },
+      { hid: 'og:title', property: 'og:title', content: copywrite.title },
+      { hid: 'og:site_name', property: 'og:site_name', content: copywrite.sitename },
+      { hid: 'og:url', property: 'og:url', content: hostname },
+      { hid: 'og:description', property: 'og:description', content: copywrite.description },
+      { hid: 'og:keywords', property: 'og:keywords', content: copywrite.keywords },
+      { hid: 'og:image', property: 'og:image', content: `${hostname}/enem.png` },
+      { hid: 'og:image:type', property: 'og:image:type', content: 'image/png' },
+      { hid: 'og:image:width', property: 'og:image:width', content: '1200' },
+      { hid: 'og:image:height', property: 'og:image:height', content: '1200' },
+      { hid: 'og:image:alt', property: 'og:image:alt', content: copywrite.description },
       { hid: 'twitter:card', name: 'twitter:card', content: 'summary' },
       { hid: 'twitter:title', name: 'twitter:title', content: copywrite.title },
       { hid: 'twitter:site', name: 'twitter:site', content: copywrite.sitename },
       { hid: 'twitter:url', name: 'twitter:url', content: hostname },
       { hid: 'twitter:description', name: 'twitter:description', content: copywrite.description },
+      { hid: 'twitter:keywords', name: 'twitter:keywords', content: copywrite.keywords },
       { hid: 'twitter:image', name: 'twitter:image', content: `${hostname}/enem.png` },
+      { hid: 'twitter:image:src', name: 'twitter:image:src', content: `${hostname}/enem.png` },
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
@@ -80,11 +88,26 @@ export default {
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    // https://github.com/nuxt-community/robots-module
+    '@nuxtjs/robots',
+    // https://sitemap.nuxtjs.org
+    '@nuxtjs/sitemap'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},
+
+  // Robots module: https://github.com/nuxt-community/robots-module
+  robots: {
+    UserAgent: '*',
+    Disallow: '/'
+  },
+
+  // Sitemap module: https://sitemap.nuxtjs.org
+  sitemap: {
+    // options
+  },
 
   // Google analytic
   googleAnalytics: {

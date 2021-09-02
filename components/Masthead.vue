@@ -13,7 +13,19 @@
         <div class="divider-custom-line"></div>
       </div>
       <!-- Masthead Subheading-->
-      <p class="masthead-subheading font-weight-light mb-0">{{ subheading }}</p>
+      <p class="masthead-subheading font-weight-light mb-2">{{ subheading }}</p>
+
+      <div class="row">
+        <div class="col-12">
+          <b-badge
+            v-for="(itemSkill, indexSkill) in skills"
+            :key="indexSkill"
+            class="mr-2 mt-2"
+          >
+            {{ itemSkill }}
+          </b-badge>
+        </div>
+      </div>
     </div>
   </header>
 </template>
@@ -22,7 +34,16 @@
 export default {
   data () {
     return {
-      //
+      skills: [
+        'HTML',
+        'CSS',
+        'Javascript',
+        'Node JS',
+        'Vue JS',
+        'PHP',
+        'Python',
+        'Docker'
+      ]
     }
   },
 
