@@ -4,6 +4,10 @@ const VERSION = require('./package.json').version || '0.0.1'
 const ENVIRONMENT = process.env.ENVIRONMENT || 'local'
 const CONFIGENVIRONMENT = require(`./config/${ENVIRONMENT.toLowerCase()}.json`)
 const PORT = process.env.NUXT_PORT || 4000
+const {
+  copywrite,
+  hostname
+} = CONFIGENVIRONMENT.env
 
 export default {
   // Port Config
@@ -18,15 +22,30 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Nurfirliana Muzanella',
+    title: copywrite.title,
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+      { name: 'robots', content: 'index, follow' },
+      { hid: 'http-equiv', 'http-equiv': 'X-UA-Compatible', content: 'IE=edge,chrome=1' },
+      { hid: 'description', name: 'description', content: copywrite.description },
+      { hid: 'og:type', name: 'og:type', content: 'website' },
+      { hid: 'og:title', name: 'og:title', content: copywrite.title },
+      { hid: 'og:site_name', name: 'og:site_name', content: copywrite.sitename },
+      { hid: 'og:url', name: 'og:url', content: hostname },
+      { hid: 'og:description', name: 'og:description', content: copywrite.description },
+      { hid: 'og:image', name: 'og:image', content: `${hostname}/enem.png` },
+      { hid: 'twitter:card', name: 'twitter:card', content: 'summary' },
+      { hid: 'twitter:title', name: 'twitter:title', content: copywrite.title },
+      { hid: 'twitter:site', name: 'twitter:site', content: copywrite.sitename },
+      { hid: 'twitter:url', name: 'twitter:url', content: hostname },
+      { hid: 'twitter:description', name: 'twitter:description', content: copywrite.description },
+      { hid: 'twitter:image', name: 'twitter:image', content: `${hostname}/enem.png` },
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'canonical', href: hostname }
     ],
     script: [
       {
@@ -52,7 +71,8 @@ export default {
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/stylelint
-    '@nuxtjs/stylelint-module'
+    '@nuxtjs/stylelint-module',
+    '@nuxtjs/google-analytics'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -65,6 +85,17 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},
+
+  // Google analytic
+  googleAnalytics: {
+    id: process.env.GOOGLE_ANALYTICS_ID, // Use as fallback if no runtime config is provided
+  },
+
+  publicRuntimeConfig: {
+    googleAnalytics: {
+      id: process.env.GOOGLE_ANALYTICS_ID
+    }
+  },
 
   /*
    ** Customize the progress-bar color
