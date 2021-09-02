@@ -21,7 +21,7 @@ module.exports = {
     'declaration-colon-space-before': 'never',
     'declaration-empty-line-before': 'never',
     'declaration-property-unit-allowed-list': {
-      'font-size': ['rem', 'em', 'px', '%'],
+      'font-size': ['vw', 'rem', 'em', 'px', '%'],
       '/^animation/': ['ms', 's']
     },
     'comment-empty-line-before': [
