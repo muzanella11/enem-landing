@@ -100,8 +100,7 @@ export default {
 
   // Robots module: https://github.com/nuxt-community/robots-module
   robots: {
-    UserAgent: '*',
-    Disallow: '/'
+    //
   },
 
   // Sitemap module: https://sitemap.nuxtjs.org
