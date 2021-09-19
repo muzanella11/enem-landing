@@ -1416,7 +1416,7 @@ export default {
         },
         {
           title: 'Flipbox Website',
-          image: '',
+          image: 'img/portfolio/flipbox.png',
           url: 'http://flipbox.co.id',
           year: '2017',
           description: 'Purpose of this application is to create website for Flipbox.',
@@ -1431,7 +1431,7 @@ export default {
         },
         {
           title: 'Dianta Website',
-          image: '',
+          image: 'img/portfolio/dianta.png',
           url: '',
           year: '2017',
           description: 'Purpose of this application is to create website for Dianta.',
@@ -1462,6 +1462,22 @@ export default {
           ]
         },
         {
+          title: 'Antaran',
+          image: 'img/portfolio/antaran.png',
+          url: '',
+          year: '2016',
+          description: 'Purpose of this application is to create B2B application of Antaran.',
+          technologies: [
+            'HTML 5',
+            'CSS 3',
+            'Sass Preprocessor',
+            'Javascript',
+            'Vue JS',
+            'Restful JSON API',
+            'Semantic UI'
+          ]
+        },
+        {
           title: 'Telkomsel Lentera',
           image: '',
           url: '',
@@ -1477,7 +1493,7 @@ export default {
         },
         {
           title: 'Halonesia',
-          image: '',
+          image: 'img/portfolio/halonesia.png',
           url: '',
           year: '2016',
           description: 'Purpose of this application is to create a travel assistant using chat.',
