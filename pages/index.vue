@@ -16,18 +16,22 @@
           <div class="col-md-12">
             <div id="contentTimeline">
               <ul class="timeline">
-                <li class="event" data-date="January 2021 - Now">
-                  <h3>PT. Global Solusi Maritim (Zonasea) // Frontend Developer</h3>
+                <li
+                  v-for="(itemExperience, indexExperience) in experiences"
+                  :key="indexExperience"
+                  class="event"
+                  :data-date="itemExperience.workingPeriode"
+                >
+                  <h3>{{ itemExperience.company }} // {{ itemExperience.position }}</h3>
                   <p>
-                    Global Solusi Maritim is a company based in Indonesia which build an amazing ship tracking and maritime intelligence
-                    platform. The aim of the product is to become a liaison between owners of tug boats, barges, tankers, bulk carriers with owners of cargoes of oil palm, coal, nickel, diesel and others.
+                    {{ itemExperience.description }}
                   </p>
 
                   <br>
 
                   <p>
                     Role Summary: <br>
-                    Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. <br>
+                    {{ itemExperience.roleSummary }} <br>
                   </p>
 
                   <br>
@@ -36,20 +40,11 @@
                     Experiences gained: <br>
                   </p>
                   <ul>
-                    <li>
-                      - Docker
-                    </li>
-                    <li>
-                      - Node JS
-                    </li>
-                    <li>
-                      - PHP
-                    </li>
-                    <li>
-                      - Vue JS
-                    </li>
-                    <li>
-                      - Design frontend architecture with SMACSS + BEM Methodology
+                    <li
+                      v-for="(itemExperienceGained, indexExperienceGained) in itemExperience.experienceGained"
+                      :key="indexExperienceGained"
+                    >
+                      - {{ itemExperienceGained }}
                     </li>
                   </ul>
 
@@ -59,881 +54,29 @@
                     Selected Projects: <br>
                   </p>
                   <ul>
-                    <li>
-                      - Zonasea Ship Owner // (Link to app: <a class="btn-link" href="https://ship.zonasea.com">https://ship.zonasea.com</a>) // 2021 <br>
-                      Purpose of this application is to tracking vessel and find the cargo after user join as Ship Owner. Using technologies:
+                    <li
+                      v-for="(itemProject, indexProject) in itemExperience.projects"
+                      :key="indexProject"
+                    >
+                      - {{ itemProject.title }} //
+                        <template v-if="itemProject.url">
+                          (Link to app: <a class="btn-link" :href="itemProject.url">{{itemProject.url}}</a>)
+                        </template>
+                        <template v-if="!itemProject.url">
+                          (Internal app, no preview link available)
+                        </template>
+                      // {{ itemProject.year }} <br>
+                      {{ itemProject.description }} Using technologies:
                       <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - PHP (Laravel Framework)
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                        <li>
-                          - MYSQL Database
+                        <li
+                          v-for="(itemTechnology, indexTechnology) in itemProject.technologies"
+                          :key="indexTechnology"
+                        >
+                          - {{ itemTechnology }}
                         </li>
                       </ul>
 
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Zonasea Cargo Owner // (Link to app: <a class="btn-link" href="https://cargo.zonasea.com">https://cargo.zonasea.com</a>) // 2021 <br>
-                      Purpose of this application is to tracking cargo and find the vessel for your cargo after user join as Cargo Owner. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - PHP (Laravel Framework)
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                        <li>
-                          - MYSQL Database
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Zonasea Web // (Link to app: <a class="btn-link" href="https://zonasea.com">https://zonasea.com</a>) // 2021 <br>
-                      Purpose of this application is a landing page of Zonasea. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - PHP (Laravel Framework)
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                        <li>
-                          - MYSQL Database
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Zonasea Web Admin (dashboard) // (Internal app, no preview link available) // 2021 <br>
-                      Purpose of this application is to manage all vessel data, vessel tracking, advertising, payment license. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Vuesax
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - PHP (Laravel Framework)
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                        <li>
-                          - MYSQL Database
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="event" data-date="July 2018 - May 2020">
-                  <h3>PT. Travlr Guides Indonesia // Lead Frontend Engineer</h3>
-                  <p>
-                    TRAVLR is a company based in Melbourne which build an amazing traveling
-                    platform. The aim of the product is to be one-stop-solutions for all travellers’
-                    traveling needs.
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Role Summary: <br>
-                    Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. Code review all Frontend members. Skill up all Frontend members.  <br>
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Experiences gained: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - AWS
-                    </li>
-                    <li>
-                      - Kubernetes
-                    </li>
-                    <li>
-                      - Docker
-                    </li>
-                    <li>
-                      - Node JS
-                    </li>
-                    <li>
-                      - PHP
-                    </li>
-                    <li>
-                      - Vue JS
-                    </li>
-                    <li>
-                      - C# (ASP.NET)
-                    </li>
-                    <li>
-                      - Scrum / Sprint based project
-                    </li>
-                    <li>
-                      - Python
-                    </li>
-                    <li>
-                      - Elasticsearch
-                    </li>
-                    <li>
-                      - GraphQL
-                    </li>
-                    <li>
-                      - Design frontend architecture with SMACSS + BEM Methodology
-                    </li>
-                  </ul>
-
-                  <br>
-
-                  <p>
-                    Selected Projects: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - 10Travlr // (Link to app: <a class="btn-link" href="https://www.10travlr.com.au">https://www.10travlr.com.au</a>) // 2018 - 2020 <br>
-                      Purpose of this application is to create a one stop solution for travelers, starting from planning, ticketing or purchasing, and sharing. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - PHP (Codeigniter Framework)
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                        <li>
-                          - C# (.Net Core)
-                        </li>
-                        <li>
-                          - MYSQL Database
-                        </li>
-                        <li>
-                          - GraphQL
-                        </li>
-                        <li>
-                          - JSON Web Token
-                        </li>
-                        <li>
-                          - Kubernetes on AWS
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Travlr Accounts // (Link to app: <a class="btn-link" href="https://accounts.travlr.com">https://accounts.travlr.com</a>) // 2018 - 2020 <br>
-                      This is an SSO server created as single authentication server for many applications. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                        <li>
-                          - MYSQL Database
-                        </li>
-                        <li>
-                          - GraphQL
-                        </li>
-                        <li>
-                          - JSON Web Token
-                        </li>
-                        <li>
-                          - Kubernetes on AWS
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="event" data-date="January 2018 - June 2018">
-                  <h3>PT. Medigo Indonesia // Frontend Developer</h3>
-                  <p>
-                    Medigo is a sister company of Flipbox (PT. Saka Digital Arsana). Who have a plan to make EHR (Electronic Health Record) and make ecosystem between doctors, patients and hospitals with sophisticated UI UX.
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Role Summary: <br>
-                    Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. <br>
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Experiences gained: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Deployd Framework
-                    </li>
-                    <li>
-                      - Mongo Database
-                    </li>
-                    <li>
-                      - Docker
-                    </li>
-                    <li>
-                      - Design frontend architecture with SMACSS + BEM Methodology
-                    </li>
-                  </ul>
-
-                  <br>
-
-                  <p>
-                    Selected Projects: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Medigo Web // (Link to app: <a class="btn-link" href="https://medigo.id">https://medigo.id</a>) // 2018 <br>
-                      Purpose of this application is to make EHR (Electronic Health Record) with sophisticated UI and UX. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - Laravel
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Medigo Clinic Web Apps // (Internal app, no preview link available) // 2018 <br>
-                      Purpose of this application is to make EHR (Electronic Health Record) with sophisticated UI and UX. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Node JS
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - Deployd
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="event" data-date="Oktober 2016 - June 2018">
-                  <h3>PT. Saka Digital Arsana (Flipbox) // Frontend Developer</h3>
-                  <p>
-                    Flipbox is a group of young and passionate people who have an interest in web
-                    and mobile apps development. Established in 2010, Flipbox has been involved in
-                    a wide variety of works and always try to give added value in every product it
-                    develops.
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Role Summary: <br>
-                    Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. <br>
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Experiences gained: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Laravel Framework
-                    </li>
-                    <li>
-                      - Lumen Framework
-                    </li>
-                    <li>
-                      - Less
-                    </li>
-                    <li>
-                      - Vue.js
-                    </li>
-                    <li>
-                      - React JS
-                    </li>
-                    <li>
-                      - C# (ASP.NET)
-                    </li>
-                    <li>
-                      - JSP (Java Server Pages)
-                    </li>
-                    <li>
-                      - Design frontend architecture with SMACSS + BEM Methodology
-                    </li>
-                    <li>
-                      - Docker
-                    </li>
-                    <li>
-                      - Scrum / Sprint based project
-                    </li>
-                  </ul>
-
-                  <br>
-
-                  <p>
-                    Selected Projects: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Elevenia Mobile Web // (Link to app: <a class="btn-link" href="http://m.elevenia.co.id">http://m.elevenia.co.id</a>) // 2018 <br>
-                      Purpose of this application is to make new and fresh layout for Elevenia Mobile Site (Ecommerce). Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Less
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - JSP (Java Server Pages)
-                        </li>
-                        <li>
-                          - Grunt
-                        </li>
-                        <li>
-                          - Bower
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Bawa Berkah Web (homepage) // (Link to app: <a class="btn-link" href="https://www.bawaberkah.org">https://www.bawaberkah.org</a>) // 2017 <br>
-                      Purpose of this application is to make easier user see campaign donation, progress campaign donation and total campaign donation in Bawa Berkah. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Laravel
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Bawa Berkah Web Admin (dashboard) // (Link to app: <a class="btn-link" href="https://www.bawaberkah.org">https://www.bawaberkah.org</a>) // 2017 <br>
-                      Purpose of this application is to make easier user managing campaign donation in Bawa Berkah. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                        <li>
-                          - Golang
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - Stylus
-                        </li>
-                        <li>
-                          - Webpack
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Flipbox Website // (Link to app: <a class="btn-link" href="http://flipbox.co.id">http://flipbox.co.id</a>) // 2017 <br>
-                      Purpose of this application is to create website for Flipbox. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - JSON API
-                        </li>
-                        <li>
-                          - Wordpress
-                        </li>
-                        <li>
-                          - Laravelmix
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Dianta Website // (Internal app, no preview link available) // 2017 <br>
-                      Purpose of this application is to create website for Dianta. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass Preprocessor
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - JSON API
-                        </li>
-                        <li>
-                          - Wordpress
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Adira B2B Wholesale // (Internal app, no preview link available) // 2016 <br>
-                      Purpose of this application is to create B2B application. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass Preprocessor
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - C# (ASP.NET Framework 4.5)
-                        </li>
-                        <li>
-                          - Semantic UI
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Telkomsel Lentera // (Internal app, no preview link available) // 2016 <br>
-                      Purpose of this application is to create layout for Telkomsel Lentera. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - HTML 5
-                        </li>
-                        <li>
-                          - CSS 3
-                        </li>
-                        <li>
-                          - Sass Preprocessor
-                        </li>
-                        <li>
-                          - Javascript
-                        </li>
-                        <li>
-                          - Jquery
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Halonesia // (Internal app, no preview link available) // 2016 <br>
-                      Purpose of this application is to create a travel assistant using chat. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - Laravel Framework
-                        </li>
-                        <li>
-                          - Vue JS
-                        </li>
-                        <li>
-                          - Pusher / Firebase
-                        </li>
-                        <li>
-                          - Sass Preprocessor
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                        <li>
-                          - Queue and scheduler
-                        </li>
-                        <li>
-                          - Mailing system
-                        </li>
-                        <li>
-                          - Restful JSON API
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="event" data-date="August 2015 - September 2016">
-                  <h3>PT. Docotel Technology // Frontend Developer</h3>
-                  <p>
-                    Docotel started its journey in 2010 and has been developing digital marketing
-                    strategies, cutting edge websites, creative web designs, great applications, both
-                    for PC and mobile devices. Docotel has nurtured and highly valued creative and
-                    innovative people, dedicated to provide high quality IT services.
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Role Summary: <br>
-                    Analyzing and design the frontend architecture of an application. Developing government application and other client application <br>
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Experiences gained: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Yii Framework
-                    </li>
-                    <li>
-                      - Oracle Database
-                    </li>
-                    <li>
-                      - Design frontend architecture with SMACSS + BEM Methodology
-                    </li>
-                    <li>
-                      - SVN (Version Control System)
-                    </li>
-                    <li>
-                      - GIT (Version Control System)
-                    </li>
-                  </ul>
-
-                  <br>
-
-                  <p>
-                    Selected Projects: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - SMARt (Sistem Monitoring Aktivitas Rutin) DJKN // (Internal app, no preview link available) // 2015 <br>
-                      Purpose of this application is to Permohonan Surat, Loket, SSO, and so on. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - PHP (Yii and Codeigniter)
-                        </li>
-                        <li>
-                          - Oracle DB 12c
-                        </li>
-                        <li>
-                          - Elasticsearch
-                        </li>
-                        <li>
-                          - Sass Preprocessor
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                      </ul>
-
-                      <hr />
-                    </li>
-
-                    <li>
-                      - Singgasana Hotel // (Link to app: <a class="btn-link" href="https://www.singgasanahotels.com">https://www.singgasanahotels.com</a>) // 2015 <br>
-                      Purpose of this application is to make easier user for checking availability of the rooms. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - Yii Framework
-                        </li>
-                        <li>
-                          - Sass Preprocessor
-                        </li>
-                        <li>
-                          - Bootstrap
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="event" data-date="June 2014 - July 2015">
-                  <h3>Weita Studio // Web Programmer</h3>
-                  <p>Weita Studio is a new startup. Their product is the social media platform. The aim of the product is to make a new social media for artists and collectors to meet.</p>
-
-                  <br>
-
-                  <p>
-                    Role Summary: <br>
-                    Analyzing and design the frontend architecture of an application. Developing core application. <br>
-                  </p>
-
-                  <br>
-
-                  <p>
-                    Experiences gained: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Codeigniter Framework
-                    </li>
-                    <li>
-                      - MYSQL Database
-                    </li>
-                    <li>
-                      - Jquery
-                    </li>
-                    <li>
-                      - Create web services and consume web services in client site
-                    </li>
-                  </ul>
-
-                  <br>
-
-                  <p>
-                    Selected Projects: <br>
-                  </p>
-                  <ul>
-                    <li>
-                      - Famedoor // (Internal app, no preview link available) // 2014 <br>
-                      Purpose of this application is to make a new social media for artists and collectors to meet. Using technologies:
-                      <ul class="ml-4">
-                        <li>
-                          - Codeigniter
-                        </li>
-                        <li>
-                          - MYSQL Database
-                        </li>
-                      </ul>
+                      <hr v-if="itemExperience.projects.length !== indexProject + 1" />
                     </li>
                   </ul>
                 </li>
@@ -966,7 +109,7 @@
               <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
               </div>
-              <img class="img-fluid" :src="itemPortfolio.image ? itemPortfolio.image : imageNotAvailable" alt="..." />
+              <img v-lazy-load class="img-fluid" :src="itemPortfolio.image[0] ? itemPortfolio.image[0] : imageNotAvailable" alt="..." />
             </div>
 
             <h3 class="mb-3 mt-3">
@@ -1133,7 +276,7 @@
         <button class="btn-close" type="button" @click="close"></button>
       </template>
 
-      <template #default="{ hide }">
+      <template #default>
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -1148,14 +291,19 @@
                 <div class="divider-custom-line"></div>
               </div>
               <!-- Portfolio Modal - Image-->
-              <div :style="{
-                background: `url(${activePortfolio.image ? activePortfolio.image : imageNotAvailable})`,
-                backgroundPosition: 'center',
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                width: '100%',
-                height: '400px'
-              }" class="rounded mb-5"></div>
+              <div
+                v-for="(itemImage, indexImage) in activePortfolio.image"
+                :key="indexImage"
+                v-lazy-load
+                :style="{
+                  background: `url(${itemImage ? itemImage : imageNotAvailable})`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  width: '100%',
+                  height: '400px'
+                }"
+                class="rounded mb-5" />
 
               <p class="mb-2">
                 Year : {{ activePortfolio.year }}
@@ -1186,10 +334,6 @@
               <p class="mb-4">
                 {{ activePortfolio.description }}
               </p>
-              <button class="btn btn-primary" @click="hide">
-                <i class="fas fa-times fa-fw"></i>
-                Close Window
-              </button>
             </div>
           </div>
         </div>
@@ -1204,374 +348,41 @@ export default {
     return {
       businessCardShown: false,
       activePortfolio: {},
-      portfolioEntries: [
-        {
-          title: 'Zonasea Ship Owner',
-          image: 'img/portfolio/zonasea-ship-owner.png',
-          url: 'https://ship.zonasea.com',
-          year: '2021',
-          description: 'Purpose of this application is to tracking vessel and find the cargo after user join as Ship Owner.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass',
-            'Javascript',
-            'Restful JSON API',
-            'PHP (Laravel Framework)',
-            'Node JS',
-            'Vue JS',
-            'Webpack',
-            'Bootstrap',
-            'MYSQL Database'
-          ]
-        },
-        {
-          title: 'Zonasea Cargo Owner',
-          image: 'img/portfolio/zonasea-cargo-owner.png',
-          url: 'https://cargo.zonasea.com',
-          year: '2021',
-          description: 'Purpose of this application is to tracking cargo and find the vessel for your cargo after user join as Cargo Owner.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass',
-            'Javascript',
-            'Restful JSON API',
-            'PHP (Laravel Framework)',
-            'Node JS',
-            'Vue JS',
-            'Webpack',
-            'Bootstrap',
-            'MYSQL Database'
-          ]
-        },
-        {
-          title: 'Zonasea Web',
-          image: 'img/portfolio/zonasea-web.png',
-          url: 'https://zonasea.com',
-          year: '2021',
-          description: 'Purpose of this application is a landing page of Zonasea.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass',
-            'Javascript',
-            'Restful JSON API',
-            'PHP (Laravel Framework)',
-            'Node JS',
-            'Vue JS',
-            'Webpack',
-            'Bootstrap',
-            'MYSQL Database'
-          ]
-        },
-        {
-          title: 'Zonasea Web Admin',
-          image: 'img/portfolio/zonasea-web-admin.png',
-          url: '',
-          year: '2021',
-          description: 'Purpose of this application is to manage all vessel data, vessel tracking, advertising, payment license.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass',
-            'Javascript',
-            'Restful JSON API',
-            'PHP (Laravel Framework)',
-            'Node JS',
-            'Vue JS',
-            'Webpack',
-            'Vuesax',
-            'MYSQL Database'
-          ]
-        },
-        {
-          title: '10Travlr',
-          image: 'img/portfolio/10travlr.png',
-          url: 'https://www.10travlr.com.au',
-          year: '2018 - 2020',
-          description: 'Purpose of this application is to create a one stop solution for travelers, starting from planning, ticketing or purchasing, and sharing.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass',
-            'Javascript',
-            'Restful JSON API',
-            'PHP (Codeigniter Framework)',
-            'Node JS',
-            'Vue JS',
-            'GraphQL',
-            'Webpack',
-            'C# (.Net Core)',
-            'MYSQL Database',
-            'JSON Web Token',
-            'Kubernetes on AWS'
-          ]
-        },
-        {
-          title: 'Travlr Accounts',
-          image: 'img/portfolio/travlr-accounts.png',
-          url: 'https://accounts.travlr.com',
-          year: '2018 - 2020',
-          description: 'This is an SSO server created as single authentication server for many applications.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass',
-            'Javascript',
-            'Restful JSON API',
-            'Node JS',
-            'Vue JS',
-            'GraphQL',
-            'Webpack',
-            'MYSQL Database',
-            'JSON Web Token',
-            'Kubernetes on AWS'
-          ]
-        },
-        {
-          title: 'Medigo Website',
-          image: 'img/portfolio/medigo.png',
-          url: 'https://medigo.id',
-          year: '2018',
-          description: 'Purpose of this application is to make EHR (Electronic Health Record) with sophisticated UI and UX.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Javascript',
-            'Restful JSON API',
-            'Deployd',
-            'Vue JS',
-            'Laravel',
-            'Webpack'
-          ]
-        },
-        {
-          title: 'Medigo Clinic Web Apps',
-          image: '',
-          url: '',
-          year: '2018',
-          description: 'Purpose of this application is to make EHR (Electronic Health Record) with sophisticated UI and UX.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Javascript',
-            'Restful JSON API',
-            'Deployd',
-            'Vue JS',
-            'Vuetify',
-            'MongoDB Database'
-          ]
-        },
-        {
-          title: 'Elevenia Mobile Web',
-          image: 'img/portfolio/elevenia-mobile.png',
-          url: 'https://m.elevenia.co.id',
-          year: '2018',
-          description: 'Purpose of this application is to make new and fresh layout for Elevenia Mobile Site (Ecommerce).',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Javascript',
-            'Restful JSON API',
-            'Less',
-            'JSP (Java Server Pages)',
-            'Grunt',
-            'Bower'
-          ]
-        },
-        {
-          title: 'Bawa Berkah Web (homepage)',
-          image: '',
-          url: 'https://www.bawaberkah.org',
-          year: '2017',
-          description: 'Purpose of this application is to make easier user see campaign donation, progress campaign donation and total campaign donation in Bawa Berkah under Dompet Dhuafa.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Javascript',
-            'Restful JSON API',
-            'Laravel',
-            'Vue JS',
-            'Bootstrap',
-            'Webpack'
-          ]
-        },
-        {
-          title: 'Bawa Berkah Web Admin (dashboard)',
-          image: '',
-          url: 'https://www.bawaberkah.org',
-          year: '2017',
-          description: 'Purpose of this application is to make easier user managing campaign donation in Bawa Berkah under Dompet Dhuafa.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Javascript',
-            'Restful JSON API',
-            'Golang',
-            'Vue JS',
-            'Stylus',
-            'Webpack'
-          ]
-        },
-        {
-          title: 'Flipbox Website',
-          image: 'img/portfolio/flipbox.png',
-          url: 'http://flipbox.co.id',
-          year: '2017',
-          description: 'Purpose of this application is to create website for Flipbox.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Javascript',
-            'Restful JSON API',
-            'Wordpress',
-            'Laravelmix'
-          ]
-        },
-        {
-          title: 'Dianta Website',
-          image: 'img/portfolio/dianta.png',
-          url: '',
-          year: '2017',
-          description: 'Purpose of this application is to create website for Dianta.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass Preprocessor',
-            'Javascript',
-            'Restful JSON API',
-            'Wordpress',
-            'Bootstrap'
-          ]
-        },
-        {
-          title: 'Adira B2B Wholesale',
-          image: '',
-          url: '',
-          year: '2016',
-          description: 'Purpose of this application is to create B2B application.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass Preprocessor',
-            'Javascript',
-            'Vue JS',
-            'C# (ASP.NET Framework 4.5)',
-            'Semantic UI'
-          ]
-        },
-        {
-          title: 'Antaran',
-          image: 'img/portfolio/antaran.png',
-          url: '',
-          year: '2016',
-          description: 'Purpose of this application is to create B2B application of Antaran.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass Preprocessor',
-            'Javascript',
-            'Vue JS',
-            'Restful JSON API',
-            'Semantic UI'
-          ]
-        },
-        {
-          title: 'Telkomsel Lentera',
-          image: '',
-          url: '',
-          year: '2016',
-          description: 'Purpose of this application is to create layout for Telkomsel Lentera.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass Preprocessor',
-            'Javascript',
-            'Jquery'
-          ]
-        },
-        {
-          title: 'Halonesia',
-          image: 'img/portfolio/halonesia.png',
-          url: '',
-          year: '2016',
-          description: 'Purpose of this application is to create a travel assistant using chat.',
-          technologies: [
-            'Laravel Framework',
-            'Vue JS',
-            'Pusher / Firebase',
-            'Sass Preprocessor',
-            'Bootstrap',
-            'Queue and scheduler',
-            'Mailing system',
-            'Restful JSON API'
-          ]
-        },
-        {
-          title: 'Portal AHU',
-          image: 'img/portfolio/portal-ahu.png',
-          url: 'https://portal.ahu.go.id',
-          year: '2016',
-          description: 'Purpose of this application is to revamp the layout of Portal AHU.',
-          technologies: [
-            'HTML 5',
-            'CSS 3',
-            'Sass Preprocessor',
-            'Yii Framework',
-            'Javascript',
-            'Jquery',
-            'Bootstrap'
-          ]
-        },
-        {
-          title: 'SMARt (Sistem Monitoring Aktivitas Rutin) DJKN',
-          image: 'img/portfolio/smart-djkn.png',
-          url: '',
-          year: '2015',
-          description: 'Purpose of this application is to Permohonan Surat, Loket, SSO, and so on.',
-          technologies: [
-            'PHP (Yii and Codeigniter)',
-            'Oracle DB 12c',
-            'Elasticsearch',
-            'Sass Preprocessor',
-            'Bootstrap'
-          ]
-        },
-        {
-          title: 'Singgasana Hotel',
-          image: 'img/portfolio/singgasana.png',
-          url: 'https://www.singgasanahotels.com',
-          year: '2015',
-          description: 'Purpose of this application is to make easier user for checking availability of the rooms.',
-          technologies: [
-            'Yii Framework',
-            'Sass Preprocessor',
-            'Bootstrap'
-          ]
-        },
-        {
-          title: 'Famedoor',
-          image: '',
-          url: '',
-          year: '2014',
-          description: 'Purpose of this application is to make a new social media for artists and collectors to meet.',
-          technologies: [
-            'Codeigniter',
-            'MYSQL Database'
-          ]
-        }
-      ]
+      experiences: []
     }
   },
 
   computed: {
     imageNotAvailable () {
       return 'img/image-not-available.svg'
+    },
+
+    portfolioEntries () {
+      const result = []
+      this.experiences.forEach(item => {
+        item.projects.forEach(itemProject => {
+          result.push(itemProject)
+        })
+      })
+      return result
     }
   },
 
+  beforeMount () {
+    this.fetchExperiences()
+  },
+
   methods: {
+    async fetchExperiences () {
+      try {
+        const experience = await this.$axios.$get('/experience.json')
+
+        this.experiences = experience
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
     toggleBusinessCard () {
       this.businessCardShown = !this.businessCardShown
     },
