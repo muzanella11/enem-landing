@@ -109,7 +109,7 @@
               <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
               </div>
-              <img v-lazy-load class="img-fluid" :src="itemPortfolio.image[0] ? itemPortfolio.image[0] : imageNotAvailable" alt="..." />
+              <img class="img-fluid" :src="itemPortfolio.image[0] ? itemPortfolio.image[0] : imageNotAvailable" alt="..." />
             </div>
 
             <h3 class="mb-3 mt-3">
@@ -294,7 +294,6 @@
               <div
                 v-for="(itemImage, indexImage) in activePortfolio.image"
                 :key="indexImage"
-                v-lazy-load
                 :style="{
                   background: `url(${itemImage ? itemImage : imageNotAvailable})`,
                   backgroundPosition: 'center',
