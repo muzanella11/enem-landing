@@ -93,14 +93,6 @@ export default {
     '@nuxtjs/robots',
     // https://sitemap.nuxtjs.org
     '@nuxtjs/sitemap',
-    // https://www.npmjs.com/package/nuxt-lazy-load
-    [
-      'nuxt-lazy-load',
-      {
-        directiveOnly: true,
-        defaultImage: '/img/image-not-available.svg'
-      }
-    ]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
