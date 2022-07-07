@@ -15,6 +15,7 @@
     "lint:fix": "npm-run-all --parallel lint:*:fix"
   },
   "dependencies": {
+    "@nuxt/image": "^0.7.1",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.3.5",
@@ -30,6 +31,7 @@
     "node-sass": "^6.0.1",
     "npm-run-all": "^4.1.5",
     "nuxt": "^2.15.7",
+    "nuxt-lazy-load": "^1.2.9",
     "prettier": "^2.3.2",
     "sass": "^1.38.0",
     "sass-loader": "10"

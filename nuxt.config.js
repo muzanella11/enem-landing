@@ -92,7 +92,15 @@ export default {
     // https://github.com/nuxt-community/robots-module
     '@nuxtjs/robots',
     // https://sitemap.nuxtjs.org
-    '@nuxtjs/sitemap'
+    '@nuxtjs/sitemap',
+    // https://www.npmjs.com/package/nuxt-lazy-load
+    [
+      'nuxt-lazy-load',
+      {
+        directiveOnly: true,
+        defaultImage: '/img/image-not-available.svg'
+      }
+    ]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios

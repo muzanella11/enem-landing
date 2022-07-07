@@ -1,0 +1,509 @@
+[
+  {
+    "company": "Oddbit",
+    "position": "Web Developer",
+    "description": "Oddbit is a digital agency company who have awesome client and technology with high quality result.",
+    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. Playing with firebase stuff.",
+    "workingPeriode": "November 2021 - Now",
+    "experienceGained": [
+      "Firebase",
+      "Firestore",
+      "Firebase Storage",
+      "Firebase Hosting",
+      "FirebaseUi",
+      "Typescript",
+      "VueJS"
+    ],
+    "projects": [
+      {
+        "title": "Fame Capital",
+        "image": "",
+        "url": "",
+        "year": "2021",
+        "description": "Purpose of this application is to create cryptocurrency wallet and playing with blockchain technology.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Vuetify",
+          "Windicss",
+          "Javascript",
+          "Restful JSON API",
+          "VueJS",
+          "Typescript",
+          "Node JS",
+          "Webpack",
+          "FirebaseUi",
+          "Firebase"
+        ]
+      }
+    ]
+  },
+  {
+    "company": "PT. Global Solusi Maritim (Zonasea)",
+    "position": "Frontend Developer",
+    "description": "Global Solusi Maritim is a company based in Indonesia which build an amazing ship tracking and maritime intelligence platform. The aim of the product is to become a liaison between owners of tug boats, barges, tankers, bulk carriers with owners of cargoes of oil palm, coal, nickel, diesel and others.",
+    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability.",
+    "workingPeriode": "January 2021 - October 2021",
+    "experienceGained": [
+      "Docker",
+      "Node JS",
+      "PHP",
+      "Vue JS",
+      "Design frontend architecture with SMACSS + BEM Methodology"
+    ],
+    "projects": [
+      {
+        "title": "Zonasea Ship Owner",
+        "image": "img/portfolio/zonasea-ship-owner.png",
+        "url": "https://ship.zonasea.com",
+        "year": "2021",
+        "description": "Purpose of this application is to tracking vessel and find the cargo after user join as Ship Owner.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Bootstrap",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "PHP (Laravel Framework)",
+          "Node JS",
+          "Webpack",
+          "MYSQL Database"
+        ]
+      },
+      {
+        "title": "Zonasea Cargo Owner",
+        "image": "img/portfolio/zonasea-cargo-owner.png",
+        "url": "https://cargo.zonasea.com",
+        "year": "2021",
+        "description": "Purpose of this application is to tracking cargo and find the vessel for your cargo after user join as Cargo Owner.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Bootstrap",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "PHP (Laravel Framework)",
+          "Node JS",
+          "Webpack",
+          "MYSQL Database"
+        ]
+      },
+      {
+        "title": "Zonasea Web",
+        "image": "img/portfolio/zonasea-web.png",
+        "url": "https://zonasea.com",
+        "year": "2021",
+        "description": "Purpose of this application is a landing page of Zonasea.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Bootstrap",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "PHP (Laravel Framework)",
+          "Node JS",
+          "Webpack",
+          "MYSQL Database"
+        ]
+      },
+      {
+        "title": "Zonasea Web Admin (dashboard)",
+        "image": "img/portfolio/zonasea-web-admin.png",
+        "url": "",
+        "year": "2021",
+        "description": "Purpose of this application is to manage all vessel data, vessel tracking, advertising, payment license.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Vuesax",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "PHP (Laravel Framework)",
+          "Node JS",
+          "Webpack",
+          "MYSQL Database"
+        ]
+      }
+    ]
+  },
+  {
+    "company": "PT. Travlr Guides Indonesia",
+    "position": "Lead Frontend Engineer",
+    "description": "TRAVLR is a company based in Melbourne which build an amazing traveling platform. The aim of the product is to be one-stop-solutions for all travellers’ traveling needs.",
+    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. Code review all Frontend members. Skill up all Frontend members.",
+    "workingPeriode": "July 2018 - May 2020",
+    "experienceGained": [
+      "AWS",
+      "Kubernetes",
+      "Docker",
+      "Node JS",
+      "PHP",
+      "Vue JS",
+      "C# (ASP.NET)",
+      "Scrum / Sprint based project",
+      "Python",
+      "Elasticsearch",
+      "GraphQL",
+      "Typescript",
+      "Design frontend architecture with SMACSS + BEM Methodology"
+    ],
+    "projects": [
+      {
+        "title": "10Travlr",
+        "image": "img/portfolio/10travlr.png",
+        "url": "https://www.10travlr.com.au",
+        "year": "2018 - 2020",
+        "description": "Purpose of this application is to create a one stop solution for travelers, starting from planning, ticketing or purchasing, and sharing.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "PHP (Codeigniter Framework)",
+          "Node JS",
+          "Webpack",
+          "C# (.Net Core)",
+          "Typescript",
+          "MYSQL Database",
+          "GraphQL",
+          "JSON Web Token",
+          "Kubernetes on AWS"
+        ]
+      },
+      {
+        "title": "Travlr Accounts",
+        "image": "img/portfolio/travlr-accounts.png",
+        "url": "https://accounts.travlr.com",
+        "year": "2018 - 2020",
+        "description": "This is an SSO server created as single authentication server for many applications.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "Node JS",
+          "Webpack",
+          "MYSQL Database",
+          "GraphQL",
+          "JSON Web Token",
+          "Kubernetes on AWS"
+        ]
+      }
+    ]
+  },
+  {
+    "company": "PT. Medigo Indonesia",
+    "position": "Frontend Developer",
+    "description": "Medigo is a sister company of Flipbox (PT. Saka Digital Arsana). Who have a plan to make EHR (Electronic Health Record) and make ecosystem between doctors, patients and hospitals with sophisticated UI UX.",
+    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability.",
+    "workingPeriode": "January 2018 - June 2018",
+    "experienceGained": [
+      "Deployd Framework",
+      "Mongo Database",
+      "Docker",
+      "Design frontend architecture with SMACSS + BEM Methodology"
+    ],
+    "projects": [
+      {
+        "title": "Medigo Web",
+        "image": "img/portfolio/medigo.png",
+        "url": "https://medigo.id",
+        "year": "2018",
+        "description": "Purpose of this application is to make EHR (Electronic Health Record) with sophisticated UI and UX.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "Laravel",
+          "Webpack"
+        ]
+      },
+      {
+        "title": "Medigo Clinic Web Apps",
+        "image": "",
+        "url": "",
+        "year": "2018",
+        "description": "Purpose of this application is to make EHR (Electronic Health Record) with sophisticated UI and UX.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Node JS",
+          "Javascript",
+          "Restful JSON API",
+          "Vue JS",
+          "Deployd"
+        ]
+      }
+    ]
+  },
+  {
+    "company": "PT. Saka Digital Arsana (Flipbox)",
+    "position": "Frontend Developer",
+    "description": "Flipbox is a group of young and passionate people who have an interest in web and mobile apps development. Established in 2010, Flipbox has been involved in a wide variety of works and always try to give added value in every product it develops.",
+    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability.",
+    "workingPeriode": "Oktober 2016 - June 2018",
+    "experienceGained": [
+      "Laravel Framework",
+      "Lumen Framework",
+      "Less",
+      "Vue.js",
+      "React JS",
+      "C# (ASP.NET)",
+      "JSP (Java Server Pages)",
+      "Design frontend architecture with SMACSS + BEM Methodology",
+      "Docker",
+      "Scrum / Sprint based project"
+    ],
+    "projects": [
+      {
+        "title": "Elevenia Mobile Web",
+        "image": "img/portfolio/elevenia-mobile.png",
+        "url": "http://m.elevenia.co.id",
+        "year": "2018",
+        "description": "Purpose of this application is to make new and fresh layout for Elevenia Mobile Site (Ecommerce).",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Less",
+          "Javascript",
+          "Restful JSON API",
+          "JSP (Java Server Pages)",
+          "Grunt",
+          "Bower"
+        ]
+      },
+      {
+        "title": "Bawa Berkah Web (homepage)",
+        "image": "",
+        "url": "https://www.bawaberkah.org",
+        "year": "2017",
+        "description": "Purpose of this application is to make easier user see campaign donation, progress campaign donation and total campaign donation in Bawa Berkah.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Javascript",
+          "Restful JSON API",
+          "Laravel",
+          "Vue JS",
+          "Bootstrap",
+          "Webpack"
+        ]
+      },
+      {
+        "title": "Bawa Berkah Web Admin (dashboard)",
+        "image": "",
+        "url": "https://www.bawaberkah.org",
+        "year": "2017",
+        "description": "Purpose of this application is to make easier user managing campaign donation in Bawa Berkah.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Javascript",
+          "Restful JSON API",
+          "Golang",
+          "Vue JS",
+          "Stylus",
+          "Webpack"
+        ]
+      },
+      {
+        "title": "Flipbox Website",
+        "image": "img/portfolio/flipbox.png",
+        "url": "http://flipbox.co.id",
+        "year": "2017",
+        "description": "Purpose of this application is to create website for Flipbox.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass Preprocessor",
+          "Javascript",
+          "JSON API",
+          "Wordpress",
+          "Bootstrap",
+          "Laravelmix"
+        ]
+      },
+      {
+        "title": "Dianta Website",
+        "image": "img/portfolio/dianta.png",
+        "url": "",
+        "year": "2017",
+        "description": "Purpose of this application is to create website for Dianta.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass Preprocessor",
+          "Javascript",
+          "JSON API",
+          "Wordpress",
+          "Bootstrap"
+        ]
+      },
+      {
+        "title": "Adira B2B Wholesale",
+        "image": "",
+        "url": "",
+        "year": "2016",
+        "description": "Purpose of this application is to create B2B application.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass Preprocessor",
+          "Javascript",
+          "Vue JS",
+          "C# (ASP.NET Framework 4.5)",
+          "Semantic UI"
+        ]
+      },
+      {
+        "title": "Antaran",
+        "image": "img/portfolio/antaran.png",
+        "url": "",
+        "year": "2016",
+        "description": "Purpose of this application is to create B2B application of Antaran.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass Preprocessor",
+          "Javascript",
+          "Vue JS",
+          "Restful JSON API",
+          "Semantic UI"
+        ]
+      },
+      {
+        "title": "Telkomsel Lentera",
+        "image": "",
+        "url": "",
+        "year": "2016",
+        "description": "Purpose of this application is to create layout for Telkomsel Lentera.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass Preprocessor",
+          "Javascript",
+          "Jquery"
+        ]
+      },
+      {
+        "title": "Halonesia",
+        "image": "img/portfolio/halonesia.png",
+        "url": "",
+        "year": "2016",
+        "description": "Purpose of this application is to create a travel assistant using chat.",
+        "technologies": [
+          "Laravel Framework",
+          "Vue JS",
+          "Pusher / Firebase",
+          "Sass Preprocessor",
+          "Bootstrap",
+          "Queue and scheduler",
+          "Mailing system",
+          "Restful JSON API"
+        ]
+      }
+    ]
+  },
+  {
+    "company": "PT. Docotel Technology",
+    "position": "Frontend Developer",
+    "description": "Docotel started its journey in 2010 and has been developing digital marketing strategies, cutting edge websites, creative web designs, great applications, both for PC and mobile devices. Docotel has nurtured and highly valued creative and innovative people, dedicated to provide high quality IT services.",
+    "roleSummary": "Analyzing and design the frontend architecture of an application. Developing government application and other client application",
+    "workingPeriode": "August 2015 - September 2016",
+    "experienceGained": [
+      "Yii Framework",
+      "Oracle Database",
+      "Design frontend architecture with SMACSS + BEM Methodology",
+      "SVN (Version Control System)",
+      "GIT (Version Control System)"
+    ],
+    "projects": [
+      {
+        "title": "Portal AHU",
+        "image": "img/portfolio/portal-ahu.png",
+        "url": "https://portal.ahu.go.id",
+        "year": "2016",
+        "description": "Purpose of this application is to revamp the layout of Portal AHU.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass Preprocessor",
+          "Yii Framework",
+          "Javascript",
+          "Jquery",
+          "Bootstrap"
+        ]
+      },
+      {
+        "title": "SMARt (Sistem Monitoring Aktivitas Rutin) DJKN",
+        "image": "img/portfolio/smart-djkn.png",
+        "url": "",
+        "year": "2015",
+        "description": "Purpose of this application is to Permohonan Surat, Loket, SSO, and so on.",
+        "technologies": [
+          "PHP (Yii and Codeigniter)",
+          "Oracle DB 12c",
+          "Elasticsearch",
+          "Sass Preprocessor",
+          "Bootstrap"
+        ]
+      },
+      {
+        "title": "Singgasana Hotel",
+        "image": "img/portfolio/singgasana.png",
+        "url": "https://www.singgasanahotels.com",
+        "year": "2015",
+        "description": "Purpose of this application is to make easier user for checking availability of the rooms.",
+        "technologies": [
+          "Yii Framework",
+          "Sass Preprocessor",
+          "Bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "company": "Weita Studio",
+    "position": "Web Programmer",
+    "description": "Weita Studio is a new startup. Their product is the social media platform. The aim of the product is to make a new social media for artists and collectors to meet.",
+    "roleSummary": "Analyzing and design the frontend architecture of an application. Developing core application.",
+    "workingPeriode": "June 2014 - July 2015",
+    "experienceGained": [
+      "Codeigniter Framework",
+      "MYSQL Database",
+      "Jquery",
+      "Create web services and consume web services in client site"
+    ],
+    "projects": [
+      {
+        "title": "Famedoor",
+        "image": "",
+        "url": "",
+        "year": "2014",
+        "description": "Purpose of this application is to make a new social media for artists and collectors to meet.",
+        "technologies": [
+          "Codeigniter",
+          "MYSQL Database"
+        ]
+      }
+    ]
+  }
+]
