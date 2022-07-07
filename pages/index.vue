@@ -375,7 +375,7 @@ export default {
   methods: {
     async fetchExperiences () {
       try {
-        const experience = await this.$axios.$get('/experience.json')
+        const experience = await this.$axios.$get(`${window.origin}/experience.json`)
 
         this.experiences = experience
       } catch (error) {
