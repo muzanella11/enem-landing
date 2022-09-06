@@ -2,8 +2,8 @@
   {
     "company": "Oddbit",
     "position": "Web Developer",
-    "description": "Oddbit is a digital agency company who have awesome client and technology with high quality result.",
-    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. Playing with firebase stuff.",
+    "description": "Oddbit is an awesome team that will help translate and realize your business needs into technical solutions.",
+    "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application and Create service API. Working close with the designer to realize the design. Playing with firebase stuff.",
     "workingPeriode": "November 2021 - Now",
     "experienceGained": [
       "Firebase",
@@ -22,7 +22,7 @@
         ],
         "url": "",
         "year": "2021",
-        "description": "Purpose of this application is to create cryptocurrency wallet and playing with blockchain technology.",
+        "description": "Purpose of this application is to give investors easy and secure access to digital investment. The application is built on the Ethereum blockchain.",
         "technologies": [
           "HTML 5",
           "CSS 3",
@@ -48,7 +48,7 @@
         ],
         "url": "",
         "year": "2021",
-        "description": "Purpose of this application is to create cryptocurrency wallet and playing with blockchain technology.",
+        "description": "Purpose of this application is to give investors easy and secure access to digital investment. The application is built on the Ethereum blockchain.",
         "technologies": [
           "HTML 5",
           "CSS 3",
