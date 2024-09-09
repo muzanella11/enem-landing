@@ -1,6 +1,6 @@
 // Tutorial - https://codyhouse.co/tutorials/how-stacking-cards
 (function() {
-  var StackCards = function(element) {
+  const StackCards = function(element) {
     this.element = element;
     this.items = this.element.getElementsByClassName('js-stack-cards__item');
     this.scrollingFn = false;
@@ -11,7 +11,7 @@
 
   function initStackCardsEffect(element) { // use Intersection Observer to trigger animation
     setStackCards(element); // store cards CSS properties
-		var observer = new IntersectionObserver(stackCardsCallback.bind(element), { threshold: [0, 1] });
+		const observer = new IntersectionObserver(stackCardsCallback.bind(element), { threshold: [0, 1] });
 		observer.observe(element.element);
   };
 
@@ -51,7 +51,7 @@
     element.elementHeight = element.element.offsetHeight;
 
     // store card properties
-    var cardStyle = getComputedStyle(element.items[0]);
+    const cardStyle = getComputedStyle(element.items[0]);
     element.cardTop = Math.floor(parseFloat(cardStyle.getPropertyValue('top')));
     element.cardHeight = Math.floor(parseFloat(cardStyle.getPropertyValue('height')));
 
@@ -65,7 +65,7 @@
       element.element.style.paddingBottom = (element.marginY*(element.items.length - 1))+'px';
     }
 
-    for(var i = 0; i < element.items.length; i++) {
+    for(let i = 0; i < element.items.length; i++) {
       if(isNaN(element.marginY)) {
         element.items[i].style.transform = 'none;';
       } else {
@@ -75,7 +75,7 @@
   };
 
   function getIntegerFromProperty(element) {
-    var node = document.createElement('div');
+    const node = document.createElement('div');
     node.setAttribute('style', 'opacity:0; visbility: hidden;position: absolute; height:'+element.marginY);
     element.element.appendChild(node);
     element.marginY = parseInt(getComputedStyle(node).getPropertyValue('height'));
@@ -88,17 +88,17 @@
       return; 
     }
 
-    var top = this.element.getBoundingClientRect().top;
+    const top = this.element.getBoundingClientRect().top;
 
     if( this.cardTop - top + this.element.windowHeight - this.elementHeight - this.cardHeight + this.marginY + this.marginY*this.items.length > 0) { 
       this.scrolling = false;
       return;
     }
 
-    for(var i = 0; i < this.items.length; i++) { // use only scale
-      var scrolling = this.cardTop - top - i*(this.cardHeight+this.marginY);
+    for(let i = 0; i < this.items.length; i++) { // use only scale
+      const scrolling = this.cardTop - top - i*(this.cardHeight+this.marginY);
       if(scrolling > 0) {  
-        var scaling = i == this.items.length - 1 ? 1 : (this.cardHeight - scrolling*0.05)/this.cardHeight;
+        const scaling = i == this.items.length - 1 ? 1 : (this.cardHeight - scrolling*0.05)/this.cardHeight;
         this.items[i].style.transform = 'translateY('+this.marginY*i+'px) scale('+scaling+')';
       } else {
         this.items[i].style.transform = 'translateY('+this.marginY*i+'px)';
@@ -109,20 +109,20 @@
   };
 
   // initialize StackCards object
-  var stackCards = document.getElementsByClassName('js-stack-cards'),
-    intersectionObserverSupported = ('IntersectionObserver' in window && 'IntersectionObserverEntry' in window && 'intersectionRatio' in window.IntersectionObserverEntry.prototype),
-    reducedMotion = Util.osHasReducedMotion();
+  const stackCards = document.getElementsByClassName('js-stack-cards');
+    const intersectionObserverSupported = ('IntersectionObserver' in window && 'IntersectionObserverEntry' in window && 'intersectionRatio' in window.IntersectionObserverEntry.prototype);
+    const reducedMotion = Util.osHasReducedMotion();
     
 	if(stackCards.length > 0 && intersectionObserverSupported && !reducedMotion) { 
-    var stackCardsArray = [];
-		for(var i = 0; i < stackCards.length; i++) {
+    const stackCardsArray = [];
+		for(let i = 0; i < stackCards.length; i++) {
 			(function(i){
         stackCardsArray.push(new StackCards(stackCards[i]));
       })(i);
     }
     
-    var resizingId = false,
-      customEvent = new CustomEvent('resize-stack-cards');
+    let resizingId = false;
+      const customEvent = new CustomEvent('resize-stack-cards');
     
     window.addEventListener('resize', function() {
       clearTimeout(resizingId);
@@ -130,7 +130,7 @@
     });
 
     function doneResizing() {
-      for( var i = 0; i < stackCardsArray.length; i++) {
+      for( let i = 0; i < stackCardsArray.length; i++) {
         (function(i){stackCardsArray[i].element.dispatchEvent(customEvent)})(i);
       };
     };

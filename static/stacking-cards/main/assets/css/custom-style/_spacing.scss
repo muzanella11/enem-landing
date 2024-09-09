@@ -4,10 +4,10 @@
 
 // --------------------------------
 
-@supports(--css: variables) {
+@supports (--css: variables) {
   :root {
     @include breakpoint(md) {
-      --space-unit:  1.25em;
+      --space-unit: 1.25em;
     }
   }
 }

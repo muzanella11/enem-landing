@@ -6,12 +6,12 @@
 
 :root {
   // font family
-  --font-primary: Roboto, sans-serif;
-  --font-secondary: Playfair Display, serif;
+  --font-primary: roboto, sans-serif;
+  --font-secondary: playfair display, serif;
 
   // body font size
   --text-base-size: 1em;
-  
+
   // type scale
   --text-scale-ratio: 1.2;
   --text-xs: calc((1em / var(--text-scale-ratio)) / var(--text-scale-ratio));
@@ -31,7 +31,7 @@
   --font-secondary-capital-letter: 0.75;
 }
 
-@supports(--css: variables) {
+@supports (--css: variables) {
   :root {
     @include breakpoint(md) {
       --text-base-size: 1.25em;
@@ -44,13 +44,21 @@ body {
   font-family: var(--font-primary);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-secondary);
 }
 
 // font family
-.font-primary { font-family: var(--font-primary);}
-.font-secondary { font-family: var(--font-secondary);}
+.font-primary {
+  font-family: var(--font-primary);
+}
+
+.font-secondary {
+  font-family: var(--font-secondary);
+}
 
 // --------------------------------
 
@@ -59,7 +67,10 @@ h1, h2, h3, h4 {
 // --------------------------------
 
 // link style
-a, .link {}
+// a,
+// .link {
+//   //
+// }
 
 mark {
   background-color: alpha(var(--color-accent), 0.2);
@@ -86,7 +97,8 @@ mark {
   }
 }
 
-.article { // e.g., blog posts
+.article {
+  // e.g., blog posts
   --body-line-height: 1.58; // set body line-height
   --text-vspace-multiplier: 1.2; // increase vertical spacing
 }

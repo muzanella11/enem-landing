@@ -1,15 +1,15 @@
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var browserSync = require('browser-sync').create();
-var postcss      = require('gulp-postcss');
-var autoprefixer = require('autoprefixer');
-var concat = require('gulp-concat');
+const gulp = require('gulp');
+const sass = require('gulp-sass');
+const browserSync = require('browser-sync').create();
+const postcss      = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+const concat = require('gulp-concat');
 
 // css file paths
-var cssFolder = 'main/assets/css'; // folder for final style.css/style-custom-prop-fallbac.css files
-var scssFilesPath = 'main/assets/css/**/*.scss'; // scss files to watch
+const cssFolder = 'main/assets/css'; // folder for final style.css/style-custom-prop-fallbac.css files
+const scssFilesPath = 'main/assets/css/**/*.scss'; // scss files to watch
 
-var utilJsPath = 'node_modules/codyhouse-framework/main/assets/js'; // util.js path
+const utilJsPath = 'node_modules/codyhouse-framework/main/assets/js'; // util.js path
 
 function reload(done) {
   browserSync.reload();

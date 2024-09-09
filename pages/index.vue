@@ -171,26 +171,26 @@
             <form v-if="!businessCardShown" id="contactForm" data-sb-form-api-token="API_TOKEN">
               <!-- Name input-->
               <div class="form-floating mb-3">
-                <input id="name" class="form-control" type="text" placeholder="Enter your name..." data-sb-validations="required" />
+                <input id="name" v-model="entryContact.fullname" class="form-control" type="text" placeholder="Enter your name..." data-sb-validations="required" />
                 <label for="name">Full name</label>
                 <div class="invalid-feedback" data-sb-feedback="name:required">A name is required.</div>
               </div>
               <!-- Email address input-->
               <div class="form-floating mb-3">
-                <input id="email" class="form-control" type="email" placeholder="name@example.com" data-sb-validations="required,email" />
+                <input id="email" v-model="entryContact.email" class="form-control" type="email" placeholder="name@example.com" data-sb-validations="required,email" />
                 <label for="email">Email address</label>
                 <div class="invalid-feedback" data-sb-feedback="email:required">An email is required.</div>
                 <div class="invalid-feedback" data-sb-feedback="email:email">Email is not valid.</div>
               </div>
               <!-- Phone number input-->
               <div class="form-floating mb-3">
-                <input id="phone" class="form-control" type="tel" placeholder="(123) 456-7890" data-sb-validations="required" />
+                <input id="phone" v-model="entryContact.phoneNumber" class="form-control" type="tel" placeholder="(123) 456-7890" data-sb-validations="required" />
                 <label for="phone">Phone number</label>
                 <div class="invalid-feedback" data-sb-feedback="phone:required">A phone number is required.</div>
               </div>
               <!-- Message input-->
               <div class="form-floating mb-3">
-                <textarea id="message" class="form-control" type="text" placeholder="Enter your message here..." style="height: 10rem;" data-sb-validations="required"></textarea>
+                <textarea id="message" v-model="entryContact.message" class="form-control" type="text" placeholder="Enter your message here..." style="height: 10rem;" data-sb-validations="required"></textarea>
                 <label for="message">Message</label>
                 <div class="invalid-feedback" data-sb-feedback="message:required">A message is required.</div>
               </div>
@@ -198,7 +198,7 @@
               <!---->
               <!-- This is what your users will see when the form-->
               <!-- has successfully submitted-->
-              <div id="submitSuccessMessage" class="d-none">
+              <div v-if="!isError && isSubmitted" id="submitSuccessMessage">
                 <div class="text-center mb-3">
                   <div class="fw-bolder">Form submission successful!</div>
                 </div>
@@ -207,12 +207,12 @@
               <!---->
               <!-- This is what your users will see when there is-->
               <!-- an error submitting the form-->
-              <div id="submitErrorMessage" class="d-none"><div class="text-center text-danger mb-3">Error sending message!</div></div>
+              <div v-if="isError" id="submitErrorMessage"><div class="text-center text-danger mb-3">Error sending message!</div></div>
               <!-- Submit Button-->
 
               <div class="row">
                 <div class="col-lg-12 text-center">
-                  <button id="submitButton" class="btn btn-primary btn-xl disabled" type="submit">Send</button>
+                  <button id="submitButton" class="btn btn-primary btn-xl" @click="fetchSendContact">Send</button>
                   <button class="btn btn-secondary btn-xl ml-2" @click="toggleBusinessCard">Get Business Card</button>
                 </div>
               </div>
@@ -346,6 +346,15 @@ export default {
   data () {
     return {
       businessCardShown: false,
+      isSubmitted: false,
+      isLoading: false,
+      isError: false,
+      entryContact: {
+        fullname: '',
+        email: '',
+        phoneNumber: '',
+        message: ''
+      },
       activePortfolio: {},
       experiences: []
     }
@@ -372,6 +381,15 @@ export default {
   },
 
   methods: {
+    pruneEntryContact() {
+      this.entryContact = {
+        fullname: '',
+        email: '',
+        phoneNumber: '',
+        message: ''
+      }
+    },
+
     async fetchExperiences () {
       try {
         const experience = await this.$axios.$get(`${window.origin}/experience.json`)
@@ -379,6 +397,29 @@ export default {
         this.experiences = experience
       } catch (error) {
         console.error(error)
+      }
+    },
+
+    fetchSendContact() {
+      this.isLoading = true
+      this.isError = false
+      this.isSubmitted = false
+
+      try {
+        const {fullname, email, phoneNumber, message} = this.entryContact
+        const subject = `New Inquiry from ${fullname} - Contact Us Form`
+
+        const mailtoLink = `mailto:muzanella11@gmail.com?subject=${encodeURIComponent(subject)}&body=Full%20Name:%20${encodeURIComponent(fullname)}%0AEmail:%20${encodeURIComponent(email)}%0APhone:%20${encodeURIComponent(phoneNumber)}%0AMessage:%20${encodeURIComponent(message)}`
+
+        window.open(mailtoLink, '_blank')
+
+        this.isSubmitted = true
+      } catch (error) {
+        this.isError = true
+        console.error(error)
+      } finally {
+        this.isLoading = false
+        this.pruneEntryContact()
       }
     },
 
