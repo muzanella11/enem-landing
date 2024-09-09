@@ -22,7 +22,7 @@
                   class="event"
                   :data-date="itemExperience.workingPeriode"
                 >
-                  <h3>{{ itemExperience.company }} // {{ itemExperience.position }}</h3>
+                  <h3>{{ itemExperience.company }} // {{ itemExperience.position }} // {{ itemExperience.location }}</h3>
                   <p>
                     {{ itemExperience.description }}
                   </p>

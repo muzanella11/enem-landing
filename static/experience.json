@@ -2,6 +2,7 @@
   {
     "company": "Oddbit",
     "position": "Web Developer",
+    "location": "Bali (Fulltime Remote)",
     "description": "Oddbit is an awesome team that will help translate and realize your business needs into technical solutions.",
     "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application and Create service API. Working close with the designer to realize the design. Playing with firebase stuff.",
     "workingPeriode": "November 2021 - Now",
@@ -70,6 +71,7 @@
   {
     "company": "PT. Global Solusi Maritim (Zonasea)",
     "position": "Frontend Developer",
+    "location": "Jakarta (Fulltime Remote)",
     "description": "Global Solusi Maritim is a company based in Indonesia which build an amazing ship tracking and maritime intelligence platform. The aim of the product is to become a liaison between owners of tug boats, barges, tankers, bulk carriers with owners of cargoes of oil palm, coal, nickel, diesel and others.",
     "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability.",
     "workingPeriode": "January 2021 - October 2021",
@@ -174,6 +176,7 @@
   {
     "company": "PT. Travlr Guides Indonesia",
     "position": "Lead Frontend Engineer",
+    "location": "Bali",
     "description": "TRAVLR is a company based in Melbourne which build an amazing traveling platform. The aim of the product is to be one-stop-solutions for all travellers’ traveling needs.",
     "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability. Code review all Frontend members. Skill up all Frontend members.",
     "workingPeriode": "July 2018 - May 2020",
@@ -247,6 +250,7 @@
   {
     "company": "PT. Medigo Indonesia",
     "position": "Frontend Developer",
+    "location": "Jakarta",
     "description": "Medigo is a sister company of Flipbox (PT. Saka Digital Arsana). Who have a plan to make EHR (Electronic Health Record) and make ecosystem between doctors, patients and hospitals with sophisticated UI UX.",
     "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability.",
     "workingPeriode": "January 2018 - June 2018",
@@ -298,6 +302,7 @@
   {
     "company": "PT. Saka Digital Arsana (Flipbox)",
     "position": "Frontend Developer",
+    "location": "Jakarta",
     "description": "Flipbox is a group of young and passionate people who have an interest in web and mobile apps development. Established in 2010, Flipbox has been involved in a wide variety of works and always try to give added value in every product it develops.",
     "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application with high scalability and high maintainability.",
     "workingPeriode": "Oktober 2016 - June 2018",
@@ -477,6 +482,7 @@
   {
     "company": "PT. Docotel Technology",
     "position": "Frontend Developer",
+    "location": "Jakarta",
     "description": "Docotel started its journey in 2010 and has been developing digital marketing strategies, cutting edge websites, creative web designs, great applications, both for PC and mobile devices. Docotel has nurtured and highly valued creative and innovative people, dedicated to provide high quality IT services.",
     "roleSummary": "Analyzing and design the frontend architecture of an application. Developing government application and other client application",
     "workingPeriode": "August 2015 - September 2016",
@@ -541,6 +547,7 @@
   {
     "company": "Weita Studio",
     "position": "Web Programmer",
+    "location": "Jakarta",
     "description": "Weita Studio is a new startup. Their product is the social media platform. The aim of the product is to make a new social media for artists and collectors to meet.",
     "roleSummary": "Analyzing and design the frontend architecture of an application. Developing core application.",
     "workingPeriode": "June 2014 - July 2015",
