@@ -4,7 +4,7 @@
 
 // --------------------------------
 
-:root{
+:root {
   --btn-font-size: 1em;
   --btn-font-size-sm: 0.8em;
   --btn-font-size-md: 1.2em;
@@ -18,15 +18,15 @@
   cursor: pointer;
   text-decoration: none;
   line-height: 1;
-  box-shadow: 0px 2px 8px 0 alpha(var(--color-black), 0.12), 0px 1px 1px 0 alpha(var(--color-black), 0.12);
+  box-shadow: 0 2px 8px 0 alpha(var(--color-black), 0.12), 0 1px 1px 0 alpha(var(--color-black), 0.12);
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0px 1px 2px 0 alpha(var(--color-black), 0.12), 0px 1px 1px 0 alpha(var(--color-black), 0.12);
+    box-shadow: 0 1px 2px 0 alpha(var(--color-black), 0.12), 0 1px 1px 0 alpha(var(--color-black), 0.12);
   }
 
   &:focus {
-    box-shadow: 0px 0px 0px 2px alpha(var(--color-black), 0.2);
+    box-shadow: 0 0 0 2px alpha(var(--color-black), 0.2);
     outline: none;
   }
 
@@ -38,6 +38,7 @@
 .btn--primary {
   background-color: var(--color-primary);
   color: var(--color-bg);
+
   @include fontSmooth;
 
   &:hover {
@@ -45,13 +46,14 @@
   }
 
   &:focus {
-    box-shadow: 0px 0px 0px 2px alpha(var(--color-primary), 0.2);
+    box-shadow: 0 0 0 2px alpha(var(--color-primary), 0.2);
   }
 }
 
 .btn--accent {
   background-color: var(--color-accent);
   color: var(--color-bg);
+
   @include fontSmooth;
 
   &:hover {
@@ -59,7 +61,7 @@
   }
 
   &:focus {
-    box-shadow: 0px 0px 0px 2px alpha(var(--color-accent), 0.2);
+    box-shadow: 0 0 0 2px alpha(var(--color-accent), 0.2);
   }
 }
 
@@ -75,14 +77,14 @@
 }
 
 // size
-.btn--sm {
-}
+// .btn--sm {
+// }
 
-.btn--md {
-}
+// .btn--md {
+// }
 
-.btn--lg {
-}
+// .btn--lg {
+// }
 
 // --------------------------------
 

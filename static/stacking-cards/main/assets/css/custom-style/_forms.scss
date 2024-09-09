@@ -10,13 +10,14 @@
   --form-control-radius: 0.25em;
 }
 
-.form-control { // basic form element style
+.form-control {
+  // basic form element style
   border: 2px solid var(--color-contrast-low);
 
   &:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px alpha(var(--color-primary), 0.2)
+    box-shadow: 0 0 0 3px alpha(var(--color-primary), 0.2);
   }
 }
 
@@ -28,11 +29,12 @@
   }
 }
 
-.form-control[disabled], .form-control[readonly] {
+.form-control[disabled],
+.form-control[readonly] {
   cursor: not-allowed;
 }
 
-.form-legend {}
+// .form-legend {}
 
 .form-label {
   font-size: var(--text-sm);
