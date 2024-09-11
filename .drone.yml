@@ -83,6 +83,8 @@ steps:
       from_secret: SSH_PRIVATE_KEY
     port: 22
     script:
+      - mkdir -p ~/.ssh
+      - ssh-keyscan -H ${DRONE_SSH_HOST} >> ~/.ssh/known_hosts
       - ssh -vT git@github.com
       # - cd ./deploy/prod
       # - rm -rf ./enem-landing/
