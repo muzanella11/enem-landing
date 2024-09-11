@@ -59,7 +59,6 @@ trigger:
 
 ---
 kind: pipeline
-type: docker
 name: deploy-to-prod
 
 platform:
