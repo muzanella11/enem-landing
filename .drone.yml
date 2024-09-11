@@ -113,7 +113,6 @@ trigger:
 
 ---
 kind: pipeline
-type: docker
 name: deploy-to-staging
 
 platform:
@@ -168,7 +167,6 @@ trigger:
 
 ---
 kind: pipeline
-type: docker
 name: deploy-to-dev
 
 platform:
@@ -223,7 +221,6 @@ trigger:
 
 ---
 kind: pipeline
-type: docker
 name: deploy-to-demo
 
 platform:
