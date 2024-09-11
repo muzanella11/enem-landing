@@ -79,26 +79,23 @@ steps:
       from_secret: SSH_USER
     password:
       from_secret: SSH_PASSWORD
-    private_key:
-      from_secret: SSH_PRIVATE_KEY
     port: 22
     script:
-      - ssh -vT git@github.com
-      # - cd ./deploy/prod
-      # - rm -rf ./enem-landing/
-      # - mkdir enem-landing
-      # - cd ./enem-landing
-      # - pwd
-      # - git clone git@github.com:muzanella11/enem-landing.git .
-      # - git checkout -b master origin/master
-      # - docker stop enem-landing-apps-prod || true
-      # - docker rm enem-landing-apps-prod || true
-      # - docker rmi enem-landing-apps-images-prod || true
-      # - docker build -f Dockerfile.prod -t enem-landing-apps-images-prod .
-      # - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
-      # - docker run -d -p 4004:4004 --restart=on-failure --name enem-landing-apps-prod enem-landing-apps-images-prod
-      # - cd ./../
-      # - rm -rf ./enem-landing/
+      - cd ./deploy/prod
+      - rm -rf ./enem-landing/
+      - mkdir enem-landing
+      - cd ./enem-landing
+      - pwd
+      - git clone git@github.com:muzanella11/enem-landing.git .
+      - git checkout -b master origin/master
+      - docker stop enem-landing-apps-prod || true
+      - docker rm enem-landing-apps-prod || true
+      - docker rmi enem-landing-apps-images-prod || true
+      - docker build -f Dockerfile.prod -t enem-landing-apps-images-prod .
+      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+      - docker run -d -p 4004:4004 --restart=on-failure --name enem-landing-apps-prod enem-landing-apps-images-prod
+      - cd ./../
+      - rm -rf ./enem-landing/
   when:
     branch:
       include:
@@ -117,6 +114,7 @@ trigger:
 
 ---
 kind: pipeline
+type: docker
 name: deploy-to-staging
 
 platform:
@@ -171,6 +169,7 @@ trigger:
 
 ---
 kind: pipeline
+type: docker
 name: deploy-to-dev
 
 platform:
@@ -225,6 +224,7 @@ trigger:
 
 ---
 kind: pipeline
+type: docker
 name: deploy-to-demo
 
 platform:
