@@ -59,6 +59,7 @@ trigger:
 
 ---
 kind: pipeline
+type: docker
 name: deploy-to-prod
 
 platform:
@@ -78,6 +79,8 @@ steps:
       from_secret: SSH_USER
     password:
       from_secret: SSH_PASSWORD
+    private_key:
+      from_secret: SSH_PRIVATE_KEY
     port: 22
     script:
       - ssh -vT git@github.com
