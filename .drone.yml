@@ -112,60 +112,60 @@ trigger:
   - push
   - pull_request
 
----
-kind: pipeline
-type: docker
-name: deploy-to-staging
+# ---
+# kind: pipeline
+# type: docker
+# name: deploy-to-staging
 
-platform:
-  os: linux
-  arch: amd64
+# platform:
+#   os: linux
+#   arch: amd64
 
-clone:
-  disable: true
+# clone:
+#   disable: true
 
-steps:
-- name: "[deploying-staging]::[push,pull_request]::[staging,"
-  image: appleboy/drone-ssh
-  settings:
-    host:
-      from_secret: SSH_HOST
-    username:
-      from_secret: SSH_USER
-    password:
-      from_secret: SSH_PASSWORD
-    port: 22
-    script:
-      - cd ./deploy/staging
-      - rm -rf ./enem-landing/
-      - mkdir enem-landing
-      - cd ./enem-landing
-      - pwd
-      - git clone git@github.com:muzanella11/enem-landing.git .
-      - git checkout -b staging origin/staging
-      - docker stop enem-landing-apps-staging || true
-      - docker rm enem-landing-apps-staging || true
-      - docker rmi enem-landing-apps-images-staging || true
-      - docker build -f Dockerfile.staging -t enem-landing-apps-images-staging .
-      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
-      - docker run -d -p 4003:4003 --restart=on-failure --name enem-landing-apps-staging enem-landing-apps-images-staging
-      - cd ./../
-      - rm -rf ./enem-landing/
-  when:
-    branch:
-      include:
-      - staging
-    event:
-    - push
-    - pull_request
+# steps:
+# - name: "[deploying-staging]::[push,pull_request]::[staging,"
+#   image: appleboy/drone-ssh
+#   settings:
+#     host:
+#       from_secret: SSH_HOST
+#     username:
+#       from_secret: SSH_USER
+#     password:
+#       from_secret: SSH_PASSWORD
+#     port: 22
+#     script:
+#       - cd ./deploy/staging
+#       - rm -rf ./enem-landing/
+#       - mkdir enem-landing
+#       - cd ./enem-landing
+#       - pwd
+#       - git clone git@github.com:muzanella11/enem-landing.git .
+#       - git checkout -b staging origin/staging
+#       - docker stop enem-landing-apps-staging || true
+#       - docker rm enem-landing-apps-staging || true
+#       - docker rmi enem-landing-apps-images-staging || true
+#       - docker build -f Dockerfile.staging -t enem-landing-apps-images-staging .
+#       - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+#       - docker run -d -p 4003:4003 --restart=on-failure --name enem-landing-apps-staging enem-landing-apps-images-staging
+#       - cd ./../
+#       - rm -rf ./enem-landing/
+#   when:
+#     branch:
+#       include:
+#       - staging
+#     event:
+#     - push
+#     - pull_request
 
-trigger:
-  branch:
-    include:
-    - staging
-  event:
-  - push
-  - pull_request
+# trigger:
+#   branch:
+#     include:
+#     - staging
+#   event:
+#   - push
+#   - pull_request
 
 ---
 kind: pipeline
@@ -222,59 +222,59 @@ trigger:
   - push
   - pull_request
 
----
-kind: pipeline
-type: docker
-name: deploy-to-demo
+# ---
+# kind: pipeline
+# type: docker
+# name: deploy-to-demo
 
-platform:
-  os: linux
-  arch: amd64
+# platform:
+#   os: linux
+#   arch: amd64
 
-clone:
-  disable: true
+# clone:
+#   disable: true
 
-steps:
-- name: "[deploying-demo]::[push,pull_request]::[demo,"
-  image: appleboy/drone-ssh
-  settings:
-    host:
-      from_secret: SSH_HOST
-    username:
-      from_secret: SSH_USER
-    password:
-      from_secret: SSH_PASSWORD
-    port: 22
-    script:
-      - cd ./deploy/demo
-      - rm -rf ./enem-landing/
-      - mkdir enem-landing
-      - cd ./enem-landing
-      - pwd
-      - git clone git@github.com:muzanella11/enem-landing.git .
-      - git checkout -b demo origin/demo
-      - docker stop enem-landing-apps-demo || true
-      - docker rm enem-landing-apps-demo || true
-      - docker rmi enem-landing-apps-images-demo || true
-      - docker build -f Dockerfile.demo -t enem-landing-apps-images-demo .
-      - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
-      - docker run -d -p 4001:4001 --restart=on-failure --name enem-landing-apps-demo enem-landing-apps-images-demo
-      - cd ./../
-      - rm -rf ./enem-landing/
-  when:
-    branch:
-      include:
-      - demo
-    event:
-    - push
-    - pull_request
+# steps:
+# - name: "[deploying-demo]::[push,pull_request]::[demo,"
+#   image: appleboy/drone-ssh
+#   settings:
+#     host:
+#       from_secret: SSH_HOST
+#     username:
+#       from_secret: SSH_USER
+#     password:
+#       from_secret: SSH_PASSWORD
+#     port: 22
+#     script:
+#       - cd ./deploy/demo
+#       - rm -rf ./enem-landing/
+#       - mkdir enem-landing
+#       - cd ./enem-landing
+#       - pwd
+#       - git clone git@github.com:muzanella11/enem-landing.git .
+#       - git checkout -b demo origin/demo
+#       - docker stop enem-landing-apps-demo || true
+#       - docker rm enem-landing-apps-demo || true
+#       - docker rmi enem-landing-apps-images-demo || true
+#       - docker build -f Dockerfile.demo -t enem-landing-apps-images-demo .
+#       - docker rmi $(docker images --filter "dangling=true" -q --no-trunc) || true
+#       - docker run -d -p 4001:4001 --restart=on-failure --name enem-landing-apps-demo enem-landing-apps-images-demo
+#       - cd ./../
+#       - rm -rf ./enem-landing/
+#   when:
+#     branch:
+#       include:
+#       - demo
+#     event:
+#     - push
+#     - pull_request
 
-trigger:
-  branch:
-    include:
-    - demo
-  event:
-  - push
-  - pull_request
+# trigger:
+#   branch:
+#     include:
+#     - demo
+#   event:
+#   - push
+#   - pull_request
 
 ...
