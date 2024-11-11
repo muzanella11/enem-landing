@@ -1,7 +1,7 @@
 [
   {
     "company": "Oddbit",
-    "position": "Web Developer",
+    "position": "Fullstack Engineer",
     "location": "Bali (Fulltime Remote)",
     "description": "Oddbit is an awesome team that will help translate and realize your business needs into technical solutions.",
     "roleSummary": "Analyzing and design the frontend architecture of an web application. Developing Web Application and Create service API. Working close with the designer to realize the design. Playing with firebase stuff.",
@@ -12,10 +12,62 @@
       "Firebase Storage",
       "Firebase Hosting",
       "FirebaseUi",
+      "SQLite",
+      "PostgreSQL",
+      "Docker",
+      "AWS (Amazon Web Service)",
+      "Nx Js",
+      "Nest Js",
+      "React Js",
+      "Electron Js",
+      "Node Js",
       "Typescript",
-      "VueJS"
+      "Vue Js"
     ],
     "projects": [
+      {
+        "title": "Suprema Japan (Dataxfer)",
+        "image": [],
+        "url": "",
+        "year": "2021",
+        "description": "The purpose of this app is to bridge third party IoT devices with Suprema internal system and also migrate data from third parties to Suprema internal system.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Antd Design",
+          "Nx Js",
+          "React Js",
+          "Typescript",
+          "Nest Js",
+          "PostgreSQL",
+          "Redis",
+          "Docker",
+          "AWS (Amazon Web Service)",
+          "Node Js",
+          "Webpack"
+        ]
+      },
+      {
+        "title": "Suprema Japan (Webkiosk)",
+        "image": [],
+        "url": "",
+        "year": "2021",
+        "description": "The purpose of this app is to build a web based desktop app that will be used for user enrollment, access control, generate QR access and then print access tickets and then synchronize them to the Suprema internal system.",
+        "technologies": [
+          "HTML 5",
+          "CSS 3",
+          "Sass",
+          "Antd Design",
+          "React Js",
+          "Typescript",
+          "Electron Js",
+          "Nest Js",
+          "SQLite",
+          "Node Js",
+          "Webpack"
+        ]
+      },
       {
         "title": "Fame Capital Web",
         "image": [
@@ -32,7 +84,7 @@
           "Windicss",
           "Javascript",
           "Restful JSON API",
-          "VueJS",
+          "Vue Js",
           "Typescript",
           "Node JS",
           "Webpack",
@@ -58,7 +110,7 @@
           "Windicss",
           "Javascript",
           "Restful JSON API",
-          "VueJS",
+          "Vue Js",
           "Typescript",
           "Node JS",
           "Webpack",
