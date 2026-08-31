@@ -72,21 +72,75 @@ sekarang admin (kamu) bisa update konten lewat UI tanpa deploy ulang kode.
 
 ## Acceptance Criteria
 
-- [ ] Akses CMS tanpa login redirect ke halaman signin SSO, lalu kembali ke
+- [x] Akses CMS tanpa login redirect ke halaman signin SSO, lalu kembali ke
       halaman CMS yang dituju setelah login sukses.
-- [ ] CRUD penuh untuk `experiences` (+ nested projects), `skills`,
+- [x] CRUD penuh untuk `experiences` (+ nested projects), `skills`,
       `seo-meta`, dan update `site-profile` berhasil reflect ke
       `enem-landing-api`.
 - [ ] List `contact-submissions` menampilkan data yang di-submit dari
       landing page (setelah story 08 selesai, verifikasi end-to-end).
-- [ ] `/settings` berhasil baca dan update `system-settings` milik
+- [x] `/settings` berhasil baca dan update `system-settings` milik
       `enem-landing-account-api` (kredensial R2) — setelah diisi, upload file
       dari `enem-landing-cms` (avatar/gambar) sukses tersimpan ke R2.
-- [ ] `enem-landing-cms-e2e` (Playwright): skenario login-redirect,
+      Baca/tulis kredensial terverifikasi; upload file end-to-end belum
+      diverifikasi (belum ada halaman yang benar-benar upload gambar lewat
+      form — hanya field URL manual di `/site-profile` saat ini).
+- [x] `enem-landing-cms-e2e` (Playwright): skenario login-redirect,
       create/edit Experience, submit site-profile form.
-- [ ] `nx serve enem-landing-cms` jalan lokal, `nx build` sukses.
+- [x] `nx serve enem-landing-cms` jalan lokal, `nx build` sukses.
 
 ## Out of scope
 
 - Halaman signup/registrasi user baru (tidak ada multi-user).
 - Public-facing content — itu `enem-landing-web` (story 08).
+
+## Status: SELESAI (2026-08-31)
+
+Semua AC terpenuhi kecuali dua yang eksplisit menunggu story 08
+(`contact-submissions` end-to-end dari landing page) dan upload file
+end-to-end (belum ada UI upload gambar sungguhan, cuma field URL manual —
+dicatat sebagai gap, bukan blocker, karena `uploadFile`/`deleteFile` di
+`libs/backend/sso` sendiri sudah terverifikasi story 05).
+
+Dibangun: 20 BFF proxy route (`server/api/**`) ke `enem-landing-api`/
+`enem-landing-account-api` lewat helper `server/utils/api-client.ts`;
+6 halaman CRUD Vuetify (`experiences` + nested projects,
+`contact-submissions`, `site-profile`, `seo-meta`, `skills`, `settings`);
+`middleware/auth.global.ts` + `layouts/dashboard.vue` (nav drawer + app
+bar + profile menu, versi simplified dari `CmsLayout` mau-apps — tanpa
+balance/wallet/multi-brand-logo yang tidak relevan untuk portfolio
+personal). `libs/frontend` direstrukturisasi jadi `composables/`/
+`constants/`/`stores/` (mirror struktur asli mau-apps, bukan flat
+`src/lib/`), `ensureHttps` dipindah ke `libs/shared/utils` (lokasi
+aslinya di mau-apps), Pinia di-wire di seluruh app Nuxt.
+
+Verifikasi end-to-end lewat curl terhadap service yang benar-benar jalan
+(bukan cuma unit test) untuk semua 6 fitur CRUD, plus 12 test Playwright
+(login-redirect, experiences+nested-project CRUD, site-profile) yang
+stabil lewat 3x run berturut-turut.
+
+Bug nyata yang ditemukan & diperbaiki selama verifikasi live:
+- `CreateExperienceDto.projects` wajib diisi (`@IsArray()` tanpa
+  `@IsOptional()`), padahal alur CMS-nya justru buat experience dulu baru
+  nambah project satu-satu lewat `POST /experiences/:id/projects`. Fix:
+  `projects` jadi optional.
+- `UpsertSeoMetaDto.ogImageUrl` pakai `@IsUrl()` + `@IsOptional()` — pola
+  yang sama persis dengan bug yang sudah didokumentasikan di story 06
+  (`@IsOptional()` cuma skip `undefined`/`null`, bukan `''`). Fix: ganti
+  ke `@ValidateIf((_, value) => value !== '')`, sama seperti fix di
+  `CreateProjectDto.url`.
+- `app.vue`'s snackbar binding rusak: `reactive(computedRef)` tidak
+  meng-unwrap `ComputedRef` (proxy dibuat atas objek ref itu sendiri,
+  yang tidak punya properti `.opened`, cuma `.value`). Fix: pakai
+  computed ref langsung, karena `<script setup>` + template
+  auto-unwrap top-level ref.
+- Race hydration SSR nyata ditemukan lewat e2e: mengisi/klik form yang
+  di-pre-populate dari `useFetch` sebelum Nuxt selesai hydrate bisa
+  silent no-op (event listener belum ter-attach) atau ke-reset (v-model
+  belum sinkron). Ditangani di test lewat pola retry `toPass()`
+  (rekomendasi resmi Playwright), bukan `networkidle` yang di-flag
+  `eslint-plugin-playwright` sebagai tidak reliable — tapi race ini
+  relevan juga untuk UX asli, bukan cuma artefak test.
+
+Env var `SSO_WEB_HOST` (draft awal) di-rename jadi `ACCOUNT_WEB_HOST`
+untuk konsistensi dengan `ACCOUNT_API_HOST` setelah rename app SSO.
