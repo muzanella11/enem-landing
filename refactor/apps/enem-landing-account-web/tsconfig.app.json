@@ -1,0 +1,49 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
+  },
+  "include": [".nuxt/nuxt.d.ts", "app/**/*", "server/**/*"],
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "vite.config.ts",
+    "vite.config.mts",
+    "vitest.config.ts",
+    "vitest.config.mts",
+    "app/**/*.test.ts",
+    "app/**/*.spec.ts",
+    "app/**/*.test.tsx",
+    "app/**/*.spec.tsx",
+    "app/**/*.test.js",
+    "app/**/*.spec.js",
+    "app/**/*.test.jsx",
+    "app/**/*.spec.jsx",
+    "server/**/*.test.ts",
+    "server/**/*.spec.ts",
+    "server/**/*.test.tsx",
+    "server/**/*.spec.tsx",
+    "server/**/*.test.js",
+    "server/**/*.spec.js",
+    "server/**/*.test.jsx",
+    "server/**/*.spec.jsx",
+    "eslint.config.js",
+    "eslint.config.cjs",
+    "eslint.config.mjs"
+  ],
+  "references": [
+    {
+      "path": "../../libs/shared/utils/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/types/tsconfig.lib.json"
+    }
+  ]
+}
