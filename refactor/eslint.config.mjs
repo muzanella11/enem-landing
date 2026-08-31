@@ -12,6 +12,7 @@ export default [
       '**/.nuxt',
       '**/.output',
       '**/vitest.config.*.timestamp*',
+      '**/test-output',
     ],
   },
   {

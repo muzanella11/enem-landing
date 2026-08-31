@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUrl, IsOptional, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl, Matches, ValidateIf } from 'class-validator';
 
 export class UpsertSeoMetaDto {
   @IsString()
@@ -16,7 +16,9 @@ export class UpsertSeoMetaDto {
   @IsNotEmpty()
   description!: string;
 
-  @IsOptional()
+  // `@IsOptional()` only skips undefined/null, not '' — the CMS form
+  // submits an empty string for "no image yet", not undefined.
+  @ValidateIf((_, value) => value !== '')
   @IsUrl({ require_tld: false })
   ogImageUrl?: string;
 }

@@ -1,4 +1,7 @@
-const AUTH_TOKEN_COOKIE = 'ENEM_LANDING_AUTH_TOKEN';
+import { computed } from 'vue';
+import { useCookie, useRequestURL, useRuntimeConfig } from 'nuxt/app';
+import { AUTH_TOKEN_COOKIE } from '../constants/index.js';
+
 const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1']);
 
 /**
@@ -8,6 +11,9 @@ const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1']);
  * in production (`enem-landing-cms`, `enem-landing-account-web`, ...).
  * Local dev doesn't need this — cookies aren't port-scoped, so
  * `localhost:4000` and `localhost:8000` already see the same cookie.
+ *
+ * Extracted from `enem-landing-account-web` (Story 04) into this shared
+ * lib now that `enem-landing-cms` (Story 07) is a second consumer.
  */
 export const useAuthCookie = () => {
   const config = useRuntimeConfig();

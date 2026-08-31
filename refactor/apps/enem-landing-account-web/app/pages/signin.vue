@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { fetchWhoami, useAuthCookie } from '@enem-landing/frontend';
+import { ensureHttps } from '@enem-landing/shared-utils';
+
 definePageMeta({ layout: false });
 
 interface SigninResponse {

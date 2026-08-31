@@ -32,6 +32,15 @@
     },
     {
       "path": "./apps/enem-landing-api"
+    },
+    {
+      "path": "./libs/frontend"
+    },
+    {
+      "path": "./apps/enem-landing-cms-e2e"
+    },
+    {
+      "path": "./apps/enem-landing-cms"
     }
   ],
   "compilerOptions": {}

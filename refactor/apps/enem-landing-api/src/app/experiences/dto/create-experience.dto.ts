@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { CreateProjectDto } from './create-project.dto.js';
 
 export class CreateExperienceDto {
@@ -31,8 +31,10 @@ export class CreateExperienceDto {
   @IsString({ each: true })
   experienceGained!: string[];
 
+  /** Optional — the CMS creates an experience first, then adds projects one at a time via `POST /experiences/:id/projects`. */
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateProjectDto)
-  projects!: CreateProjectDto[];
+  projects?: CreateProjectDto[];
 }

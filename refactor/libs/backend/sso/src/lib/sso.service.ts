@@ -16,7 +16,7 @@ import {
 import type { AxiosError } from 'axios';
 import FormData from 'form-data';
 import type { Request } from 'express';
-import { ssoHost } from './sso.constants.js';
+import { accountApiHost } from './sso.constants.js';
 
 interface SuccessEnvelope<T> {
   statusCode: number;
@@ -47,7 +47,7 @@ export class SsoService {
   async login(email: string, password: string) {
     return benchmark(`${this.constructorName}@login`, async () => {
       try {
-        const axios = createAxiosInstance({ baseURL: ssoHost });
+        const axios = createAxiosInstance({ baseURL: accountApiHost });
         // `createAxiosInstance`'s response interceptor unwraps to `.data`
         // already, so the real runtime shape is the envelope itself, not
         // `AxiosResponse<envelope>` — axios's own types can't know that.
@@ -83,7 +83,7 @@ export class SsoService {
         throw new UnauthorizedException('Token is required');
       }
       try {
-        const axios = createAxiosInstance({ baseURL: ssoHost, token });
+        const axios = createAxiosInstance({ baseURL: accountApiHost, token });
         const response = (await axios.post('/auth/whoami')) as unknown as SuccessEnvelope<User>;
         if (!response.data) {
           throw new UnauthorizedException('Failed connecting to SSO service');
@@ -109,7 +109,7 @@ export class SsoService {
       form.append('allowedMime', options.allowedMime.join(','));
 
       try {
-        const axios = createAxiosInstance({ baseURL: ssoHost, token });
+        const axios = createAxiosInstance({ baseURL: accountApiHost, token });
         const response = (await axios.post('/uploads', form, {
           headers: form.getHeaders(),
         })) as unknown as SuccessEnvelope<{ id: string; url: string }>;
@@ -126,7 +126,7 @@ export class SsoService {
   async deleteFile(token: string, fileId: string): Promise<void> {
     return benchmark(`${this.constructorName}@deleteFile`, async () => {
       try {
-        const axios = createAxiosInstance({ baseURL: ssoHost, token });
+        const axios = createAxiosInstance({ baseURL: accountApiHost, token });
         await axios.delete(`/uploads/${fileId}`);
       } catch (error) {
         this.throwMapped(error, 'Failed to delete file');
