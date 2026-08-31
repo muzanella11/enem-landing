@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "noEmit": false,
+    "outDir": "dist-cli",
+    "tsBuildInfoFile": null
+  },
+  "include": ["src/database/**/*.ts", "src/app/**/*.ts"],
+  "exclude": ["src/app/**/*.spec.ts"]
+}

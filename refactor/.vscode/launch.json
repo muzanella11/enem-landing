@@ -22,9 +22,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug enem-landing-account with Nx",
+      "name": "Debug enem-landing-account-api with Nx",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": ["nx", "serve", "enem-landing-account"],
+      "runtimeArgs": ["nx", "serve", "enem-landing-account-api"],
       "env": {
         "NODE_OPTIONS": "--inspect=9230"
       },
@@ -33,7 +33,25 @@
       "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/apps/enem-landing-account/dist/**/*.(m|c|)js",
+        "${workspaceFolder}/apps/enem-landing-account-api/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug enem-landing-api with Nx",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["nx", "serve", "enem-landing-api"],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9231"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/enem-landing-api/dist/**/*.(m|c|)js",
         "!**/node_modules/**"
       ]
     }

@@ -19,7 +19,7 @@
       "path": "./libs/backend/utils"
     },
     {
-      "path": "./apps/enem-landing-account"
+      "path": "./apps/enem-landing-account-api"
     },
     {
       "path": "./apps/enem-landing-account-web-e2e"
@@ -29,6 +29,9 @@
     },
     {
       "path": "./libs/backend/sso"
+    },
+    {
+      "path": "./apps/enem-landing-api"
     }
   ],
   "compilerOptions": {}

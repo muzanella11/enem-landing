@@ -30,7 +30,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   /*
-   * Two servers: enem-landing-account (the real API — signin/whoami need a
+   * Two servers: enem-landing-account-api (the real API — signin/whoami need a
    * live backend, not a mock) and enem-landing-account-web itself.
    * `serve` (not `serve-static`) on the web app — it has Nitro server
    * routes (server/api/auth/*.post.ts, the BFF layer), which a static
@@ -39,7 +39,7 @@ export default defineConfig({
    */
   webServer: [
     {
-      command: 'yarn nx run enem-landing-account:serve',
+      command: 'yarn nx run enem-landing-account-api:serve',
       url: 'http://localhost:3000/health',
       reuseExistingServer: true,
       cwd: workspaceRoot,

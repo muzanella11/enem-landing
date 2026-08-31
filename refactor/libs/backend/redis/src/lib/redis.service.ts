@@ -12,7 +12,7 @@ import {
 
 /**
  * Ported from mau-apps (`libs/backend/redis/src/lib/redis.service.ts`).
- * Used by `enem-landing-account` for signout token blocklisting (Story 03) and
+ * Used by `enem-landing-account-api` for signout token blocklisting (Story 03) and
  * `enem-landing-api` as the rate-limit store for public endpoints
  * (Story 06).
  */

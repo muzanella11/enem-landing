@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     // Server-only: the BFF routes are the only thing that ever talks to
-    // enem-landing-account directly, the browser never sees this host.
+    // enem-landing-account-api directly, the browser never sees this host.
     accountApiHost: process.env['ACCOUNT_API_HOST'] || 'http://localhost:3000',
     public: {
       // Not sensitive — needed client-side to set the shared-domain cookie.

@@ -29,7 +29,7 @@ interface SuccessEnvelope<T> {
  * to the methods that have an actual use case in enem-landing — see the
  * "Koreksi audit method" note in `issues/05-backend-sso-lib.md` for what
  * was excluded (balance/wallet methods) and why `uploadFile`/`deleteFile`
- * were kept (generic proxy to `enem-landing-account`'s `/uploads`, needed
+ * were kept (generic proxy to `enem-landing-account-api`'s `/uploads`, needed
  * by `enem-landing-api` for Experience/Project/SiteProfile images).
  */
 @Injectable()

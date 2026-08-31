@@ -1,7 +1,7 @@
 import { createAxiosInstance } from '@enem-landing/shared-utils';
 
 /**
- * BFF proxy for `enem-landing-account`'s `POST /auth/signin` — mirrors
+ * BFF proxy for `enem-landing-account-api`'s `POST /auth/signin` — mirrors
  * mau-apps (`apps/mau-account-landing-web/src/server/api/auth/signin.post.ts`).
  * Keeps the backend host off the browser bundle; the `X-Enem-Landing-Secret`
  * check is a presence-only header, ported verbatim for structural parity

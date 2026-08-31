@@ -12,7 +12,7 @@ belakang keputusan arsitektur.
 
 | App | Stack | Peran |
 |---|---|---|
-| `enem-landing-account` | NestJS | Identity provider (JWT signin/whoami), single-admin |
+| `enem-landing-account-api` | NestJS | Identity provider (JWT signin/whoami), single-admin |
 | `enem-landing-account-web` | Nuxt 4 + Tailwind | Halaman login + bounce-back token |
 | `enem-landing-api` | NestJS | Business domain: experience, projects, contact, site-profile, seo-meta, skills |
 | `enem-landing-cms` | Nuxt 4 + Vuetify | Admin dashboard, auth via redirect ke sso-web |
@@ -23,7 +23,7 @@ app NestJS, `4xxx` untuk dashboard Vuetify, `8xxx` untuk app publik
 Tailwind — lihat `../issues/09-dev-tooling-scripts.md`.
 
 Infra: Ansible (provisioning server + Traefik reverse proxy), GitHub Actions
-(CI/CD, gantikan Drone), DB via Aiven (Postgres), Redis via Upstash — lihat
+(CI/CD, gantikan Drone), DB via Aiven (MySQL), Redis via Upstash — lihat
 `../issues/10-infra-cicd.md`.
 
 ## Keputusan teknis (hasil risk spike Story 01)
@@ -43,8 +43,11 @@ Dikerjakan 2026-08-31 dengan Node `26.3.0`, Nx `23.1.1`, Yarn `1.22.22`.
   versi yang di-generate Nx karena itu yang resmi didukung
   tooling/executor-nya saat ini.
 - **TypeORM**: `@nestjs/typeorm@^12.0.1` + `typeorm@0.3.31` (dist-tag
-  `legacy`) + `pg` driver — **terverifikasi build sukses** dengan
-  `TypeOrmModule.forRoot()` + Postgres di Node 26. `typeorm@latest` (1.x)
+  `legacy`) — **terverifikasi build sukses** dengan `TypeOrmModule.forRoot()`
+  di Node 26 (risk spike awal pakai driver `pg`/Postgres; DB engine final
+  ternyata MySQL — lihat catatan "DB engine" di bawah — tapi keputusan
+  `typeorm@legacy` ini tetap berlaku sama untuk driver `mysql2`).
+  `typeorm@latest` (1.x)
   sengaja TIDAK dipakai: `@nestjs/typeorm@12`'s peer dependency hanya
   menerima `typeorm ^0.3.0 || ^1.0.0-dev` (prerelease), belum ada dukungan
   stabil untuk 1.x.
@@ -116,7 +119,7 @@ Generate app/lib baru pakai generator Nx langsung dulu (sampai
 `scripts/create-app.sh` dari Story 09 selesai dibuat):
 
 ```sh
-yarn nx g @nx/nest:app apps/enem-landing-account --e2eTestRunner=none
+yarn nx g @nx/nest:app apps/enem-landing-account-api --e2eTestRunner=none
 yarn nx g @nx/nuxt:app apps/enem-landing-web --e2eTestRunner=playwright
 ```
 

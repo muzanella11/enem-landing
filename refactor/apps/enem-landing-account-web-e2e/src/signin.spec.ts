@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 /**
  * Requires a seeded local MySQL/Redis (Story 03 — `migration:run` + `seed`)
- * and both `enem-landing-account` and `enem-landing-account-web` running
+ * and both `enem-landing-account-api` and `enem-landing-account-web` running
  * (handled by playwright.config.mts's `webServer` array).
  */
 const ADMIN_EMAIL = 'superadmin@enem-landing.local';

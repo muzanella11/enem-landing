@@ -2,7 +2,7 @@ import { Role } from '@enem-landing/shared-definitions';
 
 /**
  * Ported from mau-apps (`libs/shared/utils/src/lib/static-account.ts`) —
- * fixed dev/staging seed accounts, used by the `enem-landing-account` seeders
+ * fixed dev/staging seed accounts, used by the `enem-landing-account-api` seeders
  * (Story 03) and by service-to-service calls that need to act as a system
  * actor (`StaticAccountSystem`, mirrors `SsoService.loginAsSystem()` in
  * mau-apps' `libs/backend/sso`).
@@ -14,7 +14,7 @@ import { Role } from '@enem-landing/shared-definitions';
  * seeding a real environment.
  *
  * Unlike mau-apps, entries here don't carry a separate `username` field —
- * `enem-landing-account`'s `UserEntity` only has `email` as the login
+ * `enem-landing-account-api`'s `UserEntity` only has `email` as the login
  * identifier (see Story 03), so a `username` fixture field would be dead
  * data.
  *
