@@ -98,7 +98,6 @@ sw.*
 *.env.staging
 
 .ignore/
-issues/
 
 # Nuxt dev/build outputs
 .output
