@@ -88,3 +88,33 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# dotenv environment variables file
+*.env
+# *.env.example
+*.env.development
+*.env.local
+*.env.local.*
+*.env.staging
+
+.ignore/
+issues/
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+
+# TypeScript build artifacts
+*.tsbuildinfo
+*.d.ts.map
+*.js.map
+libs/*/src/*.js
+libs/*/src/*.d.ts
+
+# AI tool per-machine credentials (.claude/rules/ai-config.md) - never committed
+.claude/config.local.yaml
+.gemini/config.local.yaml
+.codex/config.local.yaml
