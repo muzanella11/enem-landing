@@ -31,22 +31,17 @@
 #   - No per-app `JWT_SECRET_<APP>` - a single `enem-landing-account-api` is
 #     the only token issuer here (vs mau-apps' 4 separate JWT secrets for 4
 #     separate identity-issuing APIs).
-#   - `enem-landing-account-api` decided INTERNAL-ONLY (traefik.enable=false),
-#     not "needs a decision" - verified by grep: `ACCOUNT_API_HOST` is
-#     server-only `runtimeConfig` (never `runtimeConfig.public`) in both
-#     enem-landing-account-web and enem-landing-cms's nuxt.config.ts, and no
-#     browser-side code (outside `server/api/**`, which runs server-side)
-#     references it. Every call to it is BFF-proxied. Compare
-#     `ACCOUNT_WEB_HOST`, which IS `runtimeConfig.public` (used client-side
-#     by useAuthGuard/useAuthCookie) - that one gets a real Host() router
-#     below.
-#   - Domain: `enem-landing.com` below is a PLACEHOLDER, not a confirmed
-#     real domain - reusing the exact placeholder each app's own
-#     .env.example already uses for `SHARED_COOKIE_DOMAIN`
-#     (".enem-landing.com") for consistency, not inventing a new one.
-#     Replace with the real domain before this ever gets deployed for real
-#     (also update `SHARED_COOKIE_DOMAIN` in deploy-vars.yml's app_env at
-#     that point).
+#   - Both `enem-landing-account-api` AND `enem-landing-api` are
+#     INTERNAL-ONLY (traefik.enable=false) - neither app's host var
+#     (`ACCOUNT_API_HOST`/`API_HOST`) is ever `runtimeConfig.public` in any
+#     of the 3 Nuxt apps' nuxt.config.ts, and no browser-side code (outside
+#     `server/api/**`, which runs server-side) references either. Every
+#     call to both is BFF-proxied. Compare `ACCOUNT_WEB_HOST`, which IS
+#     `runtimeConfig.public` (used client-side by useAuthGuard/
+#     useAuthCookie) - that one gets a real Host() router below.
+#   - Domain: `muzanella.com` is the real, confirmed production domain
+#     (DNS already live on Cloudflare) - matches `SHARED_COOKIE_DOMAIN` in
+#     each app's own .env.example (".muzanella.com").
 #   - NO shared `x-internal-hosts` anchor applied uniformly to every
 #     service, unlike mau-apps - found via real `docker compose up` testing
 #     (not assumed) that this doesn't actually translate: the 2 NestJS APIs
@@ -110,7 +105,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN_SECONDS: "172800"
       ALLOW_SIGNUP: "false"
-      CORS_ORIGIN: https://cms.enem-landing.com,https://account.enem-landing.com
+      CORS_ORIGIN: https://cms.muzanella.com,https://account.muzanella.com
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
       R2_ENDPOINT: ${R2_ENDPOINT}
@@ -127,12 +122,12 @@ services:
       # Nuxt runtimeConfig - NUXT_/NUXT_PUBLIC_ prefix required for the
       # runtime override to actually take effect, see header comment.
       NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
-      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .enem-landing.com
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .muzanella.com
     deploy:
       <<: *deploy-defaults
       labels:
         - traefik.enable=true
-        - traefik.http.routers.enem-landing-account-web.rule=Host(`account.enem-landing.com`)
+        - traefik.http.routers.enem-landing-account-web.rule=Host(`account.muzanella.com`)
         - traefik.http.routers.enem-landing-account-web.entrypoints=websecure
         - traefik.http.routers.enem-landing-account-web.tls=true
         - traefik.http.routers.enem-landing-account-web.tls.certresolver=cloudflare
@@ -146,29 +141,27 @@ services:
       # Plain name (not NUXT_-prefixed) - this is a NestJS app, read via
       # plain process.env by SsoAuthGuard (libs/backend/sso).
       ACCOUNT_API_HOST: http://enem-landing-account-api:3000
-      CORS_ORIGIN: https://cms.enem-landing.com,https://enem-landing.com
     deploy:
       <<: *deploy-defaults
       labels:
-        - traefik.enable=true
-        - traefik.http.routers.enem-landing-api.rule=Host(`api.enem-landing.com`)
-        - traefik.http.routers.enem-landing-api.entrypoints=websecure
-        - traefik.http.routers.enem-landing-api.tls=true
-        - traefik.http.routers.enem-landing-api.tls.certresolver=cloudflare
-        - traefik.http.services.enem-landing-api.loadbalancer.server.port=3001
+        - traefik.enable=false # internal-only - every call is BFF-proxied
+          # through enem-landing-web/enem-landing-cms's own server/api/**
+          # (apiHost is plain, server-only runtimeConfig in both, never
+          # runtimeConfig.public), same reasoning as
+          # enem-landing-account-api above.
 
   enem-landing-cms:
     networks: [enem-landing-network]
     environment:
       NUXT_API_HOST: http://enem-landing-api:3001
       NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
-      NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://account.enem-landing.com
-      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .enem-landing.com
+      NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://account.muzanella.com
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .muzanella.com
     deploy:
       <<: *deploy-defaults
       labels:
         - traefik.enable=true
-        - traefik.http.routers.enem-landing-cms.rule=Host(`cms.enem-landing.com`)
+        - traefik.http.routers.enem-landing-cms.rule=Host(`cms.muzanella.com`)
         - traefik.http.routers.enem-landing-cms.entrypoints=websecure
         - traefik.http.routers.enem-landing-cms.tls=true
         - traefik.http.routers.enem-landing-cms.tls.certresolver=cloudflare
@@ -184,15 +177,15 @@ services:
       <<: *deploy-defaults
       labels:
         - traefik.enable=true
-        - traefik.http.routers.enem-landing-web.rule=Host(`enem-landing.com`)
+        - traefik.http.routers.enem-landing-web.rule=Host(`muzanella.com`)
         - traefik.http.routers.enem-landing-web.entrypoints=websecure
         - traefik.http.routers.enem-landing-web.tls=true
         - traefik.http.routers.enem-landing-web.tls.certresolver=cloudflare
-        # Apex domain - trigger the wildcard cert request (main=enem-landing.com
-        # + sans=*.enem-landing.com) here, same pattern as mau-apps'
+        # Apex domain - trigger the wildcard cert request (main=muzanella.com
+        # + sans=*.muzanella.com) here, same pattern as mau-apps'
         # mau-compro-landing-web router. Traefik stores the result in its
         # global cert store, automatically reused for SNI on any matching
         # subdomain - no need to repeat this on the other app routers.
-        - traefik.http.routers.enem-landing-web.tls.domains[0].main=enem-landing.com
-        - traefik.http.routers.enem-landing-web.tls.domains[0].sans=*.enem-landing.com
+        - traefik.http.routers.enem-landing-web.tls.domains[0].main=muzanella.com
+        - traefik.http.routers.enem-landing-web.tls.domains[0].sans=*.muzanella.com
         - traefik.http.services.enem-landing-web.loadbalancer.server.port=8001
