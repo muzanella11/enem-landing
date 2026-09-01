@@ -41,6 +41,12 @@
     },
     {
       "path": "./apps/enem-landing-cms"
+    },
+    {
+      "path": "./apps/enem-landing-web-e2e"
+    },
+    {
+      "path": "./apps/enem-landing-web"
     }
   ],
   "compilerOptions": {}

@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineNuxtConfig } from 'nuxt/config';
 
@@ -33,5 +34,12 @@ export default defineNuxtConfig({
   css: ['~/assets/css/styles.css'],
   vite: {
     plugins: [nxViteTsPaths()],
+  },
+  nitro: {
+    // Shared brand assets (favicon) live once in libs/frontend, mounted
+    // here at the public root — mirrors mau-apps' publicAssets pattern.
+    publicAssets: [
+      { dir: fileURLToPath(new URL('../../libs/frontend/src/assets/images', import.meta.url)) },
+    ],
   },
 });
