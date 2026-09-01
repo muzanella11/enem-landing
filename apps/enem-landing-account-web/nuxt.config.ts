@@ -1,6 +1,11 @@
+import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineNuxtConfig } from 'nuxt/config';
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'),
+);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -10,6 +15,11 @@ export default defineNuxtConfig({
   devServer: {
     host: 'localhost',
     port: 8000,
+  },
+  app: {
+    head: {
+      htmlAttrs: { lang: 'en', 'data-version': VERSION },
+    },
   },
   runtimeConfig: {
     // Server-only: the BFF routes are the only thing that ever talks to
