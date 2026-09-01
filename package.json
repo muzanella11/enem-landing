@@ -1,6 +1,6 @@
 {
   "name": "enem-landing",
-  "version": "1.1.20",
+  "version": "1.1.21",
   "license": "UNLICENSED",
   "scripts": {
     "nx:check": "yarn outdated @nx/devkit @nx/workspace",
