@@ -251,6 +251,17 @@ ENVEOF
     echo "    - wire runtimeConfig/BFF routes per this app's actual needs"
     echo "    - if this is a public-facing app, mount libs/frontend's shared favicon"
     echo "      via nitro.publicAssets (see enem-landing-web/nuxt.config.ts)"
+    echo "    - the generated apps/${appName}-e2e/playwright.config.mts uses Nx's"
+    echo "      default webServer (nx run-based, single command) - rewrite it to"
+    echo "      match this repo's \"serverless\" convention instead (see any"
+    echo "      existing apps/*-e2e/playwright.config.mts): webServer array"
+    echo "      listing every real backend this app's e2e specs actually hit,"
+    echo "      each entry set to \`process.env['BASE_URL'] ? undefined : [...]\`."
+    echo "      Then wire it into .github/workflows/e2e.yml (Build/Start"
+    echo "      all servers/Wait for all servers steps - add this app's build +"
+    echo "      nohup start + health URL) and package.json (nx:e2e:${appName}"
+    echo "      + :serverless variant with BASE_URL=http://localhost:${port}, and"
+    echo "      add both into the root e2e / e2e:serverless aggregate scripts)."
     ;;
 
 esac

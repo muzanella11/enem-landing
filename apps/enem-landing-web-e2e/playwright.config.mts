@@ -30,22 +30,27 @@ export default defineConfig({
    * `serve-static`) - it has Nitro server routes (server/api/**, the BFF
    * layer to enem-landing-api), which a static file server can't run.
    */
-  webServer: [
-    {
-      command: 'yarn nx run enem-landing-api:serve',
-      url: 'http://localhost:3001/health',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-    {
-      command: 'yarn nx run enem-landing-web:serve',
-      url: 'http://localhost:8001',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-  ],
+  // `undefined` when BASE_URL is set - see account-web-e2e's
+  // playwright.config.mts header comment for why (mau-apps' "serverless"
+  // pattern - CI pre-starts real servers by hand once, see e2e.yml).
+  webServer: process.env['BASE_URL']
+    ? undefined
+    : [
+        {
+          command: 'yarn nx run enem-landing-api:serve',
+          url: 'http://localhost:3001/health',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+        {
+          command: 'yarn nx run enem-landing-web:serve',
+          url: 'http://localhost:8001',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+      ],
   projects: [
     {
       name: 'chromium',

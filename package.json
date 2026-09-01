@@ -52,6 +52,11 @@
     "nx:e2e:enem-landing-web": "yarn nx e2e enem-landing-web-e2e",
     "e2e": "yarn nx:e2e:enem-landing-account-web && yarn nx:e2e:enem-landing-cms && yarn nx:e2e:enem-landing-web",
 
+    "nx:e2e:enem-landing-account-web:serverless": "BASE_URL=http://localhost:8000 yarn nx e2e enem-landing-account-web-e2e",
+    "nx:e2e:enem-landing-cms:serverless": "BASE_URL=http://localhost:4000 yarn nx e2e enem-landing-cms-e2e",
+    "nx:e2e:enem-landing-web:serverless": "BASE_URL=http://localhost:8001 yarn nx e2e enem-landing-web-e2e",
+    "e2e:serverless": "yarn nx:e2e:enem-landing-account-web:serverless && yarn nx:e2e:enem-landing-cms:serverless && yarn nx:e2e:enem-landing-web:serverless",
+
     "nx:build:enem-landing-account-api": "yarn nx build enem-landing-account-api",
     "nx:build:enem-landing-account-web": "yarn nx build enem-landing-account-web",
     "nx:build:enem-landing-api": "yarn nx build enem-landing-api",

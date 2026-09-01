@@ -32,36 +32,41 @@ export default defineConfig({
    * a static file server can't run. Requires a seeded local MySQL/Redis
    * (see Story 03 - `migration:run` + `seed`) before running this suite.
    */
-  webServer: [
-    {
-      command: 'yarn nx run enem-landing-account-api:serve',
-      url: 'http://localhost:3000/health',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-    {
-      command: 'yarn nx run enem-landing-api:serve',
-      url: 'http://localhost:3001/health',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-    {
-      command: 'yarn nx run enem-landing-account-web:serve',
-      url: 'http://localhost:8000',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-    {
-      command: 'yarn nx run enem-landing-cms:serve',
-      url: 'http://localhost:4000',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-  ],
+  // `undefined` when BASE_URL is set - see account-web-e2e's
+  // playwright.config.mts header comment for why (mau-apps' "serverless"
+  // pattern - CI pre-starts real servers by hand once, see e2e.yml).
+  webServer: process.env['BASE_URL']
+    ? undefined
+    : [
+        {
+          command: 'yarn nx run enem-landing-account-api:serve',
+          url: 'http://localhost:3000/health',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+        {
+          command: 'yarn nx run enem-landing-api:serve',
+          url: 'http://localhost:3001/health',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+        {
+          command: 'yarn nx run enem-landing-account-web:serve',
+          url: 'http://localhost:8000',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+        {
+          command: 'yarn nx run enem-landing-cms:serve',
+          url: 'http://localhost:4000',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+      ],
   projects: [
     {
       name: 'chromium',

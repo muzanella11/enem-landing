@@ -36,23 +36,35 @@ export default defineConfig({
    * routes (server/api/auth/*.post.ts, the BFF layer), which a static
    * file server can't run. Requires a seeded local MySQL/Redis (see
    * Story 03 — `migration:run` + `seed`) before running this suite.
+   *
+   * `undefined` when BASE_URL is set - same "serverless" pattern as
+   * mau-apps (see package.json's e2e:serverless). CI pre-builds and
+   * starts real production servers by hand once (see e2e.yml), then hits
+   * them directly via BASE_URL: neither Nx's own `serve` task dependency
+   * (auto-added whenever `reuseExistingServer` is truthy, regardless of
+   * whether the port's already taken) nor Playwright's own webServer
+   * startup can safely coexist with an externally, already-running
+   * server - confirmed by reproducing both an EADDRINUSE crash and a
+   * "port already used" refusal locally.
    */
-  webServer: [
-    {
-      command: 'yarn nx run enem-landing-account-api:serve',
-      url: 'http://localhost:3000/health',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-    {
-      command: 'yarn nx run enem-landing-account-web:serve',
-      url: 'http://localhost:8000',
-      reuseExistingServer: !process.env['CI'],
-      cwd: workspaceRoot,
-      timeout: 180_000,
-    },
-  ],
+  webServer: process.env['BASE_URL']
+    ? undefined
+    : [
+        {
+          command: 'yarn nx run enem-landing-account-api:serve',
+          url: 'http://localhost:3000/health',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+        {
+          command: 'yarn nx run enem-landing-account-web:serve',
+          url: 'http://localhost:8000',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
+      ],
   projects: [
     {
       name: 'chromium',
