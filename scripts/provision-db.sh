@@ -51,7 +51,7 @@ const mysql = require("mysql2/promise");
 
   const isLocal = /localhost|127\.0\.0\.1/.test(url);
   const conn = await mysql.createConnection(
-    isLocal ? {uri: url} : {uri: url, ssl: {rejectUnauthorized: true}},
+    isLocal ? {uri: url} : {uri: url, ssl: {rejectUnauthorized: false}},
   );
 
   const [ver] = await conn.query("SELECT VERSION() as v");
@@ -62,7 +62,7 @@ const mysql = require("mysql2/promise");
     console.log("Ensured database:", db);
   }
 
-  const [rows] = await conn.query("SHOW DATABASES LIKE \"enem-landing%\"");
+  const [rows] = await conn.query("SHOW DATABASES LIKE ?", ["enem-landing%"]);
   console.log("Database enem-landing* yang ada sekarang:", rows.map((r) => Object.values(r)[0]).join(", "));
 
   await conn.end();
