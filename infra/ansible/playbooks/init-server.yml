@@ -181,31 +181,33 @@
     # port DB self-host yang perlu di-publish ke host sama sekali (beda
     # dari mau-apps yang masih co-locate RabbitMQ). Cuma SSH + HTTP/HTTPS
     # untuk Traefik yang perlu dibuka.
-    - name: Cek status UFW saat ini
-      ansible.builtin.command: ufw status
-      register: ufw_status
-      changed_when: false
+    # `ufw allow`/`ufw default`/`ufw enable` sudah idempotent sendiri (aman
+    # dipanggil berulang), jadi task di bawah TIDAK dibungkus `when: ufw
+    # belum aktif` - beberapa base image provider (mis. Ubuntu 24.04 di
+    # Vultr) sudah mengaktifkan UFW default cuma dengan allow SSH, dan
+    # kalau di-skip gara-gara "sudah aktif" maka 80/443 untuk Traefik tidak
+    # pernah ke-allow sama sekali.
+    - name: Allow SSH - WAJIB sebelum enable UFW supaya tidak lockout
+      ansible.builtin.command: ufw allow OpenSSH
+      changed_when: true
 
-    - name: Setup firewall (skip kalau UFW sudah aktif)
-      when: "'Status: active' not in ufw_status.stdout"
-      block:
-        - name: Allow SSH - WAJIB sebelum enable UFW supaya tidak lockout
-          ansible.builtin.command: ufw allow OpenSSH
+    - name: Allow HTTP/HTTPS untuk Traefik
+      ansible.builtin.command: "ufw allow {{ item }}"
+      loop:
+        - "80/tcp"
+        - "443/tcp"
+      changed_when: true
 
-        - name: Allow HTTP/HTTPS untuk Traefik
-          ansible.builtin.command: "ufw allow {{ item }}"
-          loop:
-            - "80/tcp"
-            - "443/tcp"
+    - name: Set default deny incoming, allow outgoing
+      ansible.builtin.command: "{{ item }}"
+      loop:
+        - "ufw default deny incoming"
+        - "ufw default allow outgoing"
+      changed_when: true
 
-        - name: Set default deny incoming, allow outgoing
-          ansible.builtin.command: "{{ item }}"
-          loop:
-            - "ufw default deny incoming"
-            - "ufw default allow outgoing"
-
-        - name: Enable UFW (non-interactive)
-          ansible.builtin.command: ufw --force enable
+    - name: Enable UFW (non-interactive)
+      ansible.builtin.command: ufw --force enable
+      changed_when: true
 
     - name: Cek status Docker Swarm saat ini
       ansible.builtin.command: docker info --format '{{ '{{' }}.Swarm.LocalNodeState{{ '}}' }}'
