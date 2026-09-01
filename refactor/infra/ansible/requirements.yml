@@ -1,0 +1,7 @@
+# Ansible collection dependencies untuk playbook di folder ini.
+# Install sebelum menjalankan playbook manapun:
+#   ansible-galaxy collection install -r infra/ansible/requirements.yml
+
+collections:
+  - name: ansible.posix
+    version: ">=2.0.0"

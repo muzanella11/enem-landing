@@ -1,0 +1,74 @@
+# Stack Traefik. Ported dari mau-apps/infra/ansible/playbooks/templates/traefik-stack.yml.j2 -
+# this file itself is generic (just the reverse-proxy container; per-app
+# routing lives in each app's own compose.yml labels via Story 10, not here)
+# so the only changes vs. the mau-apps original are path/network renames
+# (mau-apps -> enem-landing).
+#
+# This is a Jinja2 template (.j2) - init-server.yml renders `{{ acme_email }}`/
+# `{{ cf_dns_api_token }}` from extra-vars before copying to the server.
+#
+# - `--providers.swarm.exposedbydefault=false` (Traefik v3 Swarm provider,
+#   not the deprecated v2 `--providers.docker.swarmmode=true` flag).
+# - Pinned to `traefik:v3.7.10` - older v3.x tags' bundled docker client
+#   pins to API version 1.24, too old for modern Docker daemons
+#   ("client version 1.24 is too old, minimum supported 1.40"). Check the
+#   latest Traefik release before reaching for env-var workarounds again if
+#   this resurfaces after a daemon upgrade.
+# - TLS wildcard via DNS-01 (Cloudflare) - the only way to get a wildcard
+#   cert; HTTP-01 only covers individual hostnames one at a time. The
+#   wildcard cert itself is triggered from `tls.domains[0].main`/`sans`
+#   labels on ONE router (the app that owns the apex domain, story 10) -
+#   Traefik stores it in its global cert store, reused automatically for
+#   SNI on any matching subdomain.
+# - `acme.storage` bind-mounted to `/opt/enem-landing/storage/traefik` (host)
+#   so certs persist across redeploys/restarts - without this, Traefik
+#   re-requests a new cert from Let's Encrypt every time a fresh container
+#   is created, risking the rate limit (5 duplicate certs/week for the same
+#   domain in production ACME).
+# - `entrypoints.web` (port 80) auto-redirects to `websecure` (443).
+# - `forwardedheaders.trustedips` set to Cloudflare's official IP ranges -
+#   required for `CF-Connecting-IP`/`X-Forwarded-For` from the Cloudflare
+#   proxy to be trusted as the visitor's real IP. Only relevant/active once
+#   Cloudflare proxy mode (orange cloud) is actually ON for the domain.
+
+services:
+  traefik:
+    image: traefik:v3.7.10
+    command:
+      - --providers.swarm.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedheaders.trustedips={{ cloudflare_trusted_ips | join(',') }}
+      - --certificatesresolvers.cloudflare.acme.dnschallenge=true
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.cloudflare.acme.email={{ acme_email }}
+      - --certificatesresolvers.cloudflare.acme.storage=/letsencrypt/acme.json
+    environment:
+      - CF_DNS_API_TOKEN={{ cf_dns_api_token }}
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+    networks:
+      - enem-landing-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/enem-landing/storage/traefik:/letsencrypt
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 64M
+
+networks:
+  enem-landing-network:
+    external: true

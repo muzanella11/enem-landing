@@ -1,0 +1,272 @@
+---
+# Provisioning dasar untuk server baru (dev atau prod) - Story 09
+# (issues/09-dev-tooling-scripts.md). Ported dari
+# mau-apps/infra/ansible/playbooks/init-server.yml, dengan semua task
+# RabbitMQ (build image lokal, storage dir) DIHAPUS - enem-landing tidak
+# punya service self-host apapun (MySQL via Aiven, Redis via Upstash,
+# lihat issues/00-epic-overview.md keputusan #6), jadi tidak ada
+# build-image-lokal yang perlu dilakukan playbook ini sama sekali.
+# Idempotent: aman dijalankan ulang untuk perbaikan config drift, bukan
+# cuma sekali pakai di awal.
+#
+# Target OS: Ubuntu 22.04/24.04 LTS.
+#
+# Prasyarat koneksi awal:
+#   - Host baru diakses lewat SSH (key atau password, keduanya boleh) sebagai
+#     user root/admin yang sudah didaftarkan di inventory (`ansible_user`).
+#   - Variable `deploy_public_key` WAJIB diisi (isi public key SSH untuk user
+#     `deploy` yang dibuat playbook ini), contoh:
+#       ansible-playbook playbooks/init-server.yml -i <inventory> \
+#         -e "deploy_public_key=$(cat ~/.ssh/id_ed25519.pub)"
+#
+# SSH hardening (disable root login / disable password auth) SENGAJA TIDAK
+# diterapkan di playbook ini, mengikuti keputusan yang sama seperti
+# mau-apps (lihat komentar aslinya) - trade-off keamanan yang disadari
+# untuk fase POC, wajib diperketat sebelum ada traffic/data nyata.
+#
+# Verifikasi akses user `deploy` SENGAJA TIDAK dilakukan lewat Ansible play
+# terpisah di sini juga - inventory host var `ansible_user`/
+# `ansible_ssh_private_key_file` (dibutuhkan Play 1 untuk connect sebagai
+# root) PRECEDENCE-nya lebih tinggi daripada `remote_user:` di level play
+# manapun (masalah yang sudah ditemukan mau-apps dari provisioning nyata -
+# lihat referensi di atas). Verifikasi dipindah ke plain SSH di
+# scripts/provision-server.sh (bash), yang tidak kena masalah precedence ini.
+
+- name: Validasi variable wajib
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Pastikan deploy_public_key sudah diisi
+      ansible.builtin.assert:
+        that:
+          - deploy_public_key is defined
+          - deploy_public_key | length > 0
+        fail_msg: >-
+          Variable 'deploy_public_key' wajib diisi, contoh:
+          -e "deploy_public_key=$(cat ~/.ssh/id_ed25519.pub)"
+
+    - name: Pastikan acme_email dan cf_dns_api_token sudah diisi
+      ansible.builtin.assert:
+        that:
+          - acme_email is defined
+          - acme_email | length > 0
+          - cf_dns_api_token is defined
+          - cf_dns_api_token | length > 0
+        fail_msg: >-
+          Variable 'acme_email' dan 'cf_dns_api_token' wajib diisi, contoh:
+          -e "acme_email=ops@example.com" -e "cf_dns_api_token=<scoped token>"
+
+- name: "Play 1 - Bootstrap user deploy dan install Docker"
+  hosts: all
+  become: true
+  tasks:
+    - name: Buat user deploy non-root
+      ansible.builtin.user:
+        name: "{{ deploy_user }}"
+        groups: sudo
+        append: true
+        shell: /bin/bash
+        create_home: true
+
+    - name: Pasang authorized_key deploy dari deploy_public_key
+      ansible.posix.authorized_key:
+        user: "{{ deploy_user }}"
+        key: "{{ deploy_public_key }}"
+        state: present
+
+    - name: Izinkan deploy sudo tanpa password (dipakai Ansible/CI berikutnya)
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/90-{{ deploy_user }}"
+        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        mode: "0440"
+        validate: "visudo -cf %s"
+
+    # Swap sebagai safety net memori - BUKAN solusi performa, cuma
+    # mencegah OOM-kill/crash total saat lonjakan memori sesaat di VPS
+    # kecil. Ukuran default 2GB mengikuti pola mau-apps - sesuaikan kalau
+    # spek server enem-landing beda.
+    - name: Cek apakah swap file sudah ada
+      ansible.builtin.stat:
+        path: /swapfile
+      register: swapfile_stat
+
+    - name: Buat dan aktifkan swap file 2GB (skip kalau sudah ada)
+      when: not swapfile_stat.stat.exists
+      block:
+        - name: Allocate swap file
+          ansible.builtin.command: fallocate -l 2G /swapfile
+
+        - name: Set permission swap file ke 600
+          ansible.builtin.file:
+            path: /swapfile
+            mode: "0600"
+
+        - name: Format swap file
+          ansible.builtin.command: mkswap /swapfile
+
+        - name: Aktifkan swap file
+          ansible.builtin.command: swapon /swapfile
+
+        - name: Daftarkan swap file ke /etc/fstab (persist setelah reboot)
+          ansible.builtin.lineinfile:
+            path: /etc/fstab
+            line: "/swapfile none swap sw 0 0"
+            state: present
+
+    - name: Tuning vm.swappiness rendah (swap dipakai cuma saat perlu, bukan agresif)
+      ansible.posix.sysctl:
+        name: vm.swappiness
+        value: "10"
+        state: present
+        reload: true
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install paket prasyarat Docker repo
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+        state: present
+
+    - name: Buat direktori keyring apt
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Unduh GPG key resmi Docker
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+        force: false
+
+    - name: Daftarkan repo apt Docker (signed-by keyring)
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}
+          signed-by=/etc/apt/keyrings/docker.asc]
+          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        filename: docker
+        state: present
+
+    - name: Install Docker Engine + Compose plugin
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Tambahkan user deploy ke group docker
+      ansible.builtin.user:
+        name: "{{ deploy_user }}"
+        groups: docker
+        append: true
+
+    - name: Pastikan Docker service enabled dan running
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    # Firewall - MySQL/Redis sudah managed (Aiven/Upstash), jadi tidak ada
+    # port DB self-host yang perlu di-publish ke host sama sekali (beda
+    # dari mau-apps yang masih co-locate RabbitMQ). Cuma SSH + HTTP/HTTPS
+    # untuk Traefik yang perlu dibuka.
+    - name: Cek status UFW saat ini
+      ansible.builtin.command: ufw status
+      register: ufw_status
+      changed_when: false
+
+    - name: Setup firewall (skip kalau UFW sudah aktif)
+      when: "'Status: active' not in ufw_status.stdout"
+      block:
+        - name: Allow SSH - WAJIB sebelum enable UFW supaya tidak lockout
+          ansible.builtin.command: ufw allow OpenSSH
+
+        - name: Allow HTTP/HTTPS untuk Traefik
+          ansible.builtin.command: "ufw allow {{ item }}"
+          loop:
+            - "80/tcp"
+            - "443/tcp"
+
+        - name: Set default deny incoming, allow outgoing
+          ansible.builtin.command: "{{ item }}"
+          loop:
+            - "ufw default deny incoming"
+            - "ufw default allow outgoing"
+
+        - name: Enable UFW (non-interactive)
+          ansible.builtin.command: ufw --force enable
+
+    - name: Cek status Docker Swarm saat ini
+      ansible.builtin.command: docker info --format '{{ '{{' }}.Swarm.LocalNodeState{{ '}}' }}'
+      register: swarm_state
+      changed_when: false
+
+    - name: Init Docker Swarm (skip kalau node sudah bagian dari swarm)
+      ansible.builtin.command: docker swarm init
+      when: swarm_state.stdout != 'active'
+
+    - name: Cek apakah overlay network enem-landing-network sudah ada
+      ansible.builtin.command: docker network ls --filter name=^enem-landing-network$ --format '{{ '{{' }}.Name{{ '}}' }}'
+      register: network_check
+      changed_when: false
+
+    - name: Buat overlay network attachable enem-landing-network
+      ansible.builtin.command: docker network create --driver overlay --attachable enem-landing-network
+      when: network_check.stdout == ""
+
+    - name: Buat direktori deploy di server
+      ansible.builtin.file:
+        path: /opt/enem-landing
+        state: directory
+        mode: "0755"
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    # Cuma traefik yang butuh storage bind-mount di sini - MySQL/Redis
+    # sudah managed (Aiven/Upstash), tidak ada container self-host untuk
+    # keduanya (beda dari mau-apps yang masih punya rabbitmq co-located).
+    - name: Buat direktori storage bind mount (traefik)
+      ansible.builtin.file:
+        path: "/opt/enem-landing/storage/traefik"
+        state: directory
+        mode: "0755"
+
+    # acme.json HARUS sudah ada sebagai FILE sebelum bind-mount pertama
+    # kali - Docker bind-mount ke path yang belum ada akan bikin DIREKTORI
+    # kosong di situ (bukan file), bikin Traefik gagal start. Permission
+    # 600 WAJIB - ACME client Traefik menolak jalan (atau auto-chmod lalu
+    # warning) kalau lebih permisif, filenya menyimpan private key akun
+    # ACME + cert.
+    - name: Pastikan acme.json sudah ada sebagai file kosong
+      ansible.builtin.file:
+        path: /opt/enem-landing/storage/traefik/acme.json
+        state: touch
+        mode: "0600"
+        modification_time: preserve
+        access_time: preserve
+
+    - name: Render dan copy definisi stack Traefik ke server
+      ansible.builtin.template:
+        src: traefik-stack.yml.j2
+        dest: /opt/enem-landing/traefik-stack.yml
+        mode: "0644"
+
+    - name: Deploy stack Traefik (docker stack deploy declarative/idempotent)
+      ansible.builtin.command: docker stack deploy -c /opt/enem-landing/traefik-stack.yml traefik
+
+    - name: Copy script cek memori dasar ke server
+      ansible.builtin.copy:
+        src: check-memory.sh
+        dest: /opt/enem-landing/check-memory.sh
+        mode: "0755"
