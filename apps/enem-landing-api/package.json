@@ -110,6 +110,16 @@
           "cwd": "apps/enem-landing-api"
         }
       },
+      "seed": {
+        "executor": "nx:run-commands",
+        "dependsOn": [
+          "build-cli"
+        ],
+        "options": {
+          "command": "node dist-cli/database/seed.js",
+          "cwd": "apps/enem-landing-api"
+        }
+      },
       "lint:format": {
         "executor": "nx:run-commands",
         "options": {
@@ -145,7 +155,8 @@
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0",
-    "typeorm": "^0.3.31"
+    "typeorm": "^0.3.31",
+    "typeorm-extension": "^3.9.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",

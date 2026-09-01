@@ -10,10 +10,14 @@
 #     and the `DATABASE_URL_ACCOUNT_API`/`DATABASE_URL_API` naming already
 #     established in infra/ansible/playbooks/deploy.yml's header comment
 #     (story 09/10).
-#   - `enem-landing-api` has NO `seed` target (confirmed via `nx show
-#     project` - only `migration:run`/`migration:revert`). Only
-#     `enem-landing-account-api` has one (the StaticAccount superadmin
-#     fixture) - seed only runs for that app.
+#   - `enem-landing-api` now has a `seed` target too (experiences +
+#     site-profile fixture content, ported from the pre-CMS static site),
+#     but it is deliberately NOT wired in here: unlike
+#     `enem-landing-account-api`'s seed (an idempotent auth fixture, safe to
+#     replay on every deploy), this one seeds real portfolio content that
+#     the CMS lets the owner edit - re-running it on every deploy would
+#     clobber those edits. Run `yarn nx run enem-landing-api:seed` by hand
+#     once against a fresh DB instead.
 #
 # Connection runner -> Aiven: direct to the real hostname (same operator
 # decision mau-apps made - Aiven firewall allow-all, auth+TLS as the only
