@@ -1,69 +1,127 @@
-# enem-landing
+# enem-landing (refactor workspace)
 
-## Build Setup
+Nx monorepo baru untuk enem-landing, dikembangkan di sini (`refactor/`)
+secara paralel dengan root repo (Nuxt 2 lama) sebelum cutover. Lihat
+`../issues/00-epic-overview.md` untuk breakdown story lengkap dan latar
+belakang keputusan arsitektur.
 
-```bash
-# install dependencies
-$ yarn install
+## Arsitektur ringkas
 
-# serve with hot reload at localhost:3000
-$ yarn dev
+5 app inti (+3 app e2e), mengikuti pola `mau-apps`
+(`/Users/muzanella/Projects/Code/muzanella/mau-apps`):
 
-# build for production and launch server
-$ yarn build
-$ yarn start
+| App | Stack | Peran |
+|---|---|---|
+| `enem-landing-account-api` | NestJS | Identity provider (JWT signin/whoami), single-admin |
+| `enem-landing-account-web` | Nuxt 4 + Tailwind | Halaman login + bounce-back token |
+| `enem-landing-api` | NestJS | Business domain: experience, projects, contact, site-profile, seo-meta, skills |
+| `enem-landing-cms` | Nuxt 4 + Vuetify | Admin dashboard, auth via redirect ke sso-web |
+| `enem-landing-web` | Nuxt 4 + Tailwind | Public landing page (pengganti Nuxt 2 root repo saat ini) |
 
-# generate static project
-$ yarn generate
+Pola port dev (sama seperti `mau-apps/scripts/kill-ports.sh`): `3xxx` untuk
+app NestJS, `4xxx` untuk dashboard Vuetify, `8xxx` untuk app publik
+Tailwind — lihat `../issues/09-dev-tooling-scripts.md`.
+
+Infra: Ansible (provisioning server + Traefik reverse proxy), GitHub Actions
+(CI/CD, gantikan Drone), DB via Aiven (MySQL), Redis via Upstash — lihat
+`../issues/10-infra-cicd.md`.
+
+## Keputusan teknis (hasil risk spike Story 01)
+
+Dikerjakan 2026-08-31 dengan Node `26.3.0`, Nx `23.1.1`, Yarn `1.22.22`.
+
+- **Nx**: versi `23.1.1` (latest saat scaffold), integrated-style monorepo
+  (`apps/`, `libs/`), tapi mengikuti default Nx 23 yang package-based —
+  tiap app/lib punya `package.json` sendiri (dipakai untuk
+  `@nx/js:prune-lockfile` saat build Docker image), sementara root
+  `package.json` tetap jadi single source dependency resolution/lockfile
+  (yarn workspaces glob: `apps/*`, `libs/*`, `libs/*/*`). Ini beda dari
+  gaya `mau-apps` (Nx 19, single `package.json`, tanpa yarn workspaces) —
+  bukan regresi, ini memang perilaku standar Nx versi terbaru.
+- **NestJS**: `@nx/nest@23.1.1` men-generate app dengan `@nestjs/common@^11`
+  (bukan `^12` yang merupakan versi npm terbaru saat brainstorm) — dipakai
+  versi yang di-generate Nx karena itu yang resmi didukung
+  tooling/executor-nya saat ini.
+- **TypeORM**: `@nestjs/typeorm@^12.0.1` + `typeorm@0.3.31` (dist-tag
+  `legacy`) — **terverifikasi build sukses** dengan `TypeOrmModule.forRoot()`
+  di Node 26 (risk spike awal pakai driver `pg`/Postgres; DB engine final
+  ternyata MySQL — lihat catatan "DB engine" di bawah — tapi keputusan
+  `typeorm@legacy` ini tetap berlaku sama untuk driver `mysql2`).
+  `typeorm@latest` (1.x)
+  sengaja TIDAK dipakai: `@nestjs/typeorm@12`'s peer dependency hanya
+  menerima `typeorm ^0.3.0 || ^1.0.0-dev` (prerelease), belum ada dukungan
+  stabil untuk 1.x.
+- **Vuetify**: `vuetify@^4.1.12` + `vuetify-nuxt-module@1.0.0-rc.5` (masih
+  rc) — **terverifikasi bekerja** di atas Nuxt `4.5.2`: build produksi
+  sukses, dev server sukses, komponen (`v-app`, `v-btn`, dst) ter-render
+  dengan class CSS yang benar di SSR HTML. Satu warning non-fatal:
+  `useLayout` composable Vuetify bentrok nama dengan built-in auto-import
+  Nuxt 4 — Nuxt otomatis memenangkan versi Vuetify (bukan built-in-nya),
+  tidak ada tindakan lanjut yang diperlukan kecuali suatu saat modul rc ini
+  stabil jadi versi non-rc (pantau saat implementasi story 07).
+- **Nuxt `typescript.typeCheck`**: **harus** di-set `false` di tiap
+  `nuxt.config.ts` — default generator (`true`) menyebabkan `nuxt build`
+  gagal (`TS6305`, konflik antara composite project references
+  `tsconfig.base.json` dan `.nuxt/tsconfig.json` yang di-generate Nuxt).
+  Type-checking tetap tersedia lewat target `nx typecheck <app>` terpisah
+  (inferred dari plugin `@nx/js/typescript`) — walau saat ini target itu
+  jadi no-op untuk project Nuxt (`noEmit: true` di salah satu project
+  reference-nya) karena keterbatasan integrasi `@nx/nuxt@23.1.1` dengan
+  TS project references Nx 23. IDE (Vue Language Tools) tetap memberi
+  feedback type-error saat development; CI bisa menambah langkah `vue-tsc
+  --noEmit` manual di story 10 kalau strict typecheck di CI dianggap
+  penting.
+- **customConditions**: tsconfig.base.json pakai `@enem-landing/source`
+  (disesuaikan dari default `@org/source`).
+- **DB engine: MySQL, bukan Postgres** (koreksi dari brainstorm awal —
+  mau-apps sendiri pakai MySQL). Driver `mysql2`. Migration TypeORM ditulis
+  pakai `Table`/`TableIndex` builder API (portable antar dialect), bukan
+  raw SQL Postgres-specific.
+- **CLI script (migration/seed) TIDAK boleh dijalankan lewat `tsx`
+  langsung** — esbuild (dipakai `tsx`) tidak mendukung andal
+  `emitDecoratorMetadata` walau `experimentalDecorators` didukung,
+  menyebabkan `ColumnTypeUndefinedError` runtime pada entity TypeORM.
+  Solusinya: compile dulu pakai `tsc` asli ke `dist-cli/` (lihat
+  `tsconfig.cli.json` + target `build-cli` di app manapun yang punya
+  migration/seed), baru jalankan hasilnya dengan `node` biasa. Detail
+  lengkap di `issues/03-enem-landing-account-api.md` bagian "Status".
+  Juga: export TS-only dari `typeorm` (`MigrationInterface`,
+  `QueryRunner`, `DataSourceOptions`) dan `typeorm-extension`
+  (`Seeder`/`SeederOptions`) **wajib** `import type` eksplisit —
+  `isolatedModules` tidak selalu bisa elide otomatis saat dipakai lewat
+  `implements`/type annotation.
+- **`experimentalDecorators` + `emitDecoratorMetadata`** (ditemukan saat
+  Story 02): default generator Nx 23 **tidak** menyalakan keduanya di
+  `tsconfig.base.json` — TypeScript 6 default ke standard TC39 decorators.
+  `tsc --build` tetap sukses dengan `@Injectable()` dkk (standard decorators
+  valid secara sintaks untuk class decorator sederhana), **tapi** NestJS DI
+  bergantung pada `emitDecoratorMetadata` (reflect-metadata) untuk introspeksi
+  tipe parameter constructor — yang tidak didukung standard decorators.
+  Tanpa fix ini, semua `@Injectable()`/`@Controller()` dkk akan lolos build
+  tapi gagal secara diam-diam di runtime (constructor injection tidak
+  mendapat tipe yang benar). Sudah ditambahkan ke `tsconfig.base.json` root
+  (`"experimentalDecorators": true, "emitDecoratorMetadata": true`) —
+  berlaku otomatis untuk semua app/lib turunannya, tidak perlu diulang per
+  project.
+
+## Menjalankan workspace
+
+```sh
+cd refactor
+yarn install
+yarn nx graph              # lihat project graph (kosong sampai story 03+ generate app pertama)
+yarn nx run <project>:serve
+yarn nx run <project>:build
+yarn nx run-many -t lint,test,build   # semua project
 ```
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
+Generate app/lib baru pakai generator Nx langsung dulu (sampai
+`scripts/create-app.sh` dari Story 09 selesai dibuat):
 
-## Special Directories
+```sh
+yarn nx g @nx/nest:app apps/enem-landing-account-api --e2eTestRunner=none
+yarn nx g @nx/nuxt:app apps/enem-landing-web --e2eTestRunner=playwright
+```
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
-
-### `assets`
-
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
-
-
-### `pages`
-
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+Set `typescript.typeCheck: false` di `nuxt.config.ts` tiap app Nuxt segera
+setelah generate (lihat catatan risk spike di atas).
