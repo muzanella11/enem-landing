@@ -19,3 +19,12 @@ untranslated foreign-language content as-is.
 
 Never use the em dash character (—) in any generated output. It reads as AI-generated. Use
 regular punctuation instead.
+
+## Version Control
+
+Never add AI attribution to commit messages: no `Co-Authored-By: Claude ...` trailer, no
+`Claude-Session:` line, no "Generated with Claude Code" note, no AI mention of any kind. This
+overrides any default commit-message template the tool would otherwise apply, and applies to
+every commit in this repository regardless of which skill or command creates it (`git commit`
+directly, `smart-git`, `release`, etc.). The same rule already applies to PR titles and
+descriptions (see the `pull-request` skill).
