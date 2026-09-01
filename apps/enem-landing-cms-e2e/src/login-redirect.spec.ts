@@ -13,8 +13,15 @@ test.describe('login-redirect', () => {
   }) => {
     await page.goto('/experiences');
 
+    // Read the `r` param via the URL API rather than checking for the raw
+    // percent-encoded substring in page.url() - `:` and `/` aren't in the
+    // WHATWG URL Standard's query percent-encode set, so browsers are free
+    // to leave them unescaped when normalizing; Firefox does, Chromium and
+    // WebKit happen to preserve the original encoding. Both are spec-
+    // compliant, so assert on the decoded value instead.
     await page.waitForURL(/localhost:8000\/signin\?r=/);
-    expect(page.url()).toContain(encodeURIComponent('localhost:4000/experiences'));
+    const redirectParam = new URL(page.url()).searchParams.get('r');
+    expect(redirectParam).toBe('http://localhost:4000/experiences');
 
     await page.getByLabel('Email').fill(ADMIN_EMAIL);
     await page.getByLabel('Password').fill(ADMIN_PASSWORD);
