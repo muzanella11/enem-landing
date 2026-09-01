@@ -1,0 +1,147 @@
+# LOCAL LAPTOP dev override for compose.yml (Story 10, issues/10-infra-cicd.md).
+#
+# This file has NO mau-apps equivalent - mau-apps' own `compose.dev.yml` is
+# actually a remote dev-VPS Swarm overlay (floating `:dev` registry image +
+# DATABASE_NAME, see its header), not a laptop file; mau-apps developers run
+# its `infra/mysql`/`infra/redis` standalone Dockerfiles by hand for local
+# work instead of through a single compose command. This project's own
+# story 10 doc asked for a `docker compose up` dev path with local
+# MySQL/Redis "mirroring compose.dev.yml" - that assumption about
+# mau-apps' file turned out wrong once actually read; this file is the
+# correction, providing what was actually wanted (self-contained local dev,
+# no VPS/registry/Aiven/Upstash dependency) under an honestly-named file
+# instead of overloading `compose.dev.yml` with a meaning mau-apps doesn't
+# give it.
+#
+# Usage: `docker compose -f compose.yml -f compose.local.yml up --build`
+# This is a plain (non-Swarm) compose invocation - the `deploy:` block in
+# compose.yml (replicas/update_config/rollback_config/restart_policy) is
+# simply ignored by the compose engine outside Swarm mode; only
+# `deploy.resources.limits` would be honored if present here, which is
+# deliberately not set for local dev (see compose.prod.yml for where that
+# tuning actually lives).
+#
+# `enem-landing-network` (declared external in compose.yml) needs to exist
+# before this runs: `docker network create enem-landing-network` once.
+#
+# MySQL/Redis are NOT published to host ports 3306/6379 - this machine
+# already runs unrelated long-running `mysql`/`redis` containers on those
+# exact ports for other real projects. Service-to-service traffic (the app
+# containers talking to `mysql`/`redis` here) happens over the compose
+# network by service name regardless of host port publishing, so nothing
+# functional is lost - `mysql`/`redis` are still reachable from the host
+# for manual inspection via the alternate ports below if ever needed.
+
+services:
+  enem-landing-account-api:
+    build:
+      context: .
+      target: enem-landing-account-api
+    environment:
+      DATABASE_URL: mysql://enem_landing:enem_landing@mysql:3306/enem_landing_account
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_USERNAME: ""
+      REDIS_PASSWORD: ""
+      REDIS_DB: "0"
+      REDIS_TLS_ENABLED: "false"
+      REDIS_KEY_PREFIX: ""
+      JWT_SECRET: local-dev-only-not-a-real-secret
+      JWT_EXPIRES_IN_SECONDS: "172800"
+      ALLOW_SIGNUP: "false"
+      CORS_ORIGIN: http://localhost:4000,http://localhost:8000
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  # Nuxt runtimeConfig - NUXT_/NUXT_PUBLIC_ prefix required for the runtime
+  # override to take effect (see compose.yml header comment - found by
+  # actually testing cross-container calls, not assumed).
+  enem-landing-account-web:
+    build:
+      context: .
+      target: enem-landing-account-web
+    environment:
+      NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: ""
+    ports:
+      - "8000:8000"
+
+  enem-landing-api:
+    build:
+      context: .
+      target: enem-landing-api
+    environment:
+      DATABASE_URL: mysql://enem_landing:enem_landing@mysql:3306/enem_landing_api
+      # Plain name - NestJS, read via plain process.env by SsoAuthGuard.
+      ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      CORS_ORIGIN: http://localhost:4000,http://localhost:8001
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+  enem-landing-cms:
+    build:
+      context: .
+      target: enem-landing-cms
+    environment:
+      NUXT_API_HOST: http://enem-landing-api:3001
+      NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      NUXT_PUBLIC_ACCOUNT_WEB_HOST: http://localhost:8000
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: ""
+    ports:
+      - "4000:4000"
+
+  enem-landing-web:
+    build:
+      context: .
+      target: enem-landing-web
+    environment:
+      NUXT_API_HOST: http://enem-landing-api:3001
+      # GOOGLE_ANALYTICS_ID deliberately not set here - build-time only
+      # (nuxt.config.ts reads process.env directly, not runtimeConfig), see
+      # compose.yml header comment. A no-op here either way.
+    ports:
+      - "8001:8001"
+
+  # `MYSQL_DATABASE` (single-DB) doesn't cover it - both
+  # enem_landing_account and enem_landing_api need to exist, created via
+  # the init script below (runs on first boot only, same as
+  # infra/mysql/init in mau-apps).
+  mysql:
+    image: mysql:8.0
+    networks: [enem-landing-network]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: enem_landing
+      MYSQL_PASSWORD: enem_landing
+    ports:
+      - "3320:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - enem-landing-local-mysql:/var/lib/mysql
+      - ./infra/mysql/init:/docker-entrypoint-initdb.d:ro
+
+  redis:
+    image: redis:7-alpine
+    networks: [enem-landing-network]
+    ports:
+      - "6390:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  enem-landing-local-mysql:

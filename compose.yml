@@ -1,0 +1,198 @@
+# Base Swarm stack definition for the 5 Nx apps (Story 10,
+# issues/10-infra-cicd.md), ported from mau-apps/compose.yml as closely as
+# this workspace's own decisions allow.
+#
+# Always used together with an environment override:
+#   docker stack deploy -c compose.yml -c compose.<env>.yml <stack-name>
+# (compose.yml alone is incomplete - `image` is deliberately left unset here,
+# supplied by compose.dev.yml/compose.prod.yml so image tag is the only
+# thing that differs between environments per service, same as mau-apps.)
+#
+# For a LOCAL LAPTOP dev workflow (no VPS, no registry image, no managed
+# Aiven/Upstash) use compose.local.yml instead - see its own header for why
+# this is a separate file from compose.dev.yml rather than folding local
+# MySQL/Redis into it. `docker compose -f compose.yml -f compose.local.yml
+# up` is a plain (non-Swarm) compose invocation; the `deploy:` keys below
+# are simply ignored by the non-Swarm compose engine in that mode.
+#
+# Differences from mau-apps' compose.yml, all because enem-landing is a
+# 5-app project that went straight to managed MySQL/Redis (Aiven/Upstash)
+# from day one - no self-hosted MySQL/Redis/RabbitMQ ever existed here to
+# keep around as a commented rollback option like mau-apps does:
+#   - No `x-database-env`/`x-redis-env` shared anchors - each app's real env
+#     var names differ (`DATABASE_URL` as one connection string, not
+#     decomposed HOST/PORT/USERNAME/PASSWORD/SSL_ENABLED like mau-apps),
+#     verified against each app's own .env.example. Only
+#     `enem-landing-account-api` uses Redis (token blocklist) - not both
+#     APIs like mau-apps' account-api/topup-api.
+#   - No RabbitMQ - enem-landing has no message-queue use case (see
+#     issues/00-epic-overview.md decision #6 and story 10's own "Out of
+#     scope").
+#   - No per-app `JWT_SECRET_<APP>` - a single `enem-landing-account-api` is
+#     the only token issuer here (vs mau-apps' 4 separate JWT secrets for 4
+#     separate identity-issuing APIs).
+#   - `enem-landing-account-api` decided INTERNAL-ONLY (traefik.enable=false),
+#     not "needs a decision" - verified by grep: `ACCOUNT_API_HOST` is
+#     server-only `runtimeConfig` (never `runtimeConfig.public`) in both
+#     enem-landing-account-web and enem-landing-cms's nuxt.config.ts, and no
+#     browser-side code (outside `server/api/**`, which runs server-side)
+#     references it. Every call to it is BFF-proxied. Compare
+#     `ACCOUNT_WEB_HOST`, which IS `runtimeConfig.public` (used client-side
+#     by useAuthGuard/useAuthCookie) - that one gets a real Host() router
+#     below.
+#   - Domain: `enem-landing.com` below is a PLACEHOLDER, not a confirmed
+#     real domain - reusing the exact placeholder each app's own
+#     .env.example already uses for `SHARED_COOKIE_DOMAIN`
+#     (".enem-landing.com") for consistency, not inventing a new one.
+#     Replace with the real domain before this ever gets deployed for real
+#     (also update `SHARED_COOKIE_DOMAIN` in deploy-vars.yml's app_env at
+#     that point).
+#   - NO shared `x-internal-hosts` anchor applied uniformly to every
+#     service, unlike mau-apps - found via real `docker compose up` testing
+#     (not assumed) that this doesn't actually translate: the 2 NestJS APIs
+#     read env vars via plain `process.env` (bare names work), but Nuxt's
+#     `runtimeConfig` only honors a RUNTIME env override when the var name
+#     has the `NUXT_`/`NUXT_PUBLIC_` prefix (Nuxt's own convention) - a
+#     bare `API_HOST` only ever affects `nuxt.config.ts`'s
+#     `process.env['API_HOST']` read at BUILD time, and is silently ignored
+#     at container runtime. Confirmed by reproducing the bug (a bare
+#     `API_HOST` produced 500s from enem-landing-web's own BFF route
+#     calling enem-landing-api, both containers otherwise healthy and
+#     network-reachable via `wget` - only fixed by renaming to
+#     `NUXT_API_HOST`). Each Nuxt service's `environment:` below is spelled
+#     out explicitly per its own `nuxt.config.ts` `runtimeConfig` shape
+#     instead of one shared anchor, since the 2 APIs and 3 Nuxt apps
+#     genuinely need different variable name conventions for the same
+#     internal URLs.
+#   - `enem-landing-web`'s `GOOGLE_ANALYTICS_ID` is NOT set here - it's read
+#     directly via `process.env['GOOGLE_ANALYTICS_ID']` inside
+#     `nuxt.config.ts` (not `runtimeConfig`), so it only ever takes effect
+#     at `nx build` time (baked into the image), never at container
+#     runtime - setting it in `environment:` here would be a silent no-op.
+#     Since the ID is fixed/non-secret and the same for every environment,
+#     baking it once at build time is fine - it just needs to be present in
+#     the shell env of whatever runs `nx build enem-landing-web` for CI
+#     (story 10's still-open build-push.yml), not here.
+#
+# Network `enem-landing-network` - created by story 09's init-server.yml
+# (overlay, attachable, external here) - do not rename without updating
+# that playbook too.
+
+x-deploy-defaults: &deploy-defaults
+  replicas: 1
+  update_config:
+    order: start-first
+    failure_action: rollback
+    delay: 10s
+    monitor: 30s
+  rollback_config:
+    order: stop-first
+  restart_policy:
+    condition: on-failure
+
+networks:
+  enem-landing-network:
+    external: true
+
+services:
+  # --- Identity/auth ---
+  enem-landing-account-api:
+    networks: [enem-landing-network]
+    environment:
+      DATABASE_URL: ${DATABASE_URL_ACCOUNT_API}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_TLS_ENABLED: ${REDIS_TLS_ENABLED}
+      REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN_SECONDS: "172800"
+      ALLOW_SIGNUP: "false"
+      CORS_ORIGIN: https://cms.enem-landing.com,https://account.enem-landing.com
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_ENDPOINT: ${R2_ENDPOINT}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME}
+      R2_PUBLIC_URL_BASE: ${R2_PUBLIC_URL_BASE}
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=false # internal-only, see header comment
+
+  enem-landing-account-web:
+    networks: [enem-landing-network]
+    environment:
+      # Nuxt runtimeConfig - NUXT_/NUXT_PUBLIC_ prefix required for the
+      # runtime override to actually take effect, see header comment.
+      NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .enem-landing.com
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.enem-landing-account-web.rule=Host(`account.enem-landing.com`)
+        - traefik.http.routers.enem-landing-account-web.entrypoints=websecure
+        - traefik.http.routers.enem-landing-account-web.tls=true
+        - traefik.http.routers.enem-landing-account-web.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-account-web.loadbalancer.server.port=8000
+
+  # --- Business domain ---
+  enem-landing-api:
+    networks: [enem-landing-network]
+    environment:
+      DATABASE_URL: ${DATABASE_URL_API}
+      # Plain name (not NUXT_-prefixed) - this is a NestJS app, read via
+      # plain process.env by SsoAuthGuard (libs/backend/sso).
+      ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      CORS_ORIGIN: https://cms.enem-landing.com,https://enem-landing.com
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.enem-landing-api.rule=Host(`api.enem-landing.com`)
+        - traefik.http.routers.enem-landing-api.entrypoints=websecure
+        - traefik.http.routers.enem-landing-api.tls=true
+        - traefik.http.routers.enem-landing-api.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-api.loadbalancer.server.port=3001
+
+  enem-landing-cms:
+    networks: [enem-landing-network]
+    environment:
+      NUXT_API_HOST: http://enem-landing-api:3001
+      NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://account.enem-landing.com
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .enem-landing.com
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.enem-landing-cms.rule=Host(`cms.enem-landing.com`)
+        - traefik.http.routers.enem-landing-cms.entrypoints=websecure
+        - traefik.http.routers.enem-landing-cms.tls=true
+        - traefik.http.routers.enem-landing-cms.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-cms.loadbalancer.server.port=4000
+
+  enem-landing-web:
+    networks: [enem-landing-network]
+    environment:
+      NUXT_API_HOST: http://enem-landing-api:3001
+      # GOOGLE_ANALYTICS_ID deliberately NOT here - build-time only, see
+      # header comment.
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.enem-landing-web.rule=Host(`enem-landing.com`)
+        - traefik.http.routers.enem-landing-web.entrypoints=websecure
+        - traefik.http.routers.enem-landing-web.tls=true
+        - traefik.http.routers.enem-landing-web.tls.certresolver=cloudflare
+        # Apex domain - trigger the wildcard cert request (main=enem-landing.com
+        # + sans=*.enem-landing.com) here, same pattern as mau-apps'
+        # mau-compro-landing-web router. Traefik stores the result in its
+        # global cert store, automatically reused for SNI on any matching
+        # subdomain - no need to repeat this on the other app routers.
+        - traefik.http.routers.enem-landing-web.tls.domains[0].main=enem-landing.com
+        - traefik.http.routers.enem-landing-web.tls.domains[0].sans=*.enem-landing.com
+        - traefik.http.services.enem-landing-web.loadbalancer.server.port=8001
