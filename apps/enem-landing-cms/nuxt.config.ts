@@ -11,6 +11,31 @@ const { version: VERSION } = JSON.parse(
 export default defineNuxtConfig({
   workspaceDir: '../../',
   modules: ['@pinia/nuxt', 'vuetify-nuxt-module', '@nuxtjs/tailwindcss'],
+  // Brand identity ported from mau-apps' mau-account-web
+  // (src/plugins/vuetify.ts's `customTheme`) - enem-landing-cms had no
+  // custom Vuetify theme at all before this (just the module's untouched
+  // Material Design defaults), unlike every other mau-apps dashboard.
+  vuetify: {
+    vuetifyOptions: {
+      theme: {
+        defaultTheme: 'enemLandingCms',
+        themes: {
+          enemLandingCms: {
+            dark: false,
+            colors: {
+              primary: '#ff318c',
+              secondary: '#6d1a57',
+              accent: '#d16bb7',
+              error: '#e53935',
+              info: '#1e88e5',
+              success: '#43a047',
+              warning: '#fb8c00',
+            },
+          },
+        },
+      },
+    },
+  },
   devtools: { enabled: true },
   devServer: {
     host: 'localhost',
@@ -31,7 +56,8 @@ export default defineNuxtConfig({
       // Not sensitive — needed client-side by useAuthGuard to build the
       // signin redirect URL, and by useAuthCookie to set the shared-domain
       // cookie.
-      accountWebHost: process.env['ACCOUNT_WEB_HOST'] || 'http://localhost:8000',
+      accountWebHost:
+        process.env['ACCOUNT_WEB_HOST'] || 'http://localhost:8000',
       sharedCookieDomain: process.env['SHARED_COOKIE_DOMAIN'] || '',
     },
   },
@@ -61,7 +87,11 @@ export default defineNuxtConfig({
     // Shared brand assets (favicon) live once in libs/frontend, mounted
     // here at the public root — mirrors mau-apps' publicAssets pattern.
     publicAssets: [
-      { dir: fileURLToPath(new URL('../../libs/frontend/src/assets/images', import.meta.url)) },
+      {
+        dir: fileURLToPath(
+          new URL('../../libs/frontend/src/assets/images', import.meta.url),
+        ),
+      },
     ],
   },
 });

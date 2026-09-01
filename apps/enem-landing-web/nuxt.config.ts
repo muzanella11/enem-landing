@@ -38,7 +38,11 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'preconnect',
+          href: 'https://fonts.gstatic.com',
+          crossorigin: '',
+        },
         {
           rel: 'stylesheet',
           // Original site's theme (startbootstrap-freelancer) pairs Montserrat
@@ -46,7 +50,13 @@ export default defineNuxtConfig({
           href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
         },
       ],
-      meta: [{ name: 'format-detection', content: 'telephone=no' }],
+      meta: [
+        { name: 'format-detection', content: 'telephone=no' },
+        // Colors the mobile browser UI chrome (address bar on Android
+        // Chrome, tab bar area on iOS Safari) to match the site's brand
+        // teal (see Masthead.vue's header background).
+        { name: 'theme-color', content: '#0E7C6B' },
+      ],
       script: googleAnalyticsId
         ? [
             {
@@ -79,7 +89,10 @@ gtag('config', '${googleAnalyticsId}');`,
   imports: {
     autoImport: true,
   },
-  css: ['~/assets/css/styles.css', '@enem-landing/frontend/assets/scss/main.scss'],
+  css: [
+    '~/assets/css/styles.css',
+    '@enem-landing/frontend/assets/scss/main.scss',
+  ],
   vite: {
     plugins: [nxViteTsPaths()],
   },
@@ -89,7 +102,11 @@ gtag('config', '${googleAnalyticsId}');`,
     // duplicated into every app's own public/ dir — mirrors mau-apps'
     // publicAssets pattern.
     publicAssets: [
-      { dir: fileURLToPath(new URL('../../libs/frontend/src/assets/images', import.meta.url)) },
+      {
+        dir: fileURLToPath(
+          new URL('../../libs/frontend/src/assets/images', import.meta.url),
+        ),
+      },
     ],
   },
 });
