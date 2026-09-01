@@ -26,12 +26,37 @@ const DEFAULT_SEO = {
 // null - no seo-meta row yet for "home" falls straight through to the
 // defaults below.
 const { data: seoResponse } = await useFetch<SeoMeta>('/api/seo-meta/home');
+const seoTitle = computed(() => seoResponse.value?.title ?? DEFAULT_SEO.title);
+const seoDescription = computed(
+  () => seoResponse.value?.description ?? DEFAULT_SEO.description,
+);
 useSeoMeta({
-  title: seoResponse.value?.title ?? DEFAULT_SEO.title,
-  description: seoResponse.value?.description ?? DEFAULT_SEO.description,
-  ogTitle: seoResponse.value?.title ?? DEFAULT_SEO.title,
-  ogDescription: seoResponse.value?.description ?? DEFAULT_SEO.description,
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
   ogImage: seoResponse.value?.ogImageUrl || undefined,
+});
+// `siteProfile`/`seoResponse` are already resolved by the top-level
+// `await useFetch(...)` calls above, so this doesn't need to be reactive -
+// computed once per SSR render, same as the page's other derived values.
+const personJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: siteProfile.value?.heroTitle || DEFAULT_SEO.title,
+  jobTitle: siteProfile.value?.heroSubtitle || 'Frontend Engineer',
+  description: seoDescription.value,
+  url: 'https://muzanella.com/',
+  ...(siteProfile.value?.avatarUrl
+    ? { image: siteProfile.value.avatarUrl }
+    : {}),
+  ...(siteProfile.value?.socialLinks?.length
+    ? { sameAs: siteProfile.value.socialLinks.map((link) => link.url) }
+    : {}),
+});
+useHead({
+  link: [{ rel: 'canonical', href: 'https://muzanella.com/' }],
+  script: [{ type: 'application/ld+json', innerHTML: personJsonLd }],
 });
 
 const portfolioEntries = computed<Project[]>(

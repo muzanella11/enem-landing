@@ -4,11 +4,12 @@ import { runSeeders } from 'typeorm-extension';
 import type { SeederOptions } from 'typeorm-extension';
 import { config } from './typeorm.config.js';
 import ExperiencesSeed from './seeds/experiences.seed.js';
+import SeoMetaSeed from './seeds/seo-meta.seed.js';
 import SiteProfileSeed from './seeds/site-profile.seed.js';
 
 const seederConfig: DataSourceOptions & SeederOptions = {
   ...config,
-  seeds: [ExperiencesSeed, SiteProfileSeed],
+  seeds: [ExperiencesSeed, SiteProfileSeed, SeoMetaSeed],
 };
 
 const dataSource = new DataSource(seederConfig);
