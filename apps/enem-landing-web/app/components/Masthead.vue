@@ -8,6 +8,18 @@ defineProps<{
   avatarUrl: string;
   skills: Skill[];
 }>();
+
+const DEFAULT_AVATAR = '/avataaars.svg';
+
+// A broken/404ing avatarUrl (deleted upload, bad CMS entry) would
+// otherwise render as a broken-image icon - the `src` check guards
+// against looping if DEFAULT_AVATAR itself ever failed to load.
+const onImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  if (img.src !== new URL(DEFAULT_AVATAR, window.location.href).href) {
+    img.src = DEFAULT_AVATAR;
+  }
+};
 </script>
 
 <template>
@@ -18,6 +30,7 @@ defineProps<{
         :alt="title"
         fetchpriority="high"
         class="w-48 lg:w-60 mb-8 rounded-full bg-white"
+        @error="onImageError"
       />
 
       <h1 class="uppercase font-bold text-4xl lg:text-6xl leading-tight">

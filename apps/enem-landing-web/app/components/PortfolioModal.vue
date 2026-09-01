@@ -4,6 +4,18 @@ import SectionDivider from './SectionDivider.vue';
 
 defineProps<{ project: Project | null }>();
 const emit = defineEmits<{ close: [] }>();
+
+const IMAGE_NOT_AVAILABLE = '/img/image-not-available.svg';
+
+// A broken/404ing image URL (deleted upload, bad CMS entry) would
+// otherwise render as a broken-image icon - the `src` check guards
+// against looping if IMAGE_NOT_AVAILABLE itself ever failed to load.
+const onImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  if (img.src !== new URL(IMAGE_NOT_AVAILABLE, window.location.href).href) {
+    img.src = IMAGE_NOT_AVAILABLE;
+  }
+};
 </script>
 
 <template>
@@ -31,6 +43,7 @@ const emit = defineEmits<{ close: [] }>();
         :src="project.image[0]"
         :alt="project.title"
         class="w-full h-64 object-contain rounded mb-4 bg-slate-50"
+        @error="onImageError"
       />
 
       <p class="mb-2">

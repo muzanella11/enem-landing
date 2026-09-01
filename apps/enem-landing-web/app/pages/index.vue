@@ -11,6 +11,17 @@ import SectionDivider from '../components/SectionDivider.vue';
 
 const IMAGE_NOT_AVAILABLE = '/img/image-not-available.svg';
 
+// `project.image[0] || IMAGE_NOT_AVAILABLE` only covers a missing URL - a
+// broken/404ing one (deleted upload, bad CMS entry) would otherwise render
+// as a broken-image icon. The `src` check guards against looping if
+// IMAGE_NOT_AVAILABLE itself ever failed to load.
+const onImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  if (img.src !== new URL(IMAGE_NOT_AVAILABLE, window.location.href).href) {
+    img.src = IMAGE_NOT_AVAILABLE;
+  }
+};
+
 // SEO meta is optional content (managed via enem-landing-cms) - fall back
 // to sensible defaults rather than a hard failure when nothing's been set
 // for this page yet.
@@ -239,6 +250,7 @@ const submitContact = async () => {
                 :alt="project.title"
                 loading="lazy"
                 class="w-full h-52 object-cover"
+                @error="onImageError"
               />
               <span
                 class="absolute inset-0 flex items-center justify-center bg-[#0E7C6B]/90 opacity-0 group-hover:opacity-100 transition-opacity text-white text-3xl font-light"
