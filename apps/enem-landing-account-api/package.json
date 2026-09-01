@@ -116,6 +116,22 @@
           "command": "node dist-cli/database/seed.js",
           "cwd": "apps/enem-landing-account-api"
         }
+      },
+      "lint:format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --check 'apps/enem-landing-account-api/src/**/*.ts'"
+          ]
+        }
+      },
+      "lint:format:fix": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --write 'apps/enem-landing-account-api/src/**/*.ts'"
+          ]
+        }
       }
     },
     "name": "enem-landing-account-api"

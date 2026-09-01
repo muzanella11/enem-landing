@@ -2,6 +2,26 @@
   "name": "enem-landing-cms",
   "version": "0.0.1",
   "private": true,
+  "nx": {
+    "targets": {
+      "lint:format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --check 'apps/enem-landing-cms/{app,server}/**/*.{ts,vue}'"
+          ]
+        }
+      },
+      "lint:format:fix": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --write 'apps/enem-landing-cms/{app,server}/**/*.{ts,vue}'"
+          ]
+        }
+      }
+    }
+  },
   "dependencies": {
     "@enem-landing/frontend": "0.0.1",
     "@enem-landing/shared-definitions": "0.0.1",

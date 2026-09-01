@@ -82,6 +82,12 @@
   "targetDefaults": {
     "test": {
       "dependsOn": ["^build"]
+    },
+    "lint:format": {
+      "cache": true
+    },
+    "lint:format:fix": {
+      "cache": false
     }
   }
 }

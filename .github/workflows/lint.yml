@@ -37,16 +37,9 @@ jobs:
       - name: Run ESLint
         run: yarn lint
 
-      # No dedicated `lint:format` package.json script exists in this
-      # workspace (unlike mau-apps) - run prettier directly instead of
-      # adding one just for this workflow.
-      #
-      # KNOWN GAP (verified 2026-09-01): `yarn prettier --check .` currently
-      # fails against 123 files in this repo - real pre-existing formatting
-      # drift, not something this workflow's job to fix. The very first CI
-      # run on this workflow will be red on this step until someone runs
-      # `yarn prettier --write .` separately. Left in (not softened/removed)
-      # because that's what porting `lint.yml` means - silently dropping the
-      # check to get a green CI would hide the actual state of the repo.
+      # Scoped per-app via Nx `lint:format` targets (apps/<app>/package.json),
+      # same pattern as mau-apps - NOT a bare `prettier --check .`, which
+      # would also scan infra/docs/config paths that aren't Prettier's
+      # concern here.
       - name: Run Prettier
-        run: yarn prettier --check .
+        run: yarn lint:format

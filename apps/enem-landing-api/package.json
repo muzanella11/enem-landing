@@ -106,6 +106,22 @@
           "command": "node ../../node_modules/typeorm/cli.js migration:revert -d dist-cli/database/data-source.js",
           "cwd": "apps/enem-landing-api"
         }
+      },
+      "lint:format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --check 'apps/enem-landing-api/src/**/*.ts'"
+          ]
+        }
+      },
+      "lint:format:fix": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --write 'apps/enem-landing-api/src/**/*.ts'"
+          ]
+        }
       }
     }
   },
