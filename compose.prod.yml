@@ -1,0 +1,89 @@
+# PROD environment override for compose.yml (Story 10, issues/10-infra-cicd.md),
+# ported from mau-apps/compose.prod.yml - same OOM-prevention approach,
+# per explicit user direction: keep memory tuning identical to mau-apps
+# ("Sama persis cara optimize nya dengan di mau apps agar tidak terjadi
+# oom. Karna spek server di sini kecil").
+#
+# Used together with the base:
+#   docker stack deploy -c compose.yml -c compose.prod.yml <stack-name>
+#
+# Budget (5 apps, all managed MySQL/Redis via Aiven/Upstash from day one -
+# no self-hosted stateful service to budget for at all, unlike mau-apps'
+# RabbitMQ/MySQL/Redis): 5 apps @ 100M = 500 MB allocated to containers.
+# Even a small 1 GB VPS leaves real headroom for OS + Docker daemon +
+# Traefik (~64M, see infra/ansible/playbooks/templates/traefik-stack.yml.j2)
+# on top of this - this workspace never had mau-apps' original
+# self-hosted-MySQL/Redis-era budget pressure (~1.7-2 GB) to begin with.
+# Actual server RAM hasn't been confirmed against this budget yet (no VPS
+# provisioned this session) - re-check with `free -h` on the real host
+# during story 10's remaining provisioning work, same caution mau-apps'
+# own comment gives ("tetap dipantau, bukan alasan untuk berhenti disiplin").
+#
+# `restart_policy.condition: on-failure` is already set via
+# `x-deploy-defaults` in compose.yml - a container that exceeds its memory
+# limit and gets OOM-killed restarts from there automatically, no need to
+# repeat it here.
+#
+# Tuning (mirrors mau-apps' Story 2.4 finding exactly): `NODE_OPTIONS:
+# --max-old-space-size=60` per app, deliberately far below the 100M
+# mem_limit - V8 heap is only part of a Node process's total memory (native
+# addons/buffers/stack sit outside the heap), so the heap limit needs
+# significant headroom below the container ceiling, not to sit flush
+# against it. If a future workload here ever needs bulk-processing headroom
+# the way mau-topup-api's IAK catalog sync did (see mau-apps' own comment
+# for that incident), raise that one app's limit + heap together, keeping
+# the same ~60% heap/ceiling ratio - don't raise it speculatively before an
+# actual OOM is observed.
+#
+# compose.dev.yml deliberately has no equivalent limit/tuning, matching
+# mau-apps (dev server spec not held to the same bar as prod).
+
+x-node-tuning: &node-tuning
+  environment:
+    NODE_OPTIONS: --max-old-space-size=60
+
+services:
+  # enem-landing-account-api doesn't use `<<: *node-tuning` (unlike the 4
+  # Nuxt apps below) - same reason as mau-apps' NestJS services:
+  # `environment:` needs NODE_OPTIONS alongside other keys explicitly, since
+  # YAML's `<<:` merge key does NOT deep-merge a nested map - redeclaring
+  # `environment:` at the same level REPLACES the anchor's contents rather
+  # than merging into them (mau-apps found this the hard way wiring their
+  # own Story 2.6; noted here so it isn't rediscovered).
+  enem-landing-account-api:
+    image: ghcr.io/muzanella11/enem-landing-account-api:prod
+    environment:
+      NODE_OPTIONS: --max-old-space-size=60
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+  enem-landing-account-web:
+    image: ghcr.io/muzanella11/enem-landing-account-web:prod
+    <<: *node-tuning
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+  enem-landing-api:
+    image: ghcr.io/muzanella11/enem-landing-api:prod
+    environment:
+      NODE_OPTIONS: --max-old-space-size=60
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+  enem-landing-cms:
+    image: ghcr.io/muzanella11/enem-landing-cms:prod
+    <<: *node-tuning
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+  enem-landing-web:
+    image: ghcr.io/muzanella11/enem-landing-web:prod
+    <<: *node-tuning
+    deploy:
+      resources:
+        limits:
+          memory: 100M

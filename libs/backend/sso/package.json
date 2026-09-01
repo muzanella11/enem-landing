@@ -1,0 +1,32 @@
+{
+  "name": "@enem-landing/backend-sso",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "name": "backend-sso"
+  },
+  "dependencies": {
+    "@enem-landing/shared-types": "0.0.1",
+    "@enem-landing/shared-utils": "0.0.1",
+    "@nestjs/common": "^11.0.0",
+    "axios": "^1.20.0",
+    "express": "^5.2.1",
+    "form-data": "^4.0.6",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
+  }
+}

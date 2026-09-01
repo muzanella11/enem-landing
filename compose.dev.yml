@@ -1,0 +1,35 @@
+# DEV environment override for compose.yml (Story 10, issues/10-infra-cicd.md),
+# ported from mau-apps/compose.dev.yml.
+#
+# Used together with the base:
+#   docker stack deploy -c compose.yml -c compose.dev.yml <stack-name>
+#
+# This is a REMOTE dev-VPS Swarm deployment overlay (mirrors mau-apps'
+# actual compose.dev.yml exactly: just a floating `:dev` image tag +
+# per-app DATABASE_NAME) - NOT a local-laptop file. For local laptop dev
+# without a VPS/registry/managed DB, use compose.local.yml instead (a new
+# file, not a mau-apps port - see its own header for why).
+#
+# `DATABASE_NAME` isn't used directly here (this workspace's DB var is one
+# `DATABASE_URL` connection string per app, not mau-apps' decomposed
+# HOST/PORT/USERNAME/PASSWORD/SSL_ENABLED + separate DATABASE_NAME) - the
+# dev database name is baked into `DATABASE_URL_ACCOUNT_API`/
+# `DATABASE_URL_API` themselves in deploy-vars.yml for the dev run (e.g.
+# .../enem_landing_account_dev), not overridden per-key here the way
+# mau-apps does.
+#
+# No resource limits/NODE_OPTIONS tuning here (matches mau-apps' own
+# compose.dev.yml, which explicitly defers that to prod - "spek server dev
+# belum dikonfirmasi sama ketatnya dengan prod").
+
+services:
+  enem-landing-account-api:
+    image: ghcr.io/muzanella11/enem-landing-account-api:dev
+  enem-landing-account-web:
+    image: ghcr.io/muzanella11/enem-landing-account-web:dev
+  enem-landing-api:
+    image: ghcr.io/muzanella11/enem-landing-api:dev
+  enem-landing-cms:
+    image: ghcr.io/muzanella11/enem-landing-cms:dev
+  enem-landing-web:
+    image: ghcr.io/muzanella11/enem-landing-web:dev

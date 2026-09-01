@@ -1,0 +1,153 @@
+name: enem-landing - Prod
+
+# Ported from mau-apps/.github/workflows/mau-apps-prod.yml. Real prod
+# release trigger: push a semver git tag from master after a PR merge.
+# `github.ref_name` (the tag name, e.g. v1.2.0) is used by build-push.yml
+# as the immutable image tag. Push to `master` itself deliberately does
+# NOT trigger this workflow - a prod release happens purely via tag, not
+# on every merge.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+# Serialize prod release runs (queue, don't cancel) - cancel-in-progress is
+# deliberately left off here (unlike the dev workflow): a run must never be
+# aborted mid-`deploy` (Ansible against the prod VPS), a half-applied
+# deploy is worse than a queued one.
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  # Deviation from mau-apps' CURRENT state: mau-apps-prod.yml has
+  # lint/test/e2e commented out, trusting its `develop` pipeline
+  # (mau-apps-dev.yml, which runs on every push) as the only gate before a
+  # release tag - a decision that evolved over mau-apps' operational
+  # history (see its own workflow file's comments for the back-and-forth).
+  # enem-landing doesn't have that same track record yet, so this keeps
+  # the gate active for now: a release tag must pass lint/test/e2e itself,
+  # not just assume develop already covered the tagged commit. Revisit
+  # once this pipeline has a similar operational history.
+  lint:
+    name: Lint
+    uses: ./.github/workflows/lint.yml
+
+  test:
+    name: Test
+    needs: lint
+    uses: ./.github/workflows/test.yml
+
+  e2e:
+    name: E2E
+    needs: test
+    uses: ./.github/workflows/e2e.yml
+    secrets:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+  build-push:
+    name: Build & Push Images
+    needs: e2e
+    uses: ./.github/workflows/build-push.yml
+    with:
+      environment: prod
+    permissions:
+      contents: read
+      packages: write
+
+  # `needs: build-push` - migration/seed must succeed before `deploy`
+  # below is called, so build failing never mutates the DB schema for
+  # nothing.
+  migrate:
+    name: DB Migration and Seed
+    needs: build-push
+    uses: ./.github/workflows/migrate.yml
+    with:
+      environment: prod
+    secrets:
+      DATABASE_URL_ACCOUNT_API: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+      DATABASE_URL_API: ${{ secrets.DATABASE_URL_API }}
+    permissions:
+      contents: read
+
+  # `needs: migrate` (not build-push) - deploy does NOT run if
+  # migration/seed fails, the new app version must never go live on top
+  # of a schema that hasn't been updated yet.
+  #
+  # `-e ansible_user=deploy -e ansible_ssh_private_key_file=...` required -
+  # infra/ansible/inventories/prod/hosts.ini is meant to be committed with
+  # a real host IP + local-only connection details usable by a human
+  # operator (init-server.yml's own bootstrap use), which a GitHub-hosted
+  # runner obviously doesn't have. Extra-vars (-e) has the highest
+  # precedence in Ansible (wins over inventory host vars, including
+  # connection vars), so this override is valid.
+  deploy:
+    name: Deploy to prod VPS
+    needs: migrate
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ansible
+        run: |
+          pip install ansible-core
+          ansible-galaxy collection install -r infra/ansible/requirements.yml
+
+      # See enem-landing-dev.yml's equivalent step for the full deploy-key
+      # explanation (dedicated ed25519 keypair, not a reuse of the old
+      # Drone secrets).
+      - name: Write deploy SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      # Full app_env format documented in
+      # infra/ansible/playbooks/deploy.yml's own header comment. GitHub
+      # Actions masks secret values in logs automatically, but this is
+      # still written to a file (not echoed directly) and removed in the
+      # final step regardless.
+      - name: Write deploy-vars.yml
+        run: |
+          cat > /tmp/deploy-vars.yml << YAML_EOF
+          ghcr_pat: "${{ secrets.GHCR_PAT }}"
+          app_env:
+            DATABASE_URL_ACCOUNT_API: "${{ secrets.DATABASE_URL_ACCOUNT_API }}"
+            DATABASE_URL_API: "${{ secrets.DATABASE_URL_API }}"
+            REDIS_HOST: "${{ secrets.REDIS_HOST }}"
+            REDIS_PORT: "${{ secrets.REDIS_PORT }}"
+            REDIS_USERNAME: "${{ secrets.REDIS_USERNAME }}"
+            REDIS_PASSWORD: "${{ secrets.REDIS_PASSWORD }}"
+            REDIS_DB: "${{ secrets.REDIS_DB }}"
+            REDIS_TLS_ENABLED: "${{ secrets.REDIS_TLS_ENABLED }}"
+            REDIS_KEY_PREFIX: "${{ secrets.REDIS_KEY_PREFIX }}"
+            JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+            R2_ACCESS_KEY_ID: "${{ secrets.R2_ACCESS_KEY_ID }}"
+            R2_SECRET_ACCESS_KEY: "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+            R2_ENDPOINT: "${{ secrets.R2_ENDPOINT }}"
+            R2_BUCKET_NAME: "${{ secrets.R2_BUCKET_NAME }}"
+            R2_PUBLIC_URL_BASE: "${{ secrets.R2_PUBLIC_URL_BASE }}"
+          YAML_EOF
+
+      - name: Run deploy.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          ansible-playbook infra/ansible/playbooks/deploy.yml \
+            -i infra/ansible/inventories/prod/hosts.ini \
+            -e env=prod \
+            -e ansible_user=deploy \
+            -e ansible_ssh_private_key_file=$HOME/.ssh/deploy_key \
+            -e @/tmp/deploy-vars.yml
+
+      - name: Cleanup
+        if: always()
+        run: rm -f /tmp/deploy-vars.yml ~/.ssh/deploy_key

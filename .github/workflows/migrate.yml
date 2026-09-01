@@ -1,0 +1,67 @@
+# Reusable workflow (workflow_call). Called from enem-landing-dev.yml/
+# enem-landing-prod.yml with `needs: build-push`, runs BEFORE the `deploy`
+# job - keeps the Aiven schema consistent with the app version about to be
+# deployed. Ported from mau-apps/.github/workflows/migrate.yml.
+#
+# Deviations from mau-apps, both verified against this workspace's real
+# app config, not assumed:
+#   - Single `DATABASE_URL` connection string per app (not decomposed
+#     HOST/PORT/USERNAME/PASSWORD), matching each app's own .env.example
+#     and the `DATABASE_URL_ACCOUNT_API`/`DATABASE_URL_API` naming already
+#     established in infra/ansible/playbooks/deploy.yml's header comment
+#     (story 09/10).
+#   - `enem-landing-api` has NO `seed` target (confirmed via `nx show
+#     project` - only `migration:run`/`migration:revert`). Only
+#     `enem-landing-account-api` has one (the StaticAccount superadmin
+#     fixture) - seed only runs for that app.
+#
+# Connection runner -> Aiven: direct to the real hostname (same operator
+# decision mau-apps made - Aiven firewall allow-all, auth+TLS as the only
+# protection). PREREQUISITE (manual, cannot be done from here - no Aiven
+# API token in secrets): the Aiven console's Allowed IP addresses must
+# include 0.0.0.0/0 before this job can succeed.
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "'dev' or 'prod' - selects the GitHub Environment secrets come from"
+        required: true
+        type: string
+    secrets:
+      DATABASE_URL_ACCOUNT_API:
+        required: true
+      DATABASE_URL_API:
+        required: true
+
+jobs:
+  migrate:
+    name: Run DB migration + seed
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'prod' && 'production' || 'development' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Migration - enem-landing-account-api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+        run: yarn nx run enem-landing-account-api:migration:run
+
+      - name: Migration - enem-landing-api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_API }}
+        run: yarn nx run enem-landing-api:migration:run
+
+      - name: Seed - enem-landing-account-api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+        run: yarn nx run enem-landing-account-api:seed

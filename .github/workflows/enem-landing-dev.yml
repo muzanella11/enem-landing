@@ -1,0 +1,205 @@
+name: enem-landing - Dev
+
+# Ported from mau-apps/.github/workflows/mau-apps-dev.yml.
+on:
+  push:
+    branches:
+      - develop
+      - "feat/**"
+      - "refactor/**"
+      - "bugfix/**"
+    paths-ignore:
+      - "issues/**"
+      - "**/*.md"
+      - ".claude/**"
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "issues/**"
+      - "**/*.md"
+      - ".claude/**"
+
+# Cancel a still-running pipeline for the same branch when a newer push
+# supersedes it - deploying the newer commit instead of finishing a stale
+# one is the correct outcome for dev (unlike prod, where a half-applied
+# deploy would be worse than a queued one).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # `push` and `pull_request` can both fire for the same commit (a push to
+  # a feat/**/refactor/**/bugfix/** branch that already has an open PR to
+  # master triggers both `push` and `pull_request: synchronize`).
+  # concurrency above can't dedupe this - push and pull_request land on
+  # different `github.ref` values even for the same commit. Skips (not
+  # removes) the push-triggered run when an open PR already covers this
+  # branch; the pull_request-triggered run always proceeds untouched.
+  check-open-pr:
+    name: Check for duplicate PR run
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      duplicate: ${{ steps.check.outputs.duplicate }}
+    steps:
+      - name: Check for an open PR to master from this branch
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --base master --state open --json number --jq 'length')
+          if [[ "$COUNT" -gt 0 ]]; then
+            echo "duplicate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "duplicate=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  lint:
+    name: Lint
+    needs: check-open-pr
+    if: always() && (github.event_name != 'push' || needs.check-open-pr.outputs.duplicate != 'true')
+    uses: ./.github/workflows/lint.yml
+
+  test:
+    name: Test
+    needs: lint
+    uses: ./.github/workflows/test.yml
+
+  # e2e runs for every trigger of this workflow (push develop/feat/**/
+  # refactor/**/bugfix/** or PR to master) - quality gate before prod, not
+  # limited to develop, since feat/refactor/bugfix branches must also pass
+  # e2e even though they don't build an image or deploy (see build-push
+  # below).
+  e2e:
+    name: E2E
+    needs: test
+    uses: ./.github/workflows/e2e.yml
+    secrets:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+  # Restricted to push on `develop` only (not every push including
+  # feat/**/refactor/**/bugfix/**) - feature branches only need to pass
+  # lint/test/e2e, not build a dev image / migrate the dev DB / deploy to
+  # the dev VPS for every branch.
+  # `needs: e2e` (not `test`) - build deliberately waits for e2e to pass
+  # first, not in parallel, so an image never gets built/pushed if e2e
+  # fails.
+  build-push:
+    name: Build & Push Images
+    needs: e2e
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/build-push.yml
+    with:
+      environment: dev
+    permissions:
+      contents: read
+      packages: write
+
+  migrate:
+    name: DB Migration and Seed
+    needs: build-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/migrate.yml
+    with:
+      environment: dev
+    secrets:
+      DATABASE_URL_ACCOUNT_API: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+      DATABASE_URL_API: ${{ secrets.DATABASE_URL_API }}
+    permissions:
+      contents: read
+
+  # `needs: migrate` - the new app version must not go live on top of a
+  # schema that hasn't been updated yet. `environment: development` - a
+  # separate GitHub Environment from `production` so a secret with the
+  # same name (e.g. DEPLOY_SSH_KEY, DATABASE_URL_*) can hold a different
+  # value per environment.
+  #
+  # Deviation from what this story initially assumed: mau-apps-dev.yml
+  # does NOT call its own scripts/deploy.sh here - it invokes
+  # `ansible-playbook` directly against the dev inventory file (verified
+  # by reading it). scripts/deploy.sh (story 09) is a `<env> <host-ip>
+  # <deploy-vars.yml>` CLI wrapper meant for a human doing an ad-hoc
+  # deploy to an arbitrary host; CI deploys against the FIXED host already
+  # registered in infra/ansible/inventories/dev/hosts.ini, so calling
+  # ansible-playbook directly (mau-apps' actual pattern) fits better than
+  # forcing scripts/deploy.sh's host-ip-as-argument design into CI.
+  deploy:
+    name: Deploy to dev VPS
+    needs: migrate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ansible
+        run: |
+          pip install ansible-core
+          ansible-galaxy collection install -r infra/ansible/requirements.yml
+
+      # Deploy key: a dedicated ed25519 keypair generated for this project
+      # (`~/.ssh/id_ed25519_enem_landing_deploy`, same convention as
+      # scripts/deploy.sh/provision-server.sh from story 09) - NOT a reuse
+      # of the old .drone.yml SSH_HOST/SSH_USER/SSH_PASSWORD secrets
+      # (those are Drone-server-side-only and unreadable anyway). The
+      # public key needs to be added to the dev VPS's `deploy` user
+      # authorized_keys once that VPS is provisioned; the private key's
+      # contents need to be added as this GitHub Environment's
+      # `DEPLOY_SSH_KEY` secret. Neither step can be done from this
+      # session (no VPS, no gh secret-write authorization here).
+      - name: Write deploy SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      # Full app_env format documented in
+      # infra/ansible/playbooks/deploy.yml's own header comment - kept in
+      # sync with that file, not duplicated here in prose.
+      - name: Write deploy-vars.yml
+        run: |
+          cat > /tmp/deploy-vars.yml << YAML_EOF
+          ghcr_pat: "${{ secrets.GHCR_PAT }}"
+          app_env:
+            DATABASE_URL_ACCOUNT_API: "${{ secrets.DATABASE_URL_ACCOUNT_API }}"
+            DATABASE_URL_API: "${{ secrets.DATABASE_URL_API }}"
+            REDIS_HOST: "${{ secrets.REDIS_HOST }}"
+            REDIS_PORT: "${{ secrets.REDIS_PORT }}"
+            REDIS_USERNAME: "${{ secrets.REDIS_USERNAME }}"
+            REDIS_PASSWORD: "${{ secrets.REDIS_PASSWORD }}"
+            REDIS_DB: "${{ secrets.REDIS_DB }}"
+            REDIS_TLS_ENABLED: "${{ secrets.REDIS_TLS_ENABLED }}"
+            REDIS_KEY_PREFIX: "${{ secrets.REDIS_KEY_PREFIX }}"
+            JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+            R2_ACCESS_KEY_ID: "${{ secrets.R2_ACCESS_KEY_ID }}"
+            R2_SECRET_ACCESS_KEY: "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+            R2_ENDPOINT: "${{ secrets.R2_ENDPOINT }}"
+            R2_BUCKET_NAME: "${{ secrets.R2_BUCKET_NAME }}"
+            R2_PUBLIC_URL_BASE: "${{ secrets.R2_PUBLIC_URL_BASE }}"
+          YAML_EOF
+
+      - name: Run deploy.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          ansible-playbook infra/ansible/playbooks/deploy.yml \
+            -i infra/ansible/inventories/dev/hosts.ini \
+            -e env=dev \
+            -e ansible_user=deploy \
+            -e ansible_ssh_private_key_file=$HOME/.ssh/deploy_key \
+            -e @/tmp/deploy-vars.yml
+
+      - name: Cleanup
+        if: always()
+        run: rm -f /tmp/deploy-vars.yml ~/.ssh/deploy_key

@@ -1,0 +1,53 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./libs/shared/types"
+    },
+    {
+      "path": "./libs/shared/definitions"
+    },
+    {
+      "path": "./libs/shared/utils"
+    },
+    {
+      "path": "./libs/backend/redis"
+    },
+    {
+      "path": "./libs/backend/utils"
+    },
+    {
+      "path": "./apps/enem-landing-account-api"
+    },
+    {
+      "path": "./apps/enem-landing-account-web-e2e"
+    },
+    {
+      "path": "./apps/enem-landing-account-web"
+    },
+    {
+      "path": "./libs/backend/sso"
+    },
+    {
+      "path": "./apps/enem-landing-api"
+    },
+    {
+      "path": "./libs/frontend"
+    },
+    {
+      "path": "./apps/enem-landing-cms-e2e"
+    },
+    {
+      "path": "./apps/enem-landing-cms"
+    },
+    {
+      "path": "./apps/enem-landing-web-e2e"
+    },
+    {
+      "path": "./apps/enem-landing-web"
+    }
+  ],
+  "compilerOptions": {}
+}

@@ -1,0 +1,10 @@
+{
+  "name": "enem-landing-account-web",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@enem-landing/frontend": "0.0.1",
+    "@enem-landing/shared-types": "0.0.1",
+    "@enem-landing/shared-utils": "0.0.1"
+  }
+}

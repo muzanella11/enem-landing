@@ -1,0 +1,175 @@
+---
+# Deploy app stack (compose.yml + compose.<env>.yml - added in story 10,
+# issues/10-infra-cicd.md, not yet present at story 09 time) ke server yang
+# sudah diprovisioning (init-server.yml). Ported dari
+# mau-apps/infra/ansible/playbooks/deploy.yml, dengan header
+# dokumentasi app_env diganti ke variable enem-landing yang sebenarnya
+# (dibaca dari apps/{enem-landing-account-api,enem-landing-api,
+# enem-landing-account-web,enem-landing-cms,enem-landing-web}/.env.example)
+# dan tanpa RabbitMQ (enem-landing tidak punya service self-host apapun -
+# lihat issues/00-epic-overview.md keputusan #6).
+#
+# Usage:
+#   ansible-playbook playbooks/deploy.yml -i <inventory> -l <host> \
+#     -e env=prod -e @deploy-vars.yml
+#
+# deploy-vars.yml format - CUMA credential asli (bukan hostname/CORS
+# internal, itu wiring compose.yml/Story 10):
+#   ghcr_pat: "<PAT dari GitHub Secrets GHCR_PAT>"
+#   app_env:
+#     # MySQL (Aiven) - 2 database terpisah (story 03/06), bukan shared-schema
+#     DATABASE_URL_ACCOUNT_API: "mysql://user:pass@host:port/enem_landing_account?ssl-mode=REQUIRED"
+#     DATABASE_URL_API: "mysql://user:pass@host:port/enem_landing_api?ssl-mode=REQUIRED"
+#     # Redis (Upstash) - dipakai enem-landing-account-api saja
+#     REDIS_HOST: "<value>"
+#     REDIS_PORT: "<value>"
+#     REDIS_USERNAME: "<value>"
+#     REDIS_PASSWORD: "<value>"
+#     REDIS_DB: "0"
+#     REDIS_TLS_ENABLED: "true"
+#     REDIS_KEY_PREFIX: ""
+#     # JWT (enem-landing-account-api - satu-satunya penerbit token, tidak
+#     # ada per-app JWT_SECRET_* seperti mau-apps karena cuma 1 identity
+#     # provider di sini, bukan 4)
+#     JWT_SECRET: "<value>"
+#     # Cloudflare R2 (S3-compatible), fitur uploads di enem-landing-account-api
+#     R2_ACCESS_KEY_ID: "<value>"
+#     R2_SECRET_ACCESS_KEY: "<value>"
+#     R2_ENDPOINT: "<value>"
+#     R2_BUCKET_NAME: "<value>"
+#     R2_PUBLIC_URL_BASE: "<value>"
+#
+# Var non-secret (CORS_ORIGIN, ACCOUNT_API_HOST, API_HOST, ACCOUNT_WEB_HOST,
+# SHARED_COOKIE_DOMAIN, ALLOW_SIGNUP) SENGAJA TIDAK di sini - itu wiring
+# internal-routing/config statis, dipasang langsung di compose.yml (story
+# 10), bukan credential yang perlu dirahasiakan lewat deploy-vars.yml,
+# mengikuti pola mau-apps' MAU_*_HOST (juga di compose.yml, bukan
+# app_env).
+#
+# `docker stack deploy` sendiri idempotent/declarative - aman dijalankan
+# ulang, cuma service yang image tag atau config-nya berubah yang di-update
+# Swarm. Rollout PER-SERVICE (bukan borongan) - `docker compose config
+# <service>` render config gabungan (base+override, env var
+# ter-substitusi) untuk SATU service, ditulis ke file sementara, lalu
+# `docker stack deploy -c <file>` dipanggil bergiliran - `docker stack
+# deploy` tanpa `--prune` cuma create/update service yang ADA di file yang
+# di-pass, tidak pernah menghapus service lain yang tidak disebut. Dengan
+# cuma 5 service (vs mau-apps' 16+), resource contention dari rollout
+# borongan kemungkinan jauh lebih kecil masalahnya di sini - tapi pola
+# per-service dipertahankan karena tetap aman/idempotent baik borongan
+# maupun bergiliran, dan mau-apps sudah membuktikan pola ini regresi-aman
+# dari kegagalan nyata (lihat versi aslinya untuk detail insiden).
+#
+# Setiap run juga jalankan `docker container prune -f` + `docker image
+# prune -a -f` di akhir supaya container/image lama tidak menumpuk di disk
+# server - `-a` (bukan cuma dangling) WAJIB karena tiap node Swarm pull
+# per-digest lalu tetap nge-tag lokal sebagai `{{ env }}` tanpa melepas tag
+# dari image lama, jadi image lama TIDAK PERNAH jadi dangling murni (bug
+# nyata yang ditemukan mau-apps dari server produksinya, lihat versi
+# aslinya).
+
+- name: "Deploy app stack ke server"
+  hosts: all
+  become: true
+  vars:
+    stack_name: enem-landing
+  tasks:
+    - name: Pastikan variable wajib sudah diisi
+      ansible.builtin.assert:
+        that:
+          - env is defined
+          - env in ["dev", "prod"]
+          - ghcr_pat is defined
+          - app_env is defined
+        fail_msg: >-
+          Wajib isi: -e env=<dev|prod> dan -e @deploy-vars.yml (berisi
+          ghcr_pat + app_env)
+
+    - name: Copy compose.yml (base) ke server
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../../compose.yml"
+        dest: /opt/enem-landing/compose.yml
+        mode: "0644"
+
+    - name: Copy compose override sesuai environment
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../../compose.{{ env }}.yml"
+        dest: "/opt/enem-landing/compose.{{ env }}.yml"
+        mode: "0644"
+
+    - name: Login ke GHCR
+      no_log: true
+      ansible.builtin.command: >
+        docker login ghcr.io -u {{ ghcr_username | default('muzanella11') }} --password-stdin
+      args:
+        stdin: "{{ ghcr_pat }}"
+      changed_when: false
+
+    - name: Tulis script deploy sementara (export env + rollout per-service)
+      no_log: true
+      ansible.builtin.copy:
+        dest: /opt/enem-landing/.deploy-stack.sh
+        mode: "0700"
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+          {% for key, value in app_env.items() %}
+          export {{ key }}={{ value | quote }}
+          {% endfor %}
+          cd /opt/enem-landing
+
+          COMPOSE_FILES="-f compose.yml -f compose.{{ env }}.yml"
+          SERVICES=$(docker compose $COMPOSE_FILES config --services)
+
+          for svc in $SERVICES; do
+            echo "=== [$(date '+%H:%M:%S')] Rolling out: $svc ==="
+
+            docker compose $COMPOSE_FILES config "$svc" 2>/dev/null | grep -v '^name:' > ".deploy-$svc.yml"
+            docker stack deploy --with-registry-auth -c ".deploy-$svc.yml" {{ stack_name }}
+            rm -f ".deploy-$svc.yml"
+
+            converged=0
+            for _ in $(seq 1 36); do
+              replicas=$(docker service ls --format '{{ '{{.Name}} {{.Replicas}}' }}' | awk -v s="{{ stack_name }}_${svc}" '$1==s{print $2}')
+              current="${replicas%/*}"
+              desired="${replicas#*/}"
+              if [ -n "$current" ] && [ "$current" = "$desired" ]; then
+                converged=1
+                break
+              fi
+              sleep 5
+            done
+
+            if [ "$converged" = "1" ]; then
+              echo "[$(date '+%H:%M:%S')] Service $svc sudah UP ($replicas)"
+            else
+              echo "[$(date '+%H:%M:%S')] WARNING: $svc belum konvergen setelah 3 menit ($replicas) - lanjut ke service berikutnya"
+            fi
+          done
+
+    - name: Deploy stack per-service (docker stack deploy - declarative/idempotent)
+      ansible.builtin.command: /opt/enem-landing/.deploy-stack.sh
+      register: deploy_result
+
+    - name: Tampilkan log rollout per-service
+      ansible.builtin.debug:
+        var: deploy_result.stdout_lines
+
+    - name: Hapus script deploy sementara (jangan tinggalkan credential di server)
+      ansible.builtin.file:
+        path: /opt/enem-landing/.deploy-stack.sh
+        state: absent
+
+    - name: Logout dari GHCR (jangan tinggalkan kredensial di server)
+      ansible.builtin.command: docker logout ghcr.io
+      changed_when: false
+
+    - name: Hapus container Swarm task lama yang sudah exited
+      ansible.builtin.command: docker container prune -f
+      changed_when: "'Total reclaimed space: 0B' not in cleanup_containers_result.stdout"
+      register: cleanup_containers_result
+
+    - name: Hapus docker image lama yang sudah tidak terpakai
+      ansible.builtin.command: docker image prune -a -f
+      changed_when: "'Total reclaimed space: 0B' not in cleanup_images_result.stdout"
+      register: cleanup_images_result

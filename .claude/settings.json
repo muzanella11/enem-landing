@@ -1,0 +1,7 @@
+{
+  "enabledPlugins": {
+    "plugin-dev@claude-plugins-official": true,
+    "git@oddbit": true,
+    "core@oddbit": true
+  }
+}

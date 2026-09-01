@@ -1,0 +1,11 @@
+// Brand design tokens, ported from the original site's Bootstrap theme
+// (startbootstrap-freelancer, see the old repo's assets/scss/vendor/skin.scss)
+// so every app (enem-landing-web, enem-landing-cms, enem-landing-account-web)
+// references the same values instead of duplicating hex literals.
+$color-primary: #1abc9c; // teal — masthead, about section, primary buttons
+$color-secondary: #2c3e50; // navy — nav bar, footer, headings
+$color-copyright: #1a252f; // darker navy — copyright strip
+$color-timeline-accent: #727cf5; // purple — experience timeline
+
+$font-heading: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+$font-body: 'Lato', ui-sans-serif, system-ui, sans-serif;

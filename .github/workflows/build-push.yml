@@ -1,0 +1,169 @@
+name: Build and Push Images
+
+# Reusable workflow (workflow_call), called from enem-landing-dev.yml and
+# enem-landing-prod.yml. Ported from mau-apps/.github/workflows/build-push.yml
+# - trigger (branch/tag) is decided by the caller; this workflow only needs
+# to know which environment (dev/prod) to pick the image tag scheme:
+#   - dev  -> `:dev` (floating) + `:dev-<git-sha>` (immutable)
+#   - prod -> `:{{ tag name, e.g. v1.2.0 }}` (immutable) + `:prod` (floating)
+#     For prod, this workflow MUST be triggered by a `v*.*.*` tag push -
+#     `github.ref_name` is used as the image tag, invalid otherwise.
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "'dev' or 'prod' - decides the image tag scheme"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  determine-affected:
+    name: Determine affected apps
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.affected.outputs.apps }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Deviation from mau-apps: `nx show projects --type=app` doesn't
+      # reliably enumerate this workspace's 5 deployable apps (verified -
+      # `projectType` reports `library` for enem-landing-account-api/
+      # enem-landing-api/enem-landing-cms/enem-landing-web and `undefined`
+      # for the Nuxt/e2e apps, not `application` for any of them, likely an
+      # artifact of how these projects got their targets wired). An
+      # explicit `-p <app list>` scope sidesteps that unreliable filter
+      # entirely and was confirmed working (`nx show projects --affected -p
+      # <5 apps> --json`).
+      - name: Determine affected apps
+        id: affected
+        env:
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          APPS_LIST="enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web"
+          if [[ "$REF_TYPE" == "tag" ]]; then
+            # Tag push (prod release) - always build every app regardless
+            # of what changed, same reasoning as mau-apps: a release should
+            # mean something uniform across all apps, and apps/*-web bake
+            # package.json's version into build-time output.
+            echo "Tag push - building all apps"
+            APPS=$(node -e "console.log(JSON.stringify('$APPS_LIST'.split(' ')))")
+          elif [[ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            echo "First push detected (no valid base SHA) - building all apps"
+            APPS=$(node -e "console.log(JSON.stringify('$APPS_LIST'.split(' ')))")
+          else
+            APPS=$(./node_modules/.bin/nx show projects --affected -p $APPS_LIST --json --base="$BASE_SHA" --head="$HEAD_SHA")
+          fi
+          echo "Affected apps: $APPS"
+          echo "apps=$APPS" >> "$GITHUB_OUTPUT"
+
+  build-push-apps:
+    name: Build & push ${{ matrix.app }}
+    needs: determine-affected
+    if: needs.determine-affected.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.determine-affected.outputs.apps) }}
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Shared (via the same key) with lint.yml/test.yml/e2e.yml - those
+      # reusable workflows already build every app earlier in the SAME
+      # pipeline run for this exact commit, so a warm cache here reuses
+      # that output instead of recompiling from scratch.
+      - name: Cache Nx computation cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ runner.os }}-
+
+      # Deviation from mau-apps: the 2 NestJS apps here need `prune` (not
+      # plain `build`) to produce `dist/package.json` + `dist/yarn.lock` +
+      # `dist/workspace_modules/` - this workspace resolves its in-repo
+      # libs (`@enem-landing/backend-sso` etc.) via Nx's prune-lockfile +
+      # copy-workspace-modules executors, which the Dockerfile's API stages
+      # depend on (see Dockerfile's own header comment). The 3 Nuxt apps
+      # just need plain `build` (produces a self-contained `.output`).
+      # mau-apps doesn't hit this because it uses the older
+      # `generatePackageJson: true` webpack option instead.
+      - name: Build ${{ matrix.app }} via Nx
+        run: |
+          case "${{ matrix.app }}" in
+            enem-landing-account-api|enem-landing-api)
+              ./node_modules/.bin/nx run ${{ matrix.app }}:prune
+              ;;
+            *)
+              ./node_modules/.bin/nx build ${{ matrix.app }}
+              ;;
+          esac
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine image tags for this environment
+        id: tags
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          APP="${{ matrix.app }}"
+          if [[ "${{ inputs.environment }}" == "prod" ]]; then
+            echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+            echo "ghcr.io/$OWNER/$APP:${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "ghcr.io/$OWNER/$APP:prod" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+            echo "ghcr.io/$OWNER/$APP:dev" >> "$GITHUB_OUTPUT"
+            echo "ghcr.io/$OWNER/$APP:dev-${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.app }}
+          push: true
+          # Owner assumed lowercase already (muzanella11) -
+          # ghcr.io/<owner-lowercase>/<app-name>, matches compose.prod.yml's
+          # image references.
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
