@@ -28,8 +28,8 @@ nilai yang berbeda per environment.
 
 | Secret | Untuk | Sumber nilai |
 |---|---|---|
-| `DATABASE_URL_ACCOUNT_API` | DB `enem-landing-account-api` | Connection string Aiven MySQL |
-| `DATABASE_URL_API` | DB `enem-landing-api` | Connection string Aiven MySQL (database ke-2) |
+| `DATABASE_URL_ACCOUNT_API` | DB `enem-landing-account-api` (`enem_landing_account_dev`/`_prod`) | Connection string Aiven MySQL - lihat `scripts/provision-db.sh` |
+| `DATABASE_URL_API` | DB `enem-landing-api` (`enem_landing_api_dev`/`_prod`) | Connection string Aiven MySQL (database ke-2) - lihat `scripts/provision-db.sh` |
 | `REDIS_HOST` | Upstash Redis | Dashboard Upstash |
 | `REDIS_PORT` | Upstash Redis | Dashboard Upstash |
 | `REDIS_USERNAME` | Upstash Redis | Dashboard Upstash |
@@ -50,12 +50,15 @@ Catatan `R2_*`: cuma fallback (source of truth sungguhan ada di tabel
 `system_settings`, dikelola lewat halaman settings CMS) - boleh diisi
 placeholder dulu kalau fitur upload belum dipakai.
 
+## Sudah diputuskan
+
+- Aiven MySQL: **satu instance**, 4 database (2 app x 2 environment) -
+  `enem_landing_account_dev`, `enem_landing_account_prod`,
+  `enem_landing_api_dev`, `enem_landing_api_prod`. Di-provision oleh
+  `scripts/provision-db.sh`.
+
 ## Yang belum diputuskan
 
-- Aiven MySQL: satu instance dengan 2 database per environment (4 database
-  total: `enem_landing_account`/`enem_landing_api` x dev/prod), atau 2
-  instance terpisah - `scripts/provision-db.sh` (story 09) bisa handle
-  kedua pola.
 - Upstash Redis: satu instance free-tier dipakai bareng dev/prod (via
   `REDIS_KEY_PREFIX` yang beda), atau 2 instance terpisah.
 
