@@ -82,6 +82,9 @@
       },
       "build-cli": {
         "executor": "nx:run-commands",
+        "dependsOn": [
+          "^build"
+        ],
         "options": {
           "command": "tsc --project tsconfig.cli.json",
           "cwd": "apps/enem-landing-api"
