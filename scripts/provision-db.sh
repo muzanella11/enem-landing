@@ -3,8 +3,8 @@
 # (issues/09-dev-tooling-scripts.md), ported dari mau-apps/scripts/provision-db.sh.
 # Membuat 2 database (bukan dev/prod x 4 domain seperti mau-apps) -
 # enem-landing sudah dikonfirmasi story 03 pakai 1 database per app, bukan
-# per-environment suffix: enem_landing_account (enem-landing-account-api),
-# enem_landing_api (enem-landing-api).
+# per-environment suffix: enem-landing-account (enem-landing-account-api),
+# enem-landing (enem-landing-api).
 #
 # Idempotent - aman dijalankan ulang (CREATE DATABASE IF NOT EXISTS).
 #
@@ -47,7 +47,7 @@ const mysql = require("mysql2/promise");
 
 (async () => {
   const url = process.env.DATABASE_URL;
-  const databases = ["enem_landing_account", "enem_landing_api"];
+  const databases = ["enem-landing-account", "enem-landing"];
 
   const isLocal = /localhost|127\.0\.0\.1/.test(url);
   const conn = await mysql.createConnection(
@@ -62,8 +62,8 @@ const mysql = require("mysql2/promise");
     console.log("Ensured database:", db);
   }
 
-  const [rows] = await conn.query("SHOW DATABASES LIKE \"enem\\_landing\\_%\"");
-  console.log("Database enem_landing_* yang ada sekarang:", rows.map((r) => Object.values(r)[0]).join(", "));
+  const [rows] = await conn.query("SHOW DATABASES LIKE \"enem-landing%\"");
+  console.log("Database enem-landing* yang ada sekarang:", rows.map((r) => Object.values(r)[0]).join(", "));
 
   await conn.end();
   console.log("Selesai.");
