@@ -1,0 +1,38 @@
+name: Unit Tests
+
+# Ported from mau-apps/.github/workflows/test.yml. Reusable workflow,
+# called from enem-landing-dev.yml/enem-landing-prod.yml.
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Shared with lint.yml/e2e.yml/build-push.yml via the same key (per
+      # commit) - lets test Nx cache entries be reused across jobs in the
+      # same pipeline run instead of recomputed independently.
+      - name: Cache Nx computation cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ runner.os }}-
+
+      - name: Run tests
+        run: yarn test

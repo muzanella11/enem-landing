@@ -134,7 +134,13 @@ Port dari `mau-apps/.github/workflows/` (`lint.yml`, `test.yml`,
       butuh VPS + domain asli, tidak bisa diverifikasi di sini.
 - [ ] GitHub Actions workflows (lint/test/e2e/build-push/migrate/deploy)
       jalan sukses end-to-end minimal sekali sebelum `.drone.yml` dihapus.
-      Belum dibuat sama sekali - scope tersisa story 10.
+      Ke-7 workflow (`lint.yml`, `test.yml`, `e2e.yml`, `build-push.yml`,
+      `migrate.yml`, `enem-landing-dev.yml`, `enem-landing-prod.yml`)
+      sudah dibuat dan valid secara struktur (YAML parse, target/project
+      Nx nyata dicek satu-satu, bukan diasumsikan dari pola mau-apps) -
+      tapi run sungguhan lewat GitHub Actions sendiri belum/tidak bisa
+      diverifikasi di sesi ini (tidak ada akses push ke repo GitHub asli
+      atau secret sungguhan). Lihat Status di bawah untuk detail.
 - [x] `enem-landing-account-api` (identity provider) diputuskan exposed publik atau
       internal-only, didokumentasikan alasannya di `infra/ansible/README.md`
       versi enem-landing. Diputuskan internal-only, dengan bukti grep
@@ -148,9 +154,9 @@ Port dari `mau-apps/.github/workflows/` (`lint.yml`, `test.yml`,
 - RabbitMQ/message queue — tidak relevan untuk enem-landing (mau-apps
   pakai untuk domain topup/notification yang tidak ada di sini).
 
-## Status: SEBAGIAN (Dockerfile + compose.yml/dev/prod/local selesai dan
-## terverifikasi lokal; GitHub Actions + provisioning VPS sungguhan masih
-## terbuka) (2026-09-01)
+## Status: SEBAGIAN (Dockerfile + compose.yml/dev/prod/local + GitHub Actions
+## workflows selesai; provisioning VPS sungguhan (DNS/TLS/real deploy run)
+## masih terbuka - butuh VPS + domain + GitHub secrets asli) (2026-09-01)
 
 Dibangun: `Dockerfile` (multi-stage, 1 target per app, base `node:26-alpine`
 - workspace ini target Node >=26, bukan `node:20-alpine` mau-apps),
@@ -255,10 +261,105 @@ sukses, label baru muncul benar di output). Tidak di-re-run full stack
 end-to-end lagi setelah fix ini (perubahannya cuma label routing, tidak
 menyentuh apa yang sudah diverifikasi konektivitasnya).
 
+## GitHub Actions (2026-09-01, lanjutan session yang sama)
+
+Ke-7 workflow di-port dari `mau-apps/.github/workflows/*.yml`:
+`lint.yml`/`test.yml` (`yarn lint`/`yarn test` + prettier check),
+`e2e.yml`, `build-push.yml`, `migrate.yml` (semua `workflow_call`
+reusable), dipanggil dari 2 trigger workflow: `enem-landing-dev.yml`
+(push `develop`/`feat/**`/`refactor/**`/`bugfix/**` + PR ke `master`) dan
+`enem-landing-prod.yml` (push tag `v*.*.*`). `.github/workflows/ci.yml`
+(scaffold generik Nx, node 24 + npm + Nx Cloud yang tidak pernah
+di-setup - tidak akan pernah jalan) dihapus, digantikan penuh oleh
+ke-7 file di atas. `.nvmrc` (isi `26`) ditambahkan - tidak ada sebelumnya,
+dibutuhkan `actions/setup-node`'s `node-version-file`.
+
+Bukan transliterasi 1:1 - beberapa hal diverifikasi berbeda dari asumsi
+awal atau dari pola mau-apps, dicek langsung bukan ditebak:
+- `nx show projects --type=app` TIDAK bisa dipakai untuk enumerasi 5 app
+  di sini (beda dari asumsi) - `projectType` ke-4 app (`account-api`,
+  `api`, `cms`, `web`) ternyata `library`, bukan `application`, dan
+  `account-web`/ketiga app e2e `undefined` (kemungkinan artefak cara
+  target-nya di-wire, bukan bug baru). `build-push.yml`'s job
+  `determine-affected` pakai daftar nama app eksplisit + `nx show
+  projects --affected -p <daftar>` sebagai gantinya, dikonfirmasi jalan.
+- `build-push.yml`'s per-app build step BUKAN `nx build` polos untuk
+  ke-2 app NestJS (`enem-landing-account-api`/`enem-landing-api`) -
+  harus `nx run <app>:prune` (executor `prune-lockfile` +
+  `copy-workspace-modules`) supaya `dist/package.json`+`dist/yarn.lock`+
+  `dist/workspace_modules/` ada, prasyarat `Dockerfile`'s API stage
+  (lihat header comment `Dockerfile` sesi sebelumnya). `nx build` polos
+  cukup untuk ke-3 app Nuxt.
+- `migrate.yml` pakai `DATABASE_URL` tunggal per app (bukan
+  HOST/PORT/USERNAME/PASSWORD terpisah ala mau-apps), dan CUMA
+  `enem-landing-account-api` yang punya target `seed` (`enem-landing-api`
+  tidak - dicek langsung lewat `nx show project`, bukan diasumsikan sama
+  seperti mau-apps yang seed semua API).
+- `enem-landing-dev.yml`/`enem-landing-prod.yml`'s job `deploy` memanggil
+  `ansible-playbook` LANGSUNG (mirror pola asli mau-apps-dev.yml/
+  mau-apps-prod.yml setelah benar-benar dibaca), BUKAN lewat
+  `scripts/deploy.sh` seperti asumsi awal story ini - `scripts/deploy.sh`
+  (story 09) didesain untuk dipanggil manusia (`<env> <host-ip>
+  <deploy-vars.yml>`) ke host sembarang, sedangkan CI deploy ke host yang
+  sudah tetap terdaftar di `infra/ansible/inventories/<env>/hosts.ini`,
+  jadi manggil `ansible-playbook` langsung (persis pola mau-apps) lebih
+  pas daripada memaksakan desain argumen `scripts/deploy.sh` ke CI.
+- `enem-landing-prod.yml` SENGAJA menyimpang dari kondisi mau-apps SAAT
+  INI (lint/test/e2e mau-apps-prod.yml di-comment-out, cuma andalkan
+  pipeline `develop`) - gate lint/test/e2e dipertahankan aktif di
+  `enem-landing-prod.yml` karena proyek ini belum punya rekam jejak
+  operasional yang sama seperti mau-apps saat keputusan itu diambil.
+  Didokumentasikan di komentar file itu sendiri.
+- SSH deploy key: keypair ed25519 baru di-generate ke
+  `~/.ssh/id_ed25519_enem_landing_deploy` (sama persis path yang sudah
+  dipakai `scripts/deploy.sh`/`scripts/provision-server.sh` sejak story
+  09 - bukan reuse credential `.drone.yml` lama, yang memang tidak bisa
+  dibaca dari sesi manapun karena Drone secret write-only). Fingerprint:
+  `SHA256:AZuecorgH4AcHdmowROHuXw8/Ie9Kiwp5dlpORjnWPU`. 2 langkah manual
+  tersisa yang TIDAK bisa dilakukan dari sini: (1) tambahkan public key
+  (`~/.ssh/id_ed25519_enem_landing_deploy.pub`) ke `authorized_keys` user
+  `deploy` di VPS setelah diprovisi, (2) tambahkan isi private key sebagai
+  GitHub Actions secret `DEPLOY_SSH_KEY` (per-environment, `development`
+  dan `production`).
+- `.claude/skills/release/SKILL.md` (sisa salinan mau-apps, masih
+  reference `mau-apps-prod.yml`/`mau-apps-dev.yml` sebagai nama file yang
+  di-trigger tag push) diperbaiki - nama file dan narasi "tidak ada
+  lint/test/e2e gate" (sekarang salah untuk enem-landing-prod.yml) sudah
+  disesuaikan. Contoh commit-hash/nomor-versi spesifik di file itu SENGAJA
+  TIDAK diganti (masih riwayat asli mau-apps) - itu perlu verifikasi
+  terhadap git log enem-landing sendiri yang di luar scope kerjaan ini,
+  ditandai eksplisit di file itu sebagai "belum diverifikasi", bukan
+  dihapus diam-diam.
+
+Diverifikasi sungguhan (bukan cuma baca kode): ke-7 file YAML valid
+(`yaml.safe_load`), `yarn lint`/`yarn test` jalan real (test: 39 test
+lolos), `yarn prettier --check .` jalan real tapi GAGAL - 123 file di
+repo ini punya drift formatting yang sudah ada sebelumnya, bukan dari
+kerjaan sesi ini - CI run pertama pasti merah di step ini sampai ada yang
+jalankan `yarn prettier --write .` terpisah (sengaja tidak disoftkan,
+lihat komentar di `lint.yml`). Migration+seed `e2e.yml`/`migrate.yml`
+sungguhan dites terhadap MySQL container sekali-pakai terisolasi (port
+3321, bukan container `mysql` bersama yang dipakai proyek lain) - migrasi
+ke-2 app + seed `enem-landing-account-api` jalan sukses, seed dikonfirmasi
+idempotent (dijalankan 2x, sukses keduanya, sesuai dokumentasi
+"Idempotent" di source seeder-nya). Container verifikasi dihapus bersih
+setelah selesai, tidak menyentuh `mysql`/`redis`/`rabbitmq` container
+bersama di mesin ini. Tidak sempat menjalankan penuh `yarn e2e` (build 5
+app + start server + Playwright) secara end-to-end di sesi ini - bagian
+build/serve-nya sendiri sudah diverifikasi terpisah sesi-sesi sebelumnya
+(`nx build`/`nx run enem-landing-cms:build` dites ulang di sesi ini juga,
+sukses), jadi risiko yang belum tercover murni di lapisan orkestrasi
+`e2e.yml`-nya sendiri (urutan step, `wait-on`, dst), bukan lapisan
+app/build.
+
+`actionlint`/`ansible-lint` tidak terinstall di environment ini - tidak
+diinstall (di luar scope, lihat gap yang sama di story 09).
+
 Belum/tidak bisa diverifikasi sesi ini: `scripts/provision-server.sh`/
 `scripts/deploy.sh` terhadap VPS sungguhan, DNS/TLS subdomain sungguhan,
-seluruh GitHub Actions workflow (lint/test/e2e/build-push/migrate/deploy -
-belum dibuat sama sekali). `ansible-playbook --syntax-check` tidak
+seluruh GitHub Actions workflow dijalankan lewat GitHub sungguhan (tidak
+ada akses push/trigger ke repo GitHub asli, tidak ada secret asli
+dikonfigurasi). `ansible-playbook --syntax-check` tidak
 dijalankan - tidak ada Ansible playbook baru yang disentuh sesi ini (cuma
 `infra/ansible/README.md`, dokumen; dan `infra/mysql/init/*.sh`, dicek
 `bash -n` saja). `ansible-playbook`/`yamllint` juga tidak terinstall di

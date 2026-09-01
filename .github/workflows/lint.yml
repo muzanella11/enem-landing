@@ -1,0 +1,52 @@
+name: Lint
+
+# Ported from mau-apps/.github/workflows/lint.yml. Reusable workflow, called
+# from enem-landing-dev.yml/enem-landing-prod.yml.
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: Run lint checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Shared with test.yml/e2e.yml/build-push.yml via the same key (per
+      # commit) - lets ESLint's Nx cache entries be reused across jobs in
+      # the same pipeline run instead of recomputed independently.
+      - name: Cache Nx computation cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ runner.os }}-
+
+      - name: Run ESLint
+        run: yarn lint
+
+      # No dedicated `lint:format` package.json script exists in this
+      # workspace (unlike mau-apps) - run prettier directly instead of
+      # adding one just for this workflow.
+      #
+      # KNOWN GAP (verified 2026-09-01): `yarn prettier --check .` currently
+      # fails against 123 files in this repo - real pre-existing formatting
+      # drift, not something this workflow's job to fix. The very first CI
+      # run on this workflow will be red on this step until someone runs
+      # `yarn prettier --write .` separately. Left in (not softened/removed)
+      # because that's what porting `lint.yml` means - silently dropping the
+      # check to get a green CI would hide the actual state of the repo.
+      - name: Run Prettier
+        run: yarn prettier --check .

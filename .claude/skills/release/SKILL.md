@@ -2,24 +2,28 @@
 name: release
 description: >
   Cut a new prod release: bump the version, commit, tag, and push to trigger
-  mau-apps-prod.yml. Triggers on requests to bump version + tag, cut/ship a
+  enem-landing-prod.yml. Triggers on requests to bump version + tag, cut/ship a
   release, release to prod, or tag a new version.
 ---
 
 # Release to Prod
 
-Reproduces this repo's actual release convention (confirmed from git history, not assumed):
-bump `package.json`'s `version`, commit `chore: release vX.X.X` on `master`, tag that commit
-`vX.X.X`, push both. The tag push is what triggers `.github/workflows/mau-apps-prod.yml`
-(build-push → migrate → deploy) - **pushing the tag is a real production deploy**, not a dry
-run.
+Reproduces this repo's release convention, ported from mau-apps' own equivalent skill (the
+version-bump/commit/tag/push mechanics below - NOT the specific commit-hash/version-number
+examples further down, which are still mau-apps' own history and haven't been re-verified
+against this repo's actual git log; treat those as illustrative shape, not confirmed fact, until
+someone checks). Bump `package.json`'s `version`, commit `chore: release vX.X.X` on `master`, tag
+that commit `vX.X.X`, push both. The tag push is what triggers
+`.github/workflows/enem-landing-prod.yml` (lint → test → e2e → build-push → migrate → deploy) -
+**pushing the tag is a real production deploy**, not a dry run.
 
-**No automated lint/test/e2e gate runs before this anymore** (commented out again 2026-08-30,
-explicit user decision - see `mau-apps-prod.yml`'s job comments for the full history of this
-being enabled/disabled/re-enabled/disabled). The `develop` pipeline (`mau-apps-dev.yml`) is now
-the *only* place those gates run. Before cutting a release, confirm with the user that what's
-going out has already been validated on `develop` (or otherwise reviewed) - don't treat a green
-`master` as proof of anything, since nothing runs on `master` pushes either.
+**Unlike mau-apps' current setup, enem-landing-prod.yml keeps its lint/test/e2e gate active** -
+a release tag must pass all three itself before build-push runs, not just assume a `develop`
+push already covered the tagged commit (mau-apps disabled that gate on its own prod workflow
+after establishing enough operational trust in its `develop` pipeline; enem-landing doesn't have
+that track record yet - see enem-landing-prod.yml's own job comments). Still worth confirming
+with the user that what's going out has been reviewed, but the pipeline itself won't skip
+checking.
 
 Use the `smart-git` skill's commit/push flows for the actual commit and push steps below -
 never run `git commit`/`git push` directly. This skill only supplies the release-specific
@@ -96,14 +100,14 @@ git push origin vX.X.X
 ```
 
 After pushing, tell the user the run is live and point them at the Actions tab
-(`mau-apps-prod.yml`) - don't claim the deploy succeeded, only that it started.
+(`enem-landing-prod.yml`) - don't claim the deploy succeeded, only that it started.
 
 ## If the Release Fails
 
-Don't immediately bump-and-retag to retry. Root cause #3 in the 2026-08-30 GitHub Actions audit
-was exactly this pattern - 8 tags pushed in ~5 hours while iterating on a migration fix, each
-retry paying the full 14-app build cost again. This matters even more now that prod has no
-lint/test/e2e of its own (see the no-gates note above) - a failure discovered only at
-`build-push`/`migrate`/`deploy` means the bug already shipped to the tag-build stage untested.
-If the fix is non-trivial, push it to `develop` first (still has lint/test/e2e - the only gate
-left in this repo) and confirm it's green there before cutting another prod tag.
+Don't immediately bump-and-retag to retry - mau-apps hit exactly this pattern (multiple tags
+pushed within hours while iterating on a migration fix, each retry paying the full multi-app
+build cost again; see mau-apps' own version of this skill for the specific incident this
+lesson came from). If lint/test/e2e failed, fix and push to `develop` first, confirm it's green
+there (same gates enem-landing-dev.yml runs on every push), before cutting another prod tag. If
+the failure is at build-push/migrate/deploy (past the gate), diagnose from the Actions log before
+retagging - re-running the same broken commit under a new tag doesn't fix anything.
