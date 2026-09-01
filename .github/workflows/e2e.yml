@@ -119,11 +119,16 @@ jobs:
       # there from .nvmrc and falling back to the runner's older preinstalled
       # Node - which fails this repo's `engines.node >=26` in package.json.
       # Pass PATH through explicitly so sudo sees the same Node.
+      #
+      # All 3 browsers (not just chromium) - every playwright.config.mts in
+      # this workspace declares chromium/firefox/webkit projects and `yarn
+      # e2e` runs all of them; installing only chromium leaves firefox/webkit
+      # tests failing with "Executable doesn't exist".
       - name: Install Playwright system dependencies
-        run: sudo env "PATH=$PATH" yarn playwright install-deps chromium
+        run: sudo env "PATH=$PATH" yarn playwright install-deps chromium firefox webkit
 
       - name: Install Playwright browsers
-        run: yarn playwright install chromium
+        run: yarn playwright install chromium firefox webkit
 
       # Each app's own code reads plain `DATABASE_URL` (see
       # typeorm.config.ts / .env.example) - the job-level env above keeps
