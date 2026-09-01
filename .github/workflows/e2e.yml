@@ -109,12 +109,21 @@ jobs:
       - name: Install Playwright browsers
         run: yarn playwright install chromium
 
+      # Each app's own code reads plain `DATABASE_URL` (see
+      # typeorm.config.ts / .env.example) - the job-level env above keeps
+      # them apart as DATABASE_URL_ACCOUNT_API/DATABASE_URL_API since both
+      # apps run in this same job, so each DB-touching step here remaps
+      # back to DATABASE_URL, same pattern as migrate.yml/compose.yml.
       - name: Run account API migrations + seed
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL_ACCOUNT_API }}
         run: |
           yarn nx run enem-landing-account-api:migration:run
           yarn nx run enem-landing-account-api:seed
 
       - name: Run business API migrations
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL_API }}
         run: yarn nx run enem-landing-api:migration:run
 
       # `nx run <app>:prune` (not plain `build`) for the 2 NestJS apps -
@@ -135,11 +144,13 @@ jobs:
 
       - name: Start all servers
         run: |
-          nohup node apps/enem-landing-account-api/dist/main.js \
+          nohup env DATABASE_URL="$DATABASE_URL_ACCOUNT_API" \
+            node apps/enem-landing-account-api/dist/main.js \
             > /tmp/account-api.log 2>&1 &
           echo "enem-landing-account-api started (PID: $!)"
 
-          nohup node apps/enem-landing-api/dist/main.js \
+          nohup env DATABASE_URL="$DATABASE_URL_API" \
+            node apps/enem-landing-api/dist/main.js \
             > /tmp/api.log 2>&1 &
           echo "enem-landing-api started (PID: $!)"
 
