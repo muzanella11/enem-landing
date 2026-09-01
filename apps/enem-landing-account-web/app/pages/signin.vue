@@ -123,6 +123,7 @@ const onSubmit = async () => {
           <form class="space-y-5" @submit.prevent="onSubmit">
             <div class="space-y-1">
               <label
+                for="email"
                 class="block text-xs font-semibold uppercase tracking-wider text-gray-500"
               >
                 Email
@@ -140,6 +141,7 @@ const onSubmit = async () => {
 
             <div class="space-y-1">
               <label
+                for="password"
                 class="block text-xs font-semibold uppercase tracking-wider text-gray-500"
               >
                 Password
