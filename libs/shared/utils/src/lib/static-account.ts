@@ -27,17 +27,17 @@ export const StaticAccountSystem = 'SYSTEM';
 export const StaticAccount = {
   [Role.SuperAdmin]: {
     fullname: 'Super Admin',
-    email: 'superadmin@enem-landing.local',
+    email: 'superadmin@muzanella.com',
     password: 'letmeinfortesting',
   },
   [Role.User]: {
     fullname: 'User',
-    email: 'user@enem-landing.local',
+    email: 'user@muzanella.com',
     password: 'letmeinfortesting',
   },
   [StaticAccountSystem]: {
     fullname: 'System',
-    email: 'system@enem-landing.local',
+    email: 'system@muzanella.com',
     password: 'letmeinfortesting',
   },
 } as const;

@@ -11,7 +11,7 @@ vi.mock('@enem-landing/shared-utils', () => ({
   createAxiosInstance: vi.fn(() => axiosMock),
   benchmark: async (_label: string, fn: () => Promise<unknown>) => fn(),
   StaticAccount: {
-    SYSTEM: { fullname: 'System', email: 'system@enem-landing.local', password: 'letmeinfortesting' },
+    SYSTEM: { fullname: 'System', email: 'system@muzanella.com', password: 'letmeinfortesting' },
   },
   StaticAccountSystem: 'SYSTEM',
 }));
@@ -71,7 +71,7 @@ describe('SsoService', () => {
 
       await expect(service.loginAsSystem()).resolves.toBe('system-jwt');
       expect(axiosMock.post).toHaveBeenCalledWith('/auth/signin', {
-        email: 'system@enem-landing.local',
+        email: 'system@muzanella.com',
         password: 'letmeinfortesting',
       });
     });

@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
  * and both `enem-landing-account-api` and `enem-landing-account-web` running
  * (handled by playwright.config.mts's `webServer` array).
  */
-const ADMIN_EMAIL = 'superadmin@enem-landing.local';
+const ADMIN_EMAIL = 'superadmin@muzanella.com';
 const ADMIN_PASSWORD = 'letmeinfortesting';
 const REDIRECT_TARGET = 'http://localhost:3000/health';
 

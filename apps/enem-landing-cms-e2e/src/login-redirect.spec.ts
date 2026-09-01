@@ -35,7 +35,7 @@ test.describe('login-redirect', () => {
     await page.goto('/');
     await page.waitForURL(/localhost:8000\/signin/);
 
-    await page.getByLabel('Email').fill('user@enem-landing.local');
+    await page.getByLabel('Email').fill('user@muzanella.com');
     await page.getByLabel('Password').fill(ADMIN_PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
 

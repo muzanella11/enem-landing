@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-export const ADMIN_EMAIL = 'superadmin@enem-landing.local';
+export const ADMIN_EMAIL = 'superadmin@muzanella.com';
 export const ADMIN_PASSWORD = 'letmeinfortesting';
 
 /**

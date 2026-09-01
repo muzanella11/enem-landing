@@ -4,9 +4,9 @@ import { StaticAccount, StaticAccountSystem } from './static-account.js';
 
 describe('StaticAccount', () => {
   it('has fixtures for SuperAdmin, User, and System', () => {
-    expect(StaticAccount[Role.SuperAdmin].email).toBe('superadmin@enem-landing.local');
-    expect(StaticAccount[Role.User].email).toBe('user@enem-landing.local');
-    expect(StaticAccount[StaticAccountSystem].email).toBe('system@enem-landing.local');
+    expect(StaticAccount[Role.SuperAdmin].email).toBe('superadmin@muzanella.com');
+    expect(StaticAccount[Role.User].email).toBe('user@muzanella.com');
+    expect(StaticAccount[StaticAccountSystem].email).toBe('system@muzanella.com');
   });
 
   it('has no fixture for the Admin role', () => {
