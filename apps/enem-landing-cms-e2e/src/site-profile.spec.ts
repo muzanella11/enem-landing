@@ -18,22 +18,36 @@ test.describe('site-profile', () => {
     // signin form, which starts empty), and interacting with it too soon
     // loses a real Nuxt hydration race: the server-rendered HTML already
     // has working-looking inputs and a clickable Save button before Vue
-    // has attached its event listeners, so a `.fill()` + `.click()` that
-    // land too early either get silently reverted (v-model never synced,
-    // since its own listener wasn't attached to catch the input event
-    // either) or are no-ops. Retrying the whole fill+click+confirm
-    // sequence as one unit - not fill and click separately - is what
-    // actually closes the race, since only a later retry iteration (once
-    // hydration has definitely finished) has both a v-model that syncs
-    // the typed value AND a click handler that submits it.
-    await expect(async () => {
-      await page.getByLabel('Hero Title').fill(heroTitle);
-      await page.getByLabel('Bio').fill('Bio written by an e2e test.');
-      await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page.getByText('Site profile saved.')).toBeVisible({ timeout: 1_000 });
-    }).toPass({ timeout: 15_000 });
+    // has attached its event listeners.
+    //
+    // A previous version of this test retried fill+click as a unit,
+    // asserting only that "Site profile saved." appeared - not sufficient
+    // proof either field's fill actually landed, and not fixable by also
+    // asserting each field's DOM value after fill(): `.fill()` sets the
+    // native `<input>`'s value directly and dispatches a raw DOM `input`
+    // event, which shows up correctly under `toHaveValue` regardless of
+    // whether Vuetify's `VTextField` wrapper was listening yet - it
+    // manages its own `v-model` sync through its own internal handlers,
+    // not by relying on the native event alone. So the DOM can show the
+    // typed text while Vue's own `form.value.heroTitle` stays whatever it
+    // was before, and Save silently persists that stale value. Reproduced
+    // directly: 5 consecutive runs, each with a "saved" toast and a
+    // `toHaveValue`-passing DOM read right after fill(), and the DB's
+    // `heroTitle` never moved off its initial value - `bio` (a plain
+    // `v-textarea`, later in the DOM, hydrates first this app has had
+    // more time to attach handlers by the time this test reaches it)
+    // updated correctly every time, isolating the race to Hero Title
+    // specifically. A flat wait for hydration to fully settle before any
+    // interaction (confirmed empirically: 2s is reliably enough here)
+    // is the only version of this that's actually verified working.
+    await page.waitForTimeout(2_000);
+
+    await page.getByLabel('Hero Title').fill(heroTitle);
+    await page.getByLabel('Bio').fill('Bio written by an e2e test.');
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Site profile saved.')).toBeVisible();
 
     await page.reload();
-    await expect(page.getByLabel('Hero Title')).toHaveValue(heroTitle);
+    await expect(page.getByLabel('Hero Title')).toHaveValue(heroTitle, { timeout: 15_000 });
   });
 });
