@@ -1,13 +1,14 @@
 #!/bin/bash
 # Scaffold a new Nx app + wire it into the dev conventions (kill-ports.sh
-# entry, .env.example skeleton). Ported from mau-apps/scripts/create-app.sh,
-# heavily simplified: mau-apps' version also rewrites root package.json's
-# ~200 aggregate nx:*/dev:* scripts (a convention unique to that repo) -
-# enem-landing's root package.json has no "scripts" of its own (targets are
-# all Nx-plugin-inferred, see nx.json's `plugins` array), so none of that
-# applies here. Only 2 app kinds (nest, nuxt), not mau-apps' 3 - enem-landing
-# has no separate "Web (Vuetify dashboard)" vs "Landing (Tailwind public)"
-# app kind distinction at the script level; nuxt apps just pick a preset.
+# entry, .env.example skeleton, root package.json's aggregate nx:*/dev:*
+# scripts). Ported from mau-apps/scripts/create-app.sh - correction to an
+# earlier version of this comment: enem-landing's root package.json DOES
+# have its own aggregate scripts, same convention as mau-apps, just fewer
+# of them (~40, not ~200) since there are fewer apps; see the "Wire into
+# root package.json scripts" step below. Only 2 app kinds (nest, nuxt), not
+# mau-apps' 3 - enem-landing has no separate "Web (Vuetify dashboard)" vs
+# "Landing (Tailwind public)" app kind distinction at the script level;
+# nuxt apps just pick a preset.
 
 set -euo pipefail
 
@@ -265,6 +266,104 @@ ENVEOF
     ;;
 
 esac
+
+# ─── Wire into root package.json scripts ───────────────────────────────────
+
+# enem-landing's root package.json DOES have its own per-app aggregate
+# scripts (nx:lint:*, nx:build:*, nx:serve:*, prod:*, etc. - see its
+# "scripts" block), unlike this header comment used to claim. That claim
+# went stale, not a deliberate simplification: found by actually reading
+# the file while fixing the exact gap this step now closes - a freshly
+# generated app had no nx:seed:* alias at all, so `yarn seed` silently
+# skipped it. Regex string-edits (not JSON.parse+stringify) to avoid
+# reformatting/reordering the whole scripts block, same reasoning as the
+# nuxt.config.ts patch above.
+print_step "Wiring $appName into root package.json scripts"
+node - "$ROOT_DIR/package.json" "$appName" "$kind" "$port" <<'NODE'
+const fs = require('fs');
+const [, , pkgPath, name, kind, port] = process.argv;
+let src = fs.readFileSync(pkgPath, 'utf8');
+
+const insertBefore = (anchor, line) => {
+  const idx = src.indexOf(anchor);
+  if (idx === -1) throw new Error(`Anchor not found: ${anchor}`);
+  src = src.slice(0, idx) + line + '\n' + src.slice(idx);
+};
+
+const addToProjectList = (aggregateLine, extra) => {
+  const idx = src.indexOf(aggregateLine);
+  if (idx === -1) throw new Error(`Aggregate line not found: ${aggregateLine}`);
+  src = src.slice(0, idx) + aggregateLine.replace('",', `${extra}",`) + src.slice(idx + aggregateLine.length);
+};
+
+insertBefore('    "lint":', `    "nx:lint:${name}": "yarn nx lint ${name}",`);
+insertBefore('    "lint:fix":', `    "nx:lint:fix:${name}": "yarn nx lint ${name} --fix",`);
+insertBefore('    "lint:format":', `    "nx:lint:format:${name}": "yarn nx lint:format ${name}",`);
+insertBefore('    "lint:format:fix":', `    "nx:lint:format:fix:${name}": "yarn nx lint:format:fix ${name}",`);
+insertBefore('    "test":', `    "nx:test:${name}": "yarn nx test ${name}",`);
+
+insertBefore(
+  '    "build": "yarn nx run-many -t build -p',
+  `    "nx:build:${name}": "yarn nx build ${name}",`,
+);
+addToProjectList(
+  '    "build": "yarn nx run-many -t build -p enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web",',
+  ` ${name}`,
+);
+
+insertBefore(
+  '    "dev": "yarn nx run-many -t serve -p',
+  `    "nx:serve:${name}": "yarn nx run ${name}:serve",`,
+);
+{
+  const devAnchor = /"dev": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\d+)",/;
+  const match = src.match(devAnchor);
+  if (!match) throw new Error('dev aggregate script not found');
+  const nextParallel = Number(match[2]) + 1;
+  src = src.replace(
+    devAnchor,
+    `"dev": "yarn nx run-many -t serve -p ${match[1]} ${name} --parallel=${nextParallel}",`,
+  );
+}
+
+if (kind === 'nuxt') {
+  insertBefore('    "e2e": "yarn nx:e2e:', `    "nx:e2e:${name}": "yarn nx e2e ${name}-e2e",`);
+  {
+    const e2eAnchor = /"e2e": "([^"]+)",/;
+    const match = src.match(e2eAnchor);
+    src = src.replace(e2eAnchor, `"e2e": "${match[1]} && yarn nx:e2e:${name}",`);
+  }
+  insertBefore(
+    '    "e2e:serverless": "yarn nx:e2e:',
+    `    "nx:e2e:${name}:serverless": "BASE_URL=http://localhost:${port} yarn nx e2e ${name}-e2e",`,
+  );
+  {
+    const e2eSlAnchor = /"e2e:serverless": "([^"]+)",/;
+    const match = src.match(e2eSlAnchor);
+    src = src.replace(e2eSlAnchor, `"e2e:serverless": "${match[1]} && yarn nx:e2e:${name}:serverless",`);
+  }
+}
+
+const prodLine =
+  kind === 'nest'
+    ? `    "prod:${name}": "node apps/${name}/dist/main.js",`
+    : `    "prod:${name}": "NITRO_PORT=${port} node apps/${name}/.output/server/index.mjs",`;
+insertBefore('    "prod:prepare":', prodLine);
+
+fs.writeFileSync(pkgPath, src);
+console.log('package.json wired for ' + name + ' (' + kind + ').');
+NODE
+print_done "package.json updated - review the diff before committing."
+
+echo ""
+echo "  NOT automated (needs a DB, decided per-app, not knowable at"
+echo "  generation time): if $appName gets its own TypeORM connection later,"
+echo "  add \"nx:migration:run:${appName}\"/\"nx:migration:revert:${appName}\""
+echo "  and \"nx:seed:run:${appName}\" entries to package.json (copy the"
+echo "  enem-landing-api ones) and append them into the \"migration\"/\"seed\""
+echo "  aggregate scripts - this exact gap (a real seed target with no"
+echo "  root-level alias, so 'yarn seed' silently skipped it) is what"
+echo "  prompted this whole step to be added."
 
 # ─── Register port ──────────────────────────────────────────────────────────
 

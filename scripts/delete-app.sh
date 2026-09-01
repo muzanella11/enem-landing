@@ -1,8 +1,8 @@
 #!/bin/bash
-# Counterpart to create-app.sh: remove an app + its wiring. Ported from
-# mau-apps/scripts/delete-app.sh, minus the package.json script cleanup
-# (enem-landing's root package.json has no aggregate nx:*/dev:* scripts to
-# clean up - see create-app.sh's header comment).
+# Counterpart to create-app.sh: remove an app + its wiring, including root
+# package.json's aggregate nx:*/dev:* scripts (see create-app.sh's header
+# comment - an earlier version of that comment, and of this one, claimed
+# root package.json had nothing to clean up here; it does).
 
 set -euo pipefail
 
@@ -88,6 +88,53 @@ if [[ -d "$APP_DIR" ]]; then
 fi
 print_done "Deleted apps/$appName"
 
+# ─── Clean root package.json scripts ────────────────────────────────────────
+
+# Counterpart to create-app.sh's "Wire into root package.json scripts" step
+# (see that file's header comment - root package.json DOES have per-app
+# aggregate scripts, unlike this file's own stale header comment used to
+# claim). Regex string-edits, not JSON.parse+stringify, for the same
+# reformatting-avoidance reason as create-app.sh.
+print_step "Cleaning $appName out of root package.json scripts"
+node - "$ROOT_DIR/package.json" "$appName" <<'NODE'
+const fs = require('fs');
+const [, , pkgPath, name] = process.argv;
+let src = fs.readFileSync(pkgPath, 'utf8');
+const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Any alias line whose JSON key ends in ":<name>" or ":<name>:serverless"
+// (nx:lint*:<name>, nx:build:<name>, nx:serve:<name>, prod:<name>,
+// nx:e2e:<name>(:serverless), nx:migration:*:<name>, nx:seed:run:<name>).
+src = src.replace(new RegExp(`^ {4}"[^"]*:${esc}(:serverless)?": "[^"]*",\\n`, 'gm'), '');
+
+const removeFromProjectList = (aggregateKey) => {
+  const re = new RegExp(`("${aggregateKey}": "[^"]*?) ${esc}([ "])`);
+  src = src.replace(re, '$1$2');
+};
+removeFromProjectList('build');
+
+const devAnchor = /"dev": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\d+)",/;
+const devMatch = src.match(devAnchor);
+if (devMatch) {
+  const listRe = new RegExp(`(^| )${esc}( |$)`);
+  if (listRe.test(devMatch[1])) {
+    const newList = devMatch[1].replace(listRe, '$2').trim();
+    const newParallel = Math.max(1, Number(devMatch[2]) - 1);
+    src = src.replace(
+      devAnchor,
+      `"dev": "yarn nx run-many -t serve -p ${newList} --parallel=${newParallel}",`,
+    );
+  }
+}
+
+src = src.split(` && yarn nx:e2e:${name}:serverless`).join('');
+src = src.split(` && yarn nx:e2e:${name}`).join('');
+
+fs.writeFileSync(pkgPath, src);
+console.log('package.json cleaned of ' + name + '.');
+NODE
+print_done "package.json updated - review the diff before committing."
+
 # ─── Remove e2e project ──────────────────────────────────────────────────────
 
 if [[ -d "$E2E_DIR" ]]; then
@@ -131,8 +178,11 @@ echo ""
 echo "  App '$appName' has been removed."
 echo ""
 echo "  Manual follow-ups (not automated - app-specific):"
-echo "    - package.json: remove nx:e2e:${appName}(:serverless) and its"
-echo "      root e2e / e2e:serverless aggregate entries, if this app had them"
+echo "    - package.json: if this app had its own \"nx:migration:*:${appName}\""
+echo "      / \"nx:seed:run:${appName}\" entries, those alias lines were"
+echo "      removed but the app's own segment inside the chained \"migration\""
+echo "      / \"seed\" aggregate strings was not spliced out automatically -"
+echo "      edit those two lines by hand"
 echo "    - .github/workflows/e2e.yml: remove this app's build + nohup start +"
 echo "      health-check URL from the Build/Start all servers/Wait for all"
 echo "      servers steps, if it was wired in there"
