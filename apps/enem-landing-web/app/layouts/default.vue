@@ -11,10 +11,10 @@ const { data: skills } = await useFetch<Skill[]>('/api/skills');
 
 <template>
   <div>
-    <Navigation :title="siteProfile?.heroTitle ?? 'Nurfirliana Muzanella'" />
+    <Navigation :title="siteProfile?.heroTitle || 'Nurfirliana Muzanella'" />
     <Masthead
-      :title="siteProfile?.heroTitle ?? 'Nurfirliana Muzanella'"
-      :subheading="siteProfile?.heroSubtitle ?? 'Frontend Engineer'"
+      :title="siteProfile?.heroTitle || 'Nurfirliana Muzanella'"
+      :subheading="siteProfile?.heroSubtitle || 'Frontend Engineer'"
       :avatar-url="siteProfile?.avatarUrl || '/avataaars.svg'"
       :skills="skills ?? []"
     />
