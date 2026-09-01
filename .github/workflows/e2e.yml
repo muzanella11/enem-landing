@@ -99,6 +99,22 @@ jobs:
       - name: Create databases
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS enem_landing_account; CREATE DATABASE IF NOT EXISTS enem_landing_api;"
 
+      # `@nx/playwright/plugin` parses each suite's playwright.config.mts
+      # `webServer.command` (e.g. `yarn nx run enem-landing-account-api:serve`)
+      # and runs it as its OWN Nx task dependency during `yarn e2e` later -
+      # separate from the servers "Start all servers" launches by hand below,
+      # and NOT covered by the step-level `DATABASE_URL` env overrides on
+      # the migration/seed/server steps (those only apply to the exact
+      # command on that step). Each app's own load-env.ts reads
+      # `.env.local` via dotenv, which never overrides an already-set env
+      # var, so this is safe layered on top of the other DATABASE_URL fixes
+      # - it only fills in the gap for whichever process invokes these apps
+      # without DATABASE_URL already in its environment.
+      - name: Write .env.local for API apps
+        run: |
+          echo "DATABASE_URL=$DATABASE_URL_ACCOUNT_API" > apps/enem-landing-account-api/.env.local
+          echo "DATABASE_URL=$DATABASE_URL_API" > apps/enem-landing-api/.env.local
+
       # `sudo` resets PATH, dropping the Node 26 that actions/setup-node put
       # there from .nvmrc and falling back to the runner's older preinstalled
       # Node - which fails this repo's `engines.node >=26` in package.json.
