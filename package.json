@@ -78,7 +78,8 @@
     "migration": "yarn nx:migration:run:enem-landing-account-api && yarn nx:migration:run:enem-landing-api",
 
     "nx:seed:run:enem-landing-account-api": "yarn nx run enem-landing-account-api:seed",
-    "seed": "yarn nx:seed:run:enem-landing-account-api",
+    "nx:seed:run:enem-landing-api": "yarn nx run enem-landing-api:seed",
+    "seed": "yarn nx:seed:run:enem-landing-account-api && yarn nx:seed:run:enem-landing-api",
 
     "prod:enem-landing-account-api": "node apps/enem-landing-account-api/dist/main.js",
     "prod:enem-landing-account-web": "NITRO_PORT=8000 node apps/enem-landing-account-web/.output/server/index.mjs",
