@@ -99,8 +99,12 @@ jobs:
       - name: Create databases
         run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS enem_landing_account; CREATE DATABASE IF NOT EXISTS enem_landing_api;"
 
+      # `sudo` resets PATH, dropping the Node 26 that actions/setup-node put
+      # there from .nvmrc and falling back to the runner's older preinstalled
+      # Node - which fails this repo's `engines.node >=26` in package.json.
+      # Pass PATH through explicitly so sudo sees the same Node.
       - name: Install Playwright system dependencies
-        run: sudo yarn playwright install-deps chromium
+        run: sudo env "PATH=$PATH" yarn playwright install-deps chromium
 
       - name: Install Playwright browsers
         run: yarn playwright install chromium
