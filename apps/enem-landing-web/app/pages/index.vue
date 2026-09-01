@@ -92,74 +92,92 @@ const submitContact = async () => {
         </h2>
         <SectionDivider />
 
-        <div
-          class="bg-[#727CF5]/[0.09] border-l-4 border-[#727CF5] rounded-r-md p-6 lg:p-10"
-        >
+        <div class="bg-[#727CF5]/[0.09] rounded-md p-6 lg:p-10">
           <div
             v-for="(experience, index) in experiences ?? []"
             :key="experience.id"
-            class="pb-8 mb-8"
-            :class="{
-              'border-b border-dashed border-slate-300':
-                index !== (experiences?.length ?? 0) - 1,
-            }"
+            class="grid grid-cols-1 md:grid-cols-[7rem_1.5rem_1fr] md:gap-x-4"
           >
-            <p class="text-sm font-light text-slate-500 mb-1">
+            <!-- Date -->
+            <p
+              class="text-sm font-light text-slate-500 mb-1 md:mb-0 md:pt-1 md:text-right"
+            >
               {{ experience.workingPeriode }}
             </p>
-            <h3 class="text-lg font-bold mb-2">
-              {{ experience.company }} // {{ experience.position }} //
-              {{ experience.location }}
-            </h3>
-            <p class="text-slate-700 mb-3">{{ experience.description }}</p>
 
-            <p class="font-semibold mb-1">Role Summary:</p>
-            <p class="text-slate-700 mb-3">{{ experience.roleSummary }}</p>
+            <!-- Timeline marker: dot + connecting line down to the next entry -->
+            <div class="hidden md:flex flex-col items-center">
+              <span
+                class="mt-1.5 h-3 w-3 shrink-0 rounded-full border-2 border-[#727CF5] bg-white"
+              />
+              <span
+                v-if="index !== (experiences?.length ?? 0) - 1"
+                class="mt-1 w-0.5 flex-1 bg-[#727CF5]/30"
+              />
+            </div>
 
-            <p class="font-semibold mb-1">Experiences gained:</p>
-            <ul class="list-disc list-inside text-slate-700 mb-3">
-              <li v-for="gained in experience.experienceGained" :key="gained">
-                {{ gained }}
-              </li>
-            </ul>
+            <!-- Content -->
+            <div
+              class="pb-8"
+              :class="{
+                'mb-8 border-b border-dashed border-slate-300':
+                  index !== (experiences?.length ?? 0) - 1,
+              }"
+            >
+              <h3 class="text-lg font-bold mb-2">
+                {{ experience.company }} // {{ experience.position }} //
+                {{ experience.location }}
+              </h3>
+              <p class="text-slate-700 mb-3">{{ experience.description }}</p>
 
-            <p class="font-semibold mb-1">Selected Projects:</p>
-            <ul class="space-y-3">
-              <li
-                v-for="project in experience.projects"
-                :key="project.id"
-                class="text-slate-700"
-              >
-                <p class="font-medium">
-                  {{ project.title }} //
-                  <template v-if="project.url">
-                    Link to app:
-                    <a
-                      :href="project.url"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-[#1ABC9C] hover:underline"
+              <p class="font-semibold mb-1">Role Summary:</p>
+              <p class="text-slate-700 mb-3">{{ experience.roleSummary }}</p>
+
+              <p class="font-semibold mb-1">Experiences gained:</p>
+              <ul class="list-disc list-inside text-slate-700 mb-3">
+                <li v-for="gained in experience.experienceGained" :key="gained">
+                  {{ gained }}
+                </li>
+              </ul>
+
+              <p class="font-semibold mb-1">Selected Projects:</p>
+              <ul class="space-y-3">
+                <li
+                  v-for="project in experience.projects"
+                  :key="project.id"
+                  class="text-slate-700"
+                >
+                  <p class="font-medium">
+                    {{ project.title }} //
+                    <template v-if="project.url">
+                      Link to app:
+                      <a
+                        :href="project.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-[#1ABC9C] hover:underline"
+                      >
+                        {{ project.url }}
+                      </a>
+                    </template>
+                    <template v-else>
+                      Internal app, no preview link available
+                    </template>
+                    // {{ project.year }}
+                  </p>
+                  <p>
+                    {{ project.description }} Using technologies:
+                    <span
+                      v-for="tech in project.technologies"
+                      :key="tech"
+                      class="inline-block px-2 py-0.5 mr-1 mt-1 rounded-full bg-white text-xs border border-slate-200"
                     >
-                      {{ project.url }}
-                    </a>
-                  </template>
-                  <template v-else>
-                    Internal app, no preview link available
-                  </template>
-                  // {{ project.year }}
-                </p>
-                <p>
-                  {{ project.description }} Using technologies:
-                  <span
-                    v-for="tech in project.technologies"
-                    :key="tech"
-                    class="inline-block px-2 py-0.5 mr-1 mt-1 rounded-full bg-white text-xs border border-slate-200"
-                  >
-                    {{ tech }}
-                  </span>
-                </p>
-              </li>
-            </ul>
+                      {{ tech }}
+                    </span>
+                  </p>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
