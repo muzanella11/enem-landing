@@ -1,0 +1,42 @@
+# Manual, human-triggered only - never wired into migrate.yml's automatic
+# path (see that file's header comment for why: enem-landing-api's `seed`
+# target populates real portfolio content the CMS lets the owner edit,
+# and the seeder itself is skip-not-overwrite, but replaying it isn't
+# something a routine deploy should ever do on its own). Run this once
+# against a fresh `enem-landing-api` DB (e.g. right after the schema is
+# first migrated) via the Actions tab's "Run workflow" button.
+name: enem-landing-api - Seed experiences + site-profile
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "'dev' or 'prod' - selects the GitHub Environment secrets come from"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  seed:
+    name: Run enem-landing-api seed
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'prod' && 'production' || 'development' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Seed - enem-landing-api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_API }}
+        run: yarn nx run enem-landing-api:seed
