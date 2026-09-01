@@ -39,10 +39,18 @@ describe('SiteProfileService', () => {
 
   it('update merges the dto onto the existing (or newly created) row', async () => {
     repo.find.mockResolvedValue([{ id: 'row-1', heroTitle: 'Old' }]);
-    const dto = { heroTitle: 'New', heroSubtitle: '', bio: '', avatarUrl: '', socialLinks: [] };
+    const dto = {
+      heroTitle: 'New',
+      heroSubtitle: '',
+      bio: '',
+      avatarUrl: '',
+      socialLinks: [],
+    };
 
     await service.update(dto);
 
-    expect(repo.save).toHaveBeenCalledWith(expect.objectContaining({ heroTitle: 'New' }));
+    expect(repo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ heroTitle: 'New' }),
+    );
   });
 });

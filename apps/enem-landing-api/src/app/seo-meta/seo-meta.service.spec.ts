@@ -25,7 +25,9 @@ describe('SeoMetaService', () => {
 
   it('findByPageKey throws NotFoundException when missing', async () => {
     repo.findOne.mockResolvedValue(null);
-    await expect(service.findByPageKey('home')).rejects.toThrow(NotFoundException);
+    await expect(service.findByPageKey('home')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('upsert creates a new row when the pageKey does not exist', async () => {
@@ -44,7 +46,9 @@ describe('SeoMetaService', () => {
 
     await service.upsert(dto);
 
-    expect(repo.save).toHaveBeenCalledWith(expect.objectContaining({ id: '1', title: 'New' }));
+    expect(repo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1', title: 'New' }),
+    );
   });
 
   it('remove deletes an existing entry', async () => {

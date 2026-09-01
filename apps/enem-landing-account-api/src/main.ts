@@ -24,7 +24,9 @@ async function bootstrap() {
   });
 
   await app.listen(port);
-  Logger.log(`🚀 enem-landing-account-api is running on: http://localhost:${port}`);
+  Logger.log(
+    `🚀 enem-landing-account-api is running on: http://localhost:${port}`,
+  );
 }
 
 bootstrap();

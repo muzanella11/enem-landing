@@ -40,7 +40,10 @@ export class ExperiencesService {
     return this.experiencesRepository.save(experience);
   }
 
-  async update(id: string, dto: UpdateExperienceDto): Promise<ExperienceEntity> {
+  async update(
+    id: string,
+    dto: UpdateExperienceDto,
+  ): Promise<ExperienceEntity> {
     const experience = await this.findOne(id);
     Object.assign(experience, dto);
     return this.experiencesRepository.save(experience);
@@ -51,8 +54,12 @@ export class ExperiencesService {
     await this.experiencesRepository.remove(experience);
   }
 
-  private async findExperienceOrThrow(experienceId: string): Promise<ExperienceEntity> {
-    const experience = await this.experiencesRepository.findOne({ where: { id: experienceId } });
+  private async findExperienceOrThrow(
+    experienceId: string,
+  ): Promise<ExperienceEntity> {
+    const experience = await this.experiencesRepository.findOne({
+      where: { id: experienceId },
+    });
     if (!experience) {
       throw new NotFoundException('Experience not found');
     }
@@ -60,20 +67,28 @@ export class ExperiencesService {
   }
 
   private async findProjectOrThrow(projectId: string): Promise<ProjectEntity> {
-    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+    });
     if (!project) {
       throw new NotFoundException('Project not found');
     }
     return project;
   }
 
-  async createProject(experienceId: string, dto: CreateProjectDto): Promise<ProjectEntity> {
+  async createProject(
+    experienceId: string,
+    dto: CreateProjectDto,
+  ): Promise<ProjectEntity> {
     await this.findExperienceOrThrow(experienceId);
     const project = this.projectsRepository.create({ ...dto, experienceId });
     return this.projectsRepository.save(project);
   }
 
-  async updateProject(projectId: string, dto: UpdateProjectDto): Promise<ProjectEntity> {
+  async updateProject(
+    projectId: string,
+    dto: UpdateProjectDto,
+  ): Promise<ProjectEntity> {
     const project = await this.findProjectOrThrow(projectId);
     Object.assign(project, dto);
     return this.projectsRepository.save(project);

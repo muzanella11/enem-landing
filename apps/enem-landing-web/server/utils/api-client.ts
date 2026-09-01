@@ -12,7 +12,9 @@ export const createApiClient = () => {
 };
 
 export const handleApiError = (error: unknown): never => {
-  const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+  const axiosError = error as {
+    response?: { status: number; data?: { message?: string } };
+  };
   throw createError({
     statusCode: axiosError.response?.status || 500,
     statusMessage: axiosError.response?.data?.message || 'Request failed',

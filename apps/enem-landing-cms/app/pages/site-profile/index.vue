@@ -44,21 +44,64 @@ const save = async () => {
 
     <v-card max-width="640">
       <v-card-text>
-        <v-text-field v-model="form.heroTitle" label="Hero Title" density="comfortable" />
-        <v-text-field v-model="form.heroSubtitle" label="Hero Subtitle" density="comfortable" />
-        <v-textarea v-model="form.bio" label="Bio" density="comfortable" rows="4" />
-        <v-text-field v-model="form.avatarUrl" label="Avatar URL" density="comfortable" />
+        <v-text-field
+          v-model="form.heroTitle"
+          label="Hero Title"
+          density="comfortable"
+        />
+        <v-text-field
+          v-model="form.heroSubtitle"
+          label="Hero Subtitle"
+          density="comfortable"
+        />
+        <v-textarea
+          v-model="form.bio"
+          label="Bio"
+          density="comfortable"
+          rows="4"
+        />
+        <v-text-field
+          v-model="form.avatarUrl"
+          label="Avatar URL"
+          density="comfortable"
+        />
 
         <div class="d-flex align-center mt-2 mb-2">
           <span class="text-subtitle-2">Social Links</span>
           <v-spacer />
-          <v-btn size="small" variant="text" prepend-icon="mdi-plus" @click="addSocialLink">Add</v-btn>
+          <v-btn
+            size="small"
+            variant="text"
+            prepend-icon="mdi-plus"
+            @click="addSocialLink"
+            >Add</v-btn
+          >
         </div>
 
-        <div v-for="(link, index) in form.socialLinks" :key="index" class="d-flex align-center mb-2 ga-2">
-          <v-text-field v-model="link.platform" label="Platform" density="compact" hide-details />
-          <v-text-field v-model="link.url" label="URL" density="compact" hide-details />
-          <v-btn icon="mdi-delete" variant="text" size="small" color="error" @click="removeSocialLink(index)" />
+        <div
+          v-for="(link, index) in form.socialLinks"
+          :key="index"
+          class="d-flex align-center mb-2 ga-2"
+        >
+          <v-text-field
+            v-model="link.platform"
+            label="Platform"
+            density="compact"
+            hide-details
+          />
+          <v-text-field
+            v-model="link.url"
+            label="URL"
+            density="compact"
+            hide-details
+          />
+          <v-btn
+            icon="mdi-delete"
+            variant="text"
+            size="small"
+            color="error"
+            @click="removeSocialLink(index)"
+          />
         </div>
       </v-card-text>
       <v-card-actions>

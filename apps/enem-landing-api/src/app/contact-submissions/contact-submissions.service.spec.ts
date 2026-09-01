@@ -27,7 +27,12 @@ describe('ContactSubmissionsService', () => {
     service.onModuleDestroy();
   });
 
-  const dto = { fullname: 'A', email: 'a@example.com', phoneNumber: '0800', message: 'Hi' };
+  const dto = {
+    fullname: 'A',
+    email: 'a@example.com',
+    phoneNumber: '0800',
+    message: 'Hi',
+  };
 
   it('creates a submission with readAt null', async () => {
     await service.create(dto, '1.2.3.4');

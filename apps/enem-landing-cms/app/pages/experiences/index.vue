@@ -5,7 +5,8 @@ import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
 
-const { data: experiences, refresh } = await useFetch<Experience[]>('/api/experiences');
+const { data: experiences, refresh } =
+  await useFetch<Experience[]>('/api/experiences');
 const snackbar = useGlobalSnackbar();
 const router = useRouter();
 
@@ -30,7 +31,15 @@ const form = ref({
 });
 
 const openCreate = () => {
-  form.value = { company: '', position: '', location: '', description: '', roleSummary: '', workingPeriode: '', experienceGained: '' };
+  form.value = {
+    company: '',
+    position: '',
+    location: '',
+    description: '',
+    roleSummary: '',
+    workingPeriode: '',
+    experienceGained: '',
+  };
   dialog.value = true;
 };
 
@@ -44,7 +53,10 @@ const save = async () => {
         .map((s) => s.trim())
         .filter(Boolean),
     };
-    const created = await $fetch<Experience>('/api/experiences', { method: 'post', body });
+    const created = await $fetch<Experience>('/api/experiences', {
+      method: 'post',
+      body,
+    });
     dialog.value = false;
     await refresh();
     snackbar.success('Experience created.');
@@ -74,19 +86,34 @@ const remove = async (experience: Experience) => {
     <div class="d-flex align-center mb-4">
       <h1 class="text-h5 font-weight-bold">Experiences</h1>
       <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">Add Experience</v-btn>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate"
+        >Add Experience</v-btn
+      >
     </div>
 
     <v-data-table :headers="headers" :items="experiences ?? []" item-value="id">
       <template #item.company="{ item }">
-        <NuxtLink :to="`/experiences/${item.id}`" class="text-primary">{{ item.company }}</NuxtLink>
+        <NuxtLink :to="`/experiences/${item.id}`" class="text-primary">{{
+          item.company
+        }}</NuxtLink>
       </template>
       <template #item.projects="{ item }">
         {{ item.projects?.length ?? 0 }}
       </template>
       <template #item.actions="{ item }">
-        <v-btn :to="`/experiences/${item.id}`" icon="mdi-pencil" variant="text" size="small" />
-        <v-btn icon="mdi-delete" variant="text" size="small" color="error" @click="remove(item)" />
+        <v-btn
+          :to="`/experiences/${item.id}`"
+          icon="mdi-pencil"
+          variant="text"
+          size="small"
+        />
+        <v-btn
+          icon="mdi-delete"
+          variant="text"
+          size="small"
+          color="error"
+          @click="remove(item)"
+        />
       </template>
     </v-data-table>
 
@@ -94,12 +121,38 @@ const remove = async (experience: Experience) => {
       <v-card>
         <v-card-title>Add Experience</v-card-title>
         <v-card-text>
-          <v-text-field v-model="form.company" label="Company" density="comfortable" />
-          <v-text-field v-model="form.position" label="Position" density="comfortable" />
-          <v-text-field v-model="form.location" label="Location" density="comfortable" />
-          <v-text-field v-model="form.workingPeriode" label="Period (e.g. Nov 2021 - Now)" density="comfortable" />
-          <v-textarea v-model="form.roleSummary" label="Role Summary" density="comfortable" rows="2" />
-          <v-textarea v-model="form.description" label="Description" density="comfortable" rows="3" />
+          <v-text-field
+            v-model="form.company"
+            label="Company"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="form.position"
+            label="Position"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="form.location"
+            label="Location"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="form.workingPeriode"
+            label="Period (e.g. Nov 2021 - Now)"
+            density="comfortable"
+          />
+          <v-textarea
+            v-model="form.roleSummary"
+            label="Role Summary"
+            density="comfortable"
+            rows="2"
+          />
+          <v-textarea
+            v-model="form.description"
+            label="Description"
+            density="comfortable"
+            rows="3"
+          />
           <v-textarea
             v-model="form.experienceGained"
             label="Experience Gained (one per line)"

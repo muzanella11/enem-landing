@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue';
-import type { Experience, Project, SeoMeta, SiteProfile } from '@enem-landing/shared-types';
+import type {
+  Experience,
+  Project,
+  SeoMeta,
+  SiteProfile,
+} from '@enem-landing/shared-types';
 import PortfolioModal from '../components/PortfolioModal.vue';
 import SectionDivider from '../components/SectionDivider.vue';
 
@@ -43,7 +48,12 @@ const toggleBusinessCard = () => {
   businessCardShown.value = !businessCardShown.value;
 };
 
-const entryContact = reactive({ fullname: '', email: '', phoneNumber: '', message: '' });
+const entryContact = reactive({
+  fullname: '',
+  email: '',
+  phoneNumber: '',
+  message: '',
+});
 const isSubmitting = ref(false);
 const isSubmitted = ref(false);
 const isError = ref(false);
@@ -53,7 +63,10 @@ const submitContact = async () => {
   isError.value = false;
   isSubmitted.value = false;
   try {
-    await $fetch('/api/contact-submissions', { method: 'post', body: entryContact });
+    await $fetch('/api/contact-submissions', {
+      method: 'post',
+      body: entryContact,
+    });
     isSubmitted.value = true;
     entryContact.fullname = '';
     entryContact.email = '';
@@ -72,23 +85,31 @@ const submitContact = async () => {
     <!-- Experience -->
     <section id="experience" class="py-24 px-4">
       <div class="max-w-4xl mx-auto">
-        <h2 class="text-3xl lg:text-5xl font-bold uppercase text-center text-[#2C3E50]">
+        <h2
+          class="text-3xl lg:text-5xl font-bold uppercase text-center text-[#2C3E50]"
+        >
           Experience
         </h2>
         <SectionDivider />
 
-        <div class="bg-[#727CF5]/[0.09] border-l-4 border-[#727CF5] rounded-r-md p-6 lg:p-10">
+        <div
+          class="bg-[#727CF5]/[0.09] border-l-4 border-[#727CF5] rounded-r-md p-6 lg:p-10"
+        >
           <div
             v-for="(experience, index) in experiences ?? []"
             :key="experience.id"
             class="pb-8 mb-8"
             :class="{
-              'border-b border-dashed border-slate-300': index !== (experiences?.length ?? 0) - 1,
+              'border-b border-dashed border-slate-300':
+                index !== (experiences?.length ?? 0) - 1,
             }"
           >
-            <p class="text-sm font-light text-slate-500 mb-1">{{ experience.workingPeriode }}</p>
+            <p class="text-sm font-light text-slate-500 mb-1">
+              {{ experience.workingPeriode }}
+            </p>
             <h3 class="text-lg font-bold mb-2">
-              {{ experience.company }} // {{ experience.position }} // {{ experience.location }}
+              {{ experience.company }} // {{ experience.position }} //
+              {{ experience.location }}
             </h3>
             <p class="text-slate-700 mb-3">{{ experience.description }}</p>
 
@@ -97,12 +118,18 @@ const submitContact = async () => {
 
             <p class="font-semibold mb-1">Experiences gained:</p>
             <ul class="list-disc list-inside text-slate-700 mb-3">
-              <li v-for="gained in experience.experienceGained" :key="gained">{{ gained }}</li>
+              <li v-for="gained in experience.experienceGained" :key="gained">
+                {{ gained }}
+              </li>
             </ul>
 
             <p class="font-semibold mb-1">Selected Projects:</p>
             <ul class="space-y-3">
-              <li v-for="project in experience.projects" :key="project.id" class="text-slate-700">
+              <li
+                v-for="project in experience.projects"
+                :key="project.id"
+                class="text-slate-700"
+              >
                 <p class="font-medium">
                   {{ project.title }} //
                   <template v-if="project.url">
@@ -116,7 +143,9 @@ const submitContact = async () => {
                       {{ project.url }}
                     </a>
                   </template>
-                  <template v-else> Internal app, no preview link available </template>
+                  <template v-else>
+                    Internal app, no preview link available
+                  </template>
                   // {{ project.year }}
                 </p>
                 <p>
@@ -139,13 +168,19 @@ const submitContact = async () => {
     <!-- Portfolio -->
     <section id="portfolio" class="py-24 px-4">
       <div class="max-w-5xl mx-auto">
-        <h2 class="text-3xl lg:text-5xl font-bold uppercase text-center text-[#2C3E50]">
+        <h2
+          class="text-3xl lg:text-5xl font-bold uppercase text-center text-[#2C3E50]"
+        >
           Portfolio
         </h2>
         <SectionDivider />
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
-          <div v-for="project in portfolioEntries" :key="project.id" class="max-w-sm mx-auto">
+          <div
+            v-for="project in portfolioEntries"
+            :key="project.id"
+            class="max-w-sm mx-auto"
+          >
             <button
               type="button"
               class="relative block w-full rounded-lg overflow-hidden group"
@@ -180,14 +215,22 @@ const submitContact = async () => {
     <!-- Contact -->
     <section id="contact" class="py-24 px-4">
       <div class="max-w-lg mx-auto">
-        <h2 class="text-3xl lg:text-5xl font-bold uppercase text-center text-[#2C3E50]">
+        <h2
+          class="text-3xl lg:text-5xl font-bold uppercase text-center text-[#2C3E50]"
+        >
           Contact Me
         </h2>
         <SectionDivider />
 
-        <form v-if="!businessCardShown" class="space-y-4 mt-6" @submit.prevent="submitContact">
+        <form
+          v-if="!businessCardShown"
+          class="space-y-4 mt-6"
+          @submit.prevent="submitContact"
+        >
           <div>
-            <label for="fullname" class="block text-sm font-medium mb-1">Full name</label>
+            <label for="fullname" class="block text-sm font-medium mb-1"
+              >Full name</label
+            >
             <input
               id="fullname"
               v-model="entryContact.fullname"
@@ -198,7 +241,9 @@ const submitContact = async () => {
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium mb-1">Email address</label>
+            <label for="email" class="block text-sm font-medium mb-1"
+              >Email address</label
+            >
             <input
               id="email"
               v-model="entryContact.email"
@@ -209,7 +254,9 @@ const submitContact = async () => {
           </div>
 
           <div>
-            <label for="phone" class="block text-sm font-medium mb-1">Phone number</label>
+            <label for="phone" class="block text-sm font-medium mb-1"
+              >Phone number</label
+            >
             <input
               id="phone"
               v-model="entryContact.phoneNumber"
@@ -220,7 +267,9 @@ const submitContact = async () => {
           </div>
 
           <div>
-            <label for="message" class="block text-sm font-medium mb-1">Message</label>
+            <label for="message" class="block text-sm font-medium mb-1"
+              >Message</label
+            >
             <textarea
               id="message"
               v-model="entryContact.message"
@@ -230,10 +279,15 @@ const submitContact = async () => {
             />
           </div>
 
-          <p v-if="isSubmitted && !isError" class="text-center font-semibold text-green-600">
+          <p
+            v-if="isSubmitted && !isError"
+            class="text-center font-semibold text-green-600"
+          >
             Form submission successful!
           </p>
-          <p v-if="isError" class="text-center text-red-600">Error sending message!</p>
+          <p v-if="isError" class="text-center text-red-600">
+            Error sending message!
+          </p>
 
           <div class="flex justify-center gap-3">
             <button
@@ -273,6 +327,9 @@ const submitContact = async () => {
       </div>
     </section>
 
-    <PortfolioModal :project="activePortfolio" @close="activePortfolio = null" />
+    <PortfolioModal
+      :project="activePortfolio"
+      @close="activePortfolio = null"
+    />
   </div>
 </template>

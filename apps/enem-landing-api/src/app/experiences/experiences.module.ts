@@ -8,7 +8,10 @@ import { ProjectEntity } from './project.entity.js';
 import { ProjectsController } from './projects.controller.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ExperienceEntity, ProjectEntity]), SsoModule],
+  imports: [
+    TypeOrmModule.forFeature([ExperienceEntity, ProjectEntity]),
+    SsoModule,
+  ],
   controllers: [ExperiencesController, ProjectsController],
   providers: [ExperiencesService],
 })

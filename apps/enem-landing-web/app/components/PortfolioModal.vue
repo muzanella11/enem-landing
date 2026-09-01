@@ -21,7 +21,9 @@ const emit = defineEmits<{ close: [] }>();
         &times;
       </button>
 
-      <h2 class="text-2xl font-bold uppercase text-center text-[#2C3E50] mb-2">{{ project.title }}</h2>
+      <h2 class="text-2xl font-bold uppercase text-center text-[#2C3E50] mb-2">
+        {{ project.title }}
+      </h2>
       <SectionDivider />
 
       <img
@@ -31,7 +33,9 @@ const emit = defineEmits<{ close: [] }>();
         class="w-full h-64 object-contain rounded mb-4 bg-slate-50"
       />
 
-      <p class="mb-2"><span class="font-semibold">Year:</span> {{ project.year }}</p>
+      <p class="mb-2">
+        <span class="font-semibold">Year:</span> {{ project.year }}
+      </p>
 
       <p class="mb-2">
         <template v-if="project.url">

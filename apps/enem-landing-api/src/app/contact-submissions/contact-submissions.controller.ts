@@ -1,6 +1,15 @@
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
 import { ContactSubmissionsService } from './contact-submissions.service.js';
@@ -8,7 +17,9 @@ import { CreateContactSubmissionDto } from './dto/create-contact-submission.dto.
 
 @Controller('contact-submissions')
 export class ContactSubmissionsController {
-  constructor(private readonly contactSubmissionsService: ContactSubmissionsService) {}
+  constructor(
+    private readonly contactSubmissionsService: ContactSubmissionsService,
+  ) {}
 
   @Post()
   create(@Req() req: Request, @Body() dto: CreateContactSubmissionDto) {

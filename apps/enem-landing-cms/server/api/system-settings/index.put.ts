@@ -1,4 +1,7 @@
-import { createAccountApiClient, handleApiError } from '../../utils/api-client.js';
+import {
+  createAccountApiClient,
+  handleApiError,
+} from '../../utils/api-client.js';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);

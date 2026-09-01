@@ -13,9 +13,15 @@ defineProps<{
 <template>
   <header class="bg-[#1ABC9C] text-white text-center pt-40 lg:pt-48 pb-24 px-4">
     <div class="max-w-3xl mx-auto flex flex-col items-center">
-      <img :src="avatarUrl" alt="Avatar" class="w-48 lg:w-60 mb-8 rounded-full bg-white" />
+      <img
+        :src="avatarUrl"
+        alt="Avatar"
+        class="w-48 lg:w-60 mb-8 rounded-full bg-white"
+      />
 
-      <h1 class="uppercase font-bold text-4xl lg:text-6xl leading-tight">{{ title }}</h1>
+      <h1 class="uppercase font-bold text-4xl lg:text-6xl leading-tight">
+        {{ title }}
+      </h1>
 
       <SectionDivider light />
 

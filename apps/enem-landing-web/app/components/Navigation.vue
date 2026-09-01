@@ -55,7 +55,9 @@ const scrollTo = (href: string) => {
           Menu
         </button>
 
-        <ul class="hidden lg:flex items-center gap-1 text-sm font-bold tracking-wide">
+        <ul
+          class="hidden lg:flex items-center gap-1 text-sm font-bold tracking-wide"
+        >
           <li v-for="item in NAV_ITEMS" :key="item.href">
             <a
               :href="item.href"
@@ -68,9 +70,16 @@ const scrollTo = (href: string) => {
         </ul>
       </div>
 
-      <ul v-if="isOpen" class="lg:hidden pt-4 pb-2 space-y-1 text-sm font-bold tracking-wide">
+      <ul
+        v-if="isOpen"
+        class="lg:hidden pt-4 pb-2 space-y-1 text-sm font-bold tracking-wide"
+      >
         <li v-for="item in NAV_ITEMS" :key="item.href">
-          <a :href="item.href" class="block py-1" @click.prevent="scrollTo(item.href)">
+          <a
+            :href="item.href"
+            class="block py-1"
+            @click.prevent="scrollTo(item.href)"
+          >
             {{ item.label }}
           </a>
         </li>

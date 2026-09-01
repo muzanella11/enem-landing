@@ -35,8 +35,8 @@ defineProps<{ socialLinks: SocialLink[] }>();
       <div>
         <h4 class="uppercase font-bold mb-4">About This Page</h4>
         <p class="text-lg font-light">
-          "Create with love, passion and some caffeine. Touch me and call me if you're
-          interested with my profile."
+          "Create with love, passion and some caffeine. Touch me and call me if
+          you're interested with my profile."
         </p>
       </div>
     </div>

@@ -24,7 +24,9 @@ export class SeoMetaService {
   }
 
   async upsert(dto: UpsertSeoMetaDto): Promise<SeoMetaEntity> {
-    const existing = await this.repository.findOne({ where: { pageKey: dto.pageKey } });
+    const existing = await this.repository.findOne({
+      where: { pageKey: dto.pageKey },
+    });
     if (existing) {
       return this.repository.save({ ...existing, ...dto });
     }

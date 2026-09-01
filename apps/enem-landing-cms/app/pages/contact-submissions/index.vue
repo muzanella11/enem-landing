@@ -4,7 +4,9 @@ import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
 
-const { data: submissions, refresh } = await useFetch<ContactSubmission[]>('/api/contact-submissions');
+const { data: submissions, refresh } = await useFetch<ContactSubmission[]>(
+  '/api/contact-submissions',
+);
 const snackbar = useGlobalSnackbar();
 
 const headers = [
@@ -19,7 +21,9 @@ const headers = [
 
 const markAsRead = async (submission: ContactSubmission) => {
   try {
-    await $fetch(`/api/contact-submissions/${submission.id}/read`, { method: 'patch' });
+    await $fetch(`/api/contact-submissions/${submission.id}/read`, {
+      method: 'patch',
+    });
     await refresh();
     snackbar.success('Marked as read.');
   } catch (err) {
@@ -34,14 +38,24 @@ const markAsRead = async (submission: ContactSubmission) => {
 
     <v-data-table :headers="headers" :items="submissions ?? []" item-value="id">
       <template #item.readAt="{ item }">
-        <v-chip v-if="item.readAt" size="small" color="success" variant="tonal">Read</v-chip>
-        <v-chip v-else size="small" color="warning" variant="tonal">Unread</v-chip>
+        <v-chip v-if="item.readAt" size="small" color="success" variant="tonal"
+          >Read</v-chip
+        >
+        <v-chip v-else size="small" color="warning" variant="tonal"
+          >Unread</v-chip
+        >
       </template>
       <template #item.createdAt="{ item }">
         {{ new Date(item.createdAt).toLocaleString('id-ID') }}
       </template>
       <template #item.actions="{ item }">
-        <v-btn v-if="!item.readAt" size="small" variant="text" @click="markAsRead(item)">Mark as read</v-btn>
+        <v-btn
+          v-if="!item.readAt"
+          size="small"
+          variant="text"
+          @click="markAsRead(item)"
+          >Mark as read</v-btn
+        >
       </template>
     </v-data-table>
   </v-container>

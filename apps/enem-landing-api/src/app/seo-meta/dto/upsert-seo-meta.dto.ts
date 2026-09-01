@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsUrl, Matches, ValidateIf } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  Matches,
+  ValidateIf,
+} from 'class-validator';
 
 export class UpsertSeoMetaDto {
   @IsString()

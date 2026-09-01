@@ -25,7 +25,9 @@ describe('SkillsService', () => {
 
   it('findAll orders by category then name', async () => {
     await service.findAll();
-    expect(repo.find).toHaveBeenCalledWith({ order: { category: 'ASC', name: 'ASC' } });
+    expect(repo.find).toHaveBeenCalledWith({
+      order: { category: 'ASC', name: 'ASC' },
+    });
   });
 
   it('create defaults level/icon to null when omitted', async () => {
@@ -40,7 +42,9 @@ describe('SkillsService', () => {
 
   it('update throws NotFoundException when missing', async () => {
     repo.findOne.mockResolvedValue(null);
-    await expect(service.update('missing', {})).rejects.toThrow(NotFoundException);
+    await expect(service.update('missing', {})).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('remove throws NotFoundException when missing', async () => {

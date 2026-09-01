@@ -32,7 +32,12 @@ const openCreate = () => {
 const openEdit = (skill: Skill) => {
   isEditing.value = true;
   editingId.value = skill.id;
-  form.value = { name: skill.name, category: skill.category, level: skill.level ?? '', icon: skill.icon ?? '' };
+  form.value = {
+    name: skill.name,
+    category: skill.category,
+    level: skill.level ?? '',
+    icon: skill.icon ?? '',
+  };
   dialog.value = true;
 };
 
@@ -40,7 +45,10 @@ const save = async () => {
   isSaving.value = true;
   try {
     if (isEditing.value && editingId.value) {
-      await $fetch(`/api/skills/${editingId.value}`, { method: 'put', body: form.value });
+      await $fetch(`/api/skills/${editingId.value}`, {
+        method: 'put',
+        body: form.value,
+      });
     } else {
       await $fetch('/api/skills', { method: 'post', body: form.value });
     }
@@ -70,13 +78,26 @@ const remove = async (skill: Skill) => {
     <div class="d-flex align-center mb-4">
       <h1 class="text-h5 font-weight-bold">Skills</h1>
       <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">Add Skill</v-btn>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate"
+        >Add Skill</v-btn
+      >
     </div>
 
     <v-data-table :headers="headers" :items="skills ?? []" item-value="id">
       <template #item.actions="{ item }">
-        <v-btn icon="mdi-pencil" variant="text" size="small" @click="openEdit(item)" />
-        <v-btn icon="mdi-delete" variant="text" size="small" color="error" @click="remove(item)" />
+        <v-btn
+          icon="mdi-pencil"
+          variant="text"
+          size="small"
+          @click="openEdit(item)"
+        />
+        <v-btn
+          icon="mdi-delete"
+          variant="text"
+          size="small"
+          color="error"
+          @click="remove(item)"
+        />
       </template>
     </v-data-table>
 
@@ -84,10 +105,26 @@ const remove = async (skill: Skill) => {
       <v-card>
         <v-card-title>{{ isEditing ? 'Edit' : 'Add' }} Skill</v-card-title>
         <v-card-text>
-          <v-text-field v-model="form.name" label="Name" density="comfortable" />
-          <v-text-field v-model="form.category" label="Category" density="comfortable" />
-          <v-text-field v-model="form.level" label="Level" density="comfortable" />
-          <v-text-field v-model="form.icon" label="Icon" density="comfortable" />
+          <v-text-field
+            v-model="form.name"
+            label="Name"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="form.category"
+            label="Category"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="form.level"
+            label="Level"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="form.icon"
+            label="Icon"
+            density="comfortable"
+          />
         </v-card-text>
         <v-card-actions>
           <v-spacer />

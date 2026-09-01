@@ -32,7 +32,10 @@ describe('ExperiencesService', () => {
       save: vi.fn((entity) => Promise.resolve(entity)),
       remove: vi.fn((entity) => Promise.resolve(entity)),
     };
-    service = new ExperiencesService(experiencesRepo as never, projectsRepo as never);
+    service = new ExperiencesService(
+      experiencesRepo as never,
+      projectsRepo as never,
+    );
   });
 
   it('findAll orders by createdAt ascending with projects joined', async () => {
@@ -59,25 +62,32 @@ describe('ExperiencesService', () => {
     const existing = { id: '1', company: 'Old' };
     experiencesRepo.findOne.mockResolvedValue(existing);
     await service.update('1', { company: 'New' } as never);
-    expect(experiencesRepo.save).toHaveBeenCalledWith(expect.objectContaining({ company: 'New' }));
+    expect(experiencesRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ company: 'New' }),
+    );
   });
 
   it('createProject throws when the parent experience does not exist', async () => {
     experiencesRepo.findOne.mockResolvedValue(null);
-    await expect(service.createProject('missing', { title: 'X' } as never)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      service.createProject('missing', { title: 'X' } as never),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('createProject attaches the experienceId to the new project', async () => {
     experiencesRepo.findOne.mockResolvedValue({ id: 'exp-1' });
     await service.createProject('exp-1', { title: 'X' } as never);
-    expect(projectsRepo.create).toHaveBeenCalledWith({ title: 'X', experienceId: 'exp-1' });
+    expect(projectsRepo.create).toHaveBeenCalledWith({
+      title: 'X',
+      experienceId: 'exp-1',
+    });
   });
 
   it('updateProject throws when the project does not exist', async () => {
     projectsRepo.findOne.mockResolvedValue(null);
-    await expect(service.updateProject('missing', {} as never)).rejects.toThrow(NotFoundException);
+    await expect(service.updateProject('missing', {} as never)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('removeProject deletes an existing project', async () => {

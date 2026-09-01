@@ -10,20 +10,29 @@ const AUTH_TOKEN_COOKIE = 'ENEM_LANDING_AUTH_TOKEN';
  * these two clients instead, forwarding the admin's own token from the
  * shared auth cookie.
  */
-const getAuthToken = (event: H3Event): string | undefined => getCookie(event, AUTH_TOKEN_COOKIE) ?? undefined;
+const getAuthToken = (event: H3Event): string | undefined =>
+  getCookie(event, AUTH_TOKEN_COOKIE) ?? undefined;
 
 export const createApiClient = (event: H3Event) => {
   const config = useRuntimeConfig();
-  return createAxiosInstance({ baseURL: config.apiHost as string, token: getAuthToken(event) });
+  return createAxiosInstance({
+    baseURL: config.apiHost as string,
+    token: getAuthToken(event),
+  });
 };
 
 export const createAccountApiClient = (event: H3Event) => {
   const config = useRuntimeConfig();
-  return createAxiosInstance({ baseURL: config.accountApiHost as string, token: getAuthToken(event) });
+  return createAxiosInstance({
+    baseURL: config.accountApiHost as string,
+    token: getAuthToken(event),
+  });
 };
 
 export const handleApiError = (error: unknown): never => {
-  const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+  const axiosError = error as {
+    response?: { status: number; data?: { message?: string } };
+  };
   throw createError({
     statusCode: axiosError.response?.status || 500,
     statusMessage: axiosError.response?.data?.message || 'Request failed',

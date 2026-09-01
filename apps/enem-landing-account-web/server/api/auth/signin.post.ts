@@ -15,12 +15,16 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
   const config = useRuntimeConfig();
-  const client = createAxiosInstance({ baseURL: config.accountApiHost as string });
+  const client = createAxiosInstance({
+    baseURL: config.accountApiHost as string,
+  });
 
   try {
     return await client.post('/auth/signin', body);
   } catch (error) {
-    const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+    const axiosError = error as {
+      response?: { status: number; data?: { message?: string } };
+    };
     throw createError({
       statusCode: axiosError.response?.status || 500,
       statusMessage: axiosError.response?.data?.message || 'Failed to sign in',

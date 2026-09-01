@@ -18,7 +18,11 @@ export class SkillsService {
 
   create(dto: CreateSkillDto): Promise<SkillEntity> {
     return this.repository.save(
-      this.repository.create({ ...dto, level: dto.level ?? null, icon: dto.icon ?? null }),
+      this.repository.create({
+        ...dto,
+        level: dto.level ?? null,
+        icon: dto.icon ?? null,
+      }),
     );
   }
 

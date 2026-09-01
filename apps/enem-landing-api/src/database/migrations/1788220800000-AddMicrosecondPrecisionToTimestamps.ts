@@ -15,7 +15,12 @@ export class AddMicrosecondPrecisionToTimestamps1788220800000 implements Migrati
     await queryRunner.changeColumn(
       'experiences',
       'createdAt',
-      new TableColumn({ name: 'createdAt', type: 'datetime', precision: 6, default: 'CURRENT_TIMESTAMP(6)' }),
+      new TableColumn({
+        name: 'createdAt',
+        type: 'datetime',
+        precision: 6,
+        default: 'CURRENT_TIMESTAMP(6)',
+      }),
     );
     await queryRunner.changeColumn(
       'experiences',
@@ -32,7 +37,12 @@ export class AddMicrosecondPrecisionToTimestamps1788220800000 implements Migrati
     await queryRunner.changeColumn(
       'projects',
       'createdAt',
-      new TableColumn({ name: 'createdAt', type: 'datetime', precision: 6, default: 'CURRENT_TIMESTAMP(6)' }),
+      new TableColumn({
+        name: 'createdAt',
+        type: 'datetime',
+        precision: 6,
+        default: 'CURRENT_TIMESTAMP(6)',
+      }),
     );
     await queryRunner.changeColumn(
       'projects',
@@ -49,7 +59,12 @@ export class AddMicrosecondPrecisionToTimestamps1788220800000 implements Migrati
     await queryRunner.changeColumn(
       'contact_submissions',
       'createdAt',
-      new TableColumn({ name: 'createdAt', type: 'datetime', precision: 6, default: 'CURRENT_TIMESTAMP(6)' }),
+      new TableColumn({
+        name: 'createdAt',
+        type: 'datetime',
+        precision: 6,
+        default: 'CURRENT_TIMESTAMP(6)',
+      }),
     );
   }
 
@@ -57,29 +72,51 @@ export class AddMicrosecondPrecisionToTimestamps1788220800000 implements Migrati
     await queryRunner.changeColumn(
       'contact_submissions',
       'createdAt',
-      new TableColumn({ name: 'createdAt', type: 'datetime', default: 'CURRENT_TIMESTAMP' }),
+      new TableColumn({
+        name: 'createdAt',
+        type: 'datetime',
+        default: 'CURRENT_TIMESTAMP',
+      }),
     );
 
     await queryRunner.changeColumn(
       'projects',
       'updatedAt',
-      new TableColumn({ name: 'updatedAt', type: 'datetime', default: 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' }),
+      new TableColumn({
+        name: 'updatedAt',
+        type: 'datetime',
+        default: 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+      }),
     );
     await queryRunner.changeColumn(
       'projects',
       'createdAt',
-      new TableColumn({ name: 'createdAt', type: 'datetime', default: 'CURRENT_TIMESTAMP' }),
+      new TableColumn({
+        name: 'createdAt',
+        type: 'datetime',
+        default: 'CURRENT_TIMESTAMP',
+      }),
     );
 
     await queryRunner.changeColumn(
       'experiences',
       'updatedAt',
-      new TableColumn({ name: 'updatedAt', type: 'datetime', default: 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' }),
+      new TableColumn({
+        name: 'updatedAt',
+        type: 'datetime',
+        default: 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+      }),
     );
     await queryRunner.changeColumn(
       'experiences',
       'createdAt',
-      new TableColumn({ name: 'createdAt', type: 'datetime', default: 'CURRENT_TIMESTAMP' }),
+      new TableColumn({
+        name: 'createdAt',
+        type: 'datetime',
+        default: 'CURRENT_TIMESTAMP',
+      }),
     );
   }
 }

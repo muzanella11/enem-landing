@@ -62,13 +62,30 @@ const remove = async (meta: SeoMeta) => {
     <div class="d-flex align-center mb-4">
       <h1 class="text-h5 font-weight-bold">SEO Meta</h1>
       <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">Add Page</v-btn>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate"
+        >Add Page</v-btn
+      >
     </div>
 
-    <v-data-table :headers="headers" :items="seoMetas ?? []" item-value="pageKey">
+    <v-data-table
+      :headers="headers"
+      :items="seoMetas ?? []"
+      item-value="pageKey"
+    >
       <template #item.actions="{ item }">
-        <v-btn icon="mdi-pencil" variant="text" size="small" @click="openEdit(item)" />
-        <v-btn icon="mdi-delete" variant="text" size="small" color="error" @click="remove(item)" />
+        <v-btn
+          icon="mdi-pencil"
+          variant="text"
+          size="small"
+          @click="openEdit(item)"
+        />
+        <v-btn
+          icon="mdi-delete"
+          variant="text"
+          size="small"
+          color="error"
+          @click="remove(item)"
+        />
       </template>
     </v-data-table>
 
@@ -76,10 +93,28 @@ const remove = async (meta: SeoMeta) => {
       <v-card>
         <v-card-title>{{ isEditing ? 'Edit' : 'Add' }} SEO Meta</v-card-title>
         <v-card-text>
-          <v-text-field v-model="form.pageKey" label="Page Key" density="comfortable" :disabled="isEditing" />
-          <v-text-field v-model="form.title" label="Title" density="comfortable" />
-          <v-textarea v-model="form.description" label="Description" density="comfortable" rows="3" />
-          <v-text-field v-model="form.ogImageUrl" label="OG Image URL" density="comfortable" />
+          <v-text-field
+            v-model="form.pageKey"
+            label="Page Key"
+            density="comfortable"
+            :disabled="isEditing"
+          />
+          <v-text-field
+            v-model="form.title"
+            label="Title"
+            density="comfortable"
+          />
+          <v-textarea
+            v-model="form.description"
+            label="Description"
+            density="comfortable"
+            rows="3"
+          />
+          <v-text-field
+            v-model="form.ogImageUrl"
+            label="OG Image URL"
+            density="comfortable"
+          />
         </v-card-text>
         <v-card-actions>
           <v-spacer />

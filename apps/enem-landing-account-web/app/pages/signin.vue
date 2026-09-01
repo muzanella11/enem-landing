@@ -87,10 +87,16 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <div v-if="isCheckingSession" class="min-h-screen flex items-center justify-center bg-white">
+  <div
+    v-if="isCheckingSession"
+    class="min-h-screen flex items-center justify-center bg-white"
+  >
     <p class="text-sm text-gray-400">Loading...</p>
   </div>
-  <div v-else-if="isSignedIn" class="min-h-screen flex items-center justify-center bg-white">
+  <div
+    v-else-if="isSignedIn"
+    class="min-h-screen flex items-center justify-center bg-white"
+  >
     <p class="text-sm text-gray-600">You're signed in.</p>
   </div>
 
@@ -98,19 +104,27 @@ const onSubmit = async () => {
     <!-- Left: Form -->
     <div class="w-full lg:w-5/12 flex flex-col bg-white overflow-y-auto">
       <div class="px-10 pt-10">
-        <span class="text-lg font-semibold text-gray-900">Nurfirliana Muzanella</span>
+        <span class="text-lg font-semibold text-gray-900"
+          >Nurfirliana Muzanella</span
+        >
       </div>
 
       <div class="flex-1 flex items-center justify-center px-10 py-12">
         <div class="w-full max-w-sm">
           <div class="mb-8">
-            <h1 class="text-3xl font-semibold text-gray-900 mb-2">Welcome back</h1>
-            <p class="text-sm text-gray-500">Sign in to continue to your account</p>
+            <h1 class="text-3xl font-semibold text-gray-900 mb-2">
+              Welcome back
+            </h1>
+            <p class="text-sm text-gray-500">
+              Sign in to continue to your account
+            </p>
           </div>
 
           <form class="space-y-5" @submit.prevent="onSubmit">
             <div class="space-y-1">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider text-gray-500"
+              >
                 Email
               </label>
               <input
@@ -125,7 +139,9 @@ const onSubmit = async () => {
             </div>
 
             <div class="space-y-1">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <label
+                class="block text-xs font-semibold uppercase tracking-wider text-gray-500"
+              >
                 Password
               </label>
               <div class="relative">
@@ -157,9 +173,20 @@ const onSubmit = async () => {
                       stroke-linejoin="round"
                       d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
                     />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
-                  <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <svg
+                    v-else
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -170,8 +197,17 @@ const onSubmit = async () => {
               </div>
             </div>
 
-            <div v-if="errorMessage" class="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-200">
-              <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div
+              v-if="errorMessage"
+              class="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-200"
+            >
+              <svg
+                class="w-4 h-4 text-red-500 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -186,10 +222,28 @@ const onSubmit = async () => {
               :disabled="isLoading"
               class="w-full py-3 bg-[#1ABC9C] hover:bg-[#15967D] active:bg-[#128068] text-white font-semibold rounded-xl text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
-              <span v-if="isLoading" class="flex items-center justify-center gap-2">
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <span
+                v-if="isLoading"
+                class="flex items-center justify-center gap-2"
+              >
+                <svg
+                  class="w-4 h-4 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
                 Signing in...
               </span>
@@ -200,18 +254,31 @@ const onSubmit = async () => {
       </div>
 
       <div class="px-10 pb-8">
-        <p class="text-xs text-gray-400">&copy; {{ new Date().getFullYear() }} Nurfirliana Muzanella. All rights reserved.</p>
+        <p class="text-xs text-gray-400">
+          &copy; {{ new Date().getFullYear() }} Nurfirliana Muzanella. All
+          rights reserved.
+        </p>
       </div>
     </div>
 
     <!-- Right: Brand panel -->
-    <div class="hidden lg:flex lg:w-7/12 relative bg-[#1ABC9C] overflow-hidden items-center justify-center">
-      <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#3FCBAF] opacity-40" />
-      <div class="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-[#15967D] opacity-30" />
-      <div class="absolute top-1/2 left-1/4 w-32 h-32 rounded-full bg-white opacity-5" />
+    <div
+      class="hidden lg:flex lg:w-7/12 relative bg-[#1ABC9C] overflow-hidden items-center justify-center"
+    >
+      <div
+        class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#3FCBAF] opacity-40"
+      />
+      <div
+        class="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-[#15967D] opacity-30"
+      />
+      <div
+        class="absolute top-1/2 left-1/4 w-32 h-32 rounded-full bg-white opacity-5"
+      />
 
       <div class="relative z-10 text-center px-12 select-none">
-        <h2 class="text-white text-5xl font-bold leading-tight mb-4">Nurfirliana<br />Muzanella</h2>
+        <h2 class="text-white text-5xl font-bold leading-tight mb-4">
+          Nurfirliana<br />Muzanella
+        </h2>
         <p class="text-white/80 text-base font-light max-w-xs mx-auto">
           Frontend Engineer. Sign in to manage the enem-landing account.
         </p>

@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable, OnModuleDestroy } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ContactSubmissionEntity } from './contact-submission.entity.js';
@@ -19,7 +24,10 @@ const RATE_LIMIT_MAX_SUBMISSIONS = 5;
 
 @Injectable()
 export class ContactSubmissionsService implements OnModuleDestroy {
-  private readonly rateLimitMap = new Map<string, { count: number; windowStart: number }>();
+  private readonly rateLimitMap = new Map<
+    string,
+    { count: number; windowStart: number }
+  >();
   private readonly cleanupTimer: NodeJS.Timeout;
 
   constructor(
@@ -39,7 +47,8 @@ export class ContactSubmissionsService implements OnModuleDestroy {
   private pruneRateLimitMap(): void {
     const now = Date.now();
     for (const [key, entry] of this.rateLimitMap) {
-      if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) this.rateLimitMap.delete(key);
+      if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS)
+        this.rateLimitMap.delete(key);
     }
   }
 
@@ -53,13 +62,19 @@ export class ContactSubmissionsService implements OnModuleDestroy {
     }
 
     if (entry.count >= RATE_LIMIT_MAX_SUBMISSIONS) {
-      throw new HttpException('Too many submissions, please try again later', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'Too many submissions, please try again later',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     entry.count += 1;
   }
 
-  async create(dto: CreateContactSubmissionDto, ip: string): Promise<ContactSubmissionEntity> {
+  async create(
+    dto: CreateContactSubmissionDto,
+    ip: string,
+  ): Promise<ContactSubmissionEntity> {
     this.assertRateLimit(ip);
     const submission = this.repository.create({ ...dto, readAt: null });
     return this.repository.save(submission);

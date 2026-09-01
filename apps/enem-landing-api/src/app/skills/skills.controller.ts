@@ -35,7 +35,11 @@ export class SkillsController {
 
   @UseGuards(SsoAuthGuard)
   @Put(':id')
-  update(@Req() req: Request, @Param('id') id: string, @Body() dto: UpdateSkillDto) {
+  update(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() dto: UpdateSkillDto,
+  ) {
     assertAdminRole((req as Request & { user: User }).user);
     return this.skillsService.update(id, dto);
   }

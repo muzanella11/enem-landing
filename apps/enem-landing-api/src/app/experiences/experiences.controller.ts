@@ -43,7 +43,11 @@ export class ExperiencesController {
 
   @UseGuards(SsoAuthGuard)
   @Put(':id')
-  update(@Req() req: Request, @Param('id') id: string, @Body() dto: UpdateExperienceDto) {
+  update(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() dto: UpdateExperienceDto,
+  ) {
     assertAdminRole((req as Request & { user: User }).user);
     return this.experiencesService.update(id, dto);
   }
@@ -57,7 +61,11 @@ export class ExperiencesController {
 
   @UseGuards(SsoAuthGuard)
   @Post(':id/projects')
-  createProject(@Req() req: Request, @Param('id') id: string, @Body() dto: CreateProjectDto) {
+  createProject(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() dto: CreateProjectDto,
+  ) {
     assertAdminRole((req as Request & { user: User }).user);
     return this.experiencesService.createProject(id, dto);
   }

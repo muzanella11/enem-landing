@@ -14,15 +14,21 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig();
-  const client = createAxiosInstance({ baseURL: config.accountApiHost as string, token });
+  const client = createAxiosInstance({
+    baseURL: config.accountApiHost as string,
+    token,
+  });
 
   try {
     return await client.post('/auth/whoami');
   } catch (error) {
-    const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+    const axiosError = error as {
+      response?: { status: number; data?: { message?: string } };
+    };
     throw createError({
       statusCode: axiosError.response?.status || 500,
-      statusMessage: axiosError.response?.data?.message || 'Failed to fetch current user',
+      statusMessage:
+        axiosError.response?.data?.message || 'Failed to fetch current user',
     });
   }
 });

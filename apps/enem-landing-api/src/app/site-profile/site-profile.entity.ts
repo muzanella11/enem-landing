@@ -1,4 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import type { SocialLink } from '@enem-landing/shared-types';
 
 /** Single-row config — see SiteProfileService for the get-or-create-default logic. */
