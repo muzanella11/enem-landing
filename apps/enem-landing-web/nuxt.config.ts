@@ -2,6 +2,14 @@ import { fileURLToPath, URL } from 'node:url';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineNuxtConfig } from 'nuxt/config';
 
+// Ported from the old root nuxt.config.js's `googleAnalytics: { id:
+// process.env.GOOGLE_ANALYTICS_ID }` (the `@nuxtjs/google-analytics`
+// module, Nuxt 2-only) - same gtag.js snippet that module injected,
+// added directly to `app.head` since there's no Nuxt 4 equivalent module.
+// Omitted entirely (not just empty) when unset, so local dev doesn't ship
+// a broken tracking script.
+const googleAnalyticsId = process.env['GOOGLE_ANALYTICS_ID'];
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   workspaceDir: '../../',
@@ -35,6 +43,20 @@ export default defineNuxtConfig({
         },
       ],
       meta: [{ name: 'format-detection', content: 'telephone=no' }],
+      script: googleAnalyticsId
+        ? [
+            {
+              src: `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`,
+              async: true,
+            },
+            {
+              innerHTML: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${googleAnalyticsId}');`,
+            },
+          ]
+        : [],
     },
   },
   runtimeConfig: {
