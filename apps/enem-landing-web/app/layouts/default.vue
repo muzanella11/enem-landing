@@ -18,7 +18,9 @@ const { data: skills } = await useFetch<Skill[]>('/api/skills');
       :avatar-url="siteProfile?.avatarUrl || '/avataaars.svg'"
       :skills="skills ?? []"
     />
-    <slot />
+    <main>
+      <slot />
+    </main>
     <Footer :social-links="siteProfile?.socialLinks ?? []" />
     <Copyright />
   </div>

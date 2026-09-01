@@ -11,11 +11,12 @@ defineProps<{
 </script>
 
 <template>
-  <header class="bg-[#1ABC9C] text-white text-center pt-40 lg:pt-48 pb-24 px-4">
+  <header class="bg-[#0E7C6B] text-white text-center pt-40 lg:pt-48 pb-24 px-4">
     <div class="max-w-3xl mx-auto flex flex-col items-center">
       <img
         :src="avatarUrl"
-        alt="Avatar"
+        :alt="title"
+        fetchpriority="high"
         class="w-48 lg:w-60 mb-8 rounded-full bg-white"
       />
 
@@ -31,7 +32,7 @@ defineProps<{
         <span
           v-for="skill in skills"
           :key="skill.id"
-          class="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-medium"
+          class="px-3 py-1 rounded-full bg-black/10 border border-white/20 text-xs font-medium"
         >
           {{ skill.name }}
         </span>

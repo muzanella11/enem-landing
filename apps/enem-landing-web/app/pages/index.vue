@@ -130,7 +130,7 @@ const submitContact = async () => {
           >
             <!-- Date -->
             <p
-              class="text-sm font-light text-slate-500 mb-1 md:mb-0 md:pt-1 md:text-right"
+              class="text-sm font-light text-slate-600 mb-1 md:mb-0 md:pt-1 md:text-right"
             >
               {{ experience.workingPeriode }}
             </p>
@@ -185,7 +185,7 @@ const submitContact = async () => {
                         :href="project.url"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-[#1ABC9C] hover:underline"
+                        class="text-[#0E7C6B] underline"
                       >
                         {{ project.url }}
                       </a>
@@ -236,11 +236,12 @@ const submitContact = async () => {
             >
               <img
                 :src="project.image[0] || IMAGE_NOT_AVAILABLE"
-                alt=""
+                :alt="project.title"
+                loading="lazy"
                 class="w-full h-52 object-cover"
               />
               <span
-                class="absolute inset-0 flex items-center justify-center bg-[#1ABC9C]/90 opacity-0 group-hover:opacity-100 transition-opacity text-white text-3xl font-light"
+                class="absolute inset-0 flex items-center justify-center bg-[#0E7C6B]/90 opacity-0 group-hover:opacity-100 transition-opacity text-white text-3xl font-light"
               >
                 +
               </span>
@@ -252,7 +253,7 @@ const submitContact = async () => {
     </section>
 
     <!-- About -->
-    <section id="about" class="py-24 px-4 bg-[#1ABC9C] text-white">
+    <section id="about" class="py-24 px-4 bg-[#0E7C6B] text-white">
       <div class="max-w-3xl mx-auto text-center">
         <h2 class="text-3xl lg:text-5xl font-bold uppercase">About</h2>
         <SectionDivider light />
@@ -284,7 +285,7 @@ const submitContact = async () => {
               v-model="entryContact.fullname"
               type="text"
               required
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#1ABC9C]"
+              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
             />
           </div>
 
@@ -297,7 +298,7 @@ const submitContact = async () => {
               v-model="entryContact.email"
               type="email"
               required
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#1ABC9C]"
+              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
             />
           </div>
 
@@ -310,7 +311,7 @@ const submitContact = async () => {
               v-model="entryContact.phoneNumber"
               type="tel"
               required
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#1ABC9C]"
+              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
             />
           </div>
 
@@ -323,7 +324,7 @@ const submitContact = async () => {
               v-model="entryContact.message"
               required
               rows="5"
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#1ABC9C]"
+              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
             />
           </div>
 
@@ -341,7 +342,7 @@ const submitContact = async () => {
             <button
               type="submit"
               :disabled="isSubmitting"
-              class="px-6 py-3 rounded bg-[#1ABC9C] text-white font-bold disabled:opacity-50"
+              class="px-6 py-3 rounded bg-[#0E7C6B] text-white font-bold disabled:opacity-50"
             >
               {{ isSubmitting ? 'Sending...' : 'Send' }}
             </button>

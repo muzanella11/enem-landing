@@ -29,7 +29,7 @@ const emit = defineEmits<{ close: [] }>();
       <img
         v-if="project.image[0]"
         :src="project.image[0]"
-        alt=""
+        :alt="project.title"
         class="w-full h-64 object-contain rounded mb-4 bg-slate-50"
       />
 
@@ -44,7 +44,7 @@ const emit = defineEmits<{ close: [] }>();
             :href="project.url"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-[#1ABC9C] hover:underline ml-1"
+            class="text-[#0E7C6B] underline ml-1"
           >
             {{ project.url }}
           </a>
@@ -57,7 +57,7 @@ const emit = defineEmits<{ close: [] }>();
         <span
           v-for="tech in project.technologies"
           :key="tech"
-          class="inline-block px-2 py-0.5 mr-1 mt-1 rounded-full bg-[#1ABC9C]/10 text-[#1ABC9C] text-xs"
+          class="inline-block px-2 py-0.5 mr-1 mt-1 rounded-full bg-[#0E7C6B]/10 text-[#0E7C6B] text-xs"
         >
           {{ tech }}
         </span>

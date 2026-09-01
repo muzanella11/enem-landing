@@ -49,7 +49,7 @@ const scrollTo = (href: string) => {
         </a>
 
         <button
-          class="lg:hidden px-3 py-2 rounded bg-[#1ABC9C] uppercase text-xs font-bold"
+          class="lg:hidden px-3 py-2 rounded bg-[#0E7C6B] uppercase text-xs font-bold"
           @click="isOpen = !isOpen"
         >
           Menu
@@ -61,7 +61,7 @@ const scrollTo = (href: string) => {
           <li v-for="item in NAV_ITEMS" :key="item.href">
             <a
               :href="item.href"
-              class="block px-3 py-3 rounded hover:text-[#1ABC9C] transition-colors"
+              class="block px-3 py-3 rounded hover:text-[#0E7C6B] transition-colors"
               @click.prevent="scrollTo(item.href)"
             >
               {{ item.label }}
