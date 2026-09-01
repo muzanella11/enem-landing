@@ -36,14 +36,14 @@ export default defineConfig({
       url: 'http://localhost:3001/health',
       reuseExistingServer: !process.env['CI'],
       cwd: workspaceRoot,
-      timeout: 90_000,
+      timeout: 180_000,
     },
     {
       command: 'yarn nx run enem-landing-web:serve',
       url: 'http://localhost:8001',
       reuseExistingServer: !process.env['CI'],
       cwd: workspaceRoot,
-      timeout: 90_000,
+      timeout: 180_000,
     },
   ],
   projects: [
