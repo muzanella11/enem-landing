@@ -20,6 +20,6 @@ export class ContactSubmissionEntity {
   @Column({ type: 'datetime', nullable: true })
   readAt!: Date | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ precision: 6 })
   createdAt!: Date;
 }

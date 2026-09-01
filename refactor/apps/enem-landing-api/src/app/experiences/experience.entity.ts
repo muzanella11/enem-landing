@@ -40,9 +40,13 @@ export class ExperienceEntity {
   })
   projects!: ProjectEntity[];
 
-  @CreateDateColumn()
+  // `precision: 6` - MySQL's default `datetime` has only 1-second
+  // resolution, which made bulk-created rows (e.g. a data migration) sort
+  // unpredictably by `findAll()`'s `order: { createdAt: 'ASC' }` when
+  // several land within the same second.
+  @CreateDateColumn({ precision: 6 })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ precision: 6 })
   updatedAt!: Date;
 }

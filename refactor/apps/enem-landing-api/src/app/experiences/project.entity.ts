@@ -41,9 +41,9 @@ export class ProjectEntity {
   @Column('simple-json')
   technologies!: string[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ precision: 6 })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ precision: 6 })
   updatedAt!: Date;
 }
