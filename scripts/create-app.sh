@@ -326,6 +326,28 @@ insertBefore(
   );
 }
 
+// Also wire into the app's dev:<group> script (dev:account/dev:core/dev:cms
+// - see root package.json). Group is inferred from the naming convention:
+// enem-landing-account-* -> account, enem-landing-cms -> cms, everything
+// else -> core (the "main product" group, e.g. enem-landing-api/-web).
+{
+  const groupName = name.startsWith('enem-landing-account-')
+    ? 'account'
+    : name === 'enem-landing-cms'
+      ? 'cms'
+      : 'core';
+  const groupAnchor = new RegExp(`"dev:${groupName}": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\\d+)",`);
+  const groupMatch = src.match(groupAnchor);
+  if (groupMatch) {
+    const nextGroupParallel = Number(groupMatch[2]) + 1;
+    src = src.replace(
+      groupAnchor,
+      `"dev:${groupName}": "yarn nx run-many -t serve -p ${groupMatch[1]} ${name} --parallel=${nextGroupParallel}",`,
+    );
+    console.log(`Also wired into dev:${groupName}.`);
+  }
+}
+
 if (kind === 'nuxt') {
   insertBefore('    "e2e": "yarn nx:e2e:', `    "nx:e2e:${name}": "yarn nx e2e ${name}-e2e",`);
   {

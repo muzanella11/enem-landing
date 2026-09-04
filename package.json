@@ -70,6 +70,9 @@
     "nx:serve:enem-landing-cms": "yarn nx run enem-landing-cms:serve",
     "nx:serve:enem-landing-web": "yarn nx run enem-landing-web:serve",
     "dev": "yarn nx run-many -t serve -p enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web --parallel=5",
+    "dev:account": "yarn nx run-many -t serve -p enem-landing-account-api enem-landing-account-web --parallel=2",
+    "dev:core": "yarn nx run-many -t serve -p enem-landing-api enem-landing-web --parallel=2",
+    "dev:cms": "yarn nx run-many -t serve -p enem-landing-cms --parallel=1",
 
     "nx:migration:run:enem-landing-account-api": "yarn nx run enem-landing-account-api:migration:run",
     "nx:migration:revert:enem-landing-account-api": "yarn nx run enem-landing-account-api:migration:revert",
