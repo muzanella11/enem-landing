@@ -115,9 +115,12 @@ removeFromProjectList('build');
 
 // Shared by "dev" and the dev:<group> scripts (dev:account/dev:core/dev:cms)
 // - all follow the same "yarn nx run-many -t serve -p <list> --parallel=<n>"
-// shape, so removal is the same string surgery for each.
+// shape, so removal is the same string surgery for each. The 3rd capture
+// group grabs whatever trails --parallel=<n> verbatim (e.g.
+// " --outputStyle=stream") so this doesn't need updating every time a flag
+// is added/removed from the dev scripts' tail.
 const removeFromServeScript = (scriptKey) => {
-  const anchor = new RegExp(`"${scriptKey}": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\\d+)",`);
+  const anchor = new RegExp(`"${scriptKey}": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\\d+)([^"]*)",`);
   const match = src.match(anchor);
   if (!match) return;
   const listRe = new RegExp(`(^| )${esc}( |$)`);
@@ -126,7 +129,7 @@ const removeFromServeScript = (scriptKey) => {
   const newParallel = Math.max(1, Number(match[2]) - 1);
   src = src.replace(
     anchor,
-    `"${scriptKey}": "yarn nx run-many -t serve -p ${newList} --parallel=${newParallel}",`,
+    `"${scriptKey}": "yarn nx run-many -t serve -p ${newList} --parallel=${newParallel}${match[3]}",`,
   );
 };
 removeFromServeScript('dev');
