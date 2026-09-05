@@ -39,75 +39,88 @@ const save = async () => {
 </script>
 
 <template>
-  <v-container>
-    <h1 class="text-h5 font-weight-bold mb-4">Site Profile</h1>
+  <CFormPage title="Site Profile" :content-cols="12">
+    <CContentCard title="Profile">
+      <v-text-field
+        v-model="form.heroTitle"
+        label="Hero Title"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.heroSubtitle"
+        label="Hero Subtitle"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.bio"
+        label="Bio"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="4"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.avatarUrl"
+        label="Avatar URL"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
 
-    <v-card max-width="640">
-      <v-card-text>
-        <v-text-field
-          v-model="form.heroTitle"
-          label="Hero Title"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.heroSubtitle"
-          label="Hero Subtitle"
-          density="comfortable"
-        />
-        <v-textarea
-          v-model="form.bio"
-          label="Bio"
-          density="comfortable"
-          rows="4"
-        />
-        <v-text-field
-          v-model="form.avatarUrl"
-          label="Avatar URL"
-          density="comfortable"
-        />
-
-        <div class="d-flex align-center mt-2 mb-2">
-          <span class="text-subtitle-2">Social Links</span>
-          <v-spacer />
-          <v-btn
-            size="small"
-            variant="text"
-            prepend-icon="mdi-plus"
-            @click="addSocialLink"
-            >Add</v-btn
-          >
-        </div>
-
-        <div
-          v-for="(link, index) in form.socialLinks"
-          :key="index"
-          class="d-flex align-center mb-2 ga-2"
-        >
-          <v-text-field
-            v-model="link.platform"
-            label="Platform"
-            density="compact"
-            hide-details
-          />
-          <v-text-field
-            v-model="link.url"
-            label="URL"
-            density="compact"
-            hide-details
-          />
-          <v-btn
-            icon="mdi-delete"
-            variant="text"
-            size="small"
-            color="error"
-            @click="removeSocialLink(index)"
-          />
-        </div>
-      </v-card-text>
-      <v-card-actions>
+      <div class="d-flex align-center mt-2 mb-2">
+        <span class="text-subtitle-2">Social Links</span>
         <v-spacer />
-        <v-btn color="primary" :loading="isSaving" @click="save">Save</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-container>
+        <v-btn
+          size="small"
+          variant="text"
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="addSocialLink"
+          >Add</v-btn
+        >
+      </div>
+
+      <div
+        v-for="(link, index) in form.socialLinks"
+        :key="index"
+        class="d-flex align-center mb-2 ga-2"
+      >
+        <v-text-field
+          v-model="link.platform"
+          label="Platform"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+        <v-text-field
+          v-model="link.url"
+          label="URL"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+        <v-btn
+          icon="mdi-delete-outline"
+          variant="text"
+          size="small"
+          color="error"
+          @click="removeSocialLink(index)"
+        />
+      </div>
+
+      <div class="d-flex justify-end mt-4">
+        <v-btn color="primary" variant="flat" :loading="isSaving" @click="save"
+          >Save</v-btn
+        >
+      </div>
+    </CContentCard>
+  </CFormPage>
 </template>

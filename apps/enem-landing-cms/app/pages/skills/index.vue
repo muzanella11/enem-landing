@@ -74,25 +74,24 @@ const remove = async (skill: Skill) => {
 </script>
 
 <template>
-  <v-container>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5 font-weight-bold">Skills</h1>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate"
+  <div>
+  <CListPage title="Skills" :meta="`${skills?.length ?? 0} skill`">
+    <template #actions>
+      <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" @click="openCreate"
         >Add Skill</v-btn
       >
-    </div>
+    </template>
 
-    <v-data-table :headers="headers" :items="skills ?? []" item-value="id">
+    <v-data-table :headers="headers" :items="skills ?? []" item-value="id" class="c-data-table">
       <template #item.actions="{ item }">
         <v-btn
-          icon="mdi-pencil"
+          icon="mdi-pencil-outline"
           variant="text"
           size="small"
           @click="openEdit(item)"
         />
         <v-btn
-          icon="mdi-delete"
+          icon="mdi-delete-outline"
           variant="text"
           size="small"
           color="error"
@@ -100,38 +99,49 @@ const remove = async (skill: Skill) => {
         />
       </template>
     </v-data-table>
+  </CListPage>
 
-    <v-dialog v-model="dialog" max-width="480">
-      <v-card>
-        <v-card-title>{{ isEditing ? 'Edit' : 'Add' }} Skill</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="form.name"
-            label="Name"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="form.category"
-            label="Category"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="form.level"
-            label="Level"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="form.icon"
-            label="Icon"
-            density="comfortable"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="primary" :loading="isSaving" @click="save">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+  <CModal
+    v-model="dialog"
+    :title="`${isEditing ? 'Edit' : 'Add'} Skill`"
+    max-width="480"
+  >
+    <v-text-field
+      v-model="form.name"
+      label="Name"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+      class="mb-4"
+    />
+    <v-text-field
+      v-model="form.category"
+      label="Category"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+      class="mb-4"
+    />
+    <v-text-field
+      v-model="form.level"
+      label="Level"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+      class="mb-4"
+    />
+    <v-text-field
+      v-model="form.icon"
+      label="Icon"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+    />
+
+    <template #actions>
+      <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
+      <v-btn color="primary" variant="flat" :loading="isSaving" @click="save">Save</v-btn>
+    </template>
+  </CModal>
+  </div>
 </template>

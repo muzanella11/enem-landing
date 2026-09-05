@@ -58,29 +58,29 @@ const remove = async (meta: SeoMeta) => {
 </script>
 
 <template>
-  <v-container>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5 font-weight-bold">SEO Meta</h1>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate"
+  <div>
+  <CListPage title="SEO Meta" :meta="`${seoMetas?.length ?? 0} page`">
+    <template #actions>
+      <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" @click="openCreate"
         >Add Page</v-btn
       >
-    </div>
+    </template>
 
     <v-data-table
       :headers="headers"
       :items="seoMetas ?? []"
       item-value="pageKey"
+      class="c-data-table"
     >
       <template #item.actions="{ item }">
         <v-btn
-          icon="mdi-pencil"
+          icon="mdi-pencil-outline"
           variant="text"
           size="small"
           @click="openEdit(item)"
         />
         <v-btn
-          icon="mdi-delete"
+          icon="mdi-delete-outline"
           variant="text"
           size="small"
           color="error"
@@ -88,40 +88,51 @@ const remove = async (meta: SeoMeta) => {
         />
       </template>
     </v-data-table>
+  </CListPage>
 
-    <v-dialog v-model="dialog" max-width="560">
-      <v-card>
-        <v-card-title>{{ isEditing ? 'Edit' : 'Add' }} SEO Meta</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="form.pageKey"
-            label="Page Key"
-            density="comfortable"
-            :disabled="isEditing"
-          />
-          <v-text-field
-            v-model="form.title"
-            label="Title"
-            density="comfortable"
-          />
-          <v-textarea
-            v-model="form.description"
-            label="Description"
-            density="comfortable"
-            rows="3"
-          />
-          <v-text-field
-            v-model="form.ogImageUrl"
-            label="OG Image URL"
-            density="comfortable"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="primary" :loading="isSaving" @click="save">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+  <CModal
+    v-model="dialog"
+    :title="`${isEditing ? 'Edit' : 'Add'} SEO Meta`"
+    max-width="560"
+  >
+    <v-text-field
+      v-model="form.pageKey"
+      label="Page Key"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+      :disabled="isEditing"
+      class="mb-4"
+    />
+    <v-text-field
+      v-model="form.title"
+      label="Title"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+      class="mb-4"
+    />
+    <v-textarea
+      v-model="form.description"
+      label="Description"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+      rows="3"
+      class="mb-4"
+    />
+    <v-text-field
+      v-model="form.ogImageUrl"
+      label="OG Image URL"
+      variant="outlined"
+      density="compact"
+      hide-details="auto"
+    />
+
+    <template #actions>
+      <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
+      <v-btn color="primary" variant="flat" :loading="isSaving" @click="save">Save</v-btn>
+    </template>
+  </CModal>
+  </div>
 </template>

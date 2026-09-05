@@ -11,10 +11,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-09-05',
   workspaceDir: '../../',
   modules: ['@pinia/nuxt', 'vuetify-nuxt-module', '@nuxtjs/tailwindcss'],
-  // Brand identity ported from mau-apps' mau-account-web
-  // (src/plugins/vuetify.ts's `customTheme`) - enem-landing-cms had no
-  // custom Vuetify theme at all before this (just the module's untouched
-  // Material Design defaults), unlike every other mau-apps dashboard.
+  // Brand identity matches enem-landing-account-web's signin page (its
+  // teal `#1ABC9C` / `#3FCBAF` / `#15967D` palette) so the CMS reads as
+  // the same product family, not mau-apps' pink.
   vuetify: {
     moduleOptions: {
       // useLayout collides with Nuxt's built-in auto-imported composable of
@@ -28,9 +27,9 @@ export default defineNuxtConfig({
           enemLandingCms: {
             dark: false,
             colors: {
-              primary: '#ff318c',
-              secondary: '#6d1a57',
-              accent: '#d16bb7',
+              primary: '#1abc9c',
+              secondary: '#15967d',
+              accent: '#3fcbaf',
               error: '#e53935',
               info: '#1e88e5',
               success: '#43a047',

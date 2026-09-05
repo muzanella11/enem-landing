@@ -11,7 +11,7 @@ const { state: snackbarState, reset: resetSnackbar } = useGlobalSnackbar();
 
 <template>
   <NuxtLayout>
-    <NuxtLoadingIndicator color="#1867c0" :height="3" />
+    <NuxtLoadingIndicator color="#1abc9c" :height="5" />
 
     <NuxtPage />
 
