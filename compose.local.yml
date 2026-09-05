@@ -50,6 +50,7 @@ services:
       JWT_EXPIRES_IN_SECONDS: "172800"
       ALLOW_SIGNUP: "false"
       CORS_ORIGIN: http://localhost:4000,http://localhost:8000
+      INTERNAL_API_KEY: local-dev-only-not-a-real-secret
     depends_on:
       mysql:
         condition: service_healthy
@@ -87,6 +88,7 @@ services:
       # Plain name - NestJS, read via plain process.env by SsoAuthGuard.
       ACCOUNT_API_HOST: http://enem-landing-account-api:3000
       CORS_ORIGIN: http://localhost:4000,http://localhost:8001
+      INTERNAL_API_KEY: local-dev-only-not-a-real-secret
     depends_on:
       mysql:
         condition: service_healthy

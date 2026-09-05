@@ -32,6 +32,11 @@
 #     # ada per-app JWT_SECRET_* seperti mau-apps karena cuma 1 identity
 #     # provider di sini, bukan 4)
 #     JWT_SECRET: "<value>"
+#     # Shared secret antara enem-landing-api dan enem-landing-account-api -
+#     # session-recording chunk upload (server-to-server, tidak ada user
+#     # JWT) divalidasi InternalApiGuard pakai ini, harus sama persis di
+#     # kedua service. Generate dengan: openssl rand -hex 32
+#     INTERNAL_API_KEY: "<value>"
 #     # Cloudflare R2 (S3-compatible), fitur uploads di enem-landing-account-api
 #     R2_ACCESS_KEY_ID: "<value>"
 #     R2_SECRET_ACCESS_KEY: "<value>"

@@ -107,6 +107,10 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN_SECONDS: "172800"
       ALLOW_SIGNUP: "false"
+      # Shared secret validated by InternalApiGuard - enem-landing-api's
+      # session-recording chunk uploads authenticate with this instead of a
+      # user JWT (there's no logged-in user for a server-to-server call).
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       CORS_ORIGIN: https://cms.muzanella.com,https://account.muzanella.com
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
@@ -150,6 +154,10 @@ services:
       # Plain name (not NUXT_-prefixed) - this is a NestJS app, read via
       # plain process.env by SsoAuthGuard (libs/backend/sso).
       ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      # Must match enem-landing-account-api's own INTERNAL_API_KEY above -
+      # sent as the X-Internal-Api-Key header when uploading session-
+      # recording chunks (TrackingRecordingService).
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
     deploy:
       <<: *deploy-defaults
       labels:
