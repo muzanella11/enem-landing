@@ -12,16 +12,50 @@ const NAV_ITEMS = [
 
 const isOpen = ref(false);
 const isShrunk = ref(false);
+const activeHref = ref('');
 
 const onScroll = () => {
   isShrunk.value = window.scrollY > 0;
+
+  // The last section often can't be scrolled far enough for the
+  // IntersectionObserver band below to ever reach it (no page content left
+  // beneath it to keep scrolling into view) - once the user has hit the
+  // bottom of the page, just force it active directly.
+  const scrolledToBottom =
+    window.innerHeight + window.scrollY >= document.body.scrollHeight - 2;
+  if (scrolledToBottom) {
+    activeHref.value = NAV_ITEMS[NAV_ITEMS.length - 1]?.href ?? '';
+  }
 };
+
+let sectionObserver: IntersectionObserver | undefined;
 
 onMounted(() => {
   onScroll();
   window.addEventListener('scroll', onScroll);
+
+  // A thin horizontal band just under the fixed nav bar - whichever
+  // section is crossing it is the one the user is currently reading.
+  sectionObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          activeHref.value = `#${entry.target.id}`;
+        }
+      }
+    },
+    { rootMargin: '-40% 0px -55% 0px' },
+  );
+
+  for (const item of NAV_ITEMS) {
+    const el = document.querySelector(item.href);
+    if (el) sectionObserver.observe(el);
+  }
 });
-onUnmounted(() => window.removeEventListener('scroll', onScroll));
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll);
+  sectionObserver?.disconnect();
+});
 
 const scrollTo = (href: string) => {
   isOpen.value = false;
@@ -62,6 +96,7 @@ const scrollTo = (href: string) => {
             <a
               :href="item.href"
               class="block px-3 py-3 rounded hover:text-[#0E7C6B] transition-colors"
+              :class="{ 'text-[#0E7C6B]': activeHref === item.href }"
               @click.prevent="scrollTo(item.href)"
             >
               {{ item.label }}
@@ -78,6 +113,7 @@ const scrollTo = (href: string) => {
           <a
             :href="item.href"
             class="block py-1"
+            :class="{ 'text-[#0E7C6B]': activeHref === item.href }"
             @click.prevent="scrollTo(item.href)"
           >
             {{ item.label }}
