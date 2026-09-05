@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineNuxtConfig } from 'nuxt/config';
 
 const { version: VERSION } = JSON.parse(
@@ -9,6 +8,7 @@ const { version: VERSION } = JSON.parse(
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  compatibilityDate: '2026-09-05',
   workspaceDir: '../../',
   modules: ['@pinia/nuxt', 'vuetify-nuxt-module', '@nuxtjs/tailwindcss'],
   // Brand identity ported from mau-apps' mau-account-web
@@ -16,6 +16,11 @@ export default defineNuxtConfig({
   // custom Vuetify theme at all before this (just the module's untouched
   // Material Design defaults), unlike every other mau-apps dashboard.
   vuetify: {
+    moduleOptions: {
+      // useLayout collides with Nuxt's built-in auto-imported composable of
+      // the same name - prefix Vuetify's version to useVLayout instead.
+      prefixComposables: ['useLayout'],
+    },
     vuetifyOptions: {
       theme: {
         defaultTheme: 'enemLandingCms',
@@ -81,7 +86,7 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/styles.css'],
   vite: {
-    plugins: [nxViteTsPaths()],
+    resolve: { tsconfigPaths: true },
   },
   nitro: {
     // Shared brand assets (favicon) live once in libs/frontend, mounted
