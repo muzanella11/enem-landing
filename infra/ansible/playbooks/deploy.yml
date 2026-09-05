@@ -133,18 +133,33 @@
             docker stack deploy --with-registry-auth -c ".deploy-$svc.yml" {{ stack_name }}
             rm -f ".deploy-$svc.yml"
 
+            # Poll task state, NOT `docker service ls`'s replica count - with
+            # update_config.order: start-first (compose.yml), the OLD task
+            # stays counted as "running" for the whole time the NEW one is
+            # being pulled/extracted, so a replica-count check (current ==
+            # desired) reports "converged" immediately, before the new
+            # image has actually finished extracting. That let this loop
+            # move on to the NEXT service's `docker stack deploy` while the
+            # previous one's extraction was still silently in flight -
+            # exactly the overlapping containerd I/O that triggered a real
+            # extraction race on this single-core/~1GB VPS (repeated
+            # `failed to Lchown`/`failed call to UtimesNanoAt ... no such
+            # file or directory` errors on unrelated files across several
+            # deploys). Waiting for zero in-flight tasks instead makes each
+            # service's pull+extract fully settle (success OR failure)
+            # before the next one starts.
             converged=0
             for _ in $(seq 1 36); do
-              replicas=$(docker service ls --format '{{ '{{.Name}} {{.Replicas}}' }}' | awk -v s="{{ stack_name }}_${svc}" '$1==s{print $2}')
-              current="${replicas%/*}"
-              desired="${replicas#*/}"
-              if [ -n "$current" ] && [ "$current" = "$desired" ]; then
+              in_flight=$(docker service ps "{{ stack_name }}_${svc}" --format '{{ '{{.CurrentState}}' }}' \
+                | grep -Ec '^(New|Pending|Assigned|Accepted|Preparing|Ready|Starting)')
+              if [ "$in_flight" -eq 0 ]; then
                 converged=1
                 break
               fi
               sleep 5
             done
 
+            replicas=$(docker service ls --format '{{ '{{.Name}} {{.Replicas}}' }}' | awk -v s="{{ stack_name }}_${svc}" '$1==s{print $2}')
             if [ "$converged" = "1" ]; then
               echo "[$(date '+%H:%M:%S')] Service $svc sudah UP ($replicas)"
             else
