@@ -49,6 +49,7 @@ const saveExperience = async () => {
 
 const projectDialog = ref(false);
 const isSavingProject = ref(false);
+const isUploadingImage = ref(false);
 const editingProjectId = ref<string | null>(null);
 const projectForm = ref({
   title: '',
@@ -117,6 +118,40 @@ const saveProject = async () => {
     snackbar.error(err);
   } finally {
     isSavingProject.value = false;
+  }
+};
+
+const uploadProjectImages = async (files: File[] | File | null) => {
+  const fileList = Array.isArray(files) ? files : files ? [files] : [];
+  if (fileList.length === 0) return;
+
+  isUploadingImage.value = true;
+  try {
+    const uploadedUrls: string[] = [];
+    for (const file of fileList) {
+      const body = new FormData();
+      body.append('file', file);
+      body.append('purpose', 'portfolio-project-image');
+      const response = await $fetch<{ data: { url: string } }>('/api/uploads', {
+        method: 'post',
+        body,
+      });
+      uploadedUrls.push(response.data.url);
+    }
+    projectForm.value.image = [
+      ...projectForm.value.image
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      ...uploadedUrls,
+    ].join('\n');
+    snackbar.success(
+      uploadedUrls.length > 1 ? 'Images uploaded.' : 'Image uploaded.',
+    );
+  } catch (err) {
+    snackbar.error(err);
+  } finally {
+    isUploadingImage.value = false;
   }
 };
 
@@ -312,6 +347,20 @@ const removeProject = async (project: Project) => {
         hide-details="auto"
         rows="3"
         class="mb-4"
+      />
+      <v-file-input
+        label="Upload Image(s)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-2"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        multiple
+        prepend-icon=""
+        prepend-inner-icon="mdi-image-plus-outline"
+        :loading="isUploadingImage"
+        :disabled="isUploadingImage"
+        @update:model-value="uploadProjectImages"
       />
       <v-textarea
         v-model="projectForm.image"
