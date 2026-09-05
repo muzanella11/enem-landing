@@ -47,29 +47,46 @@ const saveExperience = async () => {
   }
 };
 
+interface PendingImage {
+  file: File;
+  previewUrl: string;
+}
+
 const projectDialog = ref(false);
 const isSavingProject = ref(false);
-const isUploadingImage = ref(false);
 const editingProjectId = ref<string | null>(null);
 const projectForm = ref({
   title: '',
-  image: '',
   url: '',
   year: '',
   description: '',
   technologies: '',
 });
+// Already-uploaded images belonging to the project being edited (or created
+// from a previous save attempt). Deleting one of these removes it from R2
+// immediately - see removeExistingImage.
+const projectImages = ref<string[]>([]);
+// Freshly-selected files that haven't been uploaded yet - only previewed
+// locally (object URLs) until Save is clicked, so cancelling the dialog
+// never leaves an orphaned file in R2.
+const pendingImages = ref<PendingImage[]>([]);
+
+const clearPendingImages = () => {
+  pendingImages.value.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+  pendingImages.value = [];
+};
 
 const openCreateProject = () => {
   editingProjectId.value = null;
   projectForm.value = {
     title: '',
-    image: '',
     url: '',
     year: '',
     description: '',
     technologies: '',
   };
+  projectImages.value = [];
+  clearPendingImages();
   projectDialog.value = true;
 };
 
@@ -77,24 +94,39 @@ const openEditProject = (project: Project) => {
   editingProjectId.value = project.id;
   projectForm.value = {
     title: project.title,
-    image: project.image.join('\n'),
     url: project.url,
     year: project.year,
     description: project.description,
     technologies: project.technologies.join(', '),
   };
+  projectImages.value = [...project.image];
+  clearPendingImages();
   projectDialog.value = true;
+};
+
+const closeProjectDialog = () => {
+  clearPendingImages();
+  projectDialog.value = false;
 };
 
 const saveProject = async () => {
   isSavingProject.value = true;
   try {
+    const uploadedUrls: string[] = [];
+    for (const pending of pendingImages.value) {
+      const formData = new FormData();
+      formData.append('file', pending.file);
+      formData.append('purpose', 'portfolio-project-image');
+      const response = await $fetch<{ data: { url: string } }>('/api/uploads', {
+        method: 'post',
+        body: formData,
+      });
+      uploadedUrls.push(response.data.url);
+    }
+
     const body = {
       title: projectForm.value.title,
-      image: projectForm.value.image
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean),
+      image: [...projectImages.value, ...uploadedUrls],
       url: projectForm.value.url,
       year: projectForm.value.year,
       description: projectForm.value.description,
@@ -111,6 +143,7 @@ const saveProject = async () => {
     } else {
       await $fetch(`/api/experiences/${id}/projects`, { method: 'post', body });
     }
+    clearPendingImages();
     projectDialog.value = false;
     await refresh();
     snackbar.success('Project saved.');
@@ -121,38 +154,51 @@ const saveProject = async () => {
   }
 };
 
-const uploadProjectImages = async (files: File[] | File | null) => {
+const onSelectProjectImages = (files: File[] | File | null) => {
   const fileList = Array.isArray(files) ? files : files ? [files] : [];
-  if (fileList.length === 0) return;
+  pendingImages.value.push(
+    ...fileList.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    })),
+  );
+};
 
-  isUploadingImage.value = true;
-  try {
-    const uploadedUrls: string[] = [];
-    for (const file of fileList) {
-      const body = new FormData();
-      body.append('file', file);
-      body.append('purpose', 'portfolio-project-image');
-      const response = await $fetch<{ data: { url: string } }>('/api/uploads', {
-        method: 'post',
-        body,
-      });
-      uploadedUrls.push(response.data.url);
+const removePendingImage = (index: number) => {
+  const [removed] = pendingImages.value.splice(index, 1);
+  if (removed) URL.revokeObjectURL(removed.previewUrl);
+};
+
+/**
+ * The uploader keys each R2 object as `{app}/{purpose}/{uploadId}.{ext}` and
+ * builds the public URL straight from that key, so the upload's own id is
+ * recoverable from the URL - saves adding an id alongside every stored
+ * image url just to support deletion.
+ */
+const extractUploadId = (url: string): string | null => {
+  const filename = url.split('/').pop();
+  if (!filename) return null;
+  return filename.split('.')[0] || null;
+};
+
+const removeExistingImage = async (url: string) => {
+  const uploadId = extractUploadId(url);
+  if (uploadId) {
+    try {
+      await $fetch(`/api/uploads/${uploadId}`, { method: 'delete' });
+    } catch (err) {
+      const status = (err as { status?: number; statusCode?: number })?.status;
+      const statusCode = (err as { statusCode?: number })?.statusCode;
+      // A 404 just means this URL wasn't one of our R2 uploads (e.g. a
+      // manually-set image predating this feature) - nothing to reflect,
+      // still fine to drop it from the project.
+      if (status !== 404 && statusCode !== 404) {
+        snackbar.error(err);
+        return;
+      }
     }
-    projectForm.value.image = [
-      ...projectForm.value.image
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean),
-      ...uploadedUrls,
-    ].join('\n');
-    snackbar.success(
-      uploadedUrls.length > 1 ? 'Images uploaded.' : 'Image uploaded.',
-    );
-  } catch (err) {
-    snackbar.error(err);
-  } finally {
-    isUploadingImage.value = false;
   }
+  projectImages.value = projectImages.value.filter((u) => u !== url);
 };
 
 const removeProject = async (project: Project) => {
@@ -358,19 +404,52 @@ const removeProject = async (project: Project) => {
         multiple
         prepend-icon=""
         prepend-inner-icon="mdi-image-plus-outline"
-        :loading="isUploadingImage"
-        :disabled="isUploadingImage"
-        @update:model-value="uploadProjectImages"
+        :disabled="isSavingProject"
+        @update:model-value="onSelectProjectImages"
       />
-      <v-textarea
-        v-model="projectForm.image"
-        label="Image URLs (one per line)"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        rows="2"
-        class="mb-4"
-      />
+      <div
+        v-if="projectImages.length || pendingImages.length"
+        class="c-project-image-grid mb-4"
+      >
+        <div
+          v-for="url in projectImages"
+          :key="url"
+          class="c-project-image-grid__item"
+        >
+          <v-img :src="url" aspect-ratio="1" cover rounded="lg" />
+          <v-btn
+            icon="mdi-close"
+            size="x-small"
+            color="error"
+            class="c-project-image-grid__remove"
+            :disabled="isSavingProject"
+            @click="removeExistingImage(url)"
+          />
+        </div>
+        <div
+          v-for="(pending, index) in pendingImages"
+          :key="pending.previewUrl"
+          class="c-project-image-grid__item"
+        >
+          <v-img
+            :src="pending.previewUrl"
+            aspect-ratio="1"
+            cover
+            rounded="lg"
+          />
+          <v-chip size="x-small" class="c-project-image-grid__badge"
+            >New</v-chip
+          >
+          <v-btn
+            icon="mdi-close"
+            size="x-small"
+            color="error"
+            class="c-project-image-grid__remove"
+            :disabled="isSavingProject"
+            @click="removePendingImage(index)"
+          />
+        </div>
+      </div>
       <v-text-field
         v-model="projectForm.technologies"
         label="Technologies (comma-separated)"
@@ -380,7 +459,12 @@ const removeProject = async (project: Project) => {
       />
 
       <template #actions>
-        <v-btn variant="text" @click="projectDialog = false">Cancel</v-btn>
+        <v-btn
+          variant="text"
+          :disabled="isSavingProject"
+          @click="closeProjectDialog"
+          >Cancel</v-btn
+        >
         <v-btn
           color="primary"
           variant="flat"
@@ -392,3 +476,27 @@ const removeProject = async (project: Project) => {
     </CModal>
   </div>
 </template>
+
+<style scoped>
+.c-project-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+}
+
+.c-project-image-grid__item {
+  position: relative;
+}
+
+.c-project-image-grid__remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.c-project-image-grid__badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+}
+</style>
