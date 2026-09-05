@@ -6,10 +6,11 @@ import { config } from './typeorm.config.js';
 import ExperiencesSeed from './seeds/experiences.seed.js';
 import SeoMetaSeed from './seeds/seo-meta.seed.js';
 import SiteProfileSeed from './seeds/site-profile.seed.js';
+import SkillsSeed from './seeds/skills.seed.js';
 
 const seederConfig: DataSourceOptions & SeederOptions = {
   ...config,
-  seeds: [ExperiencesSeed, SiteProfileSeed, SeoMetaSeed],
+  seeds: [ExperiencesSeed, SiteProfileSeed, SeoMetaSeed, SkillsSeed],
 };
 
 const dataSource = new DataSource(seederConfig);
