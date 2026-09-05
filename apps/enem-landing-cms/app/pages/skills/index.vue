@@ -76,73 +76,84 @@ const remove = async (skill: Skill) => {
 
 <template>
   <div>
-  <CListPage title="Skills" :meta="`${skills?.length ?? 0} skill`">
-    <template #actions>
-      <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" @click="openCreate"
-        >Add Skill</v-btn
-      >
-    </template>
-
-    <v-data-table :headers="headers" :items="skills ?? []" item-value="id" class="c-data-table">
-      <template #item.actions="{ item }">
+    <CListPage title="Skills" :meta="`${skills?.length ?? 0} skill`">
+      <template #actions>
         <v-btn
-          icon="mdi-pencil-outline"
-          variant="text"
-          size="small"
-          @click="openEdit(item)"
-        />
-        <v-btn
-          icon="mdi-delete-outline"
-          variant="text"
-          size="small"
-          color="error"
-          @click="remove(item)"
-        />
+          color="primary"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          @click="openCreate"
+          >Add Skill</v-btn
+        >
       </template>
-    </v-data-table>
-  </CListPage>
 
-  <CModal
-    v-model="dialog"
-    :title="`${isEditing ? 'Edit' : 'Add'} Skill`"
-    max-width="480"
-  >
-    <v-text-field
-      v-model="form.name"
-      label="Name"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-text-field
-      v-model="form.category"
-      label="Category"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-text-field
-      v-model="form.level"
-      label="Level"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-text-field
-      v-model="form.icon"
-      label="Icon"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-    />
+      <v-data-table
+        :headers="headers"
+        :items="skills ?? []"
+        item-value="id"
+        class="c-data-table"
+      >
+        <template #item.actions="{ item }">
+          <v-btn
+            icon="mdi-pencil-outline"
+            variant="text"
+            size="small"
+            @click="openEdit(item)"
+          />
+          <v-btn
+            icon="mdi-delete-outline"
+            variant="text"
+            size="small"
+            color="error"
+            @click="remove(item)"
+          />
+        </template>
+      </v-data-table>
+    </CListPage>
 
-    <template #actions>
-      <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-      <v-btn color="primary" variant="flat" :loading="isSaving" @click="save">Save</v-btn>
-    </template>
-  </CModal>
+    <CModal
+      v-model="dialog"
+      :title="`${isEditing ? 'Edit' : 'Add'} Skill`"
+      max-width="480"
+    >
+      <v-text-field
+        v-model="form.name"
+        label="Name"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.category"
+        label="Category"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.level"
+        label="Level"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.icon"
+        label="Icon"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+      />
+
+      <template #actions>
+        <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
+        <v-btn color="primary" variant="flat" :loading="isSaving" @click="save"
+          >Save</v-btn
+        >
+      </template>
+    </CModal>
   </div>
 </template>

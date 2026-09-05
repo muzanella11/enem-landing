@@ -7,6 +7,11 @@ describe('SiteProfileService', () => {
     create: ReturnType<typeof vi.fn>;
     save: ReturnType<typeof vi.fn>;
   };
+  let cache: {
+    getCached: ReturnType<typeof vi.fn>;
+    setCached: ReturnType<typeof vi.fn>;
+    invalidate: ReturnType<typeof vi.fn>;
+  };
   let service: SiteProfileService;
 
   beforeEach(() => {
@@ -15,7 +20,12 @@ describe('SiteProfileService', () => {
       create: vi.fn((data) => data),
       save: vi.fn((entity) => Promise.resolve({ id: 'row-1', ...entity })),
     };
-    service = new SiteProfileService(repo as never);
+    cache = {
+      getCached: vi.fn().mockResolvedValue(null),
+      setCached: vi.fn().mockResolvedValue(undefined),
+      invalidate: vi.fn().mockResolvedValue(undefined),
+    };
+    service = new SiteProfileService(repo as never, cache as never);
   });
 
   it('returns the existing row when one exists', async () => {

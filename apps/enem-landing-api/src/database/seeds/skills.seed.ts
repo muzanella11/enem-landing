@@ -37,7 +37,12 @@ export default class SkillsSeed implements Seeder {
       }
 
       await repository.save(
-        repository.create({ name, category: 'General', level: null, icon: null }),
+        repository.create({
+          name,
+          category: 'General',
+          level: null,
+          icon: null,
+        }),
       );
       console.log(`Skill fixture "${name}" created`);
     }

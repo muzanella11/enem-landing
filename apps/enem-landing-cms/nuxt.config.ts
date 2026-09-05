@@ -69,6 +69,9 @@ export default defineNuxtConfig({
       accountWebHost:
         process.env['ACCOUNT_WEB_HOST'] || 'http://localhost:8000',
       sharedCookieDomain: process.env['SHARED_COOKIE_DOMAIN'] || '',
+      // Public portfolio site - iframed by the Activity Tracking Heatmap
+      // page so the click overlay can render on top of the real page.
+      webHost: process.env['WEB_HOST'] || 'http://localhost:8001',
     },
   },
   experimental: {

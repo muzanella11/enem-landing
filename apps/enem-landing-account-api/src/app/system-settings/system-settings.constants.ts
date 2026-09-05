@@ -11,5 +11,4 @@ export const ENV_FALLBACK_KEYS = [
   'R2_ENDPOINT',
   'R2_BUCKET_NAME',
   'R2_PUBLIC_URL_BASE',
-  'KEEP_ALIVE_CRON_TIME_ZONE',
 ] as const;

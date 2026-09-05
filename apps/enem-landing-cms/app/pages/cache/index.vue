@@ -207,7 +207,11 @@ onUnmounted(() => {
       class="c-data-table"
     >
       <template #item.key="{ item }">
-        <div :class="{ 'text-medium-emphasis': !(localTtls[item.key] ?? item.ttl) }">
+        <div
+          :class="{
+            'text-medium-emphasis': !(localTtls[item.key] ?? item.ttl),
+          }"
+        >
           <div class="font-weight-medium">
             {{ KEY_LABELS[item.key] ?? item.key }}
           </div>

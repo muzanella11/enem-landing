@@ -84,109 +84,118 @@ const remove = async (experience: Experience) => {
 
 <template>
   <div>
-  <CListPage title="Experiences" :meta="`${experiences?.length ?? 0} experience`">
-    <template #actions>
-      <v-btn color="primary" variant="flat" prepend-icon="mdi-plus" @click="openCreate"
-        >Add Experience</v-btn
-      >
-    </template>
-
-    <v-data-table
-      :headers="headers"
-      :items="experiences ?? []"
-      item-value="id"
-      class="c-data-table"
+    <CListPage
+      title="Experiences"
+      :meta="`${experiences?.length ?? 0} experience`"
     >
-      <template #item.company="{ item }">
-        <NuxtLink :to="`/experiences/${item.id}`" class="text-primary">{{
-          item.company
-        }}</NuxtLink>
-      </template>
-      <template #item.projects="{ item }">
-        {{ item.projects?.length ?? 0 }}
-      </template>
-      <template #item.actions="{ item }">
+      <template #actions>
         <v-btn
-          :to="`/experiences/${item.id}`"
-          icon="mdi-pencil-outline"
-          variant="text"
-          size="small"
-        />
-        <v-btn
-          icon="mdi-delete-outline"
-          variant="text"
-          size="small"
-          color="error"
-          @click="remove(item)"
-        />
+          color="primary"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          @click="openCreate"
+          >Add Experience</v-btn
+        >
       </template>
-    </v-data-table>
-  </CListPage>
 
-  <CModal v-model="dialog" title="Add Experience" max-width="640">
-    <v-text-field
-      v-model="form.company"
-      label="Company"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-text-field
-      v-model="form.position"
-      label="Position"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-text-field
-      v-model="form.location"
-      label="Location"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-text-field
-      v-model="form.workingPeriode"
-      label="Period (e.g. Nov 2021 - Now)"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      class="mb-4"
-    />
-    <v-textarea
-      v-model="form.roleSummary"
-      label="Role Summary"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      rows="2"
-      class="mb-4"
-    />
-    <v-textarea
-      v-model="form.description"
-      label="Description"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      rows="3"
-      class="mb-4"
-    />
-    <v-textarea
-      v-model="form.experienceGained"
-      label="Experience Gained (one per line)"
-      variant="outlined"
-      density="compact"
-      hide-details="auto"
-      rows="3"
-    />
+      <v-data-table
+        :headers="headers"
+        :items="experiences ?? []"
+        item-value="id"
+        class="c-data-table"
+      >
+        <template #item.company="{ item }">
+          <NuxtLink :to="`/experiences/${item.id}`" class="text-primary">{{
+            item.company
+          }}</NuxtLink>
+        </template>
+        <template #item.projects="{ item }">
+          {{ item.projects?.length ?? 0 }}
+        </template>
+        <template #item.actions="{ item }">
+          <v-btn
+            :to="`/experiences/${item.id}`"
+            icon="mdi-pencil-outline"
+            variant="text"
+            size="small"
+          />
+          <v-btn
+            icon="mdi-delete-outline"
+            variant="text"
+            size="small"
+            color="error"
+            @click="remove(item)"
+          />
+        </template>
+      </v-data-table>
+    </CListPage>
 
-    <template #actions>
-      <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-      <v-btn color="primary" variant="flat" :loading="isSaving" @click="save">Save</v-btn>
-    </template>
-  </CModal>
+    <CModal v-model="dialog" title="Add Experience" max-width="640">
+      <v-text-field
+        v-model="form.company"
+        label="Company"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.position"
+        label="Position"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.location"
+        label="Location"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.workingPeriode"
+        label="Period (e.g. Nov 2021 - Now)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.roleSummary"
+        label="Role Summary"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="2"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.description"
+        label="Description"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="3"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.experienceGained"
+        label="Experience Gained (one per line)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="3"
+      />
+
+      <template #actions>
+        <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
+        <v-btn color="primary" variant="flat" :loading="isSaving" @click="save"
+          >Save</v-btn
+        >
+      </template>
+    </CModal>
   </div>
 </template>

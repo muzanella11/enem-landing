@@ -17,8 +17,13 @@ import { Repository } from 'typeorm';
 import { SystemSettingsService } from '../system-settings/system-settings.service.js';
 import { UploadFileDto } from './dto/upload-file.dto.js';
 import { FileEntity } from './file.entity.js';
+import { SYSTEM_ID } from './uploads.constants.js';
 
-const SYSTEM_ID = 'SYSTEM';
+/** Only what `upload()` actually reads - lets a plain object (built from a base64 body, e.g. `InternalUploadsController`) stand in for a real `Express.Multer.File`. */
+export type UploadableFile = Pick<
+  Express.Multer.File,
+  'buffer' | 'size' | 'mimetype' | 'originalname'
+>;
 
 interface R2Config {
   accessKeyId: string;
@@ -74,7 +79,7 @@ export class UploadsService {
   }
 
   async upload(
-    file: Express.Multer.File | undefined,
+    file: UploadableFile | undefined,
     dto: UploadFileDto,
     uploaderId: string,
   ) {

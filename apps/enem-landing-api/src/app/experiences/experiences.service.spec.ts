@@ -16,6 +16,11 @@ describe('ExperiencesService', () => {
     save: ReturnType<typeof vi.fn>;
     remove: ReturnType<typeof vi.fn>;
   };
+  let cache: {
+    getCached: ReturnType<typeof vi.fn>;
+    setCached: ReturnType<typeof vi.fn>;
+    invalidate: ReturnType<typeof vi.fn>;
+  };
   let service: ExperiencesService;
 
   beforeEach(() => {
@@ -32,9 +37,15 @@ describe('ExperiencesService', () => {
       save: vi.fn((entity) => Promise.resolve(entity)),
       remove: vi.fn((entity) => Promise.resolve(entity)),
     };
+    cache = {
+      getCached: vi.fn().mockResolvedValue(null),
+      setCached: vi.fn().mockResolvedValue(undefined),
+      invalidate: vi.fn().mockResolvedValue(undefined),
+    };
     service = new ExperiencesService(
       experiencesRepo as never,
       projectsRepo as never,
+      cache as never,
     );
   });
 

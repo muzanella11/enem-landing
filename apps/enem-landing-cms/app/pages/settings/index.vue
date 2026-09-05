@@ -11,7 +11,6 @@ interface SystemSettings {
   R2_ENDPOINT: string;
   R2_BUCKET_NAME: string;
   R2_PUBLIC_URL_BASE: string;
-  KEEP_ALIVE_CRON_TIME_ZONE: string;
 }
 
 const { data: settingsResponse } = await useFetch<{ data: SystemSettings }>(
@@ -32,16 +31,7 @@ const form = ref({
   R2_ENDPOINT: settingsResponse.value?.data?.R2_ENDPOINT ?? '',
   R2_BUCKET_NAME: settingsResponse.value?.data?.R2_BUCKET_NAME ?? '',
   R2_PUBLIC_URL_BASE: settingsResponse.value?.data?.R2_PUBLIC_URL_BASE ?? '',
-  KEEP_ALIVE_CRON_TIME_ZONE:
-    settingsResponse.value?.data?.KEEP_ALIVE_CRON_TIME_ZONE ?? '',
 });
-
-// Empty means "no override" - enem-landing-account-api's KeepAliveService
-// falls back to the KEEP_ALIVE_CRON_TIME_ZONE env var, then UTC.
-const timeZoneOptions = [
-  { title: 'Default (UTC)', value: '' },
-  ...Intl.supportedValuesOf('timeZone').map((tz) => ({ title: tz, value: tz })),
-];
 
 const save = async () => {
   isSaving.value = true;
@@ -83,8 +73,7 @@ const save = async () => {
         hide-details="auto"
         class="mb-4"
         @focus="
-          form.R2_SECRET_ACCESS_KEY === MASK &&
-          (form.R2_SECRET_ACCESS_KEY = '')
+          form.R2_SECRET_ACCESS_KEY === MASK && (form.R2_SECRET_ACCESS_KEY = '')
         "
       />
       <v-text-field
@@ -109,20 +98,6 @@ const save = async () => {
         variant="outlined"
         density="compact"
         hide-details="auto"
-      />
-    </CContentCard>
-
-    <CContentCard title="Keep-Alive Cron" class="mt-6">
-      <v-select
-        v-model="form.KEEP_ALIVE_CRON_TIME_ZONE"
-        :items="timeZoneOptions"
-        item-title="title"
-        item-value="value"
-        label="Time Zone"
-        hint="Jam 00:00 dan 12:00 dievaluasi di zona waktu ini. Kosongkan untuk UTC."
-        persistent-hint
-        variant="outlined"
-        density="compact"
       />
     </CContentCard>
 
