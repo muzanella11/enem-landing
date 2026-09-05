@@ -11,7 +11,7 @@ import SectionDivider from '../components/SectionDivider.vue';
 
 const IMAGE_NOT_AVAILABLE = '/img/image-not-available.svg';
 
-// `project.image[0] || IMAGE_NOT_AVAILABLE` only covers a missing URL - a
+// `coverImage(project) || IMAGE_NOT_AVAILABLE` only covers a missing URL - a
 // broken/404ing one (deleted upload, bad CMS entry) would otherwise render
 // as a broken-image icon. The `src` check guards against looping if
 // IMAGE_NOT_AVAILABLE itself ever failed to load.
@@ -21,6 +21,11 @@ const onImageError = (event: Event) => {
     img.src = IMAGE_NOT_AVAILABLE;
   }
 };
+
+// The CMS lets an admin pick an explicit cover per project - only fall back
+// to the first uploaded image when no such choice was made.
+const coverImage = (project: Project) =>
+  project.mainImage || project.image[0] || IMAGE_NOT_AVAILABLE;
 
 // SEO meta is optional content (managed via enem-landing-cms) - fall back
 // to sensible defaults rather than a hard failure when nothing's been set
@@ -246,7 +251,7 @@ const submitContact = async () => {
               @click="openPortfolio(project)"
             >
               <img
-                :src="project.image[0] || IMAGE_NOT_AVAILABLE"
+                :src="coverImage(project)"
                 :alt="project.title"
                 loading="lazy"
                 class="w-full h-52 object-cover"

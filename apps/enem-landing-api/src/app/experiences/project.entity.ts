@@ -29,6 +29,15 @@ export class ProjectEntity {
   @Column('simple-json')
   image!: string[];
 
+  /**
+   * Null means "no explicit choice" - consumers (portfolio list) fall back
+   * to `image[0]` themselves rather than this column ever storing a
+   * computed value, so the CMS can still tell an explicit pick apart from
+   * the fallback.
+   */
+  @Column({ type: 'varchar', length: 2048, nullable: true })
+  mainImage!: string | null;
+
   @Column({ default: '' })
   url!: string;
 

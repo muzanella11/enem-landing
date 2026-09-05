@@ -1,5 +1,9 @@
 import { CacheService } from '@enem-landing/backend-cache';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_KEYS, CACHE_TTL_SECONDS } from '../cache/cache.constants.js';
@@ -95,11 +99,24 @@ export class ExperiencesService {
     return project;
   }
 
+  /** Keeps `mainImage` from ever pointing at an image the project doesn't have. */
+  private assertValidMainImage(
+    image: string[],
+    mainImage: string | null | undefined,
+  ): void {
+    if (mainImage && !image.includes(mainImage)) {
+      throw new BadRequestException(
+        'mainImage must be one of the project images',
+      );
+    }
+  }
+
   async createProject(
     experienceId: string,
     dto: CreateProjectDto,
   ): Promise<ProjectEntity> {
     await this.findExperienceOrThrow(experienceId);
+    this.assertValidMainImage(dto.image, dto.mainImage);
     const project = this.projectsRepository.create({ ...dto, experienceId });
     const saved = await this.projectsRepository.save(project);
     await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
@@ -111,6 +128,10 @@ export class ExperiencesService {
     dto: UpdateProjectDto,
   ): Promise<ProjectEntity> {
     const project = await this.findProjectOrThrow(projectId);
+    const nextImage = dto.image ?? project.image;
+    const nextMainImage =
+      dto.mainImage !== undefined ? dto.mainImage : project.mainImage;
+    this.assertValidMainImage(nextImage, nextMainImage);
     Object.assign(project, dto);
     const saved = await this.projectsRepository.save(project);
     await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);

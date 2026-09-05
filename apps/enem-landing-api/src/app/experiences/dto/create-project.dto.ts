@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUrl,
   ValidateIf,
@@ -14,6 +15,11 @@ export class CreateProjectDto {
   @IsArray()
   @IsString({ each: true })
   image!: string[];
+
+  /** Must be one of `image`'s entries - enforced in the service, not here (needs `image` to validate against). */
+  @IsOptional()
+  @IsString()
+  mainImage?: string | null;
 
   /**
    * Empty string is valid — matches `static/experience.json`, where

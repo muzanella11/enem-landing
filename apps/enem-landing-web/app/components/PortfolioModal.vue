@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
 import type { Project } from '@enem-landing/shared-types';
 import SectionDivider from './SectionDivider.vue';
 
-defineProps<{ project: Project | null }>();
+const props = defineProps<{ project: Project | null }>();
 const emit = defineEmits<{ close: [] }>();
 
 const IMAGE_NOT_AVAILABLE = '/img/image-not-available.svg';
@@ -16,6 +17,20 @@ const onImageError = (event: Event) => {
     img.src = IMAGE_NOT_AVAILABLE;
   }
 };
+
+// All of the project's images, with the CMS-picked cover (if any) shown
+// first - the list card only ever shows that one, so the detail view is
+// where the rest become visible. Falls back to the placeholder (same as
+// the portfolio list card) when the project has no images at all.
+const galleryImages = computed(() => {
+  const images = props.project?.image ?? [];
+  const mainImage = props.project?.mainImage;
+  const ordered =
+    !mainImage || !images.includes(mainImage)
+      ? images
+      : [mainImage, ...images.filter((img) => img !== mainImage)];
+  return ordered.length ? ordered : [IMAGE_NOT_AVAILABLE];
+});
 </script>
 
 <template>
@@ -38,13 +53,16 @@ const onImageError = (event: Event) => {
       </h2>
       <SectionDivider />
 
-      <img
-        v-if="project.image[0]"
-        :src="project.image[0]"
-        :alt="project.title"
-        class="w-full h-64 object-contain rounded mb-4 bg-slate-50"
-        @error="onImageError"
-      />
+      <div class="flex gap-2 overflow-x-auto snap-x snap-mandatory mb-4">
+        <img
+          v-for="(image, index) in galleryImages"
+          :key="image"
+          :src="image"
+          :alt="`${project.title} ${index + 1}`"
+          class="h-64 w-auto max-w-full object-contain rounded bg-slate-50 shrink-0 snap-center"
+          @error="onImageError"
+        />
+      </div>
 
       <p class="mb-2">
         <span class="font-semibold">Year:</span> {{ project.year }}

@@ -2,6 +2,8 @@ export interface Project {
   id: string;
   title: string;
   image: string[];
+  /** Explicit cover pick, one of `image`'s entries - null/unset falls back to `image[0]`. */
+  mainImage: string | null;
   url: string;
   year: string;
   description: string;

@@ -70,6 +70,15 @@ const projectImages = ref<string[]>([]);
 // locally (object URLs) until Save is clicked, so cancelling the dialog
 // never leaves an orphaned file in R2.
 const pendingImages = ref<PendingImage[]>([]);
+// Which image is the portfolio-list cover: either an entry from
+// projectImages (its URL), a pending image (its previewUrl, resolved to the
+// real URL after upload in saveProject), or null - falls back to image[0]
+// when unset.
+const mainImageKey = ref<string | null>(null);
+
+const toggleMainImage = (key: string) => {
+  mainImageKey.value = mainImageKey.value === key ? null : key;
+};
 
 const clearPendingImages = () => {
   pendingImages.value.forEach((p) => URL.revokeObjectURL(p.previewUrl));
@@ -86,6 +95,7 @@ const openCreateProject = () => {
     technologies: '',
   };
   projectImages.value = [];
+  mainImageKey.value = null;
   clearPendingImages();
   projectDialog.value = true;
 };
@@ -100,6 +110,7 @@ const openEditProject = (project: Project) => {
     technologies: project.technologies.join(', '),
   };
   projectImages.value = [...project.image];
+  mainImageKey.value = project.mainImage ?? null;
   clearPendingImages();
   projectDialog.value = true;
 };
@@ -113,6 +124,7 @@ const saveProject = async () => {
   isSavingProject.value = true;
   try {
     const uploadedUrls: string[] = [];
+    let resolvedMainImage = mainImageKey.value;
     for (const pending of pendingImages.value) {
       const formData = new FormData();
       formData.append('file', pending.file);
@@ -122,11 +134,15 @@ const saveProject = async () => {
         body: formData,
       });
       uploadedUrls.push(response.data.url);
+      if (mainImageKey.value === pending.previewUrl) {
+        resolvedMainImage = response.data.url;
+      }
     }
 
     const body = {
       title: projectForm.value.title,
       image: [...projectImages.value, ...uploadedUrls],
+      mainImage: resolvedMainImage,
       url: projectForm.value.url,
       year: projectForm.value.year,
       description: projectForm.value.description,
@@ -166,7 +182,9 @@ const onSelectProjectImages = (files: File[] | File | null) => {
 
 const removePendingImage = (index: number) => {
   const [removed] = pendingImages.value.splice(index, 1);
-  if (removed) URL.revokeObjectURL(removed.previewUrl);
+  if (!removed) return;
+  URL.revokeObjectURL(removed.previewUrl);
+  if (mainImageKey.value === removed.previewUrl) mainImageKey.value = null;
 };
 
 /**
@@ -199,6 +217,7 @@ const removeExistingImage = async (url: string) => {
     }
   }
   projectImages.value = projectImages.value.filter((u) => u !== url);
+  if (mainImageKey.value === url) mainImageKey.value = null;
 };
 
 const removeProject = async (project: Project) => {
@@ -409,14 +428,24 @@ const removeProject = async (project: Project) => {
       />
       <div
         v-if="projectImages.length || pendingImages.length"
-        class="c-project-image-grid mb-4"
+        class="c-project-image-grid mb-1"
       >
         <div
           v-for="url in projectImages"
           :key="url"
           class="c-project-image-grid__item"
+          :class="{ 'c-project-image-grid__item--main': mainImageKey === url }"
         >
           <v-img :src="url" aspect-ratio="1" cover rounded="lg" />
+          <v-btn
+            :icon="mainImageKey === url ? 'mdi-star' : 'mdi-star-outline'"
+            size="x-small"
+            :color="mainImageKey === url ? 'amber-darken-2' : undefined"
+            class="c-project-image-grid__star"
+            :disabled="isSavingProject"
+            title="Set as main image"
+            @click="toggleMainImage(url)"
+          />
           <v-btn
             icon="mdi-close"
             size="x-small"
@@ -430,12 +459,31 @@ const removeProject = async (project: Project) => {
           v-for="(pending, index) in pendingImages"
           :key="pending.previewUrl"
           class="c-project-image-grid__item"
+          :class="{
+            'c-project-image-grid__item--main':
+              mainImageKey === pending.previewUrl,
+          }"
         >
           <v-img
             :src="pending.previewUrl"
             aspect-ratio="1"
             cover
             rounded="lg"
+          />
+          <v-btn
+            :icon="
+              mainImageKey === pending.previewUrl
+                ? 'mdi-star'
+                : 'mdi-star-outline'
+            "
+            size="x-small"
+            :color="
+              mainImageKey === pending.previewUrl ? 'amber-darken-2' : undefined
+            "
+            class="c-project-image-grid__star"
+            :disabled="isSavingProject"
+            title="Set as main image"
+            @click="toggleMainImage(pending.previewUrl)"
           />
           <v-chip size="x-small" class="c-project-image-grid__badge"
             >New</v-chip
@@ -450,6 +498,16 @@ const removeProject = async (project: Project) => {
           />
         </div>
       </div>
+      <p
+        v-if="projectImages.length || pendingImages.length"
+        class="text-caption text-medium-emphasis mb-4"
+      >
+        {{
+          mainImageKey
+            ? 'Starred image is used as the portfolio list cover.'
+            : 'No main image selected - the first image will be used as the portfolio list cover.'
+        }}
+      </p>
       <v-text-field
         v-model="projectForm.technologies"
         label="Technologies (comma-separated)"
@@ -486,6 +544,18 @@ const removeProject = async (project: Project) => {
 
 .c-project-image-grid__item {
   position: relative;
+  border-radius: 8px;
+}
+
+.c-project-image-grid__item--main {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+}
+
+.c-project-image-grid__star {
+  position: absolute;
+  top: 4px;
+  left: 4px;
 }
 
 .c-project-image-grid__remove {
