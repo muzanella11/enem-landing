@@ -49,7 +49,10 @@ export class CacheService {
     try {
       await Promise.all(keys.map((key) => this.redisService.deleteValue(key)));
     } catch (error) {
-      this.logger.warn(`Cache invalidation failed for ${keys.join(', ')}`, error);
+      this.logger.warn(
+        `Cache invalidation failed for ${keys.join(', ')}`,
+        error,
+      );
     }
   }
 
