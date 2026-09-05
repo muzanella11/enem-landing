@@ -35,6 +35,10 @@ export class RedisService implements OnModuleDestroy {
     await this.client.quit();
   }
 
+  async ping(): Promise<string> {
+    return this.client.ping();
+  }
+
   private withPrefix(key: string): string {
     return redisKeyPrefix ? `${redisKeyPrefix}:${key}` : key;
   }

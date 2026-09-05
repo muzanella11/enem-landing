@@ -139,6 +139,7 @@
     }
   },
   "dependencies": {
+    "@enem-landing/backend-scheduler": "0.0.1",
     "@enem-landing/backend-sso": "0.0.1",
     "@enem-landing/backend-utils": "0.0.1",
     "@enem-landing/shared-definitions": "0.0.1",

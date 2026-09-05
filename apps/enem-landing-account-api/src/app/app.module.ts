@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module.js';
 import { HealthModule } from './health/health.module.js';
+import { KeepAliveModule } from './keep-alive/keep-alive.module.js';
 import { SystemSettingEntity } from './system-settings/system-setting.entity.js';
 import { SystemSettingsModule } from './system-settings/system-settings.module.js';
 import { FileEntity } from './uploads/file.entity.js';
@@ -22,6 +23,7 @@ import { UsersModule } from './users/users.module.js';
     UsersModule,
     AuthModule,
     HealthModule,
+    KeepAliveModule,
     SystemSettingsModule,
     UploadsModule,
   ],

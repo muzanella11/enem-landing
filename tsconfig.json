@@ -47,6 +47,9 @@
     },
     {
       "path": "./apps/enem-landing-web"
+    },
+    {
+      "path": "./libs/backend/scheduler"
     }
   ],
   "compilerOptions": {}

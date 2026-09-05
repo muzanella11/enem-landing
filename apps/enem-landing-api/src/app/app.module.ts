@@ -6,6 +6,7 @@ import { ExperienceEntity } from './experiences/experience.entity.js';
 import { ExperiencesModule } from './experiences/experiences.module.js';
 import { ProjectEntity } from './experiences/project.entity.js';
 import { HealthModule } from './health/health.module.js';
+import { KeepAliveModule } from './keep-alive/keep-alive.module.js';
 import { SeoMetaEntity } from './seo-meta/seo-meta.entity.js';
 import { SeoMetaModule } from './seo-meta/seo-meta.module.js';
 import { SiteProfileEntity } from './site-profile/site-profile.entity.js';
@@ -29,6 +30,7 @@ import { SkillsModule } from './skills/skills.module.js';
       synchronize: false,
     }),
     HealthModule,
+    KeepAliveModule,
     ExperiencesModule,
     ContactSubmissionsModule,
     SiteProfileModule,

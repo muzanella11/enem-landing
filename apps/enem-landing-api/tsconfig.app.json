@@ -36,6 +36,9 @@
     },
     {
       "path": "../../libs/backend/sso/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/backend/scheduler/tsconfig.lib.json"
     }
   ]
 }
