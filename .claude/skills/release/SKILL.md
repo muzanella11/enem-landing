@@ -102,6 +102,22 @@ git push origin vX.X.X
 After pushing, tell the user the run is live and point them at the Actions tab
 (`enem-landing-prod.yml`) - don't claim the deploy succeeded, only that it started.
 
+## Step 7 - GitHub Release Notes
+
+Create a GitHub Release for the tag with auto-generated notes, matching the format of the
+`1.1.5` release (the repo's only prior example - `gh release view 1.1.5`): a "What's Changed"
+section listing merged PRs since the previous tag, plus a "Full Changelog" comparison link.
+`gh release create` generates exactly this shape on its own:
+
+```bash
+gh release create vX.X.X --generate-notes --title "vX.X.X"
+```
+
+Run this only after the tag has actually been pushed (Step 6) - `--generate-notes` needs the
+tag to exist on the remote to diff against the previous one. Show the generated notes URL to
+the user; don't hand-write release notes unless `gh` can't generate them (e.g. no prior tag to
+diff against).
+
 ## If the Release Fails
 
 Don't immediately bump-and-retag to retry - mau-apps hit exactly this pattern (multiple tags
