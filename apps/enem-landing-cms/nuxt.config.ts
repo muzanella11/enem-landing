@@ -10,7 +10,11 @@ const { version: VERSION } = JSON.parse(
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-05',
   workspaceDir: '../../',
-  modules: ['@pinia/nuxt', 'vuetify-nuxt-module', '@nuxtjs/tailwindcss'],
+  // Vuetify-only, no Tailwind - mirrors mau-apps' convention of never
+  // mixing the two on the same app (they collided: Tailwind's CSS was
+  // beating Vuetify's own component styles, e.g. outlined field borders
+  // and button padding/background computing to nothing).
+  modules: ['@pinia/nuxt', 'vuetify-nuxt-module'],
   // Brand identity matches enem-landing-account-web's signin page (its
   // teal `#1ABC9C` / `#3FCBAF` / `#15967D` palette) so the CMS reads as
   // the same product family, not mau-apps' pink.
