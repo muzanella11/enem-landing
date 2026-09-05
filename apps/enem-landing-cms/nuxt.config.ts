@@ -52,6 +52,8 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'en', 'data-version': VERSION },
+      title: 'Enem Landing CMS',
+      titleTemplate: '%s - Enem Landing CMS',
     },
   },
   runtimeConfig: {

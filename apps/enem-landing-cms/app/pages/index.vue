@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Dashboard' });
 
 const links = [
   { title: 'Experiences', icon: 'mdi-briefcase-outline', url: '/experiences' },

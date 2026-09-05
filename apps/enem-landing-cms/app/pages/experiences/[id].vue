@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { Experience, Project } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
@@ -12,6 +12,9 @@ const { data: experience, refresh } = await useFetch<Experience>(
   `/api/experiences/${id}`,
 );
 const snackbar = useGlobalSnackbar();
+useHead({
+  title: computed(() => experience.value?.company ?? 'Experience'),
+});
 
 const isSaving = ref(false);
 const form = ref({
@@ -139,74 +142,85 @@ const removeProject = async (project: Project) => {
       </template>
     </CPageHeader>
 
-    <CContentCard title="Experience Details" class="mb-6">
-      <v-text-field
-        v-model="form.company"
-        label="Company"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        class="mb-4"
-      />
-      <v-text-field
-        v-model="form.position"
-        label="Position"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        class="mb-4"
-      />
-      <v-text-field
-        v-model="form.location"
-        label="Location"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        class="mb-4"
-      />
-      <v-text-field
-        v-model="form.workingPeriode"
-        label="Period"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        class="mb-4"
-      />
-      <v-textarea
-        v-model="form.roleSummary"
-        label="Role Summary"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        rows="2"
-        class="mb-4"
-      />
-      <v-textarea
-        v-model="form.description"
-        label="Description"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        rows="3"
-        class="mb-4"
-      />
-      <v-textarea
-        v-model="form.experienceGained"
-        label="Experience Gained (one per line)"
-        variant="outlined"
-        density="compact"
-        hide-details="auto"
-        rows="3"
-        class="mb-4"
-      />
-      <div class="d-flex justify-end">
-        <v-btn color="primary" variant="flat" :loading="isSaving" @click="saveExperience"
-          >Save</v-btn
-        >
-      </div>
-    </CContentCard>
+    <v-row>
+      <v-col cols="12" md="9">
+        <CContentCard title="Experience Details">
+          <v-text-field
+            v-model="form.company"
+            label="Company"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <v-text-field
+            v-model="form.position"
+            label="Position"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <v-text-field
+            v-model="form.location"
+            label="Location"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <v-text-field
+            v-model="form.workingPeriode"
+            label="Period"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <v-textarea
+            v-model="form.roleSummary"
+            label="Role Summary"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            rows="2"
+            class="mb-4"
+          />
+          <v-textarea
+            v-model="form.description"
+            label="Description"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            rows="3"
+            class="mb-4"
+          />
+          <v-textarea
+            v-model="form.experienceGained"
+            label="Experience Gained (one per line)"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            rows="3"
+          />
+        </CContentCard>
+      </v-col>
+      <v-col cols="12" md="3">
+        <CContentCard title="Aksi">
+          <v-btn
+            color="primary"
+            variant="flat"
+            prepend-icon="mdi-content-save-outline"
+            :loading="isSaving"
+            block
+            @click="saveExperience"
+            >Save</v-btn
+          >
+        </CContentCard>
+      </v-col>
+    </v-row>
 
-    <CContentCard title="Projects">
+    <CContentCard title="Projects" class="mt-6">
       <template #header-right>
         <v-btn
           variant="text"

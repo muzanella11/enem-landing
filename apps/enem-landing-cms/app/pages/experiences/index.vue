@@ -4,6 +4,7 @@ import type { Experience } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Experiences' });
 
 const { data: experiences, refresh } =
   await useFetch<Experience[]>('/api/experiences');

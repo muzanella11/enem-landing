@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'About' });
 
 const { public: publicConfig } = useRuntimeConfig();
 </script>

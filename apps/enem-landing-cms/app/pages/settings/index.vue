@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Settings' });
 
 interface SystemSettings {
   R2_ACCESS_KEY_ID: string;
@@ -53,7 +54,6 @@ const save = async () => {
   <CFormPage
     title="Settings"
     subtitle="Kredensial Cloudflare R2 untuk fitur upload file di enem-landing-account-api."
-    :content-cols="12"
   >
     <CContentCard title="Cloudflare R2">
       <v-text-field
@@ -99,13 +99,19 @@ const save = async () => {
         variant="outlined"
         density="compact"
         hide-details="auto"
-        class="mb-4"
       />
-      <div class="d-flex justify-end">
-        <v-btn color="primary" variant="flat" :loading="isSaving" @click="save"
-          >Save</v-btn
-        >
-      </div>
     </CContentCard>
+
+    <template #sidebar>
+      <v-btn
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-content-save-outline"
+        :loading="isSaving"
+        block
+        @click="save"
+        >Save</v-btn
+      >
+    </template>
   </CFormPage>
 </template>

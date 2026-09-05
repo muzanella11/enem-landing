@@ -4,6 +4,7 @@ import type { SiteProfile } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Site Profile' });
 
 const { data: profile } = await useFetch<SiteProfile>('/api/site-profile');
 const snackbar = useGlobalSnackbar();
@@ -39,7 +40,7 @@ const save = async () => {
 </script>
 
 <template>
-  <CFormPage title="Site Profile" :content-cols="12">
+  <CFormPage title="Site Profile">
     <CContentCard title="Profile">
       <v-text-field
         v-model="form.heroTitle"
@@ -115,12 +116,18 @@ const save = async () => {
           @click="removeSocialLink(index)"
         />
       </div>
-
-      <div class="d-flex justify-end mt-4">
-        <v-btn color="primary" variant="flat" :loading="isSaving" @click="save"
-          >Save</v-btn
-        >
-      </div>
     </CContentCard>
+
+    <template #sidebar>
+      <v-btn
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-content-save-outline"
+        :loading="isSaving"
+        block
+        @click="save"
+        >Save</v-btn
+      >
+    </template>
   </CFormPage>
 </template>

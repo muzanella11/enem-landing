@@ -3,6 +3,7 @@ import type { ContactSubmission } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Contact Submissions' });
 
 const { data: submissions, refresh } = await useFetch<ContactSubmission[]>(
   '/api/contact-submissions',

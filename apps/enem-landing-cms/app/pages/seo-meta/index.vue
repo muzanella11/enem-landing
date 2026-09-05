@@ -4,6 +4,7 @@ import type { SeoMeta } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'SEO Meta' });
 
 const { data: seoMetas, refresh } = await useFetch<SeoMeta[]>('/api/seo-meta');
 const snackbar = useGlobalSnackbar();

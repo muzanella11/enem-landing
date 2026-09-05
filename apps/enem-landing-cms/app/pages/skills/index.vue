@@ -4,6 +4,7 @@ import type { Skill } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Skills' });
 
 const { data: skills, refresh } = await useFetch<Skill[]>('/api/skills');
 const snackbar = useGlobalSnackbar();
