@@ -38,7 +38,7 @@ const { data: overview } = await useFetch<TrackingOverview>(
       subtitle="Kelola konten enem-landing dari satu tempat."
     />
 
-    <v-row class="mb-4" dense>
+    <v-row class="mb-4">
       <v-col cols="12" sm="4">
         <CContentCard title="Pageviews Today">
           <span class="text-h5 font-weight-bold">{{
@@ -62,7 +62,7 @@ const { data: overview } = await useFetch<TrackingOverview>(
       </v-col>
     </v-row>
 
-    <v-row class="mb-4" dense>
+    <v-row class="mb-4">
       <v-col cols="12" md="7">
         <CContentCard title="Menu">
           <v-list nav density="compact">
