@@ -104,19 +104,47 @@ After pushing, tell the user the run is live and point them at the Actions tab
 
 ## Step 7 - GitHub Release Notes
 
-Create a GitHub Release for the tag with auto-generated notes, matching the format of the
-`1.1.5` release (the repo's only prior example - `gh release view 1.1.5`): a "What's Changed"
-section listing merged PRs since the previous tag, plus a "Full Changelog" comparison link.
-`gh release create` generates exactly this shape on its own:
+Create a GitHub Release for the tag with a "What's Changed" section (each entry attributed
+`by @<github-login> in <commit-url>`, mirroring GitHub's own PR-based format) plus a "Full
+Changelog" comparison link - matching the format of the `1.1.5` release (`gh release view 1.1.5`).
+
+**Do NOT use `gh release create --generate-notes`** - confirmed broken for this repo:
+`--generate-notes` builds "What's Changed" from merged PRs only, and this repo's release flow
+(Step 6) pushes straight to `master`, never through a PR. It silently produces a release with
+just the bare compare link and nothing else (verified on v2.0.1/v2.1.0/v2.1.1 - all had to be
+regenerated after the fact, twice: once for missing entries entirely, once more for missing the
+`by @user` attribution). Build the notes from commits instead, resolving each commit's GitHub
+login via the API rather than guessing it from the git author name/email:
 
 ```bash
-gh release create vX.X.X --generate-notes --title "vX.X.X"
+PREV_TAG=$(git describe --tags --abbrev=0 vX.X.X^)   # the tag being replaced by this release
+REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+NOTES_FILE=/tmp/release-notes-vX.X.X.md
+
+echo "## What's Changed" > "$NOTES_FILE"
+for sha in $(git log "$PREV_TAG"..vX.X.X --pretty=format:"%h" --no-merges --reverse); do
+  subject=$(git log -1 --pretty=format:"%s" "$sha")
+  case "$subject" in "chore: release "*) continue ;; esac
+  login=$(gh api "repos/$REPO/commits/$sha" --jq '.author.login // empty' 2>/dev/null)
+  full_sha=$(git rev-parse "$sha")
+  if [ -n "$login" ]; then
+    echo "* $subject by @$login in https://github.com/$REPO/commit/$full_sha" >> "$NOTES_FILE"
+  else
+    echo "* $subject in https://github.com/$REPO/commit/$full_sha" >> "$NOTES_FILE"
+  fi
+done
+printf '\n**Full Changelog**: https://github.com/%s/compare/%s...vX.X.X\n' "$REPO" "$PREV_TAG" >> "$NOTES_FILE"
+
+gh release create vX.X.X --notes-file "$NOTES_FILE" --title "vX.X.X"
+rm "$NOTES_FILE"
 ```
 
-Run this only after the tag has actually been pushed (Step 6) - `--generate-notes` needs the
-tag to exist on the remote to diff against the previous one. Show the generated notes URL to
-the user; don't hand-write release notes unless `gh` can't generate them (e.g. no prior tag to
-diff against).
+The `case` skips the release commit itself (`chore: release vX.X.X`) - it's not a real change,
+just noise. The `login` fallback (skip `by @user` if the API lookup comes back empty) covers a
+commit GitHub can't map to an account, e.g. a mismatched email - shouldn't happen for this
+single-maintainer repo, but fails soft rather than breaking the whole notes generation. Run this
+only after the tag has actually been pushed (Step 6) so `git log` has something to diff against.
+Show the generated notes URL to the user.
 
 ## If the Release Fails
 
