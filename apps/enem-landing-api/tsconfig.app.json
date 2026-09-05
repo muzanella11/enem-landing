@@ -39,6 +39,12 @@
     },
     {
       "path": "../../libs/backend/scheduler/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/backend/redis/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/backend/cache/tsconfig.lib.json"
     }
   ]
 }

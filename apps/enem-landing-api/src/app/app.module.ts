@@ -1,5 +1,7 @@
+import { RedisModule } from '@enem-landing/backend-redis';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheAdminModule } from './cache/cache-admin.module.js';
 import { ContactSubmissionEntity } from './contact-submissions/contact-submission.entity.js';
 import { ContactSubmissionsModule } from './contact-submissions/contact-submissions.module.js';
 import { ExperienceEntity } from './experiences/experience.entity.js';
@@ -29,8 +31,10 @@ import { SkillsModule } from './skills/skills.module.js';
       ],
       synchronize: false,
     }),
+    RedisModule,
     HealthModule,
     KeepAliveModule,
+    CacheAdminModule,
     ExperiencesModule,
     ContactSubmissionsModule,
     SiteProfileModule,

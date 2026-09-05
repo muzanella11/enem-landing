@@ -50,6 +50,9 @@
     },
     {
       "path": "./libs/backend/scheduler"
+    },
+    {
+      "path": "./libs/backend/cache"
     }
   ],
   "compilerOptions": {}

@@ -5,7 +5,6 @@ import cronstrue from 'cronstrue';
 import moment from 'moment-timezone';
 
 /**
- * Ported from mau-apps (`libs/backend/scheduler/src/lib/scheduler.service.ts`).
  * Dynamic cron job registry on top of @nestjs/schedule's SchedulerRegistry.
  * Unlike the static @Cron() decorator, jobs here can be created, replaced, and
  * removed at runtime, and every job is wrapped with a per-taskId lock so a

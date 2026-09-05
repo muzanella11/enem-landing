@@ -1,3 +1,4 @@
+import { CacheModule } from '@enem-landing/backend-cache';
 import { SsoModule } from '@enem-landing/backend-sso';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,6 +12,7 @@ import { ProjectsController } from './projects.controller.js';
   imports: [
     TypeOrmModule.forFeature([ExperienceEntity, ProjectEntity]),
     SsoModule,
+    CacheModule,
   ],
   controllers: [ExperiencesController, ProjectsController],
   providers: [ExperiencesService],

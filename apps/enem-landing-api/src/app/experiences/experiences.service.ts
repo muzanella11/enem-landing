@@ -1,6 +1,8 @@
+import { CacheService } from '@enem-landing/backend-cache';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CACHE_KEYS, CACHE_TTL_SECONDS } from '../cache/cache.constants.js';
 import { CreateExperienceDto } from './dto/create-experience.dto.js';
 import { CreateProjectDto } from './dto/create-project.dto.js';
 import { UpdateExperienceDto } from './dto/update-experience.dto.js';
@@ -15,13 +17,25 @@ export class ExperiencesService {
     private readonly experiencesRepository: Repository<ExperienceEntity>,
     @InjectRepository(ProjectEntity)
     private readonly projectsRepository: Repository<ProjectEntity>,
+    private readonly cacheService: CacheService,
   ) {}
 
-  findAll(): Promise<ExperienceEntity[]> {
-    return this.experiencesRepository.find({
+  async findAll(): Promise<ExperienceEntity[]> {
+    const cached = await this.cacheService.getCached<ExperienceEntity[]>(
+      CACHE_KEYS.PUBLIC_EXPERIENCES,
+    );
+    if (cached) return cached;
+
+    const experiences = await this.experiencesRepository.find({
       relations: ['projects'],
       order: { createdAt: 'ASC' },
     });
+    await this.cacheService.setCached(
+      CACHE_KEYS.PUBLIC_EXPERIENCES,
+      experiences,
+      CACHE_TTL_SECONDS[CACHE_KEYS.PUBLIC_EXPERIENCES],
+    );
+    return experiences;
   }
 
   async findOne(id: string): Promise<ExperienceEntity> {
@@ -35,9 +49,11 @@ export class ExperiencesService {
     return experience;
   }
 
-  create(dto: CreateExperienceDto): Promise<ExperienceEntity> {
+  async create(dto: CreateExperienceDto): Promise<ExperienceEntity> {
     const experience = this.experiencesRepository.create(dto);
-    return this.experiencesRepository.save(experience);
+    const saved = await this.experiencesRepository.save(experience);
+    await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
+    return saved;
   }
 
   async update(
@@ -46,12 +62,15 @@ export class ExperiencesService {
   ): Promise<ExperienceEntity> {
     const experience = await this.findOne(id);
     Object.assign(experience, dto);
-    return this.experiencesRepository.save(experience);
+    const saved = await this.experiencesRepository.save(experience);
+    await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
+    return saved;
   }
 
   async remove(id: string): Promise<void> {
     const experience = await this.findOne(id);
     await this.experiencesRepository.remove(experience);
+    await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
   }
 
   private async findExperienceOrThrow(
@@ -82,7 +101,9 @@ export class ExperiencesService {
   ): Promise<ProjectEntity> {
     await this.findExperienceOrThrow(experienceId);
     const project = this.projectsRepository.create({ ...dto, experienceId });
-    return this.projectsRepository.save(project);
+    const saved = await this.projectsRepository.save(project);
+    await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
+    return saved;
   }
 
   async updateProject(
@@ -91,11 +112,14 @@ export class ExperiencesService {
   ): Promise<ProjectEntity> {
     const project = await this.findProjectOrThrow(projectId);
     Object.assign(project, dto);
-    return this.projectsRepository.save(project);
+    const saved = await this.projectsRepository.save(project);
+    await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
+    return saved;
   }
 
   async removeProject(projectId: string): Promise<void> {
     const project = await this.findProjectOrThrow(projectId);
     await this.projectsRepository.remove(project);
+    await this.cacheService.invalidate(CACHE_KEYS.PUBLIC_EXPERIENCES);
   }
 }

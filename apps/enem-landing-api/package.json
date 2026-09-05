@@ -139,6 +139,8 @@
     }
   },
   "dependencies": {
+    "@enem-landing/backend-cache": "0.0.1",
+    "@enem-landing/backend-redis": "0.0.1",
     "@enem-landing/backend-scheduler": "0.0.1",
     "@enem-landing/backend-sso": "0.0.1",
     "@enem-landing/backend-utils": "0.0.1",

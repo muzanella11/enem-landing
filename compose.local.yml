@@ -77,11 +77,20 @@ services:
       target: enem-landing-api
     environment:
       DATABASE_URL: mysql://enem_landing:enem_landing@mysql:3306/enem_landing_api
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_USERNAME: ""
+      REDIS_PASSWORD: ""
+      REDIS_DB: "0"
+      REDIS_TLS_ENABLED: "false"
+      REDIS_KEY_PREFIX: ""
       # Plain name - NestJS, read via plain process.env by SsoAuthGuard.
       ACCOUNT_API_HOST: http://enem-landing-account-api:3000
       CORS_ORIGIN: http://localhost:4000,http://localhost:8001
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "3001:3001"
