@@ -38,9 +38,3 @@ withDefaults(
     </v-row>
   </div>
 </template>
-
-<style lang="scss">
-.c-form-page {
-  padding: 28px;
-}
-</style>

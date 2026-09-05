@@ -26,14 +26,3 @@ defineProps<{
     </CContentCard>
   </div>
 </template>
-
-<style lang="scss">
-.c-list-page {
-  padding: 28px;
-
-  &__filters {
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  }
-}
-</style>

@@ -1,3 +1,25 @@
+/*
+ * Page-layout wrappers, shared by the CFormPage/CListPage components and by
+ * pages (dashboard, experiences/[id]) that hand-roll the same markup
+ * instead of using the component. Kept here rather than in each
+ * component's own <style> block - Nuxt only ships a component's scoped
+ * CSS to pages that actually render that component, so a page using just
+ * the class name (no <CFormPage>/<CListPage> in its template) would
+ * otherwise get no padding at all.
+ */
+.c-form-page {
+  padding: 28px;
+}
+
+.c-list-page {
+  padding: 28px;
+}
+
+.c-list-page__filters {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
 /* CMS data table (mirrors mau-apps' `.c-data-table`) */
 .c-data-table {
   flex: 1;
