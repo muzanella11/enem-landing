@@ -22,9 +22,11 @@
 #   - No `x-database-env`/`x-redis-env` shared anchors - each app's real env
 #     var names differ (`DATABASE_URL` as one connection string, not
 #     decomposed HOST/PORT/USERNAME/PASSWORD/SSL_ENABLED like mau-apps),
-#     verified against each app's own .env.example. Only
-#     `enem-landing-account-api` uses Redis (token blocklist) - not both
-#     APIs like mau-apps' account-api/topup-api.
+#     verified against each app's own .env.example. Both APIs share the
+#     same Redis instance (`enem-landing-account-api` for the token
+#     blocklist, `enem-landing-api` for the public-endpoint response
+#     cache) - key names are already namespaced per feature, so no
+#     REDIS_KEY_PREFIX split is needed between them.
 #   - No RabbitMQ - enem-landing has no message-queue use case (see
 #     issues/00-epic-overview.md decision #6 and story 10's own "Out of
 #     scope").
@@ -138,6 +140,13 @@ services:
     networks: [enem-landing-network]
     environment:
       DATABASE_URL: ${DATABASE_URL_API}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_TLS_ENABLED: ${REDIS_TLS_ENABLED}
+      REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX}
       # Plain name (not NUXT_-prefixed) - this is a NestJS app, read via
       # plain process.env by SsoAuthGuard (libs/backend/sso).
       ACCOUNT_API_HOST: http://enem-landing-account-api:3000

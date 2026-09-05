@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { Experience, Project } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
@@ -12,6 +12,9 @@ const { data: experience, refresh } = await useFetch<Experience>(
   `/api/experiences/${id}`,
 );
 const snackbar = useGlobalSnackbar();
+useHead({
+  title: computed(() => experience.value?.company ?? 'Experience'),
+});
 
 const isSaving = ref(false);
 const form = ref({
@@ -46,6 +49,7 @@ const saveExperience = async () => {
 
 const projectDialog = ref(false);
 const isSavingProject = ref(false);
+const isUploadingImage = ref(false);
 const editingProjectId = ref<string | null>(null);
 const projectForm = ref({
   title: '',
@@ -117,6 +121,40 @@ const saveProject = async () => {
   }
 };
 
+const uploadProjectImages = async (files: File[] | File | null) => {
+  const fileList = Array.isArray(files) ? files : files ? [files] : [];
+  if (fileList.length === 0) return;
+
+  isUploadingImage.value = true;
+  try {
+    const uploadedUrls: string[] = [];
+    for (const file of fileList) {
+      const body = new FormData();
+      body.append('file', file);
+      body.append('purpose', 'portfolio-project-image');
+      const response = await $fetch<{ data: { url: string } }>('/api/uploads', {
+        method: 'post',
+        body,
+      });
+      uploadedUrls.push(response.data.url);
+    }
+    projectForm.value.image = [
+      ...projectForm.value.image
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      ...uploadedUrls,
+    ].join('\n');
+    snackbar.success(
+      uploadedUrls.length > 1 ? 'Images uploaded.' : 'Image uploaded.',
+    );
+  } catch (err) {
+    snackbar.error(err);
+  } finally {
+    isUploadingImage.value = false;
+  }
+};
+
 const removeProject = async (project: Project) => {
   try {
     await $fetch(`/api/projects/${project.id}`, { method: 'delete' });
@@ -129,162 +167,228 @@ const removeProject = async (project: Project) => {
 </script>
 
 <template>
-  <v-container>
-    <div class="d-flex align-center mb-4">
-      <v-btn to="/experiences" icon="mdi-arrow-left" variant="text" />
-      <h1 class="text-h5 font-weight-bold ml-2">{{ experience?.company }}</h1>
+  <div>
+    <div class="c-form-page">
+      <CPageHeader :title="experience?.company ?? 'Experience'">
+        <template #actions>
+          <v-btn to="/experiences" variant="text" prepend-icon="mdi-arrow-left"
+            >Back</v-btn
+          >
+        </template>
+      </CPageHeader>
+
+      <v-row>
+        <v-col cols="12" md="9">
+          <CContentCard title="Experience Details">
+            <v-text-field
+              v-model="form.company"
+              label="Company"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              class="mb-4"
+            />
+            <v-text-field
+              v-model="form.position"
+              label="Position"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              class="mb-4"
+            />
+            <v-text-field
+              v-model="form.location"
+              label="Location"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              class="mb-4"
+            />
+            <v-text-field
+              v-model="form.workingPeriode"
+              label="Period"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              class="mb-4"
+            />
+            <v-textarea
+              v-model="form.roleSummary"
+              label="Role Summary"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              rows="2"
+              class="mb-4"
+            />
+            <v-textarea
+              v-model="form.description"
+              label="Description"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              rows="3"
+              class="mb-4"
+            />
+            <v-textarea
+              v-model="form.experienceGained"
+              label="Experience Gained (one per line)"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              rows="3"
+            />
+          </CContentCard>
+        </v-col>
+        <v-col cols="12" md="3">
+          <CContentCard title="Aksi">
+            <v-btn
+              color="primary"
+              variant="flat"
+              prepend-icon="mdi-content-save-outline"
+              :loading="isSaving"
+              block
+              @click="saveExperience"
+              >Save</v-btn
+            >
+          </CContentCard>
+        </v-col>
+      </v-row>
+
+      <CContentCard title="Projects" class="mt-6">
+        <template #header-right>
+          <v-btn
+            variant="text"
+            size="small"
+            color="primary"
+            prepend-icon="mdi-plus"
+            @click="openCreateProject"
+            >Add Project</v-btn
+          >
+        </template>
+
+        <v-row>
+          <v-col
+            v-for="project in experience?.projects ?? []"
+            :key="project.id"
+            cols="12"
+            md="6"
+          >
+            <v-card variant="outlined" rounded="lg">
+              <v-card-title>{{ project.title }}</v-card-title>
+              <v-card-subtitle>{{ project.year }}</v-card-subtitle>
+              <v-card-text>
+                <p class="text-body-2 mb-2">{{ project.description }}</p>
+                <v-chip
+                  v-for="tech in project.technologies"
+                  :key="tech"
+                  size="x-small"
+                  class="mr-1 mb-1"
+                >
+                  {{ tech }}
+                </v-chip>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  icon="mdi-pencil-outline"
+                  variant="text"
+                  size="small"
+                  @click="openEditProject(project)"
+                />
+                <v-btn
+                  icon="mdi-delete-outline"
+                  variant="text"
+                  size="small"
+                  color="error"
+                  @click="removeProject(project)"
+                />
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </CContentCard>
     </div>
 
-    <v-card class="mb-6">
-      <v-card-title>Experience Details</v-card-title>
-      <v-card-text>
-        <v-text-field
-          v-model="form.company"
-          label="Company"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.position"
-          label="Position"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.location"
-          label="Location"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.workingPeriode"
-          label="Period"
-          density="comfortable"
-        />
-        <v-textarea
-          v-model="form.roleSummary"
-          label="Role Summary"
-          density="comfortable"
-          rows="2"
-        />
-        <v-textarea
-          v-model="form.description"
-          label="Description"
-          density="comfortable"
-          rows="3"
-        />
-        <v-textarea
-          v-model="form.experienceGained"
-          label="Experience Gained (one per line)"
-          density="comfortable"
-          rows="3"
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="primary" :loading="isSaving" @click="saveExperience"
+    <CModal
+      v-model="projectDialog"
+      :title="`${editingProjectId ? 'Edit' : 'Add'} Project`"
+      max-width="560"
+    >
+      <v-text-field
+        v-model="projectForm.title"
+        label="Title"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="projectForm.year"
+        label="Year"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="projectForm.url"
+        label="URL"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="projectForm.description"
+        label="Description"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="3"
+        class="mb-4"
+      />
+      <v-file-input
+        label="Upload Image(s)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-2"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        multiple
+        prepend-icon=""
+        prepend-inner-icon="mdi-image-plus-outline"
+        :loading="isUploadingImage"
+        :disabled="isUploadingImage"
+        @update:model-value="uploadProjectImages"
+      />
+      <v-textarea
+        v-model="projectForm.image"
+        label="Image URLs (one per line)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="2"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="projectForm.technologies"
+        label="Technologies (comma-separated)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+      />
+
+      <template #actions>
+        <v-btn variant="text" @click="projectDialog = false">Cancel</v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          :loading="isSavingProject"
+          @click="saveProject"
           >Save</v-btn
         >
-      </v-card-actions>
-    </v-card>
-
-    <div class="d-flex align-center mb-4">
-      <h2 class="text-h6 font-weight-bold">Projects</h2>
-      <v-spacer />
-      <v-btn
-        color="primary"
-        size="small"
-        prepend-icon="mdi-plus"
-        @click="openCreateProject"
-        >Add Project</v-btn
-      >
-    </div>
-
-    <v-row>
-      <v-col
-        v-for="project in experience?.projects ?? []"
-        :key="project.id"
-        cols="12"
-        md="6"
-      >
-        <v-card>
-          <v-card-title>{{ project.title }}</v-card-title>
-          <v-card-subtitle>{{ project.year }}</v-card-subtitle>
-          <v-card-text>
-            <p class="text-body-2 mb-2">{{ project.description }}</p>
-            <v-chip
-              v-for="tech in project.technologies"
-              :key="tech"
-              size="x-small"
-              class="mr-1 mb-1"
-            >
-              {{ tech }}
-            </v-chip>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn
-              icon="mdi-pencil"
-              variant="text"
-              size="small"
-              @click="openEditProject(project)"
-            />
-            <v-btn
-              icon="mdi-delete"
-              variant="text"
-              size="small"
-              color="error"
-              @click="removeProject(project)"
-            />
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <v-dialog v-model="projectDialog" max-width="560">
-      <v-card>
-        <v-card-title
-          >{{ editingProjectId ? 'Edit' : 'Add' }} Project</v-card-title
-        >
-        <v-card-text>
-          <v-text-field
-            v-model="projectForm.title"
-            label="Title"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="projectForm.year"
-            label="Year"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="projectForm.url"
-            label="URL"
-            density="comfortable"
-          />
-          <v-textarea
-            v-model="projectForm.description"
-            label="Description"
-            density="comfortable"
-            rows="3"
-          />
-          <v-textarea
-            v-model="projectForm.image"
-            label="Image URLs (one per line)"
-            density="comfortable"
-            rows="2"
-          />
-          <v-text-field
-            v-model="projectForm.technologies"
-            label="Technologies (comma-separated)"
-            density="comfortable"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="projectDialog = false">Cancel</v-btn>
-          <v-btn color="primary" :loading="isSavingProject" @click="saveProject"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+      </template>
+    </CModal>
+  </div>
 </template>

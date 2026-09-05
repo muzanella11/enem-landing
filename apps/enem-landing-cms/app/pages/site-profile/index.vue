@@ -4,6 +4,7 @@ import type { SiteProfile } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Site Profile' });
 
 const { data: profile } = await useFetch<SiteProfile>('/api/site-profile');
 const snackbar = useGlobalSnackbar();
@@ -39,75 +40,94 @@ const save = async () => {
 </script>
 
 <template>
-  <v-container>
-    <h1 class="text-h5 font-weight-bold mb-4">Site Profile</h1>
+  <CFormPage title="Site Profile">
+    <CContentCard title="Profile">
+      <v-text-field
+        v-model="form.heroTitle"
+        label="Hero Title"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.heroSubtitle"
+        label="Hero Subtitle"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.bio"
+        label="Bio"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="4"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.avatarUrl"
+        label="Avatar URL"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
 
-    <v-card max-width="640">
-      <v-card-text>
-        <v-text-field
-          v-model="form.heroTitle"
-          label="Hero Title"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.heroSubtitle"
-          label="Hero Subtitle"
-          density="comfortable"
-        />
-        <v-textarea
-          v-model="form.bio"
-          label="Bio"
-          density="comfortable"
-          rows="4"
-        />
-        <v-text-field
-          v-model="form.avatarUrl"
-          label="Avatar URL"
-          density="comfortable"
-        />
-
-        <div class="d-flex align-center mt-2 mb-2">
-          <span class="text-subtitle-2">Social Links</span>
-          <v-spacer />
-          <v-btn
-            size="small"
-            variant="text"
-            prepend-icon="mdi-plus"
-            @click="addSocialLink"
-            >Add</v-btn
-          >
-        </div>
-
-        <div
-          v-for="(link, index) in form.socialLinks"
-          :key="index"
-          class="d-flex align-center mb-2 ga-2"
-        >
-          <v-text-field
-            v-model="link.platform"
-            label="Platform"
-            density="compact"
-            hide-details
-          />
-          <v-text-field
-            v-model="link.url"
-            label="URL"
-            density="compact"
-            hide-details
-          />
-          <v-btn
-            icon="mdi-delete"
-            variant="text"
-            size="small"
-            color="error"
-            @click="removeSocialLink(index)"
-          />
-        </div>
-      </v-card-text>
-      <v-card-actions>
+      <div class="d-flex align-center mt-2 mb-2">
+        <span class="text-subtitle-2">Social Links</span>
         <v-spacer />
-        <v-btn color="primary" :loading="isSaving" @click="save">Save</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-container>
+        <v-btn
+          size="small"
+          variant="text"
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="addSocialLink"
+          >Add</v-btn
+        >
+      </div>
+
+      <div
+        v-for="(link, index) in form.socialLinks"
+        :key="index"
+        class="d-flex align-center mb-2 ga-2"
+      >
+        <v-text-field
+          v-model="link.platform"
+          label="Platform"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+        <v-text-field
+          v-model="link.url"
+          label="URL"
+          variant="outlined"
+          density="compact"
+          hide-details
+        />
+        <v-btn
+          icon="mdi-delete-outline"
+          variant="text"
+          size="small"
+          color="error"
+          @click="removeSocialLink(index)"
+        />
+      </div>
+    </CContentCard>
+
+    <template #sidebar>
+      <v-btn
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-content-save-outline"
+        :loading="isSaving"
+        block
+        @click="save"
+        >Save</v-btn
+      >
+    </template>
+  </CFormPage>
 </template>

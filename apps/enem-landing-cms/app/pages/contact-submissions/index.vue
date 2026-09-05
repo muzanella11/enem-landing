@@ -3,6 +3,7 @@ import type { ContactSubmission } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Contact Submissions' });
 
 const { data: submissions, refresh } = await useFetch<ContactSubmission[]>(
   '/api/contact-submissions',
@@ -33,10 +34,16 @@ const markAsRead = async (submission: ContactSubmission) => {
 </script>
 
 <template>
-  <v-container>
-    <h1 class="text-h5 font-weight-bold mb-4">Contact Submissions</h1>
-
-    <v-data-table :headers="headers" :items="submissions ?? []" item-value="id">
+  <CListPage
+    title="Contact Submissions"
+    :meta="`${submissions?.length ?? 0} submission`"
+  >
+    <v-data-table
+      :headers="headers"
+      :items="submissions ?? []"
+      item-value="id"
+      class="c-data-table"
+    >
       <template #item.readAt="{ item }">
         <v-chip v-if="item.readAt" size="small" color="success" variant="tonal"
           >Read</v-chip
@@ -46,17 +53,20 @@ const markAsRead = async (submission: ContactSubmission) => {
         >
       </template>
       <template #item.createdAt="{ item }">
-        {{ new Date(item.createdAt).toLocaleString('id-ID') }}
+        <span class="text-medium-emphasis">{{
+          new Date(item.createdAt).toLocaleString('id-ID')
+        }}</span>
       </template>
       <template #item.actions="{ item }">
         <v-btn
           v-if="!item.readAt"
           size="small"
           variant="text"
+          color="primary"
           @click="markAsRead(item)"
           >Mark as read</v-btn
         >
       </template>
     </v-data-table>
-  </v-container>
+  </CListPage>
 </template>

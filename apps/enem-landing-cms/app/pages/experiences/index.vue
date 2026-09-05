@@ -4,6 +4,7 @@ import type { Experience } from '@enem-landing/shared-types';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Experiences' });
 
 const { data: experiences, refresh } =
   await useFetch<Experience[]>('/api/experiences');
@@ -82,90 +83,119 @@ const remove = async (experience: Experience) => {
 </script>
 
 <template>
-  <v-container>
-    <div class="d-flex align-center mb-4">
-      <h1 class="text-h5 font-weight-bold">Experiences</h1>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate"
-        >Add Experience</v-btn
+  <div>
+    <CListPage
+      title="Experiences"
+      :meta="`${experiences?.length ?? 0} experience`"
+    >
+      <template #actions>
+        <v-btn
+          color="primary"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          @click="openCreate"
+          >Add Experience</v-btn
+        >
+      </template>
+
+      <v-data-table
+        :headers="headers"
+        :items="experiences ?? []"
+        item-value="id"
+        class="c-data-table"
       >
-    </div>
+        <template #item.company="{ item }">
+          <NuxtLink :to="`/experiences/${item.id}`" class="text-primary">{{
+            item.company
+          }}</NuxtLink>
+        </template>
+        <template #item.projects="{ item }">
+          {{ item.projects?.length ?? 0 }}
+        </template>
+        <template #item.actions="{ item }">
+          <v-btn
+            :to="`/experiences/${item.id}`"
+            icon="mdi-pencil-outline"
+            variant="text"
+            size="small"
+          />
+          <v-btn
+            icon="mdi-delete-outline"
+            variant="text"
+            size="small"
+            color="error"
+            @click="remove(item)"
+          />
+        </template>
+      </v-data-table>
+    </CListPage>
 
-    <v-data-table :headers="headers" :items="experiences ?? []" item-value="id">
-      <template #item.company="{ item }">
-        <NuxtLink :to="`/experiences/${item.id}`" class="text-primary">{{
-          item.company
-        }}</NuxtLink>
-      </template>
-      <template #item.projects="{ item }">
-        {{ item.projects?.length ?? 0 }}
-      </template>
-      <template #item.actions="{ item }">
-        <v-btn
-          :to="`/experiences/${item.id}`"
-          icon="mdi-pencil"
-          variant="text"
-          size="small"
-        />
-        <v-btn
-          icon="mdi-delete"
-          variant="text"
-          size="small"
-          color="error"
-          @click="remove(item)"
-        />
-      </template>
-    </v-data-table>
+    <CModal v-model="dialog" title="Add Experience" max-width="640">
+      <v-text-field
+        v-model="form.company"
+        label="Company"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.position"
+        label="Position"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.location"
+        label="Location"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.workingPeriode"
+        label="Period (e.g. Nov 2021 - Now)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.roleSummary"
+        label="Role Summary"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="2"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.description"
+        label="Description"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="3"
+        class="mb-4"
+      />
+      <v-textarea
+        v-model="form.experienceGained"
+        label="Experience Gained (one per line)"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        rows="3"
+      />
 
-    <v-dialog v-model="dialog" max-width="640">
-      <v-card>
-        <v-card-title>Add Experience</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="form.company"
-            label="Company"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="form.position"
-            label="Position"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="form.location"
-            label="Location"
-            density="comfortable"
-          />
-          <v-text-field
-            v-model="form.workingPeriode"
-            label="Period (e.g. Nov 2021 - Now)"
-            density="comfortable"
-          />
-          <v-textarea
-            v-model="form.roleSummary"
-            label="Role Summary"
-            density="comfortable"
-            rows="2"
-          />
-          <v-textarea
-            v-model="form.description"
-            label="Description"
-            density="comfortable"
-            rows="3"
-          />
-          <v-textarea
-            v-model="form.experienceGained"
-            label="Experience Gained (one per line)"
-            density="comfortable"
-            rows="3"
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="primary" :loading="isSaving" @click="save">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+      <template #actions>
+        <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
+        <v-btn color="primary" variant="flat" :loading="isSaving" @click="save"
+          >Save</v-btn
+        >
+      </template>
+    </CModal>
+  </div>
 </template>

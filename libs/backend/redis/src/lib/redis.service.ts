@@ -35,6 +35,10 @@ export class RedisService implements OnModuleDestroy {
     await this.client.quit();
   }
 
+  async ping(): Promise<string> {
+    return this.client.ping();
+  }
+
   private withPrefix(key: string): string {
     return redisKeyPrefix ? `${redisKeyPrefix}:${key}` : key;
   }
@@ -76,5 +80,9 @@ export class RedisService implements OnModuleDestroy {
 
   async deleteValue(key: string): Promise<number> {
     return this.client.del(this.withPrefix(key));
+  }
+
+  async increment(key: string): Promise<number> {
+    return this.client.incr(this.withPrefix(key));
   }
 }

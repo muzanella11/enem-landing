@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineNuxtConfig } from 'nuxt/config';
 
 const { version: VERSION } = JSON.parse(
@@ -9,6 +8,7 @@ const { version: VERSION } = JSON.parse(
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  compatibilityDate: '2026-09-05',
   workspaceDir: '../../',
   modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss'],
   devtools: { enabled: true },
@@ -43,7 +43,7 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/styles.css'],
   vite: {
-    plugins: [nxViteTsPaths()],
+    resolve: { tsconfigPaths: true },
   },
   nitro: {
     // Shared brand assets (favicon) live once in libs/frontend, mounted

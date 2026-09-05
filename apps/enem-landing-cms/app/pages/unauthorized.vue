@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({ layout: false });
+useHead({ title: 'Unauthorized' });
 </script>
 
 <template>

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
+useHead({ title: 'Settings' });
 
 interface SystemSettings {
   R2_ACCESS_KEY_ID: string;
@@ -50,50 +51,66 @@ const save = async () => {
 </script>
 
 <template>
-  <v-container>
-    <h1 class="text-h5 font-weight-bold mb-4">Settings</h1>
-    <p class="text-medium-emphasis mb-4">
-      Kredensial Cloudflare R2 untuk fitur upload file di
-      enem-landing-account-api.
-    </p>
+  <CFormPage
+    title="Settings"
+    subtitle="Kredensial Cloudflare R2 untuk fitur upload file di enem-landing-account-api."
+  >
+    <CContentCard title="Cloudflare R2">
+      <v-text-field
+        v-model="form.R2_ACCESS_KEY_ID"
+        label="R2 Access Key ID"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.R2_SECRET_ACCESS_KEY"
+        label="R2 Secret Access Key"
+        type="password"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+        @focus="
+          form.R2_SECRET_ACCESS_KEY === MASK && (form.R2_SECRET_ACCESS_KEY = '')
+        "
+      />
+      <v-text-field
+        v-model="form.R2_ENDPOINT"
+        label="R2 Endpoint"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.R2_BUCKET_NAME"
+        label="R2 Bucket Name"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.R2_PUBLIC_URL_BASE"
+        label="R2 Public URL Base"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+      />
+    </CContentCard>
 
-    <v-card max-width="560">
-      <v-card-text>
-        <v-text-field
-          v-model="form.R2_ACCESS_KEY_ID"
-          label="R2 Access Key ID"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.R2_SECRET_ACCESS_KEY"
-          label="R2 Secret Access Key"
-          type="password"
-          density="comfortable"
-          @focus="
-            form.R2_SECRET_ACCESS_KEY === MASK &&
-            (form.R2_SECRET_ACCESS_KEY = '')
-          "
-        />
-        <v-text-field
-          v-model="form.R2_ENDPOINT"
-          label="R2 Endpoint"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.R2_BUCKET_NAME"
-          label="R2 Bucket Name"
-          density="comfortable"
-        />
-        <v-text-field
-          v-model="form.R2_PUBLIC_URL_BASE"
-          label="R2 Public URL Base"
-          density="comfortable"
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="primary" :loading="isSaving" @click="save">Save</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-container>
+    <template #sidebar>
+      <v-btn
+        color="primary"
+        variant="flat"
+        prepend-icon="mdi-content-save-outline"
+        :loading="isSaving"
+        block
+        @click="save"
+        >Save</v-btn
+      >
+    </template>
+  </CFormPage>
 </template>

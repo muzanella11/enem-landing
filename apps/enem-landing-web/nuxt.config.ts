@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineNuxtConfig } from 'nuxt/config';
 
 // Ported from the old root nuxt.config.js's `googleAnalytics: { id:
@@ -16,6 +15,7 @@ const { version: VERSION } = JSON.parse(
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  compatibilityDate: '2026-09-05',
   workspaceDir: '../../',
   // `@enem-landing/frontend`'s package.json only exports the module root -
   // this aliases its `assets/` subpath directly to source so `css` below
@@ -94,7 +94,7 @@ gtag('config', '${googleAnalyticsId}');`,
     '@enem-landing/frontend/assets/scss/main.scss',
   ],
   vite: {
-    plugins: [nxViteTsPaths()],
+    resolve: { tsconfigPaths: true },
   },
   nitro: {
     // Shared brand assets (favicon, avatar, OG image) live once in

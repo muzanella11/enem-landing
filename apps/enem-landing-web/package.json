@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@enem-landing/shared-types": "0.0.1",
-    "@enem-landing/shared-utils": "0.0.1"
+    "@enem-landing/shared-utils": "0.0.1",
+    "rrweb": "^2.1.1"
   }
 }

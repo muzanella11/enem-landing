@@ -1,54 +1,45 @@
-html {
-  -webkit-text-size-adjust: 100%;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    'Noto Sans',
-    sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol',
-    'Noto Color Emoji';
-  line-height: 1.5;
-  tab-size: 4;
-  scroll-behavior: smooth;
+/* CMS data table (mirrors mau-apps' `.c-data-table`) */
+.c-data-table {
+  flex: 1;
+  min-height: 0;
+  box-shadow: none !important;
 }
-body {
-  font-family: inherit;
-  line-height: inherit;
-  margin: 0;
+
+.c-data-table .v-data-table__thead .v-data-table__th {
+  background: rgba(0, 0, 0, 0.018) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
-h1,
-h2,
-p,
-pre {
-  margin: 0;
+
+.c-data-table .v-data-table-header__content {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
 }
-*,
-::before,
-::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: solid;
-  border-color: currentColor;
+
+.c-data-table .v-data-table__tbody .v-data-table__tr {
+  transition: background 0.12s ease !important;
 }
-h1,
-h2 {
-  font-size: inherit;
-  font-weight: inherit;
+
+.c-data-table .v-data-table__tbody .v-data-table__tr:hover > .v-data-table__td {
+  background: rgba(0, 0, 0, 0.02) !important;
 }
-a {
-  color: inherit;
-  text-decoration: inherit;
+
+.c-data-table .v-data-table__td {
+  font-size: 13px !important;
+  color: rgba(0, 0, 0, 0.75);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
 }
-pre {
-  font-family:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', monospace;
+
+.c-data-table .v-data-table-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  font-size: 12px !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.c-data-table .v-data-table-footer__items-per-page,
+.c-data-table .v-data-table-footer__pagination {
+  font-size: 12px !important;
+  color: rgba(0, 0, 0, 0.5) !important;
 }

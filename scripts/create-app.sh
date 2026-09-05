@@ -315,15 +315,40 @@ insertBefore(
   '    "dev": "yarn nx run-many -t serve -p',
   `    "nx:serve:${name}": "yarn nx run ${name}:serve",`,
 );
+// Trailing group captures whatever comes after --parallel=<n> verbatim (e.g.
+// " --outputStyle=stream") so this doesn't need updating every time a flag
+// is added/removed from the dev scripts' tail.
 {
-  const devAnchor = /"dev": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\d+)",/;
+  const devAnchor = /"dev": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\d+)([^"]*)",/;
   const match = src.match(devAnchor);
   if (!match) throw new Error('dev aggregate script not found');
   const nextParallel = Number(match[2]) + 1;
   src = src.replace(
     devAnchor,
-    `"dev": "yarn nx run-many -t serve -p ${match[1]} ${name} --parallel=${nextParallel}",`,
+    `"dev": "yarn nx run-many -t serve -p ${match[1]} ${name} --parallel=${nextParallel}${match[3]}",`,
   );
+}
+
+// Also wire into the app's dev:<group> script (dev:account/dev:core/dev:cms
+// - see root package.json). Group is inferred from the naming convention:
+// enem-landing-account-* -> account, enem-landing-cms -> cms, everything
+// else -> core (the "main product" group, e.g. enem-landing-api/-web).
+{
+  const groupName = name.startsWith('enem-landing-account-')
+    ? 'account'
+    : name === 'enem-landing-cms'
+      ? 'cms'
+      : 'core';
+  const groupAnchor = new RegExp(`"dev:${groupName}": "yarn nx run-many -t serve -p ([^"]+) --parallel=(\\d+)([^"]*)",`);
+  const groupMatch = src.match(groupAnchor);
+  if (groupMatch) {
+    const nextGroupParallel = Number(groupMatch[2]) + 1;
+    src = src.replace(
+      groupAnchor,
+      `"dev:${groupName}": "yarn nx run-many -t serve -p ${groupMatch[1]} ${name} --parallel=${nextGroupParallel}${groupMatch[3]}",`,
+    );
+    console.log(`Also wired into dev:${groupName}.`);
+  }
 }
 
 if (kind === 'nuxt') {
