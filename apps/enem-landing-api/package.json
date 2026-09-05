@@ -154,7 +154,6 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^16.6.1",
-    "geoip-lite": "^2.0.3",
     "mysql2": "^3.24.2",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
@@ -165,7 +164,6 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",
-    "@types/express": "^5.0.6",
-    "@types/geoip-lite": "^1.4.4"
+    "@types/express": "^5.0.6"
   }
 }

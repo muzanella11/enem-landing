@@ -1,15 +1,14 @@
 import { NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('geoip-lite', () => ({
-  default: {
-    lookup: vi.fn().mockReturnValue({
-      country: 'ID',
-      region: 'JK',
-      city: 'Jakarta',
-      ll: [-6.2, 106.8],
-    }),
-  },
+vi.mock('./geo-lookup.js', () => ({
+  lookupGeo: vi.fn().mockResolvedValue({
+    country: 'ID',
+    region: 'JK',
+    city: 'Jakarta',
+    latitude: -6.2,
+    longitude: 106.8,
+  }),
 }));
 
 vi.mock('ua-parser-js', () => ({

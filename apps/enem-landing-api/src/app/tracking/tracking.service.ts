@@ -1,13 +1,13 @@
 import type { TrackingOverview } from '@enem-landing/shared-types';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import geoip from 'geoip-lite';
 import { UAParser } from 'ua-parser-js';
 import { Repository } from 'typeorm';
 import { CreateSessionDto } from './dto/create-session.dto.js';
 import { CreatePageviewItemDto } from './dto/create-pageview-batch.dto.js';
 import { CreateEventItemDto } from './dto/create-event-batch.dto.js';
 import { CreateClickItemDto } from './dto/create-click-batch.dto.js';
+import { lookupGeo } from './geo-lookup.js';
 import { TrackingClickEntity } from './tracking-click.entity.js';
 import { TrackingEventEntity } from './tracking-event.entity.js';
 import { TrackingPageviewEntity } from './tracking-pageview.entity.js';
@@ -41,7 +41,7 @@ export class TrackingService {
     const { browser, os, device, engine, cpu } = new UAParser(
       userAgent ?? '',
     ).getResult();
-    const geo = geoip.lookup(ip);
+    const geo = await lookupGeo(ip);
     const settings = await this.trackingSettingsService.getOrCreate();
     const recordingSampled =
       settings.sessionRecordingEnabled &&
@@ -71,11 +71,11 @@ export class TrackingService {
       screenWidth: dto.screenWidth ?? null,
       screenHeight: dto.screenHeight ?? null,
       ipAddress: ip,
-      country: geo?.country ?? null,
-      region: geo?.region ?? null,
-      city: geo?.city ?? null,
-      latitude: geo?.ll?.[0] ?? null,
-      longitude: geo?.ll?.[1] ?? null,
+      country: geo.country,
+      region: geo.region,
+      city: geo.city,
+      latitude: geo.latitude,
+      longitude: geo.longitude,
     });
 
     return this.sessionRepository.save(session);
