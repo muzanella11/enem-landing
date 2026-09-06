@@ -98,70 +98,72 @@ const detailRows = (
 </script>
 
 <template>
-  <CListPage
-    title="Visitors"
-    subtitle="Seluruh sesi pengunjung beserta IP dan detail geolocation-nya."
-    :meta="`${visitors?.length ?? 0} sesi`"
-  >
-    <template #actions>
-      <v-btn
-        to="/activity-tracking"
-        variant="text"
-        prepend-icon="mdi-arrow-left"
-        >Overview</v-btn
-      >
-    </template>
-
-    <v-data-table :headers="headers" :items="visitors ?? []" item-value="id">
-      <template #item.startedAt="{ item }">
-        {{ new Date(item.startedAt).toLocaleString() }}
-      </template>
-      <template #item.ipAddress="{ item }">
-        <span>{{ item.ipAddress ?? '-' }}</span>
-      </template>
-      <template #item.location="{ item }">
-        {{ locationOf(item) }}
-      </template>
-      <template #item.isp="{ item }">
-        {{ item.isp ?? '-' }}
-      </template>
-      <template #item.actions="{ item }">
+  <div>
+    <CListPage
+      title="Visitors"
+      subtitle="Seluruh sesi pengunjung beserta IP dan detail geolocation-nya."
+      :meta="`${visitors?.length ?? 0} sesi`"
+    >
+      <template #actions>
         <v-btn
-          size="small"
+          to="/activity-tracking"
           variant="text"
-          color="primary"
-          prepend-icon="mdi-eye-outline"
-          @click="openDetail(item)"
-          >Detail</v-btn
+          prepend-icon="mdi-arrow-left"
+          >Overview</v-btn
         >
       </template>
-    </v-data-table>
-  </CListPage>
 
-  <CModal
-    v-model="detailDialog"
-    :title="
-      selectedVisitor
-        ? `Detail Visitor - ${selectedVisitor.ipAddress ?? selectedVisitor.id}`
-        : 'Detail Visitor'
-    "
-    max-width="640"
-    scrollable
-  >
-    <template v-if="selectedVisitor">
-      <v-table density="compact">
-        <tbody>
-          <tr v-for="row in detailRows(selectedVisitor)" :key="row.label">
-            <td class="l-visitors__detail-label">{{ row.label }}</td>
-            <td>{{ row.value }}</td>
-          </tr>
-        </tbody>
-      </v-table>
-    </template>
-    <template #actions>
-      <v-btn variant="text" @click="detailDialog = false">Tutup</v-btn>
-    </template>
-  </CModal>
+      <v-data-table :headers="headers" :items="visitors ?? []" item-value="id">
+        <template #item.startedAt="{ item }">
+          {{ new Date(item.startedAt).toLocaleString() }}
+        </template>
+        <template #item.ipAddress="{ item }">
+          <span>{{ item.ipAddress ?? '-' }}</span>
+        </template>
+        <template #item.location="{ item }">
+          {{ locationOf(item) }}
+        </template>
+        <template #item.isp="{ item }">
+          {{ item.isp ?? '-' }}
+        </template>
+        <template #item.actions="{ item }">
+          <v-btn
+            size="small"
+            variant="text"
+            color="primary"
+            prepend-icon="mdi-eye-outline"
+            @click="openDetail(item)"
+            >Detail</v-btn
+          >
+        </template>
+      </v-data-table>
+    </CListPage>
+
+    <CModal
+      v-model="detailDialog"
+      :title="
+        selectedVisitor
+          ? `Detail Visitor - ${selectedVisitor.ipAddress ?? selectedVisitor.id}`
+          : 'Detail Visitor'
+      "
+      max-width="640"
+      scrollable
+    >
+      <template v-if="selectedVisitor">
+        <v-table density="compact">
+          <tbody>
+            <tr v-for="row in detailRows(selectedVisitor)" :key="row.label">
+              <td class="l-visitors__detail-label">{{ row.label }}</td>
+              <td>{{ row.value }}</td>
+            </tr>
+          </tbody>
+        </v-table>
+      </template>
+      <template #actions>
+        <v-btn variant="text" @click="detailDialog = false">Tutup</v-btn>
+      </template>
+    </CModal>
+  </div>
 </template>
 
 <style lang="scss">
