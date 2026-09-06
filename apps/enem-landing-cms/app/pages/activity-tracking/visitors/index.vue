@@ -39,9 +39,7 @@ const detailRows = (
   { label: 'Mulai', value: new Date(visitor.startedAt).toLocaleString() },
   {
     label: 'Berakhir',
-    value: visitor.endedAt
-      ? new Date(visitor.endedAt).toLocaleString()
-      : '-',
+    value: visitor.endedAt ? new Date(visitor.endedAt).toLocaleString() : '-',
   },
   { label: 'Referrer', value: visitor.referrer ?? '-' },
   { label: 'UTM Source', value: visitor.utmSource ?? '-' },

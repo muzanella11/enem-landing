@@ -1,9 +1,7 @@
 import { TableColumn } from 'typeorm';
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddIspToTrackingSessions1788290000000
-  implements MigrationInterface
-{
+export class AddIspToTrackingSessions1788290000000 implements MigrationInterface {
   name = 'AddIspToTrackingSessions1788290000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
