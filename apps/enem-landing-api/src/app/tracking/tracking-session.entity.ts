@@ -86,6 +86,15 @@ export class TrackingSessionEntity {
   @Column({ type: 'double', nullable: true })
   longitude!: number | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  isp!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  org!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  asn!: string | null;
+
   /**
    * Decided once, server-side, at session creation (a dice roll against
    * `sessionRecordingSampleRatePct`) - not a client self-report, so it's

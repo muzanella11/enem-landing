@@ -76,6 +76,9 @@ export class TrackingService {
       city: geo.city,
       latitude: geo.latitude,
       longitude: geo.longitude,
+      isp: geo.isp,
+      org: geo.org,
+      asn: geo.asn,
     });
 
     return this.sessionRepository.save(session);
@@ -178,6 +181,11 @@ export class TrackingService {
       sequence,
       events,
     );
+  }
+
+  /** Full session rows (IP + geo + device/browser) for the CMS's visitor detail list - admin-only, no pagination (matches `TrackingRecordingService.getSessionsWithRecording`'s convention at this traffic volume). */
+  async getVisitors(): Promise<TrackingSessionEntity[]> {
+    return this.sessionRepository.find({ order: { startedAt: 'DESC' } });
   }
 
   async getOverview(): Promise<TrackingOverview> {

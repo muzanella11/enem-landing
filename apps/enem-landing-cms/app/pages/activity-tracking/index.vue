@@ -134,6 +134,15 @@ const deviceItems = computed(
     </v-row>
 
     <CContentCard title="Visitor Locations">
+      <template #header-right>
+        <v-btn
+          to="/activity-tracking/visitors"
+          variant="text"
+          size="small"
+          prepend-icon="mdi-map-marker-radius-outline"
+          >Detail</v-btn
+        >
+      </template>
       <CTrackingMap :locations="overview?.locations ?? []" height="360px" />
     </CContentCard>
   </div>

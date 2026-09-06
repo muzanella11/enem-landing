@@ -96,6 +96,13 @@ export class TrackingController {
     return this.trackingService.getOverview();
   }
 
+  @UseGuards(SsoAuthGuard)
+  @Get('visitors')
+  getVisitors(@Req() req: Request) {
+    assertAdminRole((req as Request & { user: User }).user);
+    return this.trackingService.getVisitors();
+  }
+
   @Post('events')
   recordEvents(@Body() dto: CreateEventBatchDto) {
     return this.trackingService.recordEvents(dto.items);

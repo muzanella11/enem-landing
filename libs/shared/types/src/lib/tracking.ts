@@ -68,3 +68,39 @@ export interface TrackingRecordingChunkMeta {
   sequence: number;
   url: string;
 }
+
+/** Full `tracking_sessions` row - backs the CMS's visitor IP/geolocation detail list (Visitor Locations > Detail). */
+export interface TrackingVisitor {
+  id: string;
+  visitorId: string;
+  startedAt: string;
+  endedAt: string | null;
+  referrer: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  deviceType: string | null;
+  deviceVendor: string | null;
+  deviceModel: string | null;
+  browserName: string | null;
+  browserVersion: string | null;
+  engineName: string | null;
+  engineVersion: string | null;
+  osName: string | null;
+  osVersion: string | null;
+  cpuArchitecture: string | null;
+  language: string | null;
+  timezone: string | null;
+  screenWidth: number | null;
+  screenHeight: number | null;
+  ipAddress: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  isp: string | null;
+  org: string | null;
+  asn: string | null;
+  recordingSampled: boolean;
+}

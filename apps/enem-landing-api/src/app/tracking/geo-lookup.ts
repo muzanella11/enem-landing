@@ -14,6 +14,9 @@ export interface GeoLookupResult {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  isp: string | null;
+  org: string | null;
+  asn: string | null;
 }
 
 const EMPTY_GEO: GeoLookupResult = {
@@ -22,10 +25,13 @@ const EMPTY_GEO: GeoLookupResult = {
   city: null,
   latitude: null,
   longitude: null,
+  isp: null,
+  org: null,
+  asn: null,
 };
 
 const LOOKUP_TIMEOUT_MS = 3000;
-const FIELDS = 'status,country,region,city,lat,lon';
+const FIELDS = 'status,country,region,city,lat,lon,isp,org,as';
 
 const PRIVATE_IP_PREFIXES = [
   '127.',
@@ -61,6 +67,9 @@ export async function lookupGeo(ip: string | null): Promise<GeoLookupResult> {
       city?: string;
       lat?: number;
       lon?: number;
+      isp?: string;
+      org?: string;
+      as?: string;
     };
     if (data.status !== 'success') return EMPTY_GEO;
 
@@ -70,6 +79,9 @@ export async function lookupGeo(ip: string | null): Promise<GeoLookupResult> {
       city: data.city ?? null,
       latitude: data.lat ?? null,
       longitude: data.lon ?? null,
+      isp: data.isp ?? null,
+      org: data.org ?? null,
+      asn: data.as ?? null,
     };
   } catch {
     // Timeout, network error, bad JSON - never let a geo lookup break
