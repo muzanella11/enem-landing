@@ -14,8 +14,8 @@ examples further down, which are still mau-apps' own history and haven't been re
 against this repo's actual git log; treat those as illustrative shape, not confirmed fact, until
 someone checks). Bump `package.json`'s `version`, commit `chore: release vX.X.X` on `master`, tag
 that commit `vX.X.X`, push both. The tag push is what triggers
-`.github/workflows/enem-landing-prod.yml` (lint → test → e2e → build-push → migrate → deploy) -
-**pushing the tag is a real production deploy**, not a dry run.
+`.github/workflows/enem-landing-prod.yml` (lint → test → e2e → build-push → migrate → deploy →
+release-notes) - **pushing the tag is a real production deploy**, not a dry run.
 
 **Unlike mau-apps' current setup, enem-landing-prod.yml keeps its lint/test/e2e gate active** -
 a release tag must pass all three itself before build-push runs, not just assume a `develop`
@@ -102,19 +102,27 @@ git push origin vX.X.X
 After pushing, tell the user the run is live and point them at the Actions tab
 (`enem-landing-prod.yml`) - don't claim the deploy succeeded, only that it started.
 
-## Step 7 - GitHub Release Notes
+## Step 7 - GitHub Release Notes (automated)
 
-Create a GitHub Release for the tag with a "What's Changed" section (each entry attributed
-`by @<github-login> in <commit-url>`, mirroring GitHub's own PR-based format) plus a "Full
-Changelog" comparison link - matching the format of the `1.1.5` release (`gh release view 1.1.5`).
+`enem-landing-prod.yml`'s `release-notes` job (`needs: deploy`) creates the GitHub Release for
+the tag automatically once deploy succeeds - no manual step here anymore. It builds the same
+"What's Changed" section (each entry `by @<github-login> in <commit-url>`) plus a "Full
+Changelog" comparison link, using the exact commit-based approach below (ported verbatim into
+the job) rather than `gh release create --generate-notes`, which is confirmed broken for this
+repo: it builds "What's Changed" from merged PRs only, and this repo's release flow (Step 6)
+pushes straight to `master`, never through a PR. It silently produced a release with just the
+bare compare link and nothing else (verified on v2.0.1/v2.1.0/v2.1.1, back when this was a
+manual step - each had to be regenerated after the fact, twice: once for missing entries
+entirely, once more for missing the `by @user` attribution).
 
-**Do NOT use `gh release create --generate-notes`** - confirmed broken for this repo:
-`--generate-notes` builds "What's Changed" from merged PRs only, and this repo's release flow
-(Step 6) pushes straight to `master`, never through a PR. It silently produces a release with
-just the bare compare link and nothing else (verified on v2.0.1/v2.1.0/v2.1.1 - all had to be
-regenerated after the fact, twice: once for missing entries entirely, once more for missing the
-`by @user` attribution). Build the notes from commits instead, resolving each commit's GitHub
-login via the API rather than guessing it from the git author name/email:
+Do not run `gh release create` manually after pushing the tag - the pipeline's job will do it
+once `deploy` finishes, and a manual run first will just collide with it (`gh release create`
+fails if the tag already has a release). Just wait for the `release-notes` job to finish and
+show the user the resulting release URL (`gh release view vX.X.X --json url --jq .url`, or
+`gh run view <run-id>` to check the job itself).
+
+For reference, the logic the pipeline job runs (also useful if you ever need to regenerate notes
+for a tag by hand, e.g. the workflow job failed or a tag predates this automation):
 
 ```bash
 PREV_TAG=$(git describe --tags --abbrev=0 vX.X.X^)   # the tag being replaced by this release
@@ -142,9 +150,7 @@ rm "$NOTES_FILE"
 The `case` skips the release commit itself (`chore: release vX.X.X`) - it's not a real change,
 just noise. The `login` fallback (skip `by @user` if the API lookup comes back empty) covers a
 commit GitHub can't map to an account, e.g. a mismatched email - shouldn't happen for this
-single-maintainer repo, but fails soft rather than breaking the whole notes generation. Run this
-only after the tag has actually been pushed (Step 6) so `git log` has something to diff against.
-Show the generated notes URL to the user.
+single-maintainer repo, but fails soft rather than breaking the whole notes generation.
 
 ## If the Release Fails
 

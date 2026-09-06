@@ -152,3 +152,59 @@ jobs:
       - name: Cleanup
         if: always()
         run: rm -f /tmp/deploy-vars.yml ~/.ssh/deploy_key
+
+  # `needs: deploy` - only publish notes for a release that actually made it
+  # to prod. Ported from the `release` skill's Step 7: `gh release create
+  # --generate-notes` is confirmed broken for this repo (it builds "What's
+  # Changed" from merged PRs only, and this repo's release flow pushes
+  # straight to `master`, never through a PR - verified on v2.0.1/v2.1.0/
+  # v2.1.1, silently producing just a bare compare link). Notes are built
+  # from commits since the previous tag instead, resolving each commit's
+  # GitHub login via the API rather than guessing it from the git author
+  # name/email.
+  release-notes:
+    name: Create GitHub Release
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Generate and publish release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          REPO="${{ github.repository }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)
+
+          NOTES_FILE=$(mktemp)
+          echo "## What's Changed" > "$NOTES_FILE"
+
+          RANGE="$TAG"
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..${TAG}"
+          fi
+
+          for sha in $(git log "$RANGE" --pretty=format:"%h" --no-merges --reverse); do
+            subject=$(git log -1 --pretty=format:"%s" "$sha")
+            case "$subject" in "chore: release "*) continue ;; esac
+            login=$(gh api "repos/$REPO/commits/$sha" --jq '.author.login // empty' 2>/dev/null || true)
+            full_sha=$(git rev-parse "$sha")
+            if [ -n "$login" ]; then
+              echo "* $subject by @$login in https://github.com/$REPO/commit/$full_sha" >> "$NOTES_FILE"
+            else
+              echo "* $subject in https://github.com/$REPO/commit/$full_sha" >> "$NOTES_FILE"
+            fi
+          done
+
+          if [ -n "$PREV_TAG" ]; then
+            printf '\n**Full Changelog**: https://github.com/%s/compare/%s...%s\n' "$REPO" "$PREV_TAG" "$TAG" >> "$NOTES_FILE"
+          fi
+
+          gh release create "$TAG" --notes-file "$NOTES_FILE" --title "$TAG"
