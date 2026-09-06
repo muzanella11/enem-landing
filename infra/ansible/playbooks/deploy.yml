@@ -150,8 +150,13 @@
             # before the next one starts.
             converged=0
             for _ in $(seq 1 36); do
+              # `grep -c` exits 1 when the count is 0 (the converged case) -
+              # under `set -euo pipefail` that killed this script the moment
+              # a service actually converged, before the loop ever printed
+              # anything. `|| true` keeps the (correct) "0" count without
+              # letting that exit status abort the script.
               in_flight=$(docker service ps "{{ stack_name }}_${svc}" --format '{{ '{{.CurrentState}}' }}' \
-                | grep -Ec '^(New|Pending|Assigned|Accepted|Preparing|Ready|Starting)')
+                | grep -Ec '^(New|Pending|Assigned|Accepted|Preparing|Ready|Starting)' || true)
               if [ "$in_flight" -eq 0 ]; then
                 converged=1
                 break
