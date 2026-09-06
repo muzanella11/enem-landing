@@ -9,15 +9,15 @@ export interface ContactSubmissionConfirmationPayload {
 /** Auto-reply sent back to whoever submitted the contact form, confirming receipt. */
 export class ContactSubmissionConfirmationTemplate extends BaseEmailTemplate {
   constructor(private readonly payload: ContactSubmissionConfirmationPayload) {
-    super('Pesan Anda Sudah Diterima - enem-landing');
+    super('Pesan Anda Sudah Diterima - Nurfirliana Muzanella');
   }
 
   get subject(): string {
-    return '[enem-landing] Pesan Anda sudah kami terima';
+    return '[Nurfirliana Muzanella] Pesan Anda sudah kami terima';
   }
 
   get preheader(): string {
-    return 'Terima kasih sudah menghubungi enem-landing - pesan Anda sudah kami terima';
+    return 'Terima kasih sudah menghubungi Nurfirliana Muzanella - pesan Anda sudah kami terima';
   }
 
   get body(): string {

@@ -11,14 +11,14 @@ export interface EmailInfoRow {
   value: string;
 }
 
-const BRAND = 'enem-landing';
-const ACCENT_START = '#6366f1';
-const ACCENT_END = '#4338ca';
+const BRAND = 'Nurfirliana Muzanella';
+const ACCENT_START = '#3fcbaf';
+const ACCENT_END = '#15967d';
 const BORDER_COLOR = '#e5e7eb';
 const TEXT_PRIMARY = '#111827';
 const TEXT_MUTED = '#6b7280';
-const BADGE_BG = '#eef2ff';
-const BADGE_COLOR = '#4338ca';
+const BADGE_BG = '#e6f9f4';
+const BADGE_COLOR = '#15967d';
 
 export abstract class BaseEmailTemplate {
   protected constructor(private readonly title: string) {}
