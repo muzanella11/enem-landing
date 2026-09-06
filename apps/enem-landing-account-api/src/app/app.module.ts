@@ -2,6 +2,7 @@ import { RedisModule } from '@enem-landing/backend-redis';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module.js';
+import { EmailModule } from './email/email.module.js';
 import { HealthModule } from './health/health.module.js';
 import { KeepAliveModule } from './keep-alive/keep-alive.module.js';
 import { SystemSettingEntity } from './system-settings/system-setting.entity.js';
@@ -26,6 +27,7 @@ import { UsersModule } from './users/users.module.js';
     KeepAliveModule,
     SystemSettingsModule,
     UploadsModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
