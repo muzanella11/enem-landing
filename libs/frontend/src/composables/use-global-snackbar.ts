@@ -19,9 +19,26 @@ export const useGlobalSnackbar = () => {
   };
 
   const error = (err: Error | unknown) => {
-    appStore.$patch({
-      snackbar: { opened: true, text: (err as Error)?.message ?? 'Terjadi kesalahan', color: 'error' },
-    });
+    // ofetch/ Nuxt's `$fetch` wraps a non-2xx response into a FetchError
+    // whose own `.message` is a generic string like `[POST] "/api/x": 400
+    // Bad Request` - it does NOT carry the real backend error text. The
+    // actual message (e.g. a NestJS BadRequestException's message, relayed
+    // through a BFF route's `createError({ statusMessage })`) surfaces via
+    // `.statusMessage` (h3 sets the HTTP reason phrase to it) or
+    // `.data.message`/`.data.statusMessage` (the parsed JSON error body) -
+    // prefer those before falling back to the generic wrapper text.
+    const fetchErr = err as {
+      data?: { message?: string; statusMessage?: string };
+      statusMessage?: string;
+      message?: string;
+    };
+    const text =
+      fetchErr?.data?.message ??
+      fetchErr?.data?.statusMessage ??
+      fetchErr?.statusMessage ??
+      fetchErr?.message ??
+      'Terjadi kesalahan';
+    appStore.$patch({ snackbar: { opened: true, text, color: 'error' } });
   };
 
   const reset = (delay = 0) => {

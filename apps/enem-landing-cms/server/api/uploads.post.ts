@@ -16,6 +16,20 @@ const ALLOWED_IMAGE_MIME = [
  * instead of sending it as multipart.
  */
 export default defineEventHandler(async (event) => {
+  // Reject oversized uploads via Content-Length BEFORE readMultipartFormData
+  // buffers the whole body into memory - this container's heap is capped at
+  // 60MB (compose.prod.yml's NODE_OPTIONS=--max-old-space-size=60), and a
+  // large file (seen in prod: 13MB) blew past that and crashed the whole
+  // Nitro process with a V8 "JavaScript heap out of memory" fatal error,
+  // taking down every route on this service until Swarm restarted it.
+  const contentLength = Number(getHeader(event, 'content-length'));
+  if (contentLength && contentLength > MAX_IMAGE_BYTES) {
+    throw createError({
+      statusCode: 413,
+      statusMessage: `File too large. Maximum size is ${MAX_IMAGE_BYTES / (1024 * 1024)}MB.`,
+    });
+  }
+
   const parts = await readMultipartFormData(event);
   const filePart = parts?.find((part) => part.name === 'file' && part.filename);
   if (!filePart) {
