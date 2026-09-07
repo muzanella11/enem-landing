@@ -31,10 +31,18 @@ const coverImage = (project: Project) =>
 // to sensible defaults rather than a hard failure when nothing's been set
 // for this page yet.
 const DEFAULT_SEO = {
-  title: 'Nurfirliana Muzanella',
+  title: 'Nurfirliana Muzanella - Frontend Engineer & Full Stack Developer',
   description:
-    "Hello, I'm Frontend Engineer. Combine the art of design with the art of programming.",
+    'Frontend Engineer and Full Stack JavaScript Developer based in Indonesia, specializing in Vue.js and modern web development. Explore my experience, projects, and portfolio.',
 };
+const SITE_URL = 'https://muzanella.com/';
+// Reused as the og:image/twitter:image fallback whenever the CMS hasn't set
+// one for this page yet - social crawlers (WhatsApp/LinkedIn/Twitter) need
+// a raster image (SVG isn't reliably supported), so this can't just fall
+// back to the avatar SVG used elsewhere on the page. Both og:image and
+// twitter:image must be absolute URLs per spec - a relative path silently
+// fails to resolve for crawlers that don't fetch it relative to the page.
+const DEFAULT_OG_IMAGE = `${SITE_URL}og-image.png`;
 // These 3 calls used to be awaited one after another, making SSR wait for
 // their latencies back-to-back (measured ~2.9s combined TTFB on prod: 1.35s
 // + 1.39s + 0.17s) instead of in parallel (~1.4s, the slowest one) -
@@ -51,12 +59,21 @@ const seoTitle = computed(() => seoResponse.value?.title ?? DEFAULT_SEO.title);
 const seoDescription = computed(
   () => seoResponse.value?.description ?? DEFAULT_SEO.description,
 );
+const seoImage = computed(
+  () => seoResponse.value?.ogImageUrl || DEFAULT_OG_IMAGE,
+);
 useSeoMeta({
   title: seoTitle,
   description: seoDescription,
   ogTitle: seoTitle,
   ogDescription: seoDescription,
-  ogImage: seoResponse.value?.ogImageUrl || undefined,
+  ogImage: seoImage,
+  ogUrl: SITE_URL,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
+  twitterImage: seoImage,
 });
 // `siteProfile`/`seoResponse` are already resolved by the top-level
 // `await useFetch(...)` calls above, so this doesn't need to be reactive -
@@ -64,10 +81,10 @@ useSeoMeta({
 const personJsonLd = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: siteProfile.value?.heroTitle || DEFAULT_SEO.title,
+  name: siteProfile.value?.heroTitle || 'Nurfirliana Muzanella',
   jobTitle: siteProfile.value?.heroSubtitle || 'Frontend Engineer',
   description: seoDescription.value,
-  url: 'https://muzanella.com/',
+  url: SITE_URL,
   ...(siteProfile.value?.avatarUrl
     ? { image: siteProfile.value.avatarUrl }
     : {}),
@@ -75,9 +92,18 @@ const personJsonLd = JSON.stringify({
     ? { sameAs: siteProfile.value.socialLinks.map((link) => link.url) }
     : {}),
 });
+const websiteJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteProfile.value?.heroTitle || 'Nurfirliana Muzanella',
+  url: SITE_URL,
+});
 useHead({
-  link: [{ rel: 'canonical', href: 'https://muzanella.com/' }],
-  script: [{ type: 'application/ld+json', innerHTML: personJsonLd }],
+  link: [{ rel: 'canonical', href: SITE_URL }],
+  script: [
+    { type: 'application/ld+json', innerHTML: personJsonLd },
+    { type: 'application/ld+json', innerHTML: websiteJsonLd },
+  ],
 });
 
 const portfolioEntries = computed<Project[]>(

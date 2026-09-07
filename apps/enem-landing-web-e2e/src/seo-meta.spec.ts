@@ -10,9 +10,9 @@ import type { APIRequestContext } from '@playwright/test';
  * on a 404 (no row yet), match `index.vue`'s hardcoded `DEFAULT_SEO`.
  */
 const DEFAULT_SEO = {
-  title: 'Nurfirliana Muzanella',
+  title: 'Nurfirliana Muzanella - Frontend Engineer & Full Stack Developer',
   description:
-    "Hello, I'm Frontend Engineer. Combine the art of design with the art of programming.",
+    'Frontend Engineer and Full Stack JavaScript Developer based in Indonesia, specializing in Vue.js and modern web development. Explore my experience, projects, and portfolio.',
 };
 
 const getExpectedSeo = async (request: APIRequestContext) => {
