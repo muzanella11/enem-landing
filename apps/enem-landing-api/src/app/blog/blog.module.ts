@@ -13,7 +13,11 @@ import { BlogTagsService } from './blog-tags.service.js';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BlogPostEntity, BlogCategoryEntity, BlogTagEntity]),
+    TypeOrmModule.forFeature([
+      BlogPostEntity,
+      BlogCategoryEntity,
+      BlogTagEntity,
+    ]),
     SsoModule,
   ],
   controllers: [

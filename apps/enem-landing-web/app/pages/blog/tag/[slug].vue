@@ -61,7 +61,10 @@ useSeoMeta({
         >
           No posts with this tag yet.
         </p>
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div
+          v-else
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           <BlogPostCard
             v-for="post in paginated?.items ?? []"
             :key="post.id"
@@ -79,7 +82,9 @@ useSeoMeta({
             class="px-4 py-2 rounded bg-[#2C3E50]/5 hover:bg-[#0E7C6B] hover:text-white transition-colors text-sm font-bold"
             >Previous</NuxtLink
           >
-          <span class="text-sm text-black/50">Page {{ page }} of {{ totalPages }}</span>
+          <span class="text-sm text-black/50"
+            >Page {{ page }} of {{ totalPages }}</span
+          >
           <NuxtLink
             v-if="page < totalPages"
             :to="{ query: { page: page + 1 } }"

@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import type { BlogCategory, BlogPost, BlogTag } from '@enem-landing/shared-types';
+import type {
+  BlogCategory,
+  BlogPost,
+  BlogTag,
+} from '@enem-landing/shared-types';
 import { extractUploadId } from '@enem-landing/shared-utils';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 import 'quill/dist/quill.snow.css';
@@ -11,8 +15,12 @@ type Delta = { ops: DeltaOp[] };
 const route = useRoute();
 const id = route.params['id'] as string;
 
-const { data: post, refresh } = await useFetch<BlogPost>(`/api/blog-posts/${id}`);
-const { data: categories } = await useFetch<BlogCategory[]>('/api/blog-categories');
+const { data: post, refresh } = await useFetch<BlogPost>(
+  `/api/blog-posts/${id}`,
+);
+const { data: categories } = await useFetch<BlogCategory[]>(
+  '/api/blog-categories',
+);
 const { data: tags } = await useFetch<BlogTag[]>('/api/blog-tags');
 const snackbar = useGlobalSnackbar();
 

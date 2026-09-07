@@ -43,11 +43,21 @@ export class CreateBlogTables1788300000000 implements MigrationInterface {
             isNullable: true,
           },
           { name: 'status', type: 'varchar', length: '16', default: "'draft'" },
-          { name: 'publishedAt', type: 'datetime', precision: 6, isNullable: true },
+          {
+            name: 'publishedAt',
+            type: 'datetime',
+            precision: 6,
+            isNullable: true,
+          },
           { name: 'metaTitle', type: 'varchar', default: "''" },
           { name: 'metaDescription', type: 'text' },
           { name: 'ogImageUrl', type: 'varchar', default: "''" },
-          { name: 'createdAt', type: 'datetime', precision: 6, default: 'CURRENT_TIMESTAMP(6)' },
+          {
+            name: 'createdAt',
+            type: 'datetime',
+            precision: 6,
+            default: 'CURRENT_TIMESTAMP(6)',
+          },
           {
             name: 'updatedAt',
             type: 'datetime',
@@ -64,7 +74,12 @@ export class CreateBlogTables1788300000000 implements MigrationInterface {
         name: 'blog_post_categories',
         columns: [
           { name: 'postId', type: 'varchar', length: '36', isPrimary: true },
-          { name: 'categoryId', type: 'varchar', length: '36', isPrimary: true },
+          {
+            name: 'categoryId',
+            type: 'varchar',
+            length: '36',
+            isPrimary: true,
+          },
         ],
       }),
     );

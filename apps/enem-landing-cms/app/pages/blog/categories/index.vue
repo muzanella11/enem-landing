@@ -6,8 +6,9 @@ import { useGlobalSnackbar } from '@enem-landing/frontend';
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Blog Categories' });
 
-const { data: categories, refresh } =
-  await useFetch<BlogCategory[]>('/api/blog-categories');
+const { data: categories, refresh } = await useFetch<BlogCategory[]>(
+  '/api/blog-categories',
+);
 const snackbar = useGlobalSnackbar();
 
 const headers = [

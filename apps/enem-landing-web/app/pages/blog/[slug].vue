@@ -108,7 +108,9 @@ const formatDate = (value: string | null | undefined) =>
       <h1 class="text-3xl lg:text-5xl font-bold text-[#2C3E50]">
         {{ post.title }}
       </h1>
-      <p class="text-sm text-black/40 mt-4">{{ formatDate(post.publishedAt) }}</p>
+      <p class="text-sm text-black/40 mt-4">
+        {{ formatDate(post.publishedAt) }}
+      </p>
     </header>
 
     <img
@@ -137,9 +139,7 @@ const formatDate = (value: string | null | undefined) =>
     </div>
 
     <section v-if="related?.length" class="max-w-5xl mx-auto mt-20">
-      <h2
-        class="text-2xl font-bold uppercase text-center text-[#2C3E50] mb-8"
-      >
+      <h2 class="text-2xl font-bold uppercase text-center text-[#2C3E50] mb-8">
         Related Posts
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

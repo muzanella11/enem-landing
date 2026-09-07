@@ -43,7 +43,9 @@ const formatDate = (value: string | null) =>
       <p v-if="post.excerpt" class="text-sm text-black/60 mt-2 line-clamp-3">
         {{ post.excerpt }}
       </p>
-      <p class="text-xs text-black/40 mt-3">{{ formatDate(post.publishedAt) }}</p>
+      <p class="text-xs text-black/40 mt-3">
+        {{ formatDate(post.publishedAt) }}
+      </p>
     </div>
   </NuxtLink>
 </template>
