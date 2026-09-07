@@ -26,7 +26,14 @@ export default defineNuxtConfig({
       new URL('../../libs/frontend/src/assets', import.meta.url),
     ),
   },
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss'],
+  // No `@pinia/nuxt` here: this app has never consumed the shared
+  // `useAppStore` (see libs/frontend/src/stores/app.ts) or defined a store
+  // of its own, and the module's SSR payload plugin was the direct cause
+  // of every 404/error page crashing with 500 (pinia's `shouldHydrate`
+  // throwing `obj.hasOwnProperty is not a function` while `devalue`
+  // serializes the Nuxt error page's payload). Removing the unused module
+  // removes the code path entirely rather than patching around it.
+  modules: ['@nuxtjs/tailwindcss'],
   devtools: { enabled: true },
   devServer: {
     host: 'localhost',
@@ -43,11 +50,22 @@ export default defineNuxtConfig({
           href: 'https://fonts.gstatic.com',
           crossorigin: '',
         },
+        // Original site's theme (startbootstrap-freelancer) pairs Montserrat
+        // (headings/nav) with Lato (body) — same fonts, ported to Tailwind.
+        // Loaded non-render-blocking (preload + swap to stylesheet on load,
+        // the standard web.dev pattern) - PageSpeed Insights flagged this
+        // stylesheet as the single biggest render-blocking request (~750ms
+        // on mobile/4G). `display=swap` already covers FOUT once it loads.
+        {
+          rel: 'preload',
+          as: 'style',
+          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
+        },
         {
           rel: 'stylesheet',
-          // Original site's theme (startbootstrap-freelancer) pairs Montserrat
-          // (headings/nav) with Lato (body) — same fonts, ported to Tailwind.
           href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
+          media: 'print',
+          onload: "this.media='all'",
         },
       ],
       meta: [
@@ -108,5 +126,23 @@ gtag('config', '${googleAnalyticsId}');`,
         ),
       },
     ],
+    routeRules: {
+      // These are committed repo assets (favicon, avatar, OG image), not
+      // user uploads - they only change via a new deploy, so a long cache
+      // is safe. PageSpeed Insights flagged /avataaars.svg's default cache
+      // duration (4h) as too short.
+      '/avataaars.svg': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
+      '/favicon.ico': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
+      '/enem.png': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
+      '/og-image.png': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
+    },
   },
 });

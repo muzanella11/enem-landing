@@ -28,6 +28,7 @@
     "@enem-landing/shared-types": "0.0.1",
     "@enem-landing/shared-utils": "0.0.1",
     "leaflet": "^1.9.4",
+    "quill": "^2.0.3",
     "rrweb-player": "^2.1.1"
   },
   "devDependencies": {

@@ -1,6 +1,10 @@
 import { RedisModule } from '@enem-landing/backend-redis';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BlogCategoryEntity } from './blog/blog-category.entity.js';
+import { BlogPostEntity } from './blog/blog-post.entity.js';
+import { BlogTagEntity } from './blog/blog-tag.entity.js';
+import { BlogModule } from './blog/blog.module.js';
 import { CacheAdminModule } from './cache/cache-admin.module.js';
 import { ContactSubmissionEntity } from './contact-submissions/contact-submission.entity.js';
 import { ContactSubmissionsModule } from './contact-submissions/contact-submissions.module.js';
@@ -36,6 +40,9 @@ import { TrackingModule } from './tracking/tracking.module.js';
         SiteProfileEntity,
         SeoMetaEntity,
         SkillEntity,
+        BlogPostEntity,
+        BlogCategoryEntity,
+        BlogTagEntity,
         TrackingSettingsEntity,
         TrackingSessionEntity,
         TrackingPageviewEntity,
@@ -56,6 +63,7 @@ import { TrackingModule } from './tracking/tracking.module.js';
     SeoMetaModule,
     SkillsModule,
     TrackingModule,
+    BlogModule,
   ],
 })
 export class AppModule {}

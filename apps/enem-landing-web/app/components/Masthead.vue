@@ -28,6 +28,8 @@ const onImageError = (event: Event) => {
       <img
         :src="avatarUrl"
         :alt="title"
+        width="240"
+        height="240"
         fetchpriority="high"
         class="w-48 lg:w-60 mb-8 rounded-full bg-white"
         @error="onImageError"

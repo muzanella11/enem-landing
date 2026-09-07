@@ -24,11 +24,16 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   /*
-   * Two servers: enem-landing-api (the business-domain content this app
-   * renders - experiences, site-profile, skills, seo-meta - and the target
-   * of the contact form POST), and enem-landing-web itself. `serve` (not
-   * `serve-static`) - it has Nitro server routes (server/api/**, the BFF
-   * layer to enem-landing-api), which a static file server can't run.
+   * Three servers: enem-landing-account-api (`blog.spec.ts` signs in as the
+   * seeded superadmin and calls enem-landing-api's *admin* endpoints
+   * directly via the `request` fixture, to seed a real published post -
+   * there's no BFF/UI path to do that from this app, it's public-read-only
+   * by design), enem-landing-api (the business-domain content this app
+   * renders - experiences, site-profile, skills, seo-meta, blog posts -
+   * and the target of the contact form POST), and enem-landing-web itself.
+   * `serve` (not `serve-static`) - it has Nitro server routes
+   * (server/api/**, the BFF layer to enem-landing-api), which a static
+   * file server can't run.
    */
   // `undefined` when BASE_URL is set - see account-web-e2e's
   // playwright.config.mts header comment for why (mau-apps' "serverless"
@@ -36,6 +41,13 @@ export default defineConfig({
   webServer: process.env['BASE_URL']
     ? undefined
     : [
+        {
+          command: 'yarn nx run enem-landing-account-api:serve',
+          url: 'http://localhost:3000/health',
+          reuseExistingServer: !process.env['CI'],
+          cwd: workspaceRoot,
+          timeout: 180_000,
+        },
         {
           command: 'yarn nx run enem-landing-api:serve',
           url: 'http://localhost:3001/health',
