@@ -3,11 +3,18 @@ import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 
 defineProps<{ title: string }>();
 
+/**
+ * `route: true` items are real pages (e.g. `/blog`), not in-page anchors -
+ * they render as a plain `NuxtLink` and are skipped by the
+ * `scrollTo`/`IntersectionObserver` logic below, which only makes sense
+ * for hash anchors within this single-page layout.
+ */
 const NAV_ITEMS = [
   { href: '#experience', label: 'Experience' },
   { href: '#portfolio', label: 'Portfolio' },
   { href: '#about', label: 'About' },
   { href: '#contact', label: 'Contact' },
+  { href: '/blog', label: 'Blog', route: true },
 ];
 
 const isOpen = ref(false);
@@ -86,6 +93,7 @@ onMounted(() => {
   );
 
   for (const item of NAV_ITEMS) {
+    if (item.route) continue;
     const el = document.querySelector(item.href);
     if (el) sectionObserver.observe(el);
   }
@@ -101,7 +109,27 @@ const scrollTo = (href: string) => {
   const el = document.querySelector(href);
   if (el instanceof HTMLElement) {
     window.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
+    return;
   }
+
+  // The section doesn't exist on the current page (e.g. these anchors live
+  // on the homepage but the user is on `/blog`) - navigate back to the
+  // homepage with the hash so Nuxt's router scrolls to it once loaded.
+  navigateTo(`/${href}`);
+};
+
+// Dedicated handler for the brand link: `scrollTo('body')` doesn't work here
+// because `document.querySelector('body')` always matches on every page, so
+// it never falls through to the `navigateTo` branch below - it would just
+// scroll whatever page you're on to the top, including on `/blog`, instead
+// of taking you back to the homepage.
+const goHome = () => {
+  isOpen.value = false;
+  if (window.location.pathname === '/') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  navigateTo('/');
 };
 </script>
 
@@ -114,10 +142,10 @@ const scrollTo = (href: string) => {
     <div class="max-w-5xl mx-auto px-4">
       <div class="flex items-center justify-between">
         <a
-          href="#"
+          href="/"
           class="font-bold tracking-wide transition-[font-size] duration-300"
           :class="isShrunk ? 'text-xl' : 'text-xl lg:text-2xl'"
-          @click.prevent="scrollTo('body')"
+          @click.prevent="goHome"
         >
           {{ title }}
         </a>
@@ -133,7 +161,15 @@ const scrollTo = (href: string) => {
           class="hidden lg:flex items-center gap-1 text-sm font-bold tracking-wide"
         >
           <li v-for="item in NAV_ITEMS" :key="item.href">
+            <NuxtLink
+              v-if="item.route"
+              :to="item.href"
+              class="block px-3 py-3 rounded hover:text-[#0E7C6B] transition-colors duration-300"
+            >
+              {{ item.label }}
+            </NuxtLink>
             <a
+              v-else
               :ref="(el) => setLinkRef(item.href, el)"
               :href="item.href"
               class="block px-3 py-3 rounded hover:text-[#0E7C6B] transition-colors duration-300"
@@ -157,7 +193,16 @@ const scrollTo = (href: string) => {
         class="lg:hidden pt-4 pb-2 space-y-1 text-sm font-bold tracking-wide"
       >
         <li v-for="item in NAV_ITEMS" :key="item.href">
+          <NuxtLink
+            v-if="item.route"
+            :to="item.href"
+            class="block py-1"
+            @click="isOpen = false"
+          >
+            {{ item.label }}
+          </NuxtLink>
           <a
+            v-else
             :href="item.href"
             class="block py-1"
             :class="{ 'text-[#0E7C6B]': activeHref === item.href }"
