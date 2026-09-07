@@ -1,3 +1,4 @@
+export * from './lib/blog.js';
 export * from './lib/experience.js';
 export * from './lib/contact-submission.js';
 export * from './lib/site-profile.js';
