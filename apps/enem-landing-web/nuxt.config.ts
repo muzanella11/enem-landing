@@ -26,7 +26,14 @@ export default defineNuxtConfig({
       new URL('../../libs/frontend/src/assets', import.meta.url),
     ),
   },
-  modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss'],
+  // No `@pinia/nuxt` here: this app has never consumed the shared
+  // `useAppStore` (see libs/frontend/src/stores/app.ts) or defined a store
+  // of its own, and the module's SSR payload plugin was the direct cause
+  // of every 404/error page crashing with 500 (pinia's `shouldHydrate`
+  // throwing `obj.hasOwnProperty is not a function` while `devalue`
+  // serializes the Nuxt error page's payload). Removing the unused module
+  // removes the code path entirely rather than patching around it.
+  modules: ['@nuxtjs/tailwindcss'],
   devtools: { enabled: true },
   devServer: {
     host: 'localhost',

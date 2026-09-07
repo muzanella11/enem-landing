@@ -146,19 +146,6 @@ test.describe('blog', () => {
   });
 
   test('a missing slug 404s instead of erroring', async ({ page }) => {
-    // Currently red on a pre-existing bug that has nothing to do with
-    // blog: EVERY 404 in this app (confirmed on a plain nonexistent route
-    // too, not just /blog/*) returns 500 instead. Root cause, from the
-    // prod server's stack trace: Pinia's `shouldHydrate` (pinia.prod.cjs)
-    // throws `obj.hasOwnProperty is not a function` while `devalue`
-    // serializes the SSR payload for Nuxt's error page - a
-    // Pinia/Nuxt/devalue version-compatibility issue in this app's
-    // `@pinia/nuxt` setup, not anything in `pages/blog/[slug].vue` (which
-    // does 404 correctly - confirmed directly via
-    // `GET /api/blog-posts/:slug` and a non-`Accept: text/html` request,
-    // both return a clean 404; only the HTML error-page render fails).
-    test.fixme(true, 'Pre-existing Pinia/devalue bug breaks every 404 page in this app - see comment above');
-
     const missing = await page.goto('/blog/this-slug-does-not-exist');
     expect(missing?.status()).toBe(404);
   });
