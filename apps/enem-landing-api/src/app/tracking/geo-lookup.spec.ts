@@ -22,6 +22,9 @@ describe('lookupGeo', () => {
       city: null,
       latitude: null,
       longitude: null,
+      isp: null,
+      org: null,
+      asn: null,
     });
   });
 
@@ -49,6 +52,9 @@ describe('lookupGeo', () => {
           city: 'Jakarta',
           lat: -6.2,
           lon: 106.8,
+          isp: 'Telkomsel',
+          org: 'PT Telekomunikasi Selular',
+          as: 'AS23693 PT Telekomunikasi Selular',
         }),
     }) as never;
 
@@ -60,6 +66,9 @@ describe('lookupGeo', () => {
       city: 'Jakarta',
       latitude: -6.2,
       longitude: 106.8,
+      isp: 'Telkomsel',
+      org: 'PT Telekomunikasi Selular',
+      asn: 'AS23693 PT Telekomunikasi Selular',
     });
   });
 
@@ -93,6 +102,9 @@ describe('lookupGeo', () => {
       city: null,
       latitude: null,
       longitude: null,
+      isp: null,
+      org: null,
+      asn: null,
     });
   });
 });
