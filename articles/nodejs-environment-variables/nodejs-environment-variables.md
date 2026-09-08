@@ -18,7 +18,7 @@ keywords:
   - "typed config node.js"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram showing environment variables flowing from .env files, shell environment, and CI/CD secrets into process.env, then into a validated config module consumed by the HTTP server, database client, and third-party SDKs"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

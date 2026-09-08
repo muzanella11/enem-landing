@@ -18,7 +18,7 @@ keywords:
   - "nestjs folder structure best practices"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram of a NestJS request lifecycle: DTO and pipes validate the request, the controller routes it to a service containing business logic, which calls a repository that queries the database"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

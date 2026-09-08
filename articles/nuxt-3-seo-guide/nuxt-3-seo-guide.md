@@ -18,7 +18,7 @@ keywords:
   - "nuxt canonical url"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram of a Nuxt 3 SSR request flow: a browser request hits the Nuxt server, which renders meta tags and content into HTML, sent to both the user's browser and a search engine crawler"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

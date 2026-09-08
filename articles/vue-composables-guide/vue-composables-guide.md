@@ -18,7 +18,7 @@ keywords:
   - "vue useX pattern"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram showing three Vue components, UserProfile, AdminDashboard, and SettingsPanel, all sharing logic from a useAuth composable that manages reactive state and side effects"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

@@ -18,7 +18,7 @@ keywords:
   - "vue 3 setup function organization"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram showing Vue 3 setup() receiving input from ref and reactive state, computed properties, watch and watchEffect, and lifecycle hooks, then producing the component template"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

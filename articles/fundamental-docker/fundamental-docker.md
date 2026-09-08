@@ -18,7 +18,7 @@ keywords:
   - "getting started with docker node.js"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram showing a Node.js Docker workflow: a Dockerfile builds a Docker image, which runs as a container, connected over a Docker network to PostgreSQL and Redis containers"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

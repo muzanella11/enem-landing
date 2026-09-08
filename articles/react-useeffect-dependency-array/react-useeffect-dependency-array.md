@@ -18,7 +18,7 @@ keywords:
   - "react exhaustive-deps"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram of the React useEffect lifecycle: component renders, useEffect compares the new dependency array against the previous one with Object.is, runs cleanup if a value changed, then re-runs the effect"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---

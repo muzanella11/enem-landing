@@ -17,7 +17,7 @@ keywords:
   - "docker compose bind mount node_modules"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram of a docker-compose.yml orchestrating an app-network bridge network connecting a Node.js app container, a PostgreSQL container, and a Redis container"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-09-07"
 ---
