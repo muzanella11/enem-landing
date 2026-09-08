@@ -75,20 +75,27 @@ export default defineNuxtConfig({
         // teal (see Masthead.vue's header background).
         { name: 'theme-color', content: '#0E7C6B' },
       ],
-      script: googleAnalyticsId
-        ? [
-            {
-              src: `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`,
-              async: true,
-            },
-            {
-              innerHTML: `window.dataLayer = window.dataLayer || [];
+      script: [
+        ...(googleAnalyticsId
+          ? [
+              {
+                src: `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`,
+                async: true,
+              },
+              {
+                innerHTML: `window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${googleAnalyticsId}');`,
-            },
-          ]
-        : [],
+              },
+            ]
+          : []),
+        {
+          type: 'module',
+          src: 'https://static.cloudflareinsights.com/beacon.min.js',
+          'data-cf-beacon': '{"token": "226b9613dc144a14820f52e77817faea"}',
+        },
+      ],
     },
   },
   runtimeConfig: {
