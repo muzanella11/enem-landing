@@ -66,3 +66,4 @@ vitest.config.*.timestamp*
 *.env.local
 *.env.local.*
 *.env.staging
+.vitest
