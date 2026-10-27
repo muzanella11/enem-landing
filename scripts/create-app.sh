@@ -371,7 +371,7 @@ if (kind === 'nuxt') {
 
 const prodLine =
   kind === 'nest'
-    ? `    "prod:${name}": "node apps/${name}/dist/main.js",`
+    ? `    "prod:${name}": "cd apps/${name} && node dist/main.js",`
     : `    "prod:${name}": "NITRO_PORT=${port} node apps/${name}/.output/server/index.mjs",`;
 insertBefore('    "prod:prepare":', prodLine);
 

@@ -89,5 +89,8 @@
     "lint:format:fix": {
       "cache": false
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }
