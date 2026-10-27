@@ -77,7 +77,11 @@
   hosts: all
   become: true
   vars:
-    stack_name: enem-landing
+    # Dev and prod share one VPS/Swarm (see compose.dev.yml header), so each
+    # env gets its own stack + deploy dir - same stack name would make a dev
+    # deploy replace the prod services.
+    stack_name: "{{ 'enem-landing' if env == 'prod' else 'enem-landing-' ~ env }}"
+    deploy_dir: "/opt/{{ stack_name }}"
   tasks:
     - name: Pastikan variable wajib sudah diisi
       ansible.builtin.assert:
@@ -90,16 +94,24 @@
           Wajib isi: -e env=<dev|prod> dan -e @deploy-vars.yml (berisi
           ghcr_pat + app_env)
 
+    - name: Buat direktori deploy per-environment
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        mode: "0755"
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
     - name: Copy compose.yml (base) ke server
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../../compose.yml"
-        dest: /opt/enem-landing/compose.yml
+        dest: "{{ deploy_dir }}/compose.yml"
         mode: "0644"
 
     - name: Copy compose override sesuai environment
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../../compose.{{ env }}.yml"
-        dest: "/opt/enem-landing/compose.{{ env }}.yml"
+        dest: "{{ deploy_dir }}/compose.{{ env }}.yml"
         mode: "0644"
 
     - name: Login ke GHCR
@@ -113,7 +125,7 @@
     - name: Tulis script deploy sementara (export env + rollout per-service)
       no_log: true
       ansible.builtin.copy:
-        dest: /opt/enem-landing/.deploy-stack.sh
+        dest: "{{ deploy_dir }}/.deploy-stack.sh"
         mode: "0700"
         content: |
           #!/usr/bin/env bash
@@ -121,7 +133,7 @@
           {% for key, value in app_env.items() %}
           export {{ key }}={{ value | quote }}
           {% endfor %}
-          cd /opt/enem-landing
+          cd {{ deploy_dir }}
 
           COMPOSE_FILES="-f compose.yml -f compose.{{ env }}.yml"
           SERVICES=$(docker compose $COMPOSE_FILES config --services)
@@ -173,7 +185,7 @@
           done
 
     - name: Deploy stack per-service (docker stack deploy - declarative/idempotent)
-      ansible.builtin.command: /opt/enem-landing/.deploy-stack.sh
+      ansible.builtin.command: "{{ deploy_dir }}/.deploy-stack.sh"
       register: deploy_result
 
     - name: Tampilkan log rollout per-service
@@ -182,7 +194,7 @@
 
     - name: Hapus script deploy sementara (jangan tinggalkan credential di server)
       ansible.builtin.file:
-        path: /opt/enem-landing/.deploy-stack.sh
+        path: "{{ deploy_dir }}/.deploy-stack.sh"
         state: absent
 
     - name: Logout dari GHCR (jangan tinggalkan kredensial di server)

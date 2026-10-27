@@ -20,8 +20,13 @@ export const useAuthCookie = () => {
   const requestUrl = useRequestURL();
   const isLoopback = LOOPBACK_HOSTNAMES.has(requestUrl.hostname);
   const sharedDomain = config.public.sharedCookieDomain as string;
+  // Overridable per environment so dev (`dev-*.muzanella.com`) and prod
+  // (`*.muzanella.com`) don't overwrite each other's token under the same
+  // `.muzanella.com` cookie domain.
+  const cookieName =
+    (config.public.authCookieName as string) || AUTH_TOKEN_COOKIE;
 
-  const cookie = useCookie<string | null>(AUTH_TOKEN_COOKIE, {
+  const cookie = useCookie<string | null>(cookieName, {
     sameSite: 'lax',
     path: '/',
     domain: !isLoopback && sharedDomain ? sharedDomain : undefined,

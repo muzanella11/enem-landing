@@ -10,8 +10,13 @@ const AUTH_TOKEN_COOKIE = 'ENEM_LANDING_AUTH_TOKEN';
  * these two clients instead, forwarding the admin's own token from the
  * shared auth cookie.
  */
-export const getAuthToken = (event: H3Event): string | undefined =>
-  getCookie(event, AUTH_TOKEN_COOKIE) ?? undefined;
+export const getAuthToken = (event: H3Event): string | undefined => {
+  // Must match useAuthCookie's name (libs/frontend), which honors the same
+  // runtime override.
+  const cookieName =
+    (useRuntimeConfig().public.authCookieName as string) || AUTH_TOKEN_COOKIE;
+  return getCookie(event, cookieName) ?? undefined;
+};
 
 export const createApiClient = (event: H3Event) => {
   const config = useRuntimeConfig();

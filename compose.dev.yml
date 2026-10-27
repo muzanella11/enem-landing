@@ -4,32 +4,123 @@
 # Used together with the base:
 #   docker stack deploy -c compose.yml -c compose.dev.yml <stack-name>
 #
-# This is a REMOTE dev-VPS Swarm deployment overlay (mirrors mau-apps'
-# actual compose.dev.yml exactly: just a floating `:dev` image tag +
-# per-app DATABASE_NAME) - NOT a local-laptop file. For local laptop dev
-# without a VPS/registry/managed DB, use compose.local.yml instead (a new
-# file, not a mau-apps port - see its own header for why).
+# This is a REMOTE dev-VPS Swarm deployment overlay - NOT a local-laptop
+# file. For local laptop dev without a VPS/registry/managed DB, use
+# compose.local.yml instead (a new file, not a mau-apps port - see its own
+# header for why).
 #
-# `DATABASE_NAME` isn't used directly here (this workspace's DB var is one
-# `DATABASE_URL` connection string per app, not mau-apps' decomposed
-# HOST/PORT/USERNAME/PASSWORD/SSL_ENABLED + separate DATABASE_NAME) - the
-# dev database name is baked into `DATABASE_URL_ACCOUNT_API`/
-# `DATABASE_URL_API` themselves in deploy-vars.yml for the dev run (e.g.
-# .../enem_landing_account_dev), not overridden per-key here the way
-# mau-apps does.
+# Dev runs on the SAME VPS/Swarm as prod (one shared Traefik), so unlike
+# mau-apps' compose.dev.yml (just a floating `:dev` image tag) everything
+# that would collide with the prod stack is overridden here:
+#   - Network: `enem-landing-dev-network`, not `enem-landing-network`.
+#     Swarm registers each service's short name (`enem-landing-api`, ...)
+#     as a DNS alias on every network it joins - sharing prod's network
+#     would make `http://enem-landing-api:3001` round-robin between the dev
+#     and prod containers. Created by init-server.yml, which also attaches
+#     Traefik to it.
+#   - Traefik labels: `!override` (Compose >= 2.24) replaces the base
+#     label list outright instead of merging it - a merge would keep prod's
+#     router names/Host() rules in the dev stack too, and Traefik drops a
+#     router defined by two services with different configs.
+#   - Domains: flat `dev-*.muzanella.com` (not `*.dev.muzanella.com`) so
+#     both Cloudflare's free Universal SSL (proxied) and the existing
+#     `*.muzanella.com` wildcard cert cover them.
+#   - AUTH_COOKIE_NAME: dev shares prod's `.muzanella.com` cookie domain,
+#     so it needs its own cookie name - otherwise a dev signin overwrites
+#     the prod token (signed with a different JWT_SECRET) and vice versa.
 #
-# No resource limits/NODE_OPTIONS tuning here (matches mau-apps' own
-# compose.dev.yml, which explicitly defers that to prod - "spek server dev
-# belum dikonfirmasi sama ketatnya dengan prod").
+# Stack name (`enem-landing-dev`) and deploy dir (`/opt/enem-landing-dev`)
+# are separated by infra/ansible/playbooks/deploy.yml, not here.
+#
+# The dev database name is baked into `DATABASE_URL_ACCOUNT_API`/
+# `DATABASE_URL_API` themselves (GitHub Environment `development`
+# secrets), not overridden per-key here the way mau-apps does.
+#
+# Resource limits mirror compose.prod.yml - dev shares prod's VPS, so an
+# unbounded dev container could starve prod.
+
+x-node-tuning: &node-tuning
+  NODE_OPTIONS: --max-old-space-size=60
+
+x-dev-deploy: &dev-deploy
+  resources:
+    limits:
+      memory: 100M
+
+networks:
+  enem-landing-dev-network:
+    external: true
 
 services:
   enem-landing-account-api:
     image: ghcr.io/muzanella11/enem-landing-account-api:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      <<: *node-tuning
+      CORS_ORIGIN: https://dev-cms.muzanella.com,https://dev-account.muzanella.com
+    deploy:
+      <<: *dev-deploy
+      labels: !override
+        - traefik.enable=false # internal-only, see compose.yml header
+
   enem-landing-account-web:
     image: ghcr.io/muzanella11/enem-landing-account-web:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      <<: *node-tuning
+      NUXT_PUBLIC_AUTH_COOKIE_NAME: ENEM_LANDING_DEV_AUTH_TOKEN
+    deploy:
+      <<: *dev-deploy
+      labels: !override
+        - traefik.enable=true
+        - traefik.swarm.network=enem-landing-dev-network
+        - traefik.http.routers.enem-landing-dev-account-web.rule=Host(`dev-account.muzanella.com`)
+        - traefik.http.routers.enem-landing-dev-account-web.entrypoints=websecure
+        - traefik.http.routers.enem-landing-dev-account-web.tls=true
+        - traefik.http.routers.enem-landing-dev-account-web.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-dev-account-web.loadbalancer.server.port=8000
+
   enem-landing-api:
     image: ghcr.io/muzanella11/enem-landing-api:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      <<: *node-tuning
+    deploy:
+      <<: *dev-deploy
+      labels: !override
+        - traefik.enable=false # internal-only, see compose.yml header
+
   enem-landing-cms:
     image: ghcr.io/muzanella11/enem-landing-cms:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      <<: *node-tuning
+      NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://dev-account.muzanella.com
+      NUXT_PUBLIC_WEB_HOST: https://dev.muzanella.com
+      NUXT_PUBLIC_AUTH_COOKIE_NAME: ENEM_LANDING_DEV_AUTH_TOKEN
+    deploy:
+      <<: *dev-deploy
+      labels: !override
+        - traefik.enable=true
+        - traefik.swarm.network=enem-landing-dev-network
+        - traefik.http.routers.enem-landing-dev-cms.rule=Host(`dev-cms.muzanella.com`)
+        - traefik.http.routers.enem-landing-dev-cms.entrypoints=websecure
+        - traefik.http.routers.enem-landing-dev-cms.tls=true
+        - traefik.http.routers.enem-landing-dev-cms.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-dev-cms.loadbalancer.server.port=4000
+
   enem-landing-web:
     image: ghcr.io/muzanella11/enem-landing-web:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      <<: *node-tuning
+    deploy:
+      <<: *dev-deploy
+      labels: !override
+        - traefik.enable=true
+        - traefik.swarm.network=enem-landing-dev-network
+        - traefik.http.routers.enem-landing-dev-web.rule=Host(`dev.muzanella.com`)
+        - traefik.http.routers.enem-landing-dev-web.entrypoints=websecure
+        - traefik.http.routers.enem-landing-dev-web.tls=true
+        - traefik.http.routers.enem-landing-dev-web.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-dev-web.loadbalancer.server.port=8001

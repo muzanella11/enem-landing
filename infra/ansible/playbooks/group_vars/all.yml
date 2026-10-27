@@ -5,6 +5,13 @@
 
 deploy_user: deploy
 
+# Overlay network per environment (prod dulu - jadi default network Traefik).
+# Dibuat init-server.yml, Traefik di-attach ke semuanya, dipakai
+# compose.yml (prod) / compose.dev.yml (dev).
+app_networks:
+  - enem-landing-network
+  - enem-landing-dev-network
+
 # Range IP resmi Cloudflare (IPv4 + IPv6) - dipakai Traefik
 # `forwardedheaders.trustedips` supaya `CF-Connecting-IP`/`X-Forwarded-For`
 # dari proxy Cloudflare dipercaya sebagai IP asli pengunjung. Daftar ini

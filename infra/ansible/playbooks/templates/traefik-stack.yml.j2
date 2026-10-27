@@ -36,6 +36,9 @@ services:
     image: traefik:v3.7.10
     command:
       - --providers.swarm.exposedbydefault=false
+      # Traefik joins every env network (app_networks) - default to prod's,
+      # dev services pick theirs via a `traefik.swarm.network` label.
+      - --providers.swarm.network={{ app_networks[0] }}
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
@@ -55,7 +58,9 @@ services:
         published: 443
         mode: host
     networks:
-      - enem-landing-network
+{% for net in app_networks %}
+      - {{ net }}
+{% endfor %}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /opt/enem-landing/storage/traefik:/letsencrypt
@@ -70,5 +75,7 @@ services:
           memory: 64M
 
 networks:
-  enem-landing-network:
+{% for net in app_networks %}
+  {{ net }}:
     external: true
+{% endfor %}

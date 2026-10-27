@@ -218,14 +218,21 @@
       ansible.builtin.command: docker swarm init
       when: swarm_state.stdout != 'active'
 
-    - name: Cek apakah overlay network enem-landing-network sudah ada
-      ansible.builtin.command: docker network ls --filter name=^enem-landing-network$ --format '{{ '{{' }}.Name{{ '}}' }}'
+    # Satu network per environment - dev dan prod satu VPS/Swarm (lihat
+    # header compose.dev.yml), dan alias DNS service (`enem-landing-api`,
+    # dst.) akan bentrok kalau dua stack join network yang sama.
+    - name: Cek overlay network per environment yang sudah ada
+      ansible.builtin.command: docker network ls --filter name=^{{ item }}$ --format '{{ '{{' }}.Name{{ '}}' }}'
+      loop: "{{ app_networks }}"
       register: network_check
       changed_when: false
 
-    - name: Buat overlay network attachable enem-landing-network
-      ansible.builtin.command: docker network create --driver overlay --attachable enem-landing-network
-      when: network_check.stdout == ""
+    - name: Buat overlay network attachable per environment
+      ansible.builtin.command: "docker network create --driver overlay --attachable {{ item.item }}"
+      loop: "{{ network_check.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when: item.stdout == ""
 
     - name: Buat direktori deploy di server
       ansible.builtin.file:

@@ -28,6 +28,9 @@ export default defineNuxtConfig({
     public: {
       // Not sensitive — needed client-side to set the shared-domain cookie.
       sharedCookieDomain: process.env['SHARED_COOKIE_DOMAIN'] || '',
+      // Empty falls back to AUTH_TOKEN_COOKIE (libs/frontend) - only dev
+      // overrides it, so it doesn't clash with prod's cookie.
+      authCookieName: process.env['AUTH_COOKIE_NAME'] || '',
     },
   },
   typescript: {
