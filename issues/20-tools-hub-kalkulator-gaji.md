@@ -296,5 +296,10 @@ Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
   sempat menulis ulang hash). Slot iklan menunggu sampai fragment benar-benar hilang.
 - Donasi: komponen `DonationCta`, opsi dikelola dari CMS. Baris SociaBuzz sudah
   di-seed tanpa URL; isi URL halaman SociaBuzz di CMS supaya CTA tampil.
-- Manual oleh user: record DNS `tools` dan `dev-tools` di Cloudflare; env
-  `ADSENSE_SLOT_RESULT`/`ADSENSE_SLOT_SIDEBAR` setelah AdSense disetujui.
+- **DNS selesai (2026-11-06):** record `tools` dan `dev-tools` sudah ditambahkan
+  user di Cloudflare dan terverifikasi resolve lewat proxy Cloudflare, sama
+  seperti subdomain lain. Router Traefik dan wildcard cert sudah disiapkan di
+  compose, jadi tidak ada langkah DNS/TLS tambahan; situs live setelah deploy
+  pertama yang menyertakan image `enem-landing-tools`.
+- Masih manual oleh user: ID slot AdSense setelah AdSense disetujui (akan
+  dipindah ke CMS di Story 27), dan URL SociaBuzz di CMS.

@@ -5,7 +5,8 @@
 # mau-apps/infra/ansible/playbooks/deploy.yml, dengan header
 # dokumentasi app_env diganti ke variable enem-landing yang sebenarnya
 # (dibaca dari apps/{enem-landing-account-api,enem-landing-api,
-# enem-landing-account-web,enem-landing-cms,enem-landing-web}/.env.example)
+# enem-landing-account-web,enem-landing-cms,enem-landing-web,
+# enem-landing-tools}/.env.example)
 # dan tanpa RabbitMQ (enem-landing tidak punya service self-host apapun -
 # lihat issues/00-epic-overview.md keputusan #6).
 #
@@ -43,6 +44,10 @@
 #     R2_ENDPOINT: "<value>"
 #     R2_BUCKET_NAME: "<value>"
 #     R2_PUBLIC_URL_BASE: "<value>"
+#     # Opsional (enem-landing-tools, Story 20): ID slot AdSense. Kosong =
+#     # slot iklan tidak dirender. Akan dipindah ke CMS di Story 27.
+#     ADSENSE_SLOT_RESULT: ""
+#     ADSENSE_SLOT_SIDEBAR: ""
 #
 # Var non-secret (CORS_ORIGIN, ACCOUNT_API_HOST, API_HOST, ACCOUNT_WEB_HOST,
 # SHARED_COOKIE_DOMAIN, ALLOW_SIGNUP) SENGAJA TIDAK di sini - itu wiring

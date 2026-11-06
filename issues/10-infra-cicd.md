@@ -71,6 +71,11 @@ enem-landing-account-api     -> account-api.<domain> (atau internal-only, tidak 
 DNS record tambahan perlu disiapkan untuk subdomain-subdomain ini sebelum
 story 11 (cutover) dieksekusi.
 
+> **Update 2026-11-06:** `enem-landing-tools` (Story 20) memakai
+> `tools.<domain>` (prod) dan `dev-tools.<domain>` (dev). Record DNS keduanya
+> sudah ditambahkan di Cloudflare. Daftar lengkap domain ada di
+> `infra/ansible/README.md` bagian "Public domains".
+
 ### Ansible provisioning
 Lihat detail di [09-dev-tooling-scripts.md](09-dev-tooling-scripts.md) —
 `scripts/provision-server.sh` + `infra/ansible/` (playbooks `init-server.yml`,
