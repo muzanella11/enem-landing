@@ -60,15 +60,14 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 - **Iklan display dengan filter ketat:** selain daftar blokir Story 20,
   blokir juga kategori yang tidak pantas di konteks ini (alkohol, kencan,
   produk ribawi yang mencolok seperti kartu kredit dan pinjaman). Bila
-  filter tidak cukup bisa diandalkan, halaman ini dibiarkan tanpa iklan.
-- **Tidak ada affiliate di hasil hitungan zakat.** Tautan ke lembaga amil
-  resmi (BAZNAS dan LAZ berizin) ditampilkan sebagai informasi, tanpa
-  komisi, kecuali ada kerja sama resmi yang transparan.
-- **Affiliate tidak langsung (opsional):** tabungan emas atau reksa dana
-  syariah di bagian edukasi zakat maal, terpisah jelas dari hasil hitung.
-- **Cross-link ke tool lain** (kalkulator gaji, simulasi KPR syariah bila
-  nanti ada) untuk mengalirkan trafik musiman ke halaman yang lebih bisa
-  dimonetisasi.
+  filter tidak cukup bisa diandalkan, iklan untuk halaman ini dimatikan
+  lewat toggle iklan per tool di CMS (Story 25).
+- **CTA donasi tidak ditampilkan di dekat hasil hitungan zakat**, hanya di
+  footer, supaya tidak tertukar dengan pembayaran zakat.
+- Tautan ke lembaga amil resmi (BAZNAS dan LAZ berizin) ditampilkan sebagai
+  informasi, tanpa komisi.
+- **Cross-link ke tool lain** (kalkulator gaji, simulasi KPR) untuk
+  mengalirkan trafik musiman ke halaman lain.
 
 ## Out of scope
 
@@ -93,5 +92,6 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] Sumber ketentuan, sumber harga emas, dan tanggal update tampil di
       halaman.
+- [ ] CTA donasi tidak muncul di area hasil hitungan zakat.
 - [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
 - [ ] `nx lint`, `nx test`, dan e2e dasar lulus.

@@ -1,4 +1,4 @@
-# Story 25: CMS untuk Tools Hub (Monitoring Multi-site + Registry Tool, Affiliate, Iklan)
+# Story 25: CMS untuk Tools Hub (Monitoring Multi-site + Registry Tool, Iklan, Donasi)
 
 **Apps touched:** `enem-landing-api`, `enem-landing-cms`, `enem-landing-web`,
 `enem-landing-tools`, `libs/frontend`
@@ -36,8 +36,8 @@ dan file tidak pernah di-upload (Story 20, 23, 24).
    `tools`), dengan semua halaman activity tracking bisa difilter per situs.
 2. `enem-landing-tools` memakai tracker yang sama dengan `enem-landing-web`,
    dengan batasan privasi khusus tools.
-3. Registry tool, penawaran affiliate, dan pengaturan iklan/donasi tools
-   hub dikelola dari CMS, berlaku tanpa rebuild.
+3. Registry tool, pengaturan iklan, dan opsi donasi tools hub dikelola dari
+   CMS, berlaku tanpa rebuild.
 
 ## Keputusan (hasil brainstorming sesi 2026-11-06)
 
@@ -45,16 +45,17 @@ dan file tidak pernah di-upload (Story 20, 23, 24).
    `tools`) di data tracking dan pengaturan. Menambah situs lain nanti cukup
    menambah nilai enum.
 2. **Scope CMS: monitoring + registry** (keputusan user 2026-11-06).
-   Registry mencakup daftar tool, penawaran affiliate, dan pengaturan
-   iklan/donasi.
+   Registry mencakup daftar tool, pengaturan iklan, dan opsi donasi.
+   Affiliate tidak termasuk karena ditunda (keputusan user 2026-11-06,
+   lihat Story 20).
 3. **Session recording dimatikan permanen untuk site `tools`** (opsi a,
    keputusan user 2026-11-06). rrweb merekam isi input dan teks hasil di
    DOM, sehingga angka gaji atau isi invoice ikut ter-upload ke R2.
    Pembatasan ini dipasang di beberapa lapis (lihat Scope), bukan hanya
    toggle yang bisa dinyalakan tidak sengaja.
 4. **Payload event dari site `tools` memakai whitelist.** Hanya key yang
-   terdaftar yang boleh dikirim (`toolId`, `action`, `step`, `offerId`,
-   `placement`, `mode`), nilainya string pendek. Key lain dibuang di client
+   terdaftar yang boleh dikirim (`toolId`, `action`, `step`, `placement`,
+   `mode`, `donationOptionId`), nilainya string pendek. Key lain dibuang di client
    dan divalidasi ulang di API. Tidak ada angka nominal di event.
 5. **Heatmap dan pageview boleh untuk tools.** Klik hanya membawa koordinat
    relatif, `path`, dan device bucket (tanpa teks elemen), jadi aman.
@@ -62,7 +63,7 @@ dan file tidak pernah di-upload (Story 20, 23, 24).
    versioned dan dijaga unit test (Story 20); salah ketik di CMS bisa
    membuat hasil kalkulator salah tanpa ada test yang menangkap.
 7. **Halaman tools memakai SWR cache, bukan prerender penuh.** Supaya
-   perubahan registry di CMS (urutan, aktif/nonaktif, badge, penawaran)
+   perubahan registry di CMS (urutan, aktif/nonaktif, badge, iklan, donasi)
    tampil tanpa rebuild, halaman index dan halaman tool di-render Nitro
    dengan `routeRules` `swr` (mis. 10 menit). Hitungan tetap 100% di
    browser. Ini mengubah keputusan 3 di Story 20.
@@ -122,29 +123,29 @@ Entity:
   tools), `name`, `shortDescription`, `category` (mis. `keuangan`,
   `dokumen`, `ibadah`), `sortOrder`, `enabled`, `badge` (nullable:
   `baru` | `populer`), `adsEnabled`, `updatedAt`.
-- `AffiliateOfferEntity` (`tools_affiliate_offers`): `id`, `toolSlug`
-  (nullable = berlaku di semua tool), `placement` (mis. `after-result`,
-  `sidebar`, `history`), `contextTag` (nullable, dicocokkan oleh logika
-  client tool, mis. `thp-rendah`, tanpa mengirim angka), `partnerName`,
-  `title`, `description`, `url`, `imageUrl` (nullable), `enabled`,
-  `sortOrder`, `startsAt`/`endsAt` (nullable).
+- `DonationOptionEntity` (`tools_donation_options`): `id`, `label` (mis.
+  "Saweria", "Trakteer", "QRIS"), `platform` (`saweria` | `trakteer` |
+  `sociabuzz` | `qris` | `other`), `url` (nullable untuk QRIS),
+  `qrisImageUrl` (nullable, diunggah lewat upload R2 yang sudah ada),
+  `note` (nullable, mis. "potongan paling kecil"), `enabled`, `sortOrder`.
+  Dibuat sebagai daftar supaya platform bisa diganti atau ditambah tanpa
+  deploy (lihat perbandingan biaya di Story 20).
 - `ToolsSettingsEntity` (`tools_settings`, single-row): `adsEnabled`
-  (kill switch global), `adsenseClientId` (nullable), `donationUrl`
-  (nullable), `blockedCategoriesNote` (catatan internal kategori yang
-  diblokir di AdSense, sebagai pengingat).
+  (kill switch global), `adsenseClientId` (nullable),
+  `donationCtaText` (teks ajakan, mis. "Traktir kopi"),
+  `blockedCategoriesNote` (catatan internal kategori yang diblokir di
+  AdSense, sebagai pengingat).
 
 Endpoint:
 
 - `GET /tools/config` (publik, di-cache): tool yang `enabled` urut
-  `sortOrder`, penawaran affiliate aktif (sudah difilter `startsAt`/
-  `endsAt`), dan settings publik. Iklan dianggap aktif hanya bila global
+  `sortOrder`, opsi donasi aktif urut `sortOrder`, dan settings publik. Iklan dianggap aktif hanya bila global
   **dan** per tool sama-sama `true`.
-- CRUD admin (`SsoAuthGuard` + `assertAdminRole`) untuk tools, affiliate
-  offers, dan settings. Setiap tulis menginvalidasi cache `GET /tools/config`.
+- CRUD admin (`SsoAuthGuard` + `assertAdminRole`) untuk tools, opsi
+  donasi, dan settings. Setiap tulis menginvalidasi cache `GET /tools/config`.
 - Seed awal berisi tool yang sudah ada di app tools saat migrasi dijalankan.
 
-Validasi URL affiliate: hanya `https`, dan tidak boleh berisi placeholder
-nilai input (aturan Story 20: tidak ada data input di tautan affiliate).
+Validasi URL donasi: hanya `https`.
 
 ### D. App `enem-landing-tools`
 
@@ -155,14 +156,14 @@ nilai input (aturan Story 20: tidak ada data input di tautan affiliate).
   yang dinonaktifkan menampilkan pesan "tool sedang dinonaktifkan" dengan
   `noindex`, bukan 404, supaya link lama yang dibagikan tidak rusak.
 - `AdSlot` membaca status iklan dari config (menggantikan runtime config di
-  Story 20). `AffiliateCard` dan registry affiliate membaca penawaran dari
-  config (menggantikan data di dalam app).
+  Story 20). `DonationCta` membaca opsi donasi dan teks ajakan dari config;
+  bila tidak ada opsi aktif, CTA tidak dirender.
 - Event standar dari semua tool, lewat helper bersama supaya konsisten:
   - `tool_view` (`toolId`)
   - `tool_calculate` (`toolId`, `mode` opsional)
   - `tool_share` (`toolId`)
   - `tool_download` (`toolId`, mis. PDF/CSV/ZIP)
-  - `offer_impression` dan `offer_click` (`toolId`, `offerId`, `placement`)
+  - `donate_click` (`toolId`, `placement`, `donationOptionId`)
 - **Fallback:** bila config gagal diambil, pakai snapshot registry yang
   dibundel saat build, supaya halaman tidak kosong dan tidak error.
 
@@ -179,11 +180,11 @@ nilai input (aturan Story 20: tidak ada data input di tautan affiliate).
     aktif/nonaktif, iklan per tool), urutkan dengan drag atau input
     `sortOrder`. Kolom ringkas per tool untuk 30 hari terakhir: view,
     calculate, rasio calculate/view.
-  - **Affiliate:** CRUD penawaran, filter per tool, kolom impression,
-    klik, dan CTR 30 hari terakhir (dari event `offer_impression` dan
-    `offer_click`).
-  - **Pengaturan:** kill switch iklan global, AdSense client ID, link
-    donasi.
+  - **Donasi:** CRUD opsi donasi (termasuk unggah gambar QRIS), urutan,
+    aktif/nonaktif, dan jumlah klik 30 hari terakhir per opsi dan per
+    tool (dari event `donate_click`).
+  - **Pengaturan:** kill switch iklan global, AdSense client ID, teks
+    ajakan donasi.
 - Pakai komponen CMS yang sudah ada (`CListPage`, `CFormPage`,
   `CPageHeader`, `CBarList`).
 
@@ -196,8 +197,9 @@ nilai input (aturan Story 20: tidak ada data input di tautan affiliate).
 - Parameter pajak/BPJS di CMS (lihat keputusan 6).
 - Session recording untuk tools dalam bentuk apa pun, termasuk dengan
   masking.
-- Laporan pendapatan affiliate/AdSense (datanya ada di dashboard mitra,
-  tidak ditarik ke CMS).
+- Affiliate dalam bentuk apa pun (ditunda, lihat Story 20).
+- Laporan pendapatan AdSense dan donasi (datanya ada di dashboard AdSense
+  dan platform donasi, tidak ditarik ke CMS).
 - Consent banner (sudah di Story 20).
 
 ## Acceptance Criteria
@@ -217,14 +219,14 @@ nilai input (aturan Story 20: tidak ada data input di tautan affiliate).
 - [ ] Event dari tools dengan key di luar whitelist atau nilai numerik
       dibuang oleh API (unit test), dan tab Network tidak menunjukkan nilai
       input pengguna di request tracking.
-- [ ] Mengubah urutan, menonaktifkan tool, mengubah penawaran affiliate,
-      atau mematikan iklan di CMS tampil di `tools.muzanella.com` tanpa
+- [ ] Mengubah urutan, menonaktifkan tool, mengubah opsi donasi, atau
+      mematikan iklan di CMS tampil di `tools.muzanella.com` tanpa
       rebuild, paling lambat dalam TTL cache + SWR yang ditetapkan.
 - [ ] Tool nonaktif hilang dari index dan sitemap; halaman tool-nya
       menampilkan pesan nonaktif dengan `noindex`.
 - [ ] Bila `GET /tools/config` gagal, halaman tools tetap tampil memakai
       snapshot build.
-- [ ] Kolom view/calculate per tool dan impression/klik/CTR per penawaran
+- [ ] Kolom view/calculate per tool dan jumlah klik per opsi donasi
       tampil di CMS.
 - [ ] Memori container `enem-landing-tools` tetap di bawah limit 100M
       dengan render SWR aktif.

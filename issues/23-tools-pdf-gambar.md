@@ -64,15 +64,12 @@ browser, dengan pesan jelas "file kamu tidak pernah di-upload".
 ## Monetisasi
 
 Tool utilitas file punya volume trafik paling tinggi dan pengguna yang
-kembali berulang, tapi niat belinya rendah. Model yang cocok adalah iklan
-volume tinggi plus affiliate ringan. Mengikuti aturan hub di Story 20.
+kembali berulang, jadi paling cocok untuk iklan volume tinggi. Mengikuti
+aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
 
 - **Iklan display** di area tunggu (saat file diproses) dan di bawah
   tombol unduh. Tidak boleh ada iklan yang mirip tombol unduh (pola
   menipu yang umum di situs sejenis).
-- **Affiliate kontekstual:** cloud storage, Canva atau editor desain,
-  jasa cetak online (setelah gambar-ke-PDF atau pas foto), toko printer
-  dan kertas di marketplace.
 - **Tidak ada fitur berbayar** untuk batas ukuran atau jumlah file: semua
   proses di perangkat pengguna, jadi membatasi demi upsell terasa tidak
   jujur dan biayanya nol bagi kita.

@@ -41,8 +41,8 @@ tool pertama, yaitu kalkulator gaji bersih.
 
 > **Catatan (2026-11-06):** sebagian keputusan di bawah diubah oleh
 > [Story 25](25-tools-cms-monitoring-registry.md): halaman tools memakai SWR
-> cache (bukan prerender penuh), registry tool/affiliate dan status iklan
-> dibaca dari CMS (bukan data di app atau runtime config), dan tracking
+> cache (bukan prerender penuh), registry tool, status iklan, dan opsi
+> donasi dibaca dari CMS (bukan data di app atau runtime config), dan tracking
 > memakai tracker bersama dengan site `tools` tanpa session recording.
 
 1. **App terpisah, bukan route di `enem-landing-web`.** Tools punya siklus
@@ -163,37 +163,49 @@ diketik ulang di beberapa tempat.
 
 ### Strategi tingkat hub (berlaku untuk semua tool, dibangun di story ini)
 
-Ekspektasi realistis: RPM iklan display untuk trafik Indonesia rendah,
-jadi iklan saja baru berarti di trafik besar. Pendapatan utama diharapkan
-dari affiliate yang relevan dengan konteks tool, iklan menjadi pelengkap,
-dan donasi sebagai tambahan kecil. Urutan prioritas:
+**Affiliate ditunda** (keputusan user 2026-11-06). Pendapatan hub untuk
+saat ini hanya dari dua sumber:
 
-1. **Affiliate kontekstual.** Rekomendasi produk muncul *setelah* hasil
-   hitungan, relevan dengan angka pengguna (mis. take home pay rendah
-   memunculkan konten "cara menambah penghasilan", bukan pinjaman).
-   Jaringan kandidat: program affiliate langsung produk (aplikasi
-   investasi, asuransi, software akuntansi, marketplace) atau jaringan
-   seperti Involve Asia/Accesstrade. Ketersediaan dan syarat tiap program
-   dicek saat implementasi tool masing-masing.
-2. **Iklan display (Google AdSense)** setelah situs punya cukup konten dan
-   lolos review. Ditaruh di bawah hasil dan di sidebar desktop, tidak
-   pernah di antara input dan tombol hitung.
-3. **Donasi** lewat Saweria/Trakteer di footer ("traktir kopi"), tanpa
-   popup.
-4. **Fitur Pro berbayar** hanya untuk tool yang memang punya nilai tambah
+1. **Iklan display (Google AdSense)** setelah situs punya cukup konten dan
+   lolos review. RPM iklan untuk trafik Indonesia rendah, jadi iklan baru
+   berarti di trafik besar; karena itu tool dengan volume tinggi dan
+   musiman (THR, Ramadan) diprioritaskan. Iklan ditaruh di bawah hasil dan
+   di sidebar desktop, tidak pernah di antara input dan tombol hitung.
+2. **Donasi "traktir kopi"** lewat platform donasi, tanpa popup.
+3. **Fitur Pro berbayar** hanya untuk tool yang memang punya nilai tambah
    berkelanjutan (lihat Story 24). Tidak untuk kalkulator.
 
-Aturan yang berlaku di semua tool:
+Affiliate bisa dibuka lagi sebagai story terpisah setelah ada data trafik.
 
-- **Daftar kategori yang diblokir:** pinjol, judi/slot, investasi bodong,
-  dan produk kripto berisiko tinggi, baik di affiliate maupun di AdSense
-  (pakai fitur blocking kategori AdSense). Audiens tool keuangan rentan,
-  dan satu iklan pinjol cukup merusak kepercayaan.
-- **Disclosure affiliate** jelas di dekat tautan ("tautan affiliate, kami
-  dapat komisi tanpa biaya tambahan untukmu").
-- **Tidak ada data input yang ikut ke tautan affiliate atau iklan.** Tidak
-  ada parameter gaji/nominal di URL affiliate, dan state tool tidak
-  pernah ada di URL saat slot iklan dimuat.
+#### Platform donasi
+
+Hasil cek 2026-11-06 (wajib dicek ulang ke halaman resmi saat
+implementasi):
+
+| Platform | Potongan per donasi | Catatan |
+|---|---|---|
+| Saweria | sekitar 5% | Biaya pencairan sekitar Rp5.000; beberapa sumber menyebut biaya layanan tambahan |
+| Trakteer | 5% | Plus biaya metode bayar (QRIS sekitar 0,77%, e-wallet sekitar 2%, VA sekitar Rp4.000), pencairan sekitar Rp5.000 |
+| SociaBuzz | 5% | Biaya penarikan lebih rendah menurut halaman resmi (bank Rp4.500, GoPay Rp1.000) |
+| QRIS statis milik sendiri | Hanya MDR QRIS, jauh di bawah 5% | Tanpa halaman profil/notifikasi; butuh akun merchant QRIS. Cek ketentuan MDR BI terbaru |
+
+Keputusan:
+
+- **Komponen donasi tidak terikat satu platform.** Daftar opsi donasi
+  (label, URL, gambar QRIS opsional) dikonfigurasi dari CMS (Story 25),
+  sehingga platform bisa diganti atau ditambah tanpa deploy.
+- Default awal: satu tautan platform donasi (Saweria atau Trakteer) plus
+  opsional QRIS statis untuk pengunjung yang ingin potongan paling kecil.
+
+#### Aturan yang berlaku di semua tool
+
+- **Daftar kategori iklan yang diblokir:** pinjol, judi/slot, investasi
+  bodong, dan produk kripto berisiko tinggi (pakai fitur blocking kategori
+  AdSense). Audiens tool keuangan rentan, dan satu iklan pinjol cukup
+  merusak kepercayaan.
+- **Tidak ada iklan yang mirip tombol aksi** (unduh, hitung, bagikan).
+- **State tool tidak pernah ada di URL saat slot iklan dimuat** (lihat pola
+  link berbagi di atas).
 - **Core Web Vitals tetap prioritas:** slot iklan punya tinggi tetap
   (tanpa CLS), dimuat lazy setelah interaksi atau saat terlihat.
 - **Consent:** banner persetujuan cookie untuk iklan/analytics sesuai
@@ -201,21 +213,18 @@ Aturan yang berlaku di semua tool:
 
 Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
 
-- Komponen `AdSlot` (lazy, ukuran tetap, bisa dimatikan lewat runtime
-  config sampai AdSense disetujui).
-- Komponen `AffiliateCard` dengan disclosure bawaan, plus registry
-  penawaran affiliate per tool (data, bukan hardcode di halaman).
-- Event klik affiliate ke tracking yang sudah ada (Story 12-16), hanya
-  ID penawaran dan nama tool.
-- Link donasi di footer.
+- Komponen `AdSlot` (lazy, ukuran tetap, bisa dimatikan tanpa rebuild;
+  sumber status iklan lihat Story 25).
+- Komponen `DonationCta`: tautan di footer, plus varian teks kecil yang
+  bisa ditaruh setelah hasil/unduhan. Bukan popup, bukan overlay.
+- Event klik donasi ke tracking yang sudah ada (Story 12-16), hanya nama
+  tool dan posisi CTA.
 
 ### Monetisasi kalkulator gaji bersih
 
-- **Affiliate:** aplikasi reksa dana/investasi (setelah hasil: "sisihkan
-  X% dari gaji bersihmu"), asuransi kesehatan tambahan, platform lowongan
-  kerja atau kursus skill (konteks "naik gaji").
-- **Iklan:** trafik musiman tinggi menjelang THR dan saat pengumuman
-  kenaikan UMP, cocok untuk AdSense.
+- **Iklan:** trafik musiman tinggi menjelang THR, rekonsiliasi Desember,
+  dan saat pengumuman kenaikan UMP, cocok untuk AdSense.
+- **Donasi:** teks kecil setelah hasil hitung tampil.
 - **Lisensi widget (tahap lanjut):** versi embed kalkulator untuk situs
   HR, portal lowongan, dan blog keuangan, gratis dengan tautan balik
   (backlink, bagus untuk SEO) atau berbayar tanpa branding.
@@ -258,9 +267,8 @@ Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
 - [ ] Hasil bisa dibagikan via link dan terisi ulang dengan benar saat
       dibuka; fragment sudah terhapus dari address bar sebelum slot iklan
       dimuat.
-- [ ] Komponen `AdSlot`, `AffiliateCard`, dan registry affiliate tersedia
-      dan dipakai di kalkulator gaji; slot iklan bisa dimatikan lewat
-      runtime config tanpa rebuild.
+- [ ] Komponen `AdSlot` dan `DonationCta` tersedia dan dipakai di
+      kalkulator gaji; slot iklan bisa dimatikan tanpa rebuild.
 - [ ] Tidak ada CLS dari slot iklan (CLS di bawah 0,1 di Lighthouse).
 - [ ] Banner consent berfungsi; menolak consent menghasilkan iklan
       non-personal dan tidak ada cookie iklan personal.

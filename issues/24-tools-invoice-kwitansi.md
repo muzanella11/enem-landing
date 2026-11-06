@@ -64,7 +64,7 @@ dengan data tersimpan di perangkat pengguna saja.
 
 Satu-satunya tool di hub ini dengan pengguna yang memakai berulang untuk
 kebutuhan bisnis, jadi kandidat terbaik untuk model freemium. Mengikuti
-aturan hub di Story 20.
+aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
 
 ### Story ini (gratis penuh)
 
@@ -72,9 +72,8 @@ aturan hub di Story 20.
   berisi teks kecil "Dibuat dengan tools.muzanella.com" yang bisa
   dimatikan (default menyala). Ini jadi kanal promosi gratis karena PDF
   dikirim ke pelanggan pengguna.
-- **Affiliate:** payment gateway dan QRIS untuk UMKM, software akuntansi
-  (untuk pengguna yang sudah butuh lebih dari invoice), materai
-  elektronik. Ditampilkan di dashboard riwayat, bukan di PDF.
+- **Donasi:** teks kecil di halaman riwayat dan setelah unduh PDF, tidak
+  pernah di dalam PDF.
 - **Iklan display** hanya di halaman form, tidak pernah di dalam PDF atau
   preview.
 

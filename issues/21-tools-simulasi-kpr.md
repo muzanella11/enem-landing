@@ -56,24 +56,15 @@ terhadap penghasilan. Semua hitungan client-side.
 
 ## Monetisasi
 
-Mengikuti aturan tingkat hub di Story 20 (kategori diblokir, disclosure,
-tidak ada data input di tautan). KPR adalah tool dengan nilai komersial
-tertinggi di hub ini karena nilai transaksinya besar.
+Mengikuti aturan tingkat hub di Story 20: hanya AdSense dan donasi,
+affiliate ditunda.
 
-- **Affiliate portal properti:** tautan ke listing rumah sesuai rentang
-  harga yang dihitung pengguna (portal properti besar umumnya punya
-  program affiliate atau partner; dicek saat implementasi).
-- **Referral KPR bank / broker KPR:** beberapa bank dan platform
-  perbandingan KPR memberi komisi untuk referral. Dimulai dari tautan
-  sederhana, bukan form pengumpulan data.
-- **Affiliate asuransi** jiwa dan properti (wajib di KPR, sering
-  dibandingkan pengguna).
-- **Iklan display** di bawah tabel amortisasi; halaman ini punya waktu
-  tinggal lama karena pengguna membaca tabel.
-- **Lead generation (tahap lanjut, opsional):** form "minta dihubungi
-  untuk konsultasi KPR" yang diteruskan ke mitra. Hanya dikerjakan dengan
-  consent eksplisit, kebijakan privasi khusus, dan perjanjian dengan mitra
-  sesuai UU PDP. Tidak masuk scope story ini.
+- **Iklan display** di bawah tabel amortisasi. Halaman ini punya waktu
+  tinggal lama karena pengguna membaca tabel, jadi cocok untuk iklan.
+- **Donasi:** teks kecil setelah hasil simulasi dan setelah unduh CSV.
+- **Ditunda:** KPR adalah tool dengan nilai komersial tertinggi di hub
+  (affiliate portal properti, referral bank/broker KPR, asuransi, lead
+  generation). Ini kandidat pertama bila affiliate dibuka lagi.
 
 ## Out of scope
 
@@ -93,8 +84,7 @@ tertinggi di hub ini karena nilai transaksinya besar.
 - [ ] Minimal 3 skenario dicocokkan dengan kalkulator KPR bank, hasilnya
       dicatat di PR.
 - [ ] CSV amortisasi terbuka benar di spreadsheet.
-- [ ] Penawaran affiliate KPR terdaftar di registry affiliate Story 20 dan
-      tampil setelah hasil, dengan disclosure.
+- [ ] Slot iklan dan CTA donasi tampil sesuai aturan hub di Story 20.
 - [ ] Tool muncul di registry halaman index tools, punya meta/JSON-LD,
       masuk sitemap.
 - [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
