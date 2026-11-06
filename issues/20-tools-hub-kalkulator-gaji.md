@@ -39,6 +39,12 @@ tool pertama, yaitu kalkulator gaji bersih.
 
 ## Keputusan awal
 
+> **Catatan (2026-11-06):** sebagian keputusan di bawah diubah oleh
+> [Story 25](25-tools-cms-monitoring-registry.md): halaman tools memakai SWR
+> cache (bukan prerender penuh), registry tool/affiliate dan status iklan
+> dibaca dari CMS (bukan data di app atau runtime config), dan tracking
+> memakai tracker bersama dengan site `tools` tanpa session recording.
+
 1. **App terpisah, bukan route di `enem-landing-web`.** Tools punya siklus
    rilis dan dependency sendiri (nanti ada WASM untuk PDF/gambar), dan tidak
    boleh menambah bundle landing page. Dibuat lewat `scripts/create-app.sh`
