@@ -22,6 +22,7 @@ import { CreateSessionDto } from './dto/create-session.dto.js';
 import { GetHeatmapQueryDto } from './dto/get-heatmap-query.dto.js';
 import { RecordPageviewDurationDto } from './dto/record-pageview-duration.dto.js';
 import { RecordSessionChunkDto } from './dto/record-session-chunk.dto.js';
+import { SiteQueryDto } from './dto/site-query.dto.js';
 import { UpdateFunnelDto } from './dto/update-funnel.dto.js';
 import { UpdateTrackingSettingsDto } from './dto/update-tracking-settings.dto.js';
 import { TrackingService } from './tracking.service.js';
@@ -41,8 +42,8 @@ export class TrackingController {
   ) {}
 
   @Get('config')
-  async getConfig() {
-    const settings = await this.trackingSettingsService.getOrCreate();
+  async getConfig(@Query() query: SiteQueryDto) {
+    const settings = await this.trackingSettingsService.getOrCreate(query.site);
     return {
       pageviewEnabled: settings.pageviewEnabled,
       eventsEnabled: settings.eventsEnabled,
@@ -77,30 +78,34 @@ export class TrackingController {
 
   @UseGuards(SsoAuthGuard)
   @Get('settings')
-  getSettings(@Req() req: Request) {
+  getSettings(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingSettingsService.getOrCreate();
+    return this.trackingSettingsService.getOrCreate(query.site);
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('settings')
-  updateSettings(@Req() req: Request, @Body() dto: UpdateTrackingSettingsDto) {
+  updateSettings(
+    @Req() req: Request,
+    @Query() query: SiteQueryDto,
+    @Body() dto: UpdateTrackingSettingsDto,
+  ) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingSettingsService.update(dto);
+    return this.trackingSettingsService.update(dto, query.site);
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('overview')
-  getOverview(@Req() req: Request) {
+  getOverview(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingService.getOverview();
+    return this.trackingService.getOverview(query.site);
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('visitors')
-  getVisitors(@Req() req: Request) {
+  getVisitors(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingService.getVisitors();
+    return this.trackingService.getVisitors(query.site);
   }
 
   @Post('events')
@@ -110,9 +115,9 @@ export class TrackingController {
 
   @UseGuards(SsoAuthGuard)
   @Get('funnels')
-  findAllFunnels(@Req() req: Request) {
+  findAllFunnels(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingFunnelsService.findAll();
+    return this.trackingFunnelsService.findAll(query.site);
   }
 
   @UseGuards(SsoAuthGuard)
@@ -149,21 +154,25 @@ export class TrackingController {
 
   @Post('clicks')
   recordClicks(@Body() dto: CreateClickBatchDto) {
-    return this.trackingService.recordClicks(dto.items);
+    return this.trackingService.recordClicks(dto.items, dto.site);
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('heatmap/paths')
-  getHeatmapPaths(@Req() req: Request) {
+  getHeatmapPaths(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingHeatmapService.getDistinctPaths();
+    return this.trackingHeatmapService.getDistinctPaths(query.site);
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('heatmap')
   getHeatmap(@Req() req: Request, @Query() query: GetHeatmapQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingHeatmapService.getHeatmap(query.path, query.device);
+    return this.trackingHeatmapService.getHeatmap(
+      query.path,
+      query.device,
+      query.site,
+    );
   }
 
   @UseGuards(SsoAuthGuard)

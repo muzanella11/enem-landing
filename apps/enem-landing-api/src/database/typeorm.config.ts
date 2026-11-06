@@ -14,6 +14,9 @@ import { TrackingPageviewEntity } from '../app/tracking/tracking-pageview.entity
 import { TrackingRecordingChunkEntity } from '../app/tracking/tracking-recording-chunk.entity.js';
 import { TrackingSessionEntity } from '../app/tracking/tracking-session.entity.js';
 import { TrackingSettingsEntity } from '../app/tracking/tracking-settings.entity.js';
+import { DonationOptionEntity } from '../app/tools/donation-option.entity.js';
+import { ToolEntity } from '../app/tools/tool.entity.js';
+import { ToolsSettingsEntity } from '../app/tools/tools-settings.entity.js';
 
 /** Used by the TypeORM CLI (migrations) and the seed entrypoint below. */
 export const config: DataSourceOptions = {
@@ -34,6 +37,9 @@ export const config: DataSourceOptions = {
     TrackingClickEntity,
     TrackingClickAggregateEntity,
     TrackingRecordingChunkEntity,
+    ToolEntity,
+    DonationOptionEntity,
+    ToolsSettingsEntity,
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,

@@ -1,8 +1,17 @@
 import type { TrackingOverview } from '@enem-landing/shared-types';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  isRecordingAllowedForSite,
+  sanitizeToolsEventPayload,
+  type TrackingSite,
+} from '@enem-landing/shared-definitions';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UAParser } from 'ua-parser-js';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateSessionDto } from './dto/create-session.dto.js';
 import { CreatePageviewItemDto } from './dto/create-pageview-batch.dto.js';
 import { CreateEventItemDto } from './dto/create-event-batch.dto.js';
@@ -42,12 +51,15 @@ export class TrackingService {
       userAgent ?? '',
     ).getResult();
     const geo = await lookupGeo(ip);
-    const settings = await this.trackingSettingsService.getOrCreate();
+    const site = dto.site ?? 'landing';
+    const settings = await this.trackingSettingsService.getOrCreate(site);
     const recordingSampled =
+      isRecordingAllowedForSite(site) &&
       settings.sessionRecordingEnabled &&
       Math.random() * 100 < settings.sessionRecordingSampleRatePct;
 
     const session = this.sessionRepository.create({
+      site,
       visitorId: dto.visitorId,
       recordingSampled,
       startedAt: new Date(),
@@ -115,37 +127,73 @@ export class TrackingService {
   }
 
   /**
-   * No-ops (returns an empty array, writes nothing) when `eventsEnabled`
-   * is off - defense in depth, doesn't just trust the client to have
-   * respected the toggle before sending.
+   * Drops events whose site has `eventsEnabled` off - defense in depth,
+   * doesn't just trust the client to have respected the toggle. Each
+   * event's site comes from its session (an unknown session counts as
+   * `landing`, matching single-site behavior). Payloads from the tools
+   * site are reduced to whitelisted short string keys (Story 25), so a
+   * user's salary or invoice value can never be stored here.
    */
   async recordEvents(
     items: CreateEventItemDto[],
   ): Promise<TrackingEventEntity[]> {
-    const settings = await this.trackingSettingsService.getOrCreate();
-    if (!settings.eventsEnabled) return [];
-
-    const rows = items.map((item) =>
-      this.eventRepository.create({
-        sessionId: item.sessionId,
-        name: item.name,
-        payload: item.payload ?? null,
-        path: item.path ?? null,
-        occurredAt: new Date(item.occurredAt),
-      }),
+    if (items.length === 0) return [];
+    const siteBySession = await this.resolveSessionSites(
+      items.map((item) => item.sessionId),
     );
+    const enabledBySite = new Map<TrackingSite, boolean>();
+    const isEnabled = async (site: TrackingSite) => {
+      if (!enabledBySite.has(site)) {
+        const settings = await this.trackingSettingsService.getOrCreate(site);
+        enabledBySite.set(site, settings.eventsEnabled);
+      }
+      return enabledBySite.get(site) ?? false;
+    };
+
+    const rows: TrackingEventEntity[] = [];
+    for (const item of items) {
+      const site = siteBySession.get(item.sessionId) ?? 'landing';
+      if (!(await isEnabled(site))) continue;
+      const payload =
+        site === 'tools'
+          ? sanitizeToolsEventPayload(item.payload)
+          : (item.payload ?? null);
+      rows.push(
+        this.eventRepository.create({
+          sessionId: item.sessionId,
+          name: item.name,
+          payload,
+          path: item.path ?? null,
+          occurredAt: new Date(item.occurredAt),
+        }),
+      );
+    }
+    if (rows.length === 0) return [];
     return this.eventRepository.save(rows);
+  }
+
+  private async resolveSessionSites(
+    sessionIds: string[],
+  ): Promise<Map<string, TrackingSite>> {
+    const unique = [...new Set(sessionIds)];
+    const sessions = await this.sessionRepository.find({
+      where: { id: In(unique) },
+      select: { id: true, site: true },
+    });
+    return new Map(sessions.map((session) => [session.id, session.site]));
   }
 
   /** No-ops when `heatmapEnabled` is off - same defense-in-depth as `recordEvents`. */
   async recordClicks(
     items: CreateClickItemDto[],
+    site: TrackingSite = 'landing',
   ): Promise<TrackingClickEntity[]> {
-    const settings = await this.trackingSettingsService.getOrCreate();
+    const settings = await this.trackingSettingsService.getOrCreate(site);
     if (!settings.heatmapEnabled) return [];
 
     const rows = items.map((item) =>
       this.clickRepository.create({
+        site,
         path: item.path,
         xPct: item.xPct,
         yPct: item.yPct,
@@ -162,18 +210,29 @@ export class TrackingService {
    * `createSession`) came up false - a client that ignores its own
    * sampling decision (or the toggle changing mid-session) still can't
    * force a chunk to actually upload.
+   *
+   * Sessions from a site where recording is never allowed (the tools hub,
+   * Story 25) are rejected outright with a 400, before anything is sent to
+   * R2 - that's a client bug or abuse, not a toggle state.
    */
   async recordSessionChunk(
     sessionId: string,
     sequence: number,
     events: unknown[],
   ) {
-    const settings = await this.trackingSettingsService.getOrCreate();
-    if (!settings.sessionRecordingEnabled) return null;
-
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
     });
+    if (session && !isRecordingAllowedForSite(session.site ?? 'landing')) {
+      throw new BadRequestException(
+        `Session recording is not allowed for site "${session.site}"`,
+      );
+    }
+
+    const settings = await this.trackingSettingsService.getOrCreate(
+      session?.site ?? 'landing',
+    );
+    if (!settings.sessionRecordingEnabled) return null;
     if (!session || !session.recordingSampled) return null;
 
     return this.trackingRecordingService.uploadChunk(
@@ -184,11 +243,107 @@ export class TrackingService {
   }
 
   /** Full session rows (IP + geo + device/browser) for the CMS's visitor detail list - admin-only, no pagination (matches `TrackingRecordingService.getSessionsWithRecording`'s convention at this traffic volume). */
-  async getVisitors(): Promise<TrackingSessionEntity[]> {
-    return this.sessionRepository.find({ order: { startedAt: 'DESC' } });
+  async getVisitors(
+    site: TrackingSite = 'landing',
+  ): Promise<TrackingSessionEntity[]> {
+    return this.sessionRepository.find({
+      where: { site },
+      order: { startedAt: 'DESC' },
+    });
   }
 
-  async getOverview(): Promise<TrackingOverview> {
+  /** Pageviews scoped to one site through their session. */
+  private sitePageviews(site: TrackingSite) {
+    return this.pageviewRepository
+      .createQueryBuilder('pageview')
+      .innerJoin(
+        TrackingSessionEntity,
+        'pv_session',
+        'pv_session.id = pageview.sessionId AND pv_session.site = :site',
+        { site },
+      );
+  }
+
+  private siteSessions(site: TrackingSite) {
+    return this.sessionRepository
+      .createQueryBuilder('session')
+      .where('session.site = :site', { site });
+  }
+
+  /**
+   * Event counts per tool for the CMS tool list (Story 25): `tool_view`
+   * and `tool_calculate` events from the tools site in the last `days`.
+   */
+  async getToolUsage(
+    days = 30,
+  ): Promise<{ toolId: string; name: string; count: number }[]> {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const rows = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin(
+        TrackingSessionEntity,
+        'ev_session',
+        "ev_session.id = event.sessionId AND ev_session.site = 'tools'",
+      )
+      .select("JSON_UNQUOTE(JSON_EXTRACT(event.payload, '$.toolId'))", 'toolId')
+      .addSelect('event.name', 'name')
+      .addSelect('COUNT(*)', 'count')
+      .where('event.occurredAt >= :since', { since })
+      .andWhere('event.name IN (:...names)', {
+        names: ['tool_view', 'tool_calculate', 'donate_click'],
+      })
+      .groupBy('toolId')
+      .addGroupBy('event.name')
+      .getRawMany<{ toolId: string | null; name: string; count: string }>();
+    return rows
+      .filter((row) => row.toolId)
+      .map((row) => ({
+        toolId: row.toolId as string,
+        name: row.name,
+        count: Number(row.count),
+      }));
+  }
+
+  /** `donate_click` counts per donation option and tool (last `days`). */
+  async getDonationClicks(
+    days = 30,
+  ): Promise<{ donationOptionId: string; toolId: string; count: number }[]> {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const rows = await this.eventRepository
+      .createQueryBuilder('event')
+      .innerJoin(
+        TrackingSessionEntity,
+        'ev_session',
+        "ev_session.id = event.sessionId AND ev_session.site = 'tools'",
+      )
+      .select(
+        "JSON_UNQUOTE(JSON_EXTRACT(event.payload, '$.donationOptionId'))",
+        'donationOptionId',
+      )
+      .addSelect(
+        "JSON_UNQUOTE(JSON_EXTRACT(event.payload, '$.toolId'))",
+        'toolId',
+      )
+      .addSelect('COUNT(*)', 'count')
+      .where('event.occurredAt >= :since', { since })
+      .andWhere('event.name = :name', { name: 'donate_click' })
+      .groupBy('donationOptionId')
+      .addGroupBy('toolId')
+      .getRawMany<{
+        donationOptionId: string | null;
+        toolId: string | null;
+        count: string;
+      }>();
+    return rows
+      .filter((row) => row.donationOptionId)
+      .map((row) => ({
+        donationOptionId: row.donationOptionId as string,
+        toolId: row.toolId ?? 'unknown',
+        count: Number(row.count),
+      }));
+  }
+
+  async getOverview(site: TrackingSite = 'landing'): Promise<TrackingOverview> {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const activeSince = new Date(Date.now() - ACTIVE_SESSION_WINDOW_MS);
@@ -203,57 +358,49 @@ export class TrackingService {
       devicesRaw,
       locationsRaw,
     ] = await Promise.all([
-      this.pageviewRepository
-        .createQueryBuilder('pageview')
+      this.sitePageviews(site)
         .where('pageview.enteredAt >= :todayStart', { todayStart })
         .getCount(),
-      this.sessionRepository
-        .createQueryBuilder('session')
-        .where('session.startedAt >= :activeSince', { activeSince })
+      this.siteSessions(site)
+        .andWhere('session.startedAt >= :activeSince', { activeSince })
         .getCount(),
-      this.sessionRepository
-        .createQueryBuilder('session')
+      this.siteSessions(site)
         .select('COUNT(DISTINCT session.visitorId)', 'count')
         .getRawOne<{ count: string }>(),
-      this.pageviewRepository
-        .createQueryBuilder('pageview')
+      this.sitePageviews(site)
         .select('DATE(pageview.enteredAt)', 'date')
         .addSelect('COUNT(*)', 'count')
         .groupBy('date')
         .orderBy('date', 'ASC')
         .getRawMany<{ date: string; count: string }>(),
-      this.pageviewRepository
-        .createQueryBuilder('pageview')
+      this.sitePageviews(site)
         .select('pageview.path', 'path')
         .addSelect('COUNT(*)', 'count')
         .groupBy('pageview.path')
         .orderBy('count', 'DESC')
         .limit(10)
         .getRawMany<{ path: string; count: string }>(),
-      this.sessionRepository
-        .createQueryBuilder('session')
+      this.siteSessions(site)
         .select('session.referrer', 'referrer')
         .addSelect('COUNT(*)', 'count')
-        .where('session.referrer IS NOT NULL')
+        .andWhere('session.referrer IS NOT NULL')
         .groupBy('session.referrer')
         .orderBy('count', 'DESC')
         .limit(10)
         .getRawMany<{ referrer: string; count: string }>(),
-      this.sessionRepository
-        .createQueryBuilder('session')
+      this.siteSessions(site)
         .select('session.deviceType', 'device')
         .addSelect('COUNT(*)', 'count')
         .groupBy('session.deviceType')
         .orderBy('count', 'DESC')
         .getRawMany<{ device: string; count: string }>(),
-      this.sessionRepository
-        .createQueryBuilder('session')
+      this.siteSessions(site)
         .select('session.country', 'country')
         .addSelect('session.city', 'city')
         .addSelect('session.latitude', 'latitude')
         .addSelect('session.longitude', 'longitude')
         .addSelect('COUNT(*)', 'count')
-        .where('session.latitude IS NOT NULL')
+        .andWhere('session.latitude IS NOT NULL')
         .andWhere('session.longitude IS NOT NULL')
         .groupBy('session.country')
         .addGroupBy('session.city')
@@ -269,11 +416,10 @@ export class TrackingService {
         }>(),
     ]);
 
-    const topCountryRaw = await this.sessionRepository
-      .createQueryBuilder('session')
+    const topCountryRaw = await this.siteSessions(site)
       .select('session.country', 'country')
       .addSelect('COUNT(*)', 'count')
-      .where('session.country IS NOT NULL')
+      .andWhere('session.country IS NOT NULL')
       .groupBy('session.country')
       .orderBy('count', 'DESC')
       .limit(1)

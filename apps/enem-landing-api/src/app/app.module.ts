@@ -27,6 +27,10 @@ import { TrackingRecordingChunkEntity } from './tracking/tracking-recording-chun
 import { TrackingSessionEntity } from './tracking/tracking-session.entity.js';
 import { TrackingSettingsEntity } from './tracking/tracking-settings.entity.js';
 import { TrackingModule } from './tracking/tracking.module.js';
+import { DonationOptionEntity } from './tools/donation-option.entity.js';
+import { ToolEntity } from './tools/tool.entity.js';
+import { ToolsSettingsEntity } from './tools/tools-settings.entity.js';
+import { ToolsModule } from './tools/tools.module.js';
 
 @Module({
   imports: [
@@ -51,6 +55,9 @@ import { TrackingModule } from './tracking/tracking.module.js';
         TrackingClickEntity,
         TrackingClickAggregateEntity,
         TrackingRecordingChunkEntity,
+        ToolEntity,
+        DonationOptionEntity,
+        ToolsSettingsEntity,
       ],
       synchronize: false,
     }),
@@ -64,6 +71,7 @@ import { TrackingModule } from './tracking/tracking.module.js';
     SkillsModule,
     TrackingModule,
     BlogModule,
+    ToolsModule,
   ],
 })
 export class AppModule {}
