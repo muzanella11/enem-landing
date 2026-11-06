@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ToolCategoryValue } from '@enem-landing/shared-types';
 
-const siteUrl = useRuntimeConfig().public.siteUrl as string;
 const { config } = useToolsConfig();
 
 const CATEGORY_LABELS: Record<ToolCategoryValue, string> = {
@@ -23,18 +22,10 @@ const title = 'Tools gratis berbahasa Indonesia';
 const description =
   'Kalkulator gaji bersih PPh 21 TER, simulasi KPR, kalkulator zakat, alat PDF dan gambar, serta pembuat invoice. Semua berjalan di browser, data kamu tidak dikirim ke server.';
 
-useSeoMeta({
-  title,
-  titleTemplate: '%s',
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogUrl: `${siteUrl}/`,
-  ogType: 'website',
-  ogImage: `${siteUrl}/og-image.png`,
-});
+useSeoMeta({ titleTemplate: '%s' });
+const { siteUrl } = usePageSeo({ title, description, path: '/' });
+
 useHead({
-  link: [{ rel: 'canonical', href: `${siteUrl}/` }],
   script: [
     {
       type: 'application/ld+json',
@@ -44,7 +35,27 @@ useHead({
         name: 'Tools muzanella',
         url: `${siteUrl}/`,
         inLanguage: 'id-ID',
+        publisher: {
+          '@type': 'Person',
+          name: 'Nurfirliana Muzanella',
+          url: 'https://muzanella.com',
+        },
       }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: () =>
+        JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Daftar tools',
+          itemListElement: config.value.tools.map((tool, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: tool.name,
+            url: `${siteUrl}/${tool.slug}`,
+          })),
+        }),
     },
   ],
 });

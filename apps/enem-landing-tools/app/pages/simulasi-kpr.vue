@@ -208,10 +208,19 @@ const faqs = [
     a: 'Umumnya provisi, administrasi, appraisal, notaris/PPAT, asuransi jiwa dan kebakaran, serta BPHTB (5% dari harga dikurangi NPOPTKP yang berbeda per daerah). Nilai bawaan di sini bisa kamu ubah.',
   },
 ];
+
+const howTo = [
+  'Isi harga properti dan uang muka (persen atau nominal).',
+  'Tentukan tenor, lalu atur periode bunga fixed dan bunga floating sesudahnya.',
+  'Isi penghasilan bulanan bila ingin melihat rasio cicilan terhadap penghasilan.',
+  'Sesuaikan biaya awal (provisi, notaris, asuransi, BPHTB) dan, bila perlu, simulasi pelunasan sebagian.',
+  "Tekan 'Hitung cicilan' untuk melihat cicilan per periode, total bunga, grafik, dan tabel amortisasi yang bisa diunduh sebagai CSV.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Simulasi KPR"
     seo-title="Simulasi KPR Bunga Fixed dan Floating"

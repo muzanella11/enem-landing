@@ -19,6 +19,39 @@
             "prettier --write 'apps/enem-landing-tools/{app,server}/**/*.{ts,vue}'"
           ]
         }
+      },
+      "generate-og": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": [
+          "{projectRoot}/scripts/generate-og-images.mjs",
+          "{projectRoot}/shared/tools-registry.ts",
+          {
+            "externalDependencies": [
+              "satori",
+              "@resvg/resvg-js",
+              "@fontsource/inter"
+            ]
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/public/og"
+        ],
+        "options": {
+          "command": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-og-images.mjs",
+          "cwd": "apps/enem-landing-tools"
+        }
+      },
+      "build": {
+        "dependsOn": [
+          "generate-og",
+          "^build"
+        ]
+      },
+      "serve": {
+        "dependsOn": [
+          "generate-og"
+        ]
       }
     }
   },

@@ -24,10 +24,17 @@ const faqs = [
     a: 'Masukan: JPG, PNG, WebP, AVIF (bila browsermu mendukung), dan HEIC/HEIF. Hasil: JPG, PNG, atau WebP.',
   },
 ];
+
+const howTo = [
+  'Pilih gambar JPG, PNG, WebP, AVIF, atau HEIC.',
+  'Pilih format hasil (JPG, PNG, atau WebP) dan kualitasnya.',
+  "Tekan 'Konversi' lalu unduh hasilnya.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Konversi Gambar"
     seo-title="Konversi HEIC ke JPG, PNG, dan WebP Tanpa Upload"

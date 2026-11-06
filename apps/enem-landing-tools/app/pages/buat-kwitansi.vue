@@ -109,10 +109,17 @@ const faqs = [
     a: 'Bisa. Simpan beberapa kwitansi, centang yang mau dicetak, lalu pilih 1, 2, atau 3 kwitansi per halaman A4.',
   },
 ];
+
+const howTo = [
+  'Isi nama pemberi uang, jumlah uang, dan keperluan pembayaran. Terbilang dibuat otomatis.',
+  'Isi tempat, tanggal, dan nama penerima.',
+  "Tekan 'Simpan dan unduh PDF', atau simpan beberapa kwitansi lalu cetak hingga tiga per halaman A4.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Buat Kwitansi"
     seo-title="Buat Kwitansi PDF dengan Terbilang Otomatis"

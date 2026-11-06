@@ -165,10 +165,18 @@ const faqs = [
     a: 'Bisa. Unggah gambar QRIS di tab Profil usaha; gambar diproses di browser dan dicetak di bagian pembayaran.',
   },
 ];
+
+const howTo = [
+  'Isi profil usaha sekali saja: nama, alamat, rekening, logo, dan QRIS. Data tersimpan di browser ini.',
+  'Isi data pelanggan, tanggal, dan daftar item beserta harga dan diskonnya.',
+  'Tambahkan pajak opsional, ongkos kirim, catatan, dan syarat pembayaran.',
+  "Tekan 'Simpan dan unduh PDF'. Invoice tersimpan di riwayat dan bisa diduplikat atau ditandai lunas.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Buat Invoice"
     seo-title="Buat Invoice PDF Gratis untuk UMKM dan Freelancer"

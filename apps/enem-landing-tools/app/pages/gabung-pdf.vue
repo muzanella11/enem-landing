@@ -54,10 +54,17 @@ const faqs = [
     a: 'Belum. Buka kunci PDF terlebih dahulu, lalu gabungkan.',
   },
 ];
+
+const howTo = [
+  'Pilih atau seret beberapa file PDF ke kotak unggah. File tidak dikirim ke mana pun.',
+  'Atur urutan file dengan menyeret atau memakai tombol panah.',
+  "Tekan 'Gabungkan' lalu unduh PDF hasil gabungan.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Gabung PDF"
     seo-title="Gabung PDF Online Tanpa Upload"

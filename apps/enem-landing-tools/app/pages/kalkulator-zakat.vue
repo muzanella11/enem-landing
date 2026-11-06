@@ -118,10 +118,18 @@ const faqs = [
     a: 'Zakat fitrah 2,5 kg atau 3,5 liter beras per jiwa, atau uang senilai itu sesuai ketetapan BAZNAS daerah setempat.',
   },
 ];
+
+const howTo = [
+  'Pilih jenis zakat: penghasilan, maal, atau fitrah.',
+  'Periksa harga emas terbaru yang dipakai untuk nisab, atau isi harga emas sendiri.',
+  'Isi penghasilan, harta, atau jumlah jiwa sesuai jenis zakat.',
+  "Tekan 'Hitung zakat' untuk melihat apakah sudah mencapai nisab dan berapa zakat yang perlu dibayar.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Kalkulator Zakat"
     seo-title="Kalkulator Zakat Penghasilan, Maal, dan Fitrah"

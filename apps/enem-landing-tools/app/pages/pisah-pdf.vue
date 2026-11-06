@@ -101,10 +101,18 @@ const faqs = [
     a: 'Tidak. Semua proses terjadi di browsermu.',
   },
 ];
+
+const howTo = [
+  'Pilih satu file PDF.',
+  'Tulis halaman yang ingin diambil, misalnya 1-3, 5, 8-10.',
+  'Pilih apakah hasilnya satu file per rentang atau digabung jadi satu file.',
+  "Tekan 'Pisahkan' lalu unduh hasilnya (beberapa file diunduh sekaligus sebagai ZIP).",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Pisah PDF"
     seo-title="Pisah PDF dan Ambil Halaman Tertentu"

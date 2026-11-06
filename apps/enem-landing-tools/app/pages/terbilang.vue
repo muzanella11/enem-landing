@@ -46,10 +46,17 @@ const faqs = [
     a: 'Sampai 999 triliun, termasuk dua angka desimal yang dibaca sebagai sen.',
   },
 ];
+
+const howTo = [
+  'Ketik angka atau nominal rupiah. Gunakan koma untuk sen.',
+  "Pilih apakah ingin ditambahkan kata 'rupiah' dan huruf awal kapital.",
+  'Salin hasil terbilang untuk kwitansi, cek, atau dokumen lain.',
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Terbilang"
     seo-title="Terbilang Rupiah: Ubah Angka Jadi Kata"

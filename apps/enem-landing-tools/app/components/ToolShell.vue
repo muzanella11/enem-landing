@@ -13,6 +13,8 @@ const props = withDefaults(
     seoTitle?: string;
     applicationCategory?: string;
     faqs?: FaqItem[];
+    /** "Cara pakai" steps - rendered server-side so search engines see them. */
+    howTo?: string[];
     sources?: readonly { label: string; url: string }[];
     checkedAt?: string;
     caveats?: readonly string[];
@@ -23,6 +25,7 @@ const props = withDefaults(
     seoTitle: undefined,
     applicationCategory: 'FinanceApplication',
     faqs: () => [],
+    howTo: () => [],
     sources: () => [],
     checkedAt: undefined,
     caveats: () => [],
@@ -30,22 +33,29 @@ const props = withDefaults(
   },
 );
 
-const siteUrl = useRuntimeConfig().public.siteUrl as string;
-const { isToolEnabled } = useToolsConfig();
+const { config, findTool, isToolEnabled } = useToolsConfig();
 const enabled = computed(() => isToolEnabled(props.slug));
-const canonicalUrl = `${siteUrl}/${props.slug}`;
 const pageTitle = props.seoTitle ?? props.title;
 
-useSeoMeta({
+const { siteUrl, url: canonicalUrl } = usePageSeo({
   title: pageTitle,
   description: props.description,
-  ogTitle: pageTitle,
-  ogDescription: props.description,
-  ogUrl: canonicalUrl,
-  ogType: 'website',
-  ogImage: `${siteUrl}/og-image.png`,
-  twitterCard: 'summary_large_image',
-  robots: () => (enabled.value ? 'index, follow' : 'noindex, follow'),
+  path: `/${props.slug}`,
+  ogKey: props.slug,
+  robots: () =>
+    enabled.value
+      ? 'index, follow, max-image-preview:large, max-snippet:-1'
+      : 'noindex, follow',
+});
+
+/** Internal links: same category first, then the rest, up to 6. */
+const relatedTools = computed(() => {
+  const category = findTool(props.slug)?.category;
+  const others = config.value.tools.filter((tool) => tool.slug !== props.slug);
+  return [
+    ...others.filter((tool) => tool.category === category),
+    ...others.filter((tool) => tool.category !== category),
+  ].slice(0, 6);
 });
 
 const jsonLd = [
@@ -90,7 +100,6 @@ const jsonLd = [
 ];
 
 useHead({
-  link: [{ rel: 'canonical', href: canonicalUrl }],
   script: jsonLd.map((data) => ({
     type: 'application/ld+json',
     innerHTML: JSON.stringify(data),
@@ -146,6 +155,13 @@ onMounted(() => {
         </aside>
       </div>
 
+      <section v-if="howTo.length > 0" class="mt-10 max-w-3xl">
+        <h2 class="text-xl font-bold">Cara pakai {{ title }}</h2>
+        <ol class="mt-3 list-decimal space-y-2 pl-5 text-slate-700">
+          <li v-for="step in howTo" :key="step">{{ step }}</li>
+        </ol>
+      </section>
+
       <section v-if="faqs.length > 0" class="mt-10 max-w-3xl">
         <h2 class="text-xl font-bold">Tanya jawab</h2>
         <div
@@ -186,6 +202,27 @@ onMounted(() => {
           }}.
         </p>
       </section>
+
+      <nav
+        v-if="relatedTools.length > 0"
+        class="mt-10"
+        aria-label="Tools lainnya"
+      >
+        <h2 class="text-xl font-bold">Tools lainnya</h2>
+        <ul class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <li v-for="tool in relatedTools" :key="tool.slug">
+            <NuxtLink
+              :to="`/${tool.slug}`"
+              class="card block h-full transition hover:border-teal-600"
+            >
+              <span class="font-semibold text-slate-900">{{ tool.name }}</span>
+              <span class="mt-1 block text-sm text-slate-600">{{
+                tool.shortDescription
+              }}</span>
+            </NuxtLink>
+          </li>
+        </ul>
+      </nav>
     </template>
   </div>
 </template>

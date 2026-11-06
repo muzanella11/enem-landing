@@ -79,10 +79,18 @@ const faqs = [
     a: 'Foto tidak pernah di-upload. Semua diproses di perangkatmu, dan metadata lokasi GPS dihapus.',
   },
 ];
+
+const howTo = [
+  'Pilih foto atau hasil scan (JPG, PNG, atau HEIC dari iPhone).',
+  'Atur urutan gambar sesuai urutan halaman.',
+  'Pilih ukuran kertas A4 atau F4 dan atur margin.',
+  "Tekan 'Buat PDF' lalu unduh dokumen.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Gambar ke PDF"
     seo-title="Ubah Foto Jadi PDF A4 atau F4"

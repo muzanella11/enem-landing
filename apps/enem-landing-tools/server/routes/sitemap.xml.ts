@@ -4,7 +4,10 @@ import { createApiClient } from '../utils/api-client';
 
 /** Only enabled tools are listed (Story 25); disabled ones are `noindex`. */
 export default defineEventHandler(async (event) => {
-  const siteUrl = useRuntimeConfig().public.siteUrl as string;
+  const { siteUrl, buildDate } = useRuntimeConfig().public as {
+    siteUrl: string;
+    buildDate: string;
+  };
   let tools = TOOLS_SNAPSHOT.tools;
   try {
     const config = (await createApiClient().get(
@@ -17,7 +20,10 @@ export default defineEventHandler(async (event) => {
 
   const urls = ['', ...tools.map((tool) => `/${tool.slug}`), '/privasi'];
   const body = urls
-    .map((path) => `  <url><loc>${siteUrl}${path}</loc></url>`)
+    .map(
+      (path) =>
+        `  <url><loc>${siteUrl}${path}</loc><lastmod>${buildDate}</lastmod></url>`,
+    )
     .join('\n');
 
   setHeader(event, 'content-type', 'application/xml; charset=utf-8');

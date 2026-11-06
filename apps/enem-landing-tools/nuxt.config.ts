@@ -31,6 +31,14 @@ export default defineNuxtConfig({
       meta: [
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'theme-color', content: '#0E7C6B' },
+        // Site-wide Open Graph defaults; each page sets its own title,
+        // description, URL, and image (see ToolShell.vue / useToolsSeo).
+        { property: 'og:site_name', content: 'Tools muzanella' },
+        { property: 'og:locale', content: 'id_ID' },
+        {
+          name: 'robots',
+          content: 'index, follow, max-image-preview:large, max-snippet:-1',
+        },
       ],
     },
   },
@@ -40,6 +48,9 @@ export default defineNuxtConfig({
     apiHost: process.env['API_HOST'] || 'http://localhost:3001',
     public: {
       siteUrl: 'https://tools.muzanella.com',
+      // Build date (YYYY-MM-DD) for sitemap <lastmod>: content changes ship
+      // with a deploy, so the build date is an honest "last modified".
+      buildDate: new Date().toISOString().slice(0, 10),
       adsenseSlotResult: '',
       adsenseSlotSidebar: '',
     },

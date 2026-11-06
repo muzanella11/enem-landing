@@ -38,10 +38,18 @@ const faqs = [
     a: 'Ya. Hasil kompresi dibuat ulang tanpa metadata EXIF, termasuk lokasi GPS.',
   },
 ];
+
+const howTo = [
+  'Pilih satu atau beberapa foto.',
+  "Pilih mode 'Target ukuran' (misalnya 200 KB untuk formulir pendaftaran) atau atur kualitas sendiri.",
+  'Pilih format hasil JPG atau WebP, dan batasi ukuran sisi terpanjang bila perlu.',
+  "Tekan 'Kompres' lalu unduh hasilnya satu per satu atau sekaligus sebagai ZIP.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Kompres Gambar"
     seo-title="Kompres Foto Jadi di Bawah 200 KB Tanpa Upload"

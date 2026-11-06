@@ -1,11 +1,10 @@
 <script setup lang="ts">
-const siteUrl = useRuntimeConfig().public.siteUrl as string;
-useSeoMeta({
+usePageSeo({
   title: 'Privasi dan cookie',
   description:
     'Bagaimana tools.muzanella.com memperlakukan data, cookie, dan iklan.',
+  path: '/privasi',
 });
-useHead({ link: [{ rel: 'canonical', href: `${siteUrl}/privasi` }] });
 
 const { state, set } = useConsent();
 </script>

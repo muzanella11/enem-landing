@@ -50,10 +50,17 @@ const faqs = [
     a: 'Tidak. Mode piksel menjaga perbandingan sisi (foto dimuat di dalam kotak lebar x tinggi), dan mode pas foto memotong tengah foto alih-alih menariknya.',
   },
 ];
+
+const howTo = [
+  'Pilih foto yang ingin diubah ukurannya.',
+  'Pilih mode piksel, persen, atau pas foto (2x3, 3x4, 4x6).',
+  "Tekan 'Ubah ukuran' lalu unduh hasilnya.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Ubah Ukuran Gambar"
     seo-title="Ubah Ukuran Foto dan Buat Pas Foto 3x4 Online"

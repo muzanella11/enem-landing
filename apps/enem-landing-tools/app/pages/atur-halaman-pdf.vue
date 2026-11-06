@@ -112,10 +112,17 @@ const faqs = [
     a: 'Tidak. Halaman disalin apa adanya, hanya urutan dan rotasinya yang berubah. Thumbnail hanya pratinjau.',
   },
 ];
+
+const howTo = [
+  'Pilih satu file PDF untuk melihat pratinjau setiap halaman.',
+  'Seret halaman untuk mengubah urutan, putar halaman yang miring, atau hapus halaman yang tidak perlu.',
+  "Tekan 'Simpan PDF' lalu unduh hasilnya.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Atur Halaman PDF"
     seo-title="Urutkan, Putar, dan Hapus Halaman PDF"

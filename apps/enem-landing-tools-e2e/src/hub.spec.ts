@@ -35,4 +35,52 @@ test.describe('tools hub', () => {
     expect(sitemap).toContain('/kalkulator-gaji-bersih</loc>');
     expect(sitemap).toContain('/buat-invoice</loc>');
   });
+
+  test('tool pages have their own Open Graph image, Twitter card, and related tools', async ({
+    page,
+    request,
+  }) => {
+    await gotoReady(page, '/simulasi-kpr');
+    const ogImage = await page
+      .locator('meta[property="og:image"]')
+      .getAttribute('content');
+    expect(ogImage).toMatch(/\/og\/simulasi-kpr\.png$/);
+    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+      'content',
+      'Tools muzanella',
+    );
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute(
+      'content',
+      'id_ID',
+    );
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    );
+
+    const image = await request.get(new URL(ogImage ?? '').pathname);
+    expect(image.status()).toBe(200);
+    expect(image.headers()['content-type']).toContain('image/png');
+
+    await expect(
+      page.getByRole('heading', { name: /Cara pakai/ }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Tools lainnya' })
+        .getByRole('link')
+        .first(),
+    ).toBeVisible();
+  });
+
+  test('unknown pages return a noindex 404 in Indonesian', async ({ page }) => {
+    const response = await page.goto('/halaman-yang-tidak-ada');
+    expect(response?.status()).toBe(404);
+    await expect(
+      page.getByRole('heading', { name: 'Halaman tidak ditemukan' }),
+    ).toBeVisible();
+    await expect(
+      page.locator('meta[name="robots"][content*="noindex"]'),
+    ).toHaveCount(1);
+  });
 });

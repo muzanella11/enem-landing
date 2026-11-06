@@ -68,10 +68,19 @@ const faqs = [
     a: 'Tidak. Semua hitungan berjalan di browsermu. Link berbagi menyimpan angka di bagian setelah tanda # yang tidak pernah dikirim ke server.',
   },
 ];
+
+const howTo = [
+  'Isi gaji pokok, tunjangan tetap, dan tunjangan tidak tetap per bulan.',
+  'Pilih status PTKP (TK/0 sampai K/3) dan centang keikutsertaan BPJS Kesehatan serta Ketenagakerjaan.',
+  'Pilih bulan yang ingin dihitung. Bila ada THR atau bonus, isi nominal dan bulan dibayarnya.',
+  "Tekan 'Hitung gaji bersih' untuk melihat take home pay, rincian potongan, dan tarif TER yang dipakai.",
+  "Pilih tampilan 'Setahun' untuk melihat potongan tiap bulan dan rekonsiliasi PPh 21 di bulan Desember.",
+];
 </script>
 
 <template>
   <ToolShell
+    :how-to="howTo"
     :slug="SLUG"
     title="Kalkulator Gaji Bersih 2026"
     seo-title="Kalkulator Gaji Bersih PPh 21 TER dan BPJS 2026"
