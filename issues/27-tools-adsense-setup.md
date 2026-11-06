@@ -63,14 +63,14 @@ deploy ulang.
 
 - [ ] Mengisi slot ID di CMS membuat slot iklan tampil tanpa deploy, dalam
       TTL cache + SWR.
-- [ ] `/ads.txt` berisi baris yang benar saat publisher ID terisi, 404 saat
+- [x] `/ads.txt` berisi baris yang benar saat publisher ID terisi, 404 saat
       kosong.
 - [ ] Meta tag verifikasi ada di HTML server-rendered semua halaman saat
       publisher ID terisi, dan script `adsbygoogle.js` tetap tidak dimuat
       selama saklar iklan mati.
-- [ ] Tidak ada lagi referensi `ADSENSE_SLOT_*` di compose, workflow, dan
+- [x] Tidak ada lagi referensi `ADSENSE_SLOT_*` di compose, workflow, dan
       `.env.example`.
-- [ ] Unit test API untuk validasi slot dan config publik; e2e tools untuk
+- [x] Unit test API untuk validasi slot dan config publik; e2e tools untuk
       `/ads.txt` dan meta tag.
 
 ## Referensi perhitungan

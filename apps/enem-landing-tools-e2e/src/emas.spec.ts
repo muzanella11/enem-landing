@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { acceptConsent, gotoReady } from './helpers';
+import { acceptConsent, gotoReady, recordRequests } from './helpers';
 
 test.describe('gold tools (Story 38)', () => {
   test.beforeEach(async ({ page }) => acceptConsent(page));
@@ -20,5 +20,17 @@ test.describe('gold tools (Story 38)', () => {
     await expect(
       page.getByRole('heading', { name: 'Riwayat harga' }),
     ).toBeVisible();
+  });
+
+  test('gold amounts are never sent', async ({ page }) => {
+    const traffic = recordRequests(page);
+    await gotoReady(page, '/kalkulator-emas');
+    await page
+      .getByLabel('Pakai harga sendiri per gram (opsional)')
+      .fill('1234567');
+    await page.getByRole('button', { name: 'Perhiasan' }).click();
+    await page.getByLabel('Berat perhiasan (gram)').fill('17');
+    await expect(page.getByText('Rp').first()).toBeVisible();
+    expect(traffic.containing('1234567')).toEqual([]);
   });
 });

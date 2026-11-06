@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { acceptConsent, gotoReady } from './helpers';
+import { acceptConsent, gotoReady, recordRequests } from './helpers';
 
 test.describe('ibadah tools (Story 36)', () => {
   test.beforeEach(async ({ page }) => acceptConsent(page));
@@ -40,5 +40,22 @@ test.describe('ibadah tools (Story 36)', () => {
     expect(sitemap).toContain('/jadwal-imsakiyah/kota-bandung</loc>');
     const response = await page.goto('/jadwal-sholat/kota-fiktif');
     expect(response?.status()).toBe(404);
+  });
+
+  test('device location never leaves the browser', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({
+      latitude: -6.914744,
+      longitude: 107.609811,
+    });
+    const traffic = recordRequests(page);
+    await gotoReady(page, '/jadwal-sholat');
+    await page.getByRole('button', { name: 'Pakai lokasiku' }).click();
+    await expect(page).toHaveURL(/\/jadwal-sholat\/kota-bandung$/);
+    expect(traffic.containing('6.914')).toEqual([]);
+    expect(traffic.containing('107.609')).toEqual([]);
   });
 });

@@ -55,10 +55,10 @@ AdSense dan donasi. Halaman per nominal menambah halaman terindeks.
 
 - [ ] Unit test kWh untuk tiap golongan dan beberapa nominal, dicocokkan
       dengan contoh struk token nyata (dicatat di PR).
-- [ ] Sumber tarif, triwulan berlaku, dan tanggal cek tampil di halaman.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Sumber tarif, triwulan berlaku, dan tanggal cek tampil di halaman.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

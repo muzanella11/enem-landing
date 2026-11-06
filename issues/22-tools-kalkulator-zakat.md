@@ -86,17 +86,17 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 
 ## Acceptance Criteria
 
-- [ ] Unit test untuk tiap mode, termasuk tepat di batas nisab, di bawah
+- [x] Unit test untuk tiap mode, termasuk tepat di batas nisab, di bawah
       nisab, dan perhitungan bruto vs neto.
-- [ ] Server route harga emas punya cache, fallback ke nilai terakhir, dan
+- [x] Server route harga emas punya cache, fallback ke nilai terakhir, dan
       timeout; kegagalan sumber tidak membuat halaman error.
 - [ ] Memori container tetap di bawah limit 100M dengan server route aktif.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] Sumber ketentuan, sumber harga emas, dan tanggal update tampil di
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] Sumber ketentuan, sumber harga emas, dan tanggal update tampil di
       halaman.
-- [ ] CTA donasi tidak muncul di area hasil hitungan zakat.
-- [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] CTA donasi tidak muncul di area hasil hitungan zakat.
+- [x] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
 
 ## Catatan implementasi (2026-11-06)
 

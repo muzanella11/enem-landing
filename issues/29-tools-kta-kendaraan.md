@@ -70,12 +70,12 @@ pinjol. Affiliate leasing/bank tetap ditunda (Story 20).
 
 ## Acceptance Criteria
 
-- [ ] Unit test konversi flat ke efektif (cocok dengan RATE spreadsheet),
+- [x] Unit test konversi flat ke efektif (cocok dengan RATE spreadsheet),
       dana diterima KTA setelah potongan, dan asuransi di muka vs dalam
       cicilan.
 - [ ] 3 skenario dicocokkan dengan simulasi resmi leasing/bank, dicatat di PR.
-- [ ] Total pokok di tabel sama persis dengan plafon.
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Total pokok di tabel sama persis dengan plafon.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

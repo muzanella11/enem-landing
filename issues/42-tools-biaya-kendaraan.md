@@ -51,12 +51,12 @@ AdSense dan donasi.
 
 ## Acceptance Criteria
 
-- [ ] Setiap tarif punya dasar hukum dan tanggal cek.
+- [x] Setiap tarif punya dasar hukum dan tanggal cek.
 - [ ] Unit test PKB + opsen + denda untuk tiap provinsi yang dirilis,
       dicocokkan dengan contoh dari situs Bapenda/Samsat provinsi.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

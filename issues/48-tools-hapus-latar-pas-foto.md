@@ -56,13 +56,13 @@ pernah mirip tombol unduh. Donasi setelah unduhan. Tanpa fitur berbayar.
 
 - [ ] Lisensi model dan library tercatat di PR dan boleh dipakai untuk situs
       ber-iklan.
-- [ ] Foto tidak pernah meninggalkan perangkat (diuji e2e seperti Story 23).
+- [x] Foto tidak pernah meninggalkan perangkat (diuji e2e seperti Story 23).
 - [ ] Diuji di Chrome Android dan Safari iOS; waktu proses dan ukuran model
       tercatat.
-- [ ] Halaman lain di hub tidak ikut memuat model (ukuran bundle dicatat).
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Halaman lain di hub tidak ikut memuat model (ukuran bundle dicatat).
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

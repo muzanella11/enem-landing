@@ -103,16 +103,16 @@ Dievaluasi setelah ada data pemakaian dari versi gratis.
 
 ## Acceptance Criteria
 
-- [ ] Unit test terbilang: 0, satuan, belasan, "seratus"/"seribu",
+- [x] Unit test terbilang: 0, satuan, belasan, "seratus"/"seribu",
       jutaan, miliaran, triliunan, dan angka desimal/sen.
-- [ ] Unit test perhitungan total invoice (diskon, pajak, pembulatan).
+- [x] Unit test perhitungan total invoice (diskon, pajak, pembulatan).
 - [ ] PDF yang dihasilkan tampil sama di Chrome, Safari, dan pembaca PDF
       desktop, dengan logo dan karakter Rupiah benar.
-- [ ] Data tersimpan setelah reload, bisa diekspor lalu diimpor di browser
+- [x] Data tersimpan setelah reload, bisa diekspor lalu diimpor di browser
       lain dengan hasil identik.
-- [ ] Tidak ada request jaringan yang membawa data invoice/kwitansi.
-- [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] Tidak ada request jaringan yang membawa data invoice/kwitansi.
+- [x] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
 
 ## Catatan implementasi (2026-11-06)
 

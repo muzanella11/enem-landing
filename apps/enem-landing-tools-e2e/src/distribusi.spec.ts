@@ -70,7 +70,9 @@ test.describe('SEO and distribution (Story 49)', () => {
     // elt_consent is seeded by acceptConsent(); the widget itself must store nothing.
     expect(
       await page.evaluate(() =>
-        Object.keys(localStorage).filter((k) => k.startsWith('elt_') && k !== 'elt_consent'),
+        Object.keys(localStorage).filter(
+          (k) => k.startsWith('elt_') && k !== 'elt_consent',
+        ),
       ),
     ).toEqual([]);
     expect((await page.goto('/embed/kalkulator-fiktif'))?.status()).toBe(404);

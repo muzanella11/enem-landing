@@ -55,13 +55,13 @@ investasi bodong dan robot trading.
 
 ## Acceptance Criteria
 
-- [ ] Halaman selalu menyebut jenis harga (spot) dan waktu update.
-- [ ] Riwayat harga tercatat sekali per hari tanpa duplikat; bila sumber
+- [x] Halaman selalu menyebut jenis harga (spot) dan waktu update.
+- [x] Riwayat harga tercatat sekali per hari tanpa duplikat; bila sumber
       gagal, halaman memakai harga terakhir dengan label.
-- [ ] Unit test kalkulator karat, konversi, dan untung/rugi.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Unit test kalkulator karat, konversi, dan untung/rugi.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

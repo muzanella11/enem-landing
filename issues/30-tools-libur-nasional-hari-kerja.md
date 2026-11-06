@@ -83,15 +83,15 @@ ke kalkulator THR (Story 26) di sekitar Idul Fitri dan Natal.
 
 ## Acceptance Criteria
 
-- [ ] Semua tanggal berasal dari PDF kalender Bank Indonesia tahun terkait;
+- [x] Semua tanggal berasal dari PDF kalender Bank Indonesia tahun terkait;
       URL PDF dan tanggal pengecekan tampil di halaman.
-- [ ] Entri bertanda `*)` di PDF BI tampil dengan label "dapat berubah".
-- [ ] Tahun yang PDF-nya belum terbit tampil "menunggu publikasi kalender
+- [x] Entri bertanda `*)` di PDF BI tampil dengan label "dapat berubah".
+- [x] Tahun yang PDF-nya belum terbit tampil "menunggu publikasi kalender
       Bank Indonesia", tanpa tanggal perkiraan.
-- [ ] Unit test hitung hari kerja (rentang yang melewati libur, akhir pekan,
+- [x] Unit test hitung hari kerja (rentang yang melewati libur, akhir pekan,
       pola 5 dan 6 hari, tanggal terbalik) dan saran long weekend.
 - [ ] File `.ics` terbuka benar di Google Calendar dan Apple Calendar.
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

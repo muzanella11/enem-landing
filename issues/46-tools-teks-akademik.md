@@ -51,13 +51,13 @@ AdSense memungkinkan.
 
 ## Acceptance Criteria
 
-- [ ] Unit test penghitung kata untuk teks Indonesia (tanda baca, angka,
+- [x] Unit test penghitung kata untuk teks Indonesia (tanda baca, angka,
       kata berulang dengan tanda hubung).
-- [ ] Unit test format daftar pustaka per jenis sumber dicocokkan dengan
+- [x] Unit test format daftar pustaka per jenis sumber dicocokkan dengan
       contoh dari pedoman yang dicantumkan.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

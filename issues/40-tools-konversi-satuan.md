@@ -49,11 +49,11 @@ AdSense dan donasi. Cross-link ke simulasi KPR (Story 21) dan biaya properti
 
 ## Acceptance Criteria
 
-- [ ] Setiap nilai satuan lokal punya sumber dan daerah berlaku.
-- [ ] Unit test konversi dua arah dan presisi pembulatan.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Setiap nilai satuan lokal punya sumber dan daerah berlaku.
+- [x] Unit test konversi dua arah dan presisi pembulatan.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

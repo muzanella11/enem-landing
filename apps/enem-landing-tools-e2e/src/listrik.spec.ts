@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { acceptConsent, gotoReady } from './helpers';
+import { acceptConsent, gotoReady, recordRequests } from './helpers';
 
 test.describe('token listrik (Story 37)', () => {
   test.beforeEach(async ({ page }) => acceptConsent(page));
@@ -20,5 +20,15 @@ test.describe('token listrik (Story 37)', () => {
     );
     await expect(page.locator('table').first()).toContainText('67,2 kWh');
     expect((await page.goto('/token-listrik/123'))?.status()).toBe(404);
+  });
+
+  test('token amount is never sent', async ({ page }) => {
+    const traffic = recordRequests(page);
+    await gotoReady(page, '/kalkulator-token-listrik');
+    await page.getByLabel('Nominal token').fill('123456');
+    await expect(page.locator('[aria-live="polite"] .text-3xl')).toContainText(
+      'kWh',
+    );
+    expect(traffic.containing('123456')).toEqual([]);
   });
 });

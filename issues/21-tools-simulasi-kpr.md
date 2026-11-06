@@ -78,18 +78,18 @@ affiliate ditunda.
 
 ## Acceptance Criteria
 
-- [ ] Unit test: anuitas satu periode cocok dengan rumus standar (cocokkan
+- [x] Unit test: anuitas satu periode cocok dengan rumus standar (cocokkan
       dengan fungsi PMT spreadsheet), multi-periode bunga, tenor 1 s.d. 30
       tahun, DP 0%, pelunasan sebagian dua mode.
-- [ ] Total pokok di tabel amortisasi sama persis dengan plafon (selisih
+- [x] Total pokok di tabel amortisasi sama persis dengan plafon (selisih
       pembulatan ditaruh di cicilan terakhir).
 - [ ] Minimal 3 skenario dicocokkan dengan kalkulator KPR bank, hasilnya
       dicatat di PR.
 - [ ] CSV amortisasi terbuka benar di spreadsheet.
-- [ ] Slot iklan dan CTA donasi tampil sesuai aturan hub di Story 20.
-- [ ] Tool muncul di registry halaman index tools, punya meta/JSON-LD,
+- [x] Slot iklan dan CTA donasi tampil sesuai aturan hub di Story 20.
+- [x] Tool muncul di registry halaman index tools, punya meta/JSON-LD,
       masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
 
 ## Catatan implementasi (2026-11-06)
 

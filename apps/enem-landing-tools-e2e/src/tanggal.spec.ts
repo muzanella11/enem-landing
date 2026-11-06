@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { acceptConsent, gotoReady } from './helpers';
+import { acceptConsent, gotoReady, recordRequests } from './helpers';
 
 test.describe('date tools (Story 31)', () => {
   test.beforeEach(async ({ page }) => acceptConsent(page));
@@ -28,5 +28,14 @@ test.describe('date tools (Story 31)', () => {
     await gotoReady(page, '/konversi-hijriah');
     await page.getByLabel('Tanggal Masehi').fill('2026-11-06');
     await expect(page.getByText(/1448 H/)).toBeVisible();
+  });
+
+  test('birth dates are never sent', async ({ page }) => {
+    const traffic = recordRequests(page);
+    await gotoReady(page, '/hitung-umur');
+    await page.getByLabel('Tanggal lahir').fill('1987-03-19');
+    await page.getByLabel('Pada tanggal').fill('2026-11-06');
+    expect(traffic.containing('1987-03-19')).toEqual([]);
+    expect(traffic.containing('1987')).toEqual([]);
   });
 });

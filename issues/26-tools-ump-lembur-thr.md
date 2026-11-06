@@ -190,29 +190,29 @@ Mengikuti aturan hub di Story 20 (AdSense dan donasi, affiliate ditunda).
 
 ## Acceptance Criteria
 
-- [ ] Unit test lembur: hari kerja (jam pertama 1,5x, berikutnya 2x), hari
+- [x] Unit test lembur: hari kerja (jam pertama 1,5x, berikutnya 2x), hari
       istirahat pola 6 hari (termasuk hari kerja terpendek) dan pola 5
       hari, batas pengali 3x/4x, dasar upah 75% bila komponen tetap kurang
       dari 75%, dan peringatan batas 4 jam/hari dan 18 jam/minggu.
-- [ ] Unit test THR: masa kerja tepat 12 bulan, 11 bulan, 1 bulan, kurang
+- [x] Unit test THR: masa kerja tepat 12 bulan, 11 bulan, 1 bulan, kurang
       dari 1 bulan (tidak berhak), pekerja harian lepas dengan rata-rata
       upah, dan estimasi PPh 21 bulan THR konsisten dengan
       `calculateMonth`.
 - [ ] Minimal 3 skenario lembur dan 3 skenario THR dicocokkan manual dengan
       contoh resmi Kemnaker atau kalkulator lain yang mengikuti PP
       35/2021, hasilnya dicatat di PR.
-- [ ] Setiap entri UMP/UMK punya sumber dan tanggal pengecekan; entri yang
+- [x] Setiap entri UMP/UMK punya sumber dan tanggal pengecekan; entri yang
       belum diumumkan tampil sebagai "belum diumumkan", bukan angka.
-- [ ] Halaman per provinsi ter-render server-side dengan judul, meta,
+- [x] Halaman per provinsi ter-render server-side dengan judul, meta,
       canonical, dan JSON-LD sendiri, dan semuanya masuk sitemap.
-- [ ] Tombol dari upah minimum dan lembur ke kalkulator gaji membawa angka
+- [x] Tombol dari upah minimum dan lembur ke kalkulator gaji membawa angka
       lewat fragment, dan fragment hilang dari address bar sebelum slot
       iklan dimuat.
-- [ ] Tidak ada request jaringan yang membawa nilai upah atau jam lembur
+- [x] Tidak ada request jaringan yang membawa nilai upah atau jam lembur
       pengguna.
-- [ ] Tiga tool baru muncul di registry (migrasi seed dan snapshot),
+- [x] Tiga tool baru muncul di registry (migrasi seed dan snapshot),
       terkelola dari CMS, dan event-nya tampil di statistik tool CMS.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil
       muncul) lulus untuk `enem-landing-tools`.
 - [ ] Halaman live paling lambat awal Desember 2026 (UMP), data UMK
       menyusul bertahap.

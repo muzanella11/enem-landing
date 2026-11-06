@@ -60,10 +60,10 @@ bisa dimatikan per tool, tanpa CTA donasi di dekat hasil.
 - [ ] Unit test faraid untuk minimal 15 kasus dari rujukan yang
       dicantumkan, termasuk aul dan radd; total bagian selalu tepat 100%.
 - [ ] Tinjauan oleh orang yang kompeten tercatat di PR.
-- [ ] Disclaimer tampil di atas hasil.
+- [x] Disclaimer tampil di atas hasil.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

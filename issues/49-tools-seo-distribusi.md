@@ -67,14 +67,14 @@ untuk AdSense yang sudah ada. Widget tidak memuat iklan.
 
 ## Acceptance Criteria
 
-- [ ] Setiap halaman jawaban menampilkan hasil hitungan yang benar untuk
+- [x] Setiap halaman jawaban menampilkan hasil hitungan yang benar untuk
       angkanya (diuji unit/e2e) dan menautkan ke kalkulatornya.
-- [ ] OG image tidak pernah berisi data input pengguna (diuji dengan URL
+- [x] OG image tidak pernah berisi data input pengguna (diuji dengan URL
       berfragment).
 - [ ] Widget berjalan di halaman uji pihak ketiga tanpa membocorkan data
       ke situs penanam (komunikasi dibatasi, tanpa akses cookie situs kita).
-- [ ] Sitemap memuat halaman jawaban; jumlah halaman per jenis tercatat.
-- [ ] `nx lint`, `nx test`, dan e2e lulus.
+- [x] Sitemap memuat halaman jawaban; jumlah halaman per jenis tercatat.
+- [x] `nx lint`, `nx test`, dan e2e lulus.
 
 ## Referensi perhitungan
 

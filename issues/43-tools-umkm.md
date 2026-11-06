@@ -51,11 +51,11 @@ AdSense dan donasi.
 
 ## Acceptance Criteria
 
-- [ ] Unit test tiap kalkulator, termasuk batas omzet bebas pajak PPh UMKM.
+- [x] Unit test tiap kalkulator, termasuk batas omzet bebas pajak PPh UMKM.
 - [ ] Preset fee marketplace menampilkan tanggal cek dan tautan sumber.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

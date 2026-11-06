@@ -67,13 +67,13 @@ aktif sebelum iklan dinyalakan di halaman ini.
 
 ## Acceptance Criteria
 
-- [ ] Unit test: tiap batas masa kerja UP dan UPMK (tepat di batas dan
+- [x] Unit test: tiap batas masa kerja UP dan UPMK (tepat di batas dan
       satu bulan di bawahnya), tiap alasan PHK, dan PPh final per lapisan.
 - [ ] 3 skenario dicocokkan manual dengan contoh resmi atau kalkulator lain,
       dicatat di PR.
-- [ ] Dasar hukum dan tanggal pengecekan tampil di halaman.
-- [ ] Tidak ada request jaringan yang membawa nilai upah pengguna.
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Dasar hukum dan tanggal pengecekan tampil di halaman.
+- [x] Tidak ada request jaringan yang membawa nilai upah pengguna.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

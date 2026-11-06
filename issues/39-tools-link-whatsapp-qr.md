@@ -49,14 +49,14 @@ AdSense dan donasi. Cross-link ke invoice/kwitansi (Story 24).
 
 ## Acceptance Criteria
 
-- [ ] Unit test normalisasi nomor (berbagai format, nomor tidak valid) dan
+- [x] Unit test normalisasi nomor (berbagai format, nomor tidak valid) dan
       encoding pesan (emoji, baris baru).
 - [ ] QR hasil terbaca oleh aplikasi kamera Android dan iPhone untuk tiap
       jenis konten.
-- [ ] Data WiFi dan kontak tidak pernah dikirim ke server.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Data WiFi dan kontak tidak pernah dikirim ke server.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { acceptConsent, gotoReady } from './helpers';
+import { acceptConsent, gotoReady, recordRequests } from './helpers';
 
 test.describe('loan simulators (Story 29)', () => {
   test.beforeEach(async ({ page }) => acceptConsent(page));
@@ -26,5 +26,13 @@ test.describe('loan simulators (Story 29)', () => {
     await expect(
       page.locator('.result-row', { hasText: 'Dana yang cair' }),
     ).toContainText('Rp49.000.000');
+  });
+
+  test('loan amounts are never sent', async ({ page }) => {
+    const traffic = recordRequests(page);
+    await gotoReady(page, '/simulasi-kta');
+    await page.getByLabel('Plafon pinjaman').fill('48765000');
+    await page.getByLabel('Plafon pinjaman').blur();
+    expect(traffic.containing('48765000')).toEqual([]);
   });
 });

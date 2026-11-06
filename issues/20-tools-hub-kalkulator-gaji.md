@@ -257,29 +257,29 @@ Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
       `kill-ports.sh`, dan bisa di-build jadi image Docker seperti app lain.
 - [ ] Stack dev dan prod menyajikan tools hub di domain masing-masing dengan
       HTTPS, tanpa menaikkan limit memori app lain.
-- [ ] Halaman index tools menampilkan kalkulator gaji bersih dari registry
+- [x] Halaman index tools menampilkan kalkulator gaji bersih dari registry
       tool.
-- [ ] Unit test fungsi hitung mencakup minimal: tiap kategori TER (A, B, C),
+- [x] Unit test fungsi hitung mencakup minimal: tiap kategori TER (A, B, C),
       batas atas upah BPJS Kesehatan dan JP, rekonsiliasi Desember (kurang
       bayar dan lebih bayar), bulan dengan THR, dan kasus gaji di bawah
       PTKP. Angka acuan test dicocokkan dengan contoh hitungan resmi DJP
       bila tersedia.
 - [ ] Hasil kalkulator untuk minimal 3 skenario dicocokkan manual dengan
       kalkulator atau contoh resmi, dan hasil pencocokannya dicatat di PR.
-- [ ] Tidak ada request jaringan yang membawa nilai input gaji (diverifikasi
+- [x] Tidak ada request jaringan yang membawa nilai input gaji (diverifikasi
       lewat tab Network).
-- [ ] Hasil bisa dibagikan via link dan terisi ulang dengan benar saat
+- [x] Hasil bisa dibagikan via link dan terisi ulang dengan benar saat
       dibuka; fragment sudah terhapus dari address bar sebelum slot iklan
       dimuat.
-- [ ] Komponen `AdSlot` dan `DonationCta` tersedia dan dipakai di
+- [x] Komponen `AdSlot` dan `DonationCta` tersedia dan dipakai di
       kalkulator gaji; slot iklan bisa dimatikan tanpa rebuild.
 - [ ] Tidak ada CLS dari slot iklan (CLS di bawah 0,1 di Lighthouse).
 - [ ] Banner consent berfungsi; menolak consent menghasilkan iklan
       non-personal dan tidak ada cookie iklan personal.
 - [ ] Halaman tool punya meta tag, canonical, JSON-LD, masuk sitemap, dan
       skor Lighthouse mobile (Performance, SEO, Accessibility) minimal 90.
-- [ ] Sumber aturan dan tanggal pengecekannya tampil di halaman tool.
-- [ ] `nx lint` dan `nx test` lulus untuk app baru; e2e dasar (buka halaman,
+- [x] Sumber aturan dan tanggal pengecekannya tampil di halaman tool.
+- [x] `nx lint` dan `nx test` lulus untuk app baru; e2e dasar (buka halaman,
       isi input, hasil muncul) ditambahkan sesuai konvensi per-app.
 
 ## Catatan implementasi (2026-11-06)

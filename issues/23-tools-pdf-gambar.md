@@ -86,7 +86,7 @@ aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
 
 ## Acceptance Criteria
 
-- [ ] Tab Network tidak menunjukkan request apa pun yang membawa isi file,
+- [x] Tab Network tidak menunjukkan request apa pun yang membawa isi file,
       untuk setiap tool.
 - [ ] Tool tetap berfungsi setelah halaman dimuat lalu jaringan diputus.
 - [ ] Bundle JS halaman index tools tidak bertambah signifikan (WASM hanya
@@ -98,8 +98,8 @@ aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
       kamera biasa.
 - [ ] Data GPS EXIF hilang dari hasil kompres/konversi (diverifikasi
       dengan pembaca EXIF).
-- [ ] Setiap tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (pakai file fixture kecil) lulus.
+- [x] Setiap tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar (pakai file fixture kecil) lulus.
 
 ## Catatan implementasi (2026-11-06)
 

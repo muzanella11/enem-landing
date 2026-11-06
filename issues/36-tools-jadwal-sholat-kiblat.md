@@ -64,15 +64,15 @@ tool dari CMS. Halaman ini terutama magnet trafik.
 
 ## Acceptance Criteria
 
-- [ ] Unit test waktu sholat untuk minimal 5 kota di 3 zona waktu
+- [x] Unit test waktu sholat untuk minimal 5 kota di 3 zona waktu
       dibandingkan jadwal resmi Kemenag, selisih maksimal 2 menit.
 - [ ] Unit test arah kiblat untuk beberapa kota (cocok dengan nilai
       referensi Kemenag/BMKG dalam toleransi 0,5 derajat).
-- [ ] Semua halaman kota masuk sitemap dan punya judul/meta sendiri.
-- [ ] Lokasi pengguna tidak pernah muncul di request jaringan.
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+- [x] Semua halaman kota masuk sitemap dan punya judul/meta sendiri.
+- [x] Lokasi pengguna tidak pernah muncul di request jaringan.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
 
 ## Referensi perhitungan
 

@@ -64,13 +64,13 @@ Bila filter tidak cukup bisa diandalkan, iklan dimatikan per tool dari CMS.
 
 ## Acceptance Criteria
 
-- [ ] Unit test tiap rumus dengan contoh dari sumber yang dicantumkan,
+- [x] Unit test tiap rumus dengan contoh dari sumber yang dicantumkan,
       termasuk batas kategori BMI dan siklus haid tidak 28 hari.
-- [ ] Disclaimer tampil di atas hasil, bukan hanya di footer.
-- [ ] Tidak ada request jaringan yang membawa data pengguna dan tidak ada
+- [x] Disclaimer tampil di atas hasil, bukan hanya di footer.
+- [x] Tidak ada request jaringan yang membawa data pengguna dan tidak ada
       penyimpanan lokal tanpa aksi pengguna.
-- [ ] Sumber dan tanggal pengecekan tampil di halaman.
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Sumber dan tanggal pengecekan tampil di halaman.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

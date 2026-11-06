@@ -62,12 +62,12 @@ daftar Story 20.
 
 ## Acceptance Criteria
 
-- [ ] Unit test weton untuk minimal 5 tanggal yang diketahui (termasuk acuan),
+- [x] Unit test weton untuk minimal 5 tanggal yang diketahui (termasuk acuan),
       sebelum dan sesudah acuan, dan tahun kabisat.
-- [ ] Unit test konversi Hijriah dua arah dan perhitungan umur di sekitar
+- [x] Unit test konversi Hijriah dua arah dan perhitungan umur di sekitar
       29 Februari dan akhir bulan.
 - [ ] Hasil konsisten di semua zona waktu (test dengan `TZ` berbeda).
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

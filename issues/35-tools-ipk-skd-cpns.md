@@ -57,12 +57,12 @@ lulus bila filter AdSense memungkinkan.
 
 ## Acceptance Criteria
 
-- [ ] Unit test IPK (SKS berbeda, nilai kustom, mata kuliah diulang dengan
+- [x] Unit test IPK (SKS berbeda, nilai kustom, mata kuliah diulang dengan
       nilai terbaik) dan simulasi target IPK.
-- [ ] Unit test SKD: tepat di ambang batas, di bawah satu subtes, dan tiap
+- [x] Unit test SKD: tepat di ambang batas, di bawah satu subtes, dan tiap
       jenis formasi pada data aturan yang dipakai.
-- [ ] Sumber aturan SKD dan tahun berlakunya tampil di halaman.
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Sumber aturan SKD dan tahun berlakunya tampil di halaman.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

@@ -209,22 +209,22 @@ Validasi URL donasi: hanya `https`.
 - [ ] Migrasi berjalan di DB yang sudah berisi data tracking; semua data
       lama tampil di CMS sebagai site `landing`, dan dashboard landing
       menampilkan angka yang sama dengan sebelum migrasi.
-- [ ] `enem-landing-web` memakai tracker dari `libs/frontend`, dan semua
+- [x] `enem-landing-web` memakai tracker dari `libs/frontend`, dan semua
       fitur tracking-nya (termasuk recording) tetap berfungsi.
 - [ ] Pageview, event, funnel, dan heatmap dari `tools.muzanella.com`
       tampil di CMS saat site `tools` dipilih, dan tidak tercampur dengan
       data landing (diuji dengan path yang sama, mis. `/`).
-- [ ] Recording untuk tools tidak bisa dinyalakan: `PUT` settings ditolak,
+- [x] Recording untuk tools tidak bisa dinyalakan: `PUT` settings ditolak,
       config publik selalu `false`, dan `POST /tracking/session-recording`
       dari session tools ditolak (dibuktikan dengan unit/e2e test API).
-- [ ] Bundle `enem-landing-tools` tidak mengandung rrweb.
-- [ ] Event dari tools dengan key di luar whitelist atau nilai numerik
+- [x] Bundle `enem-landing-tools` tidak mengandung rrweb.
+- [x] Event dari tools dengan key di luar whitelist atau nilai numerik
       dibuang oleh API (unit test), dan tab Network tidak menunjukkan nilai
       input pengguna di request tracking.
 - [ ] Mengubah urutan, menonaktifkan tool, mengubah opsi donasi, atau
       mematikan iklan di CMS tampil di `tools.muzanella.com` tanpa
       rebuild, paling lambat dalam TTL cache + SWR yang ditetapkan.
-- [ ] Tool nonaktif hilang dari index dan sitemap; halaman tool-nya
+- [x] Tool nonaktif hilang dari index dan sitemap; halaman tool-nya
       menampilkan pesan nonaktif dengan `noindex`.
 - [ ] Bila `GET /tools/config` gagal, halaman tools tetap tampil memakai
       snapshot build.
@@ -232,7 +232,7 @@ Validasi URL donasi: hanya `https`.
       tampil di CMS.
 - [ ] Memori container `enem-landing-tools` tetap di bawah limit 100M
       dengan render SWR aktif.
-- [ ] `nx lint` dan `nx test` lulus untuk semua project yang tersentuh; e2e
+- [x] `nx lint` dan `nx test` lulus untuk semua project yang tersentuh; e2e
       CMS dasar untuk site switcher dan CRUD tool ditambahkan.
 
 ## Catatan implementasi (2026-11-06)

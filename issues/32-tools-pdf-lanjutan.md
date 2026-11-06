@@ -58,14 +58,14 @@ berbayar.
 
 ## Acceptance Criteria
 
-- [ ] Tidak ada request jaringan yang membawa isi file (diuji e2e seperti
+- [x] Tidak ada request jaringan yang membawa isi file (diuji e2e seperti
       Story 23).
 - [ ] Kompres kuat menghasilkan file lebih kecil untuk PDF hasil scan;
       kompres ringan tidak merusak teks yang bisa dipilih.
-- [ ] Watermark dan tanda tangan tampil di posisi yang sama di pratinjau dan
+- [x] Watermark dan tanda tangan tampil di posisi yang sama di pratinjau dan
       di PDF hasil, termasuk halaman yang diputar.
 - [ ] Diuji di Chrome Android dan Safari iOS dengan PDF sekitar 10 halaman.
-- [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+- [x] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
 
 ## Referensi perhitungan
 

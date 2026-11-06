@@ -56,13 +56,13 @@ AdSense dan donasi. Iklan tidak pernah di dalam PDF atau pratinjau.
 
 ## Acceptance Criteria
 
-- [ ] Unit test pengisian template: placeholder terisi, kolom wajib kosong
+- [x] Unit test pengisian template: placeholder terisi, kolom wajib kosong
       ditandai, karakter khusus aman di PDF.
 - [ ] PDF tampil sama di Chrome, Safari, dan pembaca PDF desktop untuk A4
       dan F4.
-- [ ] Data tersimpan lokal setelah reload dan bisa dihapus.
-- [ ] Tidak ada request jaringan yang membawa isi surat.
-- [ ] Muncul di registry (satu entri per jenis surat atau satu entri hub,
+- [x] Data tersimpan lokal setelah reload dan bisa dihapus.
+- [x] Tidak ada request jaringan yang membawa isi surat.
+- [x] Muncul di registry (satu entri per jenis surat atau satu entri hub,
       diputuskan saat implementasi), meta/JSON-LD, sitemap; lint, test,
       e2e lulus.
 
