@@ -19,6 +19,7 @@ PORTS=(
   "4000:enem-landing-cms"
   "8000:enem-landing-account-web"
   "8001:enem-landing-web"
+  "8002:enem-landing-tools"
 )
 
 # ─── Kill ───────────────────────────────────────────────────────────────────

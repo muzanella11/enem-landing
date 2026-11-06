@@ -1,0 +1,10 @@
+{
+  "name": "enem-landing-tools-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "enem-landing-tools"
+    ]
+  }
+}

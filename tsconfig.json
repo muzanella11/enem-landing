@@ -53,6 +53,12 @@
     },
     {
       "path": "./libs/backend/cache"
+    },
+    {
+      "path": "./apps/enem-landing-tools-e2e"
+    },
+    {
+      "path": "./apps/enem-landing-tools"
     }
   ],
   "compilerOptions": {}
