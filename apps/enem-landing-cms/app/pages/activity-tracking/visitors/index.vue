@@ -2,11 +2,15 @@
 import type { TrackingVisitor } from '@enem-landing/shared-types';
 import { ref } from 'vue';
 
+import { useTrackingSite } from '../../../composables/use-tracking-site';
+
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Activity Tracking Visitors' });
 
+const { siteQuery, withSite, siteLabel } = useTrackingSite();
 const { data: visitors } = await useFetch<TrackingVisitor[]>(
   '/api/tracking/visitors',
+  { query: siteQuery },
 );
 
 const headers = [
@@ -99,12 +103,13 @@ const detailRows = (
   <div>
     <CListPage
       title="Visitors"
-      subtitle="Seluruh sesi pengunjung beserta IP dan detail geolocation-nya."
+      :subtitle="`Seluruh sesi pengunjung ${siteLabel} beserta IP dan detail geolocation-nya.`"
       :meta="`${visitors?.length ?? 0} sesi`"
     >
       <template #actions>
+        <CSiteSwitcher class="mr-2" />
         <v-btn
-          to="/activity-tracking"
+          :to="withSite('/activity-tracking')"
           variant="text"
           prepend-icon="mdi-arrow-left"
           >Overview</v-btn

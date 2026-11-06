@@ -3,11 +3,15 @@ import type { TrackingFunnel } from '@enem-landing/shared-types';
 import { ref } from 'vue';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
+import { useTrackingSite } from '../../../composables/use-tracking-site';
+
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Activity Tracking Funnels' });
 
+const { siteQuery, withSite, siteLabel } = useTrackingSite();
 const { data: funnels, refresh } = await useFetch<TrackingFunnel[]>(
   '/api/tracking/funnels',
+  { query: siteQuery },
 );
 const snackbar = useGlobalSnackbar();
 
@@ -46,6 +50,7 @@ const save = async () => {
   try {
     await $fetch('/api/tracking/funnels', {
       method: 'post',
+      query: siteQuery.value,
       body: { name: form.value.name, steps },
     });
     snackbar.success('Funnel created.');
@@ -75,12 +80,13 @@ const remove = async (id: string) => {
 <template>
   <CListPage
     title="Funnels"
-    subtitle="Lihat drop-off pengunjung antar step (pageview/event)."
+    :subtitle="`Lihat drop-off pengunjung ${siteLabel} antar step (pageview/event).`"
     :meta="`${funnels?.length ?? 0} funnel`"
   >
     <template #actions>
+      <CSiteSwitcher class="mr-2" />
       <v-btn
-        to="/activity-tracking"
+        :to="withSite('/activity-tracking')"
         variant="text"
         prepend-icon="mdi-arrow-left"
         >Overview</v-btn
@@ -97,7 +103,7 @@ const remove = async (id: string) => {
     <v-data-table :headers="headers" :items="funnels ?? []" item-value="id">
       <template #item.name="{ item }">
         <NuxtLink
-          :to="`/activity-tracking/funnels/${item.id}`"
+          :to="withSite(`/activity-tracking/funnels/${item.id}`)"
           class="font-weight-medium"
         >
           {{ item.name }}

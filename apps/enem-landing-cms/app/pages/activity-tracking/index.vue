@@ -2,11 +2,15 @@
 import type { TrackingOverview } from '@enem-landing/shared-types';
 import { computed } from 'vue';
 
+import { useTrackingSite } from '../../composables/use-tracking-site';
+
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Activity Tracking Overview' });
 
+const { siteQuery, withSite, isTools, siteLabel } = useTrackingSite();
 const { data: overview } = await useFetch<TrackingOverview>(
   '/api/tracking/overview',
+  { query: siteQuery },
 );
 
 const pageviewsByDayItems = computed(
@@ -43,29 +47,31 @@ const deviceItems = computed(
   <div class="c-form-page">
     <CPageHeader
       title="Activity Tracking Overview"
-      subtitle="Ringkasan pageview, sesi, dan sebaran lokasi pengunjung enem-landing-web."
+      :subtitle="`Ringkasan pageview, sesi, dan sebaran lokasi pengunjung ${siteLabel}.`"
     >
       <template #actions>
+        <CSiteSwitcher class="mr-2" />
         <v-btn
+          v-if="!isTools"
           to="/activity-tracking/sessions"
           variant="text"
           prepend-icon="mdi-play-circle-outline"
           >Sessions</v-btn
         >
         <v-btn
-          to="/activity-tracking/heatmap"
+          :to="withSite('/activity-tracking/heatmap')"
           variant="text"
           prepend-icon="mdi-fire"
           >Heatmap</v-btn
         >
         <v-btn
-          to="/activity-tracking/funnels"
+          :to="withSite('/activity-tracking/funnels')"
           variant="text"
           prepend-icon="mdi-filter-variant"
           >Funnels</v-btn
         >
         <v-btn
-          to="/activity-tracking/settings"
+          :to="withSite('/activity-tracking/settings')"
           variant="text"
           prepend-icon="mdi-cog-outline"
           >Settings</v-btn
@@ -136,7 +142,7 @@ const deviceItems = computed(
     <CContentCard title="Visitor Locations">
       <template #header-right>
         <v-btn
-          to="/activity-tracking/visitors"
+          :to="withSite('/activity-tracking/visitors')"
           variant="text"
           size="small"
           prepend-icon="mdi-map-marker-radius-outline"

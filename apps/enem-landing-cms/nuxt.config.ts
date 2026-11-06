@@ -75,6 +75,9 @@ export default defineNuxtConfig({
       // Public portfolio site - iframed by the Activity Tracking Heatmap
       // page so the click overlay can render on top of the real page.
       webHost: process.env['WEB_HOST'] || 'http://localhost:8001',
+      // tools.muzanella.com (Story 25) - iframed by the Heatmap page when
+      // the "tools" site is selected.
+      toolsHost: process.env['TOOLS_HOST'] || 'http://localhost:8002',
     },
   },
   experimental: {

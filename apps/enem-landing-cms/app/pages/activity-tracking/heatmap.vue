@@ -2,6 +2,8 @@
 import type { TrackingOverview } from '@enem-landing/shared-types';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
+import { useTrackingSite } from '../../composables/use-tracking-site';
+
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Activity Tracking Heatmap' });
 
@@ -14,12 +16,14 @@ interface HeatmapCell {
 const GRID_SIZE = 20;
 const IFRAME_HEIGHT = 900;
 
-const config = useRuntimeConfig();
+const { site, siteQuery, withSite, publicHost } = useTrackingSite();
 const { data: overview } = await useFetch<TrackingOverview>(
   '/api/tracking/overview',
+  { query: siteQuery },
 );
 const { data: heatmapPaths } = await useFetch<string[]>(
   '/api/tracking/heatmap-paths',
+  { query: siteQuery },
 );
 const pathOptions = computed(() => {
   const paths = new Set([
@@ -35,9 +39,7 @@ const cells = ref<HeatmapCell[]>([]);
 const isLoading = ref(false);
 const canvas = ref<HTMLCanvasElement>();
 
-const iframeSrc = computed(
-  () => `${config.public.webHost}${selectedPath.value}`,
-);
+const iframeSrc = computed(() => `${publicHost.value}${selectedPath.value}`);
 
 /** Blue (cold/low) -> yellow -> red (hot/high) - the conventional click-heatmap colormap, not a generic magnitude ramp. */
 const heatColor = (intensity: number): string => {
@@ -75,7 +77,11 @@ const load = async () => {
   isLoading.value = true;
   try {
     cells.value = await $fetch<HeatmapCell[]>('/api/tracking/heatmap', {
-      params: { path: selectedPath.value, device: selectedDevice.value },
+      params: {
+        path: selectedPath.value,
+        device: selectedDevice.value,
+        site: site.value,
+      },
     });
   } finally {
     isLoading.value = false;
@@ -98,6 +104,11 @@ onMounted(() => {
 });
 
 watch([selectedPath, selectedDevice], load);
+// Switching site: paths differ per site, so start from that site's first path.
+watch(site, () => {
+  selectedPath.value = pathOptions.value[0] ?? '/';
+  void load();
+});
 </script>
 
 <template>
@@ -107,8 +118,9 @@ watch([selectedPath, selectedDevice], load);
       subtitle="Overlay klik pengunjung di atas halaman publik sungguhan."
     >
       <template #actions>
+        <CSiteSwitcher class="mr-2" />
         <v-btn
-          to="/activity-tracking"
+          :to="withSite('/activity-tracking')"
           variant="text"
           prepend-icon="mdi-arrow-left"
           >Overview</v-btn
