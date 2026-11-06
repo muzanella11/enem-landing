@@ -51,6 +51,12 @@
       "path": "../../libs/shared/utils/tsconfig.lib.json"
     },
     {
+      "path": "../../libs/shared/definitions/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/frontend/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/shared/types/tsconfig.lib.json"
     }
   ]

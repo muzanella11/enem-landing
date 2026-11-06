@@ -1,11 +1,42 @@
+import type { TrackingSite } from '@enem-landing/shared-definitions';
 import type { TrackingSettings } from '@enem-landing/shared-types';
 import { useState } from 'nuxt/app';
 
-const VISITOR_ID_KEY = 'elw_visitor_id';
-const SESSION_ID_KEY = 'elw_session_id';
-const SESSION_LAST_ACTIVITY_KEY = 'elw_session_last_activity';
-const SESSION_RECORDING_SAMPLED_KEY = 'elw_session_recording_sampled';
+/** Nuxt ambient global - see `use-whoami.ts` for why it's declared here. */
+declare const $fetch: typeof import('ofetch').$fetch;
+
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+
+export interface TrackerOptions {
+  /** Which site this app is - sent with every session/config/click request (Story 25). */
+  site: TrackingSite;
+  /**
+   * Whether this app may ever record sessions. `false` for the tools hub:
+   * the tracker then never asks to record and never sends a chunk, no
+   * matter what the server config says.
+   */
+  recording: boolean;
+  /**
+   * Runs on every event payload before it leaves the browser. The tools
+   * hub passes `sanitizeToolsEventPayload` so only whitelisted keys go out.
+   */
+  sanitizeEventPayload?: (payload: unknown) => unknown;
+  /**
+   * Storage key prefix. Each app keeps its own visitor/session ids, since
+   * they live on different origins anyway. Defaults to `elw` (the original
+   * enem-landing-web keys, so existing visitors keep their ids).
+   */
+  storagePrefix?: string;
+}
+
+let options: TrackerOptions = { site: 'landing', recording: true };
+
+/** Called once by the consuming app's tracking plugin, before `init()`. */
+export const configureTracker = (next: TrackerOptions): void => {
+  options = next;
+};
+
+export const getTrackerOptions = (): TrackerOptions => options;
 
 interface TrackingSessionResponse {
   id: string;
@@ -16,12 +47,25 @@ interface TrackingPageviewResponse {
   id: string;
 }
 
+const storageKeys = () => {
+  const prefix = options.storagePrefix ?? 'elw';
+  return {
+    visitorId: `${prefix}_visitor_id`,
+    sessionId: `${prefix}_session_id`,
+    lastActivity: `${prefix}_session_last_activity`,
+    recordingSampled: `${prefix}_session_recording_sampled`,
+  };
+};
+
 /**
- * Everything a client-side tracker phase (pageview now, events/heatmap/
- * session-recording later) needs: the toggle config (fetched once), the
- * anonymous visitor/session identity, and pageview lifecycle helpers.
- * Backed by Nuxt's `useState` so the plugin and any component share the
- * same reactive instance without prop drilling.
+ * Everything a client-side tracker phase needs: the toggle config
+ * (fetched once), the anonymous visitor/session identity, and pageview/
+ * event/click/recording helpers. Backed by Nuxt's `useState` so the
+ * plugin and any component share the same reactive instance.
+ *
+ * Moved from enem-landing-web into this lib in Story 25 so
+ * enem-landing-tools can use the same tracker with its own site and
+ * privacy options (see `TrackerOptions`).
  */
 export const useTracker = () => {
   const config = useState<TrackingSettings | null>(
@@ -63,17 +107,19 @@ export const useTracker = () => {
 
   const ensureVisitorId = (): string => {
     if (visitorId.value) return visitorId.value;
-    const existing = readStorage(localStorage, VISITOR_ID_KEY);
+    const keys = storageKeys();
+    const existing = readStorage(localStorage, keys.visitorId);
     const id = existing ?? crypto.randomUUID();
-    if (!existing) writeStorage(localStorage, VISITOR_ID_KEY, id);
+    if (!existing) writeStorage(localStorage, keys.visitorId, id);
     visitorId.value = id;
     return id;
   };
 
   const hasActiveSession = (): boolean => {
-    const existingId = readStorage(sessionStorage, SESSION_ID_KEY);
+    const keys = storageKeys();
+    const existingId = readStorage(sessionStorage, keys.sessionId);
     const lastActivity = Number(
-      readStorage(sessionStorage, SESSION_LAST_ACTIVITY_KEY) ?? 0,
+      readStorage(sessionStorage, keys.lastActivity) ?? 0,
     );
     return Boolean(
       existingId && Date.now() - lastActivity < SESSION_TIMEOUT_MS,
@@ -81,12 +127,17 @@ export const useTracker = () => {
   };
 
   const touchSessionActivity = (): void => {
-    writeStorage(sessionStorage, SESSION_LAST_ACTIVITY_KEY, String(Date.now()));
+    writeStorage(
+      sessionStorage,
+      storageKeys().lastActivity,
+      String(Date.now()),
+    );
   };
 
   const startNewSession = async (): Promise<string> => {
     const params = new URLSearchParams(window.location.search);
     const body = {
+      site: options.site,
       visitorId: ensureVisitorId(),
       referrer: document.referrer || undefined,
       utmSource: params.get('utm_source') ?? undefined,
@@ -102,15 +153,13 @@ export const useTracker = () => {
       '/api/tracking/session',
       { method: 'post', body },
     );
-    writeStorage(sessionStorage, SESSION_ID_KEY, session.id);
-    writeStorage(
-      sessionStorage,
-      SESSION_RECORDING_SAMPLED_KEY,
-      String(session.recordingSampled),
-    );
+    const keys = storageKeys();
+    writeStorage(sessionStorage, keys.sessionId, session.id);
+    const sampled = options.recording && session.recordingSampled;
+    writeStorage(sessionStorage, keys.recordingSampled, String(sampled));
     touchSessionActivity();
     sessionId.value = session.id;
-    recordingSampled.value = session.recordingSampled;
+    recordingSampled.value = sampled;
     return session.id;
   };
 
@@ -120,11 +169,13 @@ export const useTracker = () => {
       return sessionId.value;
     }
     if (hasActiveSession()) {
-      const existing = readStorage(sessionStorage, SESSION_ID_KEY);
+      const keys = storageKeys();
+      const existing = readStorage(sessionStorage, keys.sessionId);
       if (existing) {
         sessionId.value = existing;
         recordingSampled.value =
-          readStorage(sessionStorage, SESSION_RECORDING_SAMPLED_KEY) === 'true';
+          options.recording &&
+          readStorage(sessionStorage, keys.recordingSampled) === 'true';
         touchSessionActivity();
         return existing;
       }
@@ -148,7 +199,12 @@ export const useTracker = () => {
 
   const init = async (): Promise<void> => {
     try {
-      config.value = await $fetch<TrackingSettings>('/api/tracking/config');
+      const fetched = await $fetch<TrackingSettings>('/api/tracking/config', {
+        query: { site: options.site },
+      });
+      config.value = options.recording
+        ? fetched
+        : { ...fetched, sessionRecordingEnabled: false };
     } catch {
       config.value = null;
     }
@@ -180,6 +236,9 @@ export const useTracker = () => {
 
     try {
       const id = await ensureSessionId();
+      const safePayload = options.sanitizeEventPayload
+        ? options.sanitizeEventPayload(payload)
+        : payload;
       await $fetch('/api/tracking/events', {
         method: 'post',
         body: {
@@ -187,7 +246,7 @@ export const useTracker = () => {
             {
               sessionId: id,
               name,
-              payload,
+              payload: safePayload ?? undefined,
               path: window.location.pathname,
               occurredAt: new Date().toISOString(),
             },
@@ -210,6 +269,7 @@ export const useTracker = () => {
       await $fetch('/api/tracking/clicks', {
         method: 'post',
         body: {
+          site: options.site,
           items: [
             {
               path: window.location.pathname,
@@ -227,11 +287,11 @@ export const useTracker = () => {
   };
 
   /**
-   * Resolves whether the plugin should start `rrweb.record()` at all for
-   * this page load - ensures a session exists first (creating one rolls
-   * the server-side sample decision), then reads the verdict.
+   * Resolves whether the plugin should start recording at all for this
+   * page load. Always `false` when the app opted out of recording.
    */
   const shouldRecordSession = async (): Promise<boolean> => {
+    if (!options.recording) return false;
     if (!config.value?.sessionRecordingEnabled) return false;
     await ensureSessionId();
     return recordingSampled.value;
@@ -239,14 +299,17 @@ export const useTracker = () => {
 
   /**
    * Sends one rrweb chunk as plain JSON - `enem-landing-api` gzips it
-   * server-side before uploading to R2, so the browser doesn't need the
-   * `CompressionStream` API (spottier support) just for this.
+   * server-side before uploading to R2.
    */
   const sendRecordingChunk = async (
     sequence: number,
     events: unknown[],
   ): Promise<void> => {
-    if (!config.value?.sessionRecordingEnabled || !recordingSampled.value) {
+    if (
+      !options.recording ||
+      !config.value?.sessionRecordingEnabled ||
+      !recordingSampled.value
+    ) {
       return;
     }
 

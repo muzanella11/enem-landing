@@ -20,13 +20,17 @@ export default defineEventHandler(async (event) => {
     // `getRequestIP(..., { xForwardedFor: true })` reads the value Traefik
     // already set correctly (it trusts Cloudflare's forwarded-for per
     // traefik-stack.yml.j2).
-    return await createApiClient().post('/tracking/session', body, {
-      headers: {
-        'user-agent': getHeader(event, 'user-agent') ?? '',
-        'accept-language': getHeader(event, 'accept-language') ?? '',
-        'x-forwarded-for': getRequestIP(event, { xForwardedFor: true }) ?? '',
+    return await createApiClient().post(
+      '/tracking/session',
+      { ...body, site: 'landing' },
+      {
+        headers: {
+          'user-agent': getHeader(event, 'user-agent') ?? '',
+          'accept-language': getHeader(event, 'accept-language') ?? '',
+          'x-forwarded-for': getRequestIP(event, { xForwardedFor: true }) ?? '',
+        },
       },
-    });
+    );
   } catch (error) {
     return handleApiError(error);
   }
