@@ -98,3 +98,15 @@ aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
       dengan pembaca EXIF).
 - [ ] Setiap tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (pakai file fixture kecil) lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- PDF: `pdf-lib` 1.17.1 (MIT) di Web Worker, thumbnail dengan `pdfjs-dist` 6.4.299
+  (Apache-2.0) hanya di halaman atur halaman.
+- Gambar: memakai codec bawaan browser lewat `OffscreenCanvas` di Web Worker, bukan
+  `@jsquash/*`, sehingga tidak perlu WASM untuk JPG/PNG/WebP/AVIF. HEIC memakai
+  `heic2any` 0.0.4 (MIT, membungkus libheif) yang hanya dimuat bila ada file HEIC.
+  ZIP memakai `fflate` 0.8.3 (MIT).
+- Ukuran JS (gzip) saat diukur: halaman index sekitar 90 KB. Chunk lazy terbesar:
+  decoder HEIC sekitar 333 KB, pdf-lib sekitar 171 KB, pdf.js sekitar 125 KB.
+- Pengujian di HP sungguhan (Chrome Android, Safari iOS) belum dilakukan.

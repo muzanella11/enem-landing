@@ -194,8 +194,10 @@ Keputusan:
 - **Komponen donasi tidak terikat satu platform.** Daftar opsi donasi
   (label, URL, gambar QRIS opsional) dikonfigurasi dari CMS (Story 25),
   sehingga platform bisa diganti atau ditambah tanpa deploy.
-- Default awal: satu tautan platform donasi (Saweria atau Trakteer) plus
-  opsional QRIS statis untuk pengunjung yang ingin potongan paling kecil.
+- **Platform utama: SociaBuzz** (keputusan user 2026-11-06), karena
+  mendukung donasi dalam mata uang asing selain Rupiah, sehingga pengunjung
+  luar negeri juga bisa berdonasi. QRIS statis bisa ditambahkan belakangan
+  sebagai opsi kedua lewat CMS.
 
 #### Aturan yang berlaku di semua tool
 
@@ -277,3 +279,22 @@ Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
 - [ ] Sumber aturan dan tanggal pengecekannya tampil di halaman tool.
 - [ ] `nx lint` dan `nx test` lulus untuk app baru; e2e dasar (buka halaman,
       isi input, hasil muncul) ditambahkan sesuai konvensi per-app.
+
+## Catatan implementasi (2026-11-06)
+
+- App `apps/enem-landing-tools` (port 8002), dibuat lewat `scripts/create-app.sh`.
+  Service baru di `compose.yml`, `compose.prod.yml` (limit 100M), `compose.dev.yml`
+  (`dev-tools.muzanella.com`), `compose.local.yml`, target `enem-landing-tools` di
+  `Dockerfile`, dan masuk `build-push.yml` serta `e2e.yml`.
+- Aturan pajak/BPJS ada di `app/data/tax/2026.ts`, logika di `app/utils/payroll/`.
+  Kategori dan batas TER A/B/C sudah dicocokkan dengan sumber per 2026-11-06.
+- **Pertanyaan terbuka 1 belum tuntas:** batas upah JP memakai angka resmi Maret
+  2025 (Rp10.547.400). Penyesuaian 2026 belum ditemukan di sumber resmi; catatan ini
+  tampil di halaman tool.
+- Link berbagi: fragment dihapus dari address bar oleh plugin
+  `01.share-fragment.client.ts`, termasuk setelah navigasi awal vue-router (yang
+  sempat menulis ulang hash). Slot iklan menunggu sampai fragment benar-benar hilang.
+- Donasi: komponen `DonationCta`, opsi dikelola dari CMS. Baris SociaBuzz sudah
+  di-seed tanpa URL; isi URL halaman SociaBuzz di CMS supaya CTA tampil.
+- Manual oleh user: record DNS `tools` dan `dev-tools` di Cloudflare; env
+  `ADSENSE_SLOT_RESULT`/`ADSENSE_SLOT_SIDEBAR` setelah AdSense disetujui.

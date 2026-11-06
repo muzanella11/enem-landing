@@ -95,3 +95,14 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 - [ ] CTA donasi tidak muncul di area hasil hitungan zakat.
 - [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
 - [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- **Pertanyaan terbuka 1 (sumber harga emas):** dipakai harga spot internasional
+  dari `api.gold-api.com` dikali kurs USD/IDR dari `open.er-api.com`, diambil di
+  server route `/api/harga-emas`, di-cache 6 jam, dengan fallback ke harga terakhir.
+  Harga emas batangan (mis. Antam) biasanya lebih tinggi; pengguna bisa mengisi harga
+  sendiri. Ketentuan pemakaian kedua sumber perlu dicek ulang sebelum rilis.
+- Nilai zakat fitrah uang memakai acuan BAZNAS RI 2025 Jabodetabek (Rp47.000) dan
+  bisa diubah pengguna.
+- Iklan halaman zakat default mati (seed registry `adsEnabled = 0`).

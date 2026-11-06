@@ -232,3 +232,17 @@ Validasi URL donasi: hanya `https`.
       dengan render SWR aktif.
 - [ ] `nx lint` dan `nx test` lulus untuk semua project yang tersentuh; e2e
       CMS dasar untuk site switcher dan CRUD tool ditambahkan.
+
+## Catatan implementasi (2026-11-06)
+
+- Migrasi `AddSiteToTracking1788310000000` dan `CreateToolsTables1788320000000`
+  (registry di-seed 13 tool, settings, dan opsi donasi SociaBuzz tanpa URL).
+  Keduanya sudah diuji run, revert, dan run ulang di DB lokal.
+- Payload event tools disaring di tiga tempat: tracker di browser, BFF
+  `enem-landing-tools`, dan API (`sanitizeToolsEventPayload` di
+  `libs/shared/definitions`).
+- Tracker dipindah ke subpath `@enem-landing/frontend/tracking` supaya tidak
+  menyeret Pinia atau rrweb ke app yang tidak memakainya.
+- BFF CMS untuk menu Tools memakai satu route `server/api/tools-admin/[...path].ts`
+  dengan whitelist path; otorisasi admin tetap di API.
+- Env baru CMS: `NUXT_PUBLIC_TOOLS_HOST` (iframe heatmap untuk site tools).

@@ -88,3 +88,13 @@ affiliate ditunda.
 - [ ] Tool muncul di registry halaman index tools, punya meta/JSON-LD,
       masuk sitemap.
 - [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- Logika di `app/utils/loan/` (anuitas, efektif, flat, periode bunga berjenjang,
+  pelunasan sebagian dua mode, biaya awal, CSV). Untuk anuitas, pokok dihitung dari
+  cicilan yang sudah dibulatkan supaya cicilan tampil konstan; selisih pembulatan
+  masuk ke cicilan terakhir.
+- Metode flat menghitung bunga dari sisa pokok di awal tiap periode bunga (dan
+  setelah pelunasan sebagian).
+- Grafik sisa pokok memakai SVG biasa, tanpa library chart.

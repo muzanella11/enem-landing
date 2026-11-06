@@ -111,3 +111,11 @@ Dievaluasi setelah ada data pemakaian dari versi gratis.
 - [ ] Tidak ada request jaringan yang membawa data invoice/kwitansi.
 - [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
 - [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- Data disimpan di `localStorage` (`elt_invoice_store_v1`), ekspor/impor JSON
+  tervalidasi. PDF digambar dengan `pdf-lib` (font standar; karakter di luar
+  WinAnsi seperti emoji diganti "?").
+- Template: Modern, Klasik, Ringkas. Kwitansi 1 sampai 3 per halaman A4, kotak
+  penanda meterai untuk nominal di atas Rp5.000.000.
