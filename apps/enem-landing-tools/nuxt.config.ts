@@ -103,6 +103,11 @@ export default defineNuxtConfig({
     '/api/**': { swr: false, cache: false },
     '/sitemap.xml': { swr: 3600 },
     '/ads.txt': { swr: 600 },
+    // Self-hosted model files (Story 48) never change for a given package version.
+    '/mediapipe/**': {
+      swr: false,
+      headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+    },
     // Widgets (Story 49) may be framed by any site; nothing else needs that.
     '/embed/**': {
       headers: { 'content-security-policy': 'frame-ancestors *' },

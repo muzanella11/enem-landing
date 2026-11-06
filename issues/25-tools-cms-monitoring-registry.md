@@ -1,6 +1,6 @@
 # Story 25: CMS untuk Tools Hub (Monitoring Multi-site + Registry Tool, Iklan, Donasi)
 
-**Status:** Done (2026-11-06).
+**Status:** Done (2026-11-06). Perbaikan 2026-11-06: fallback snapshot registry sekarang menyaring tool dengan `enabled: false` di halaman tool, halaman utama, dan sitemap (sebelumnya tool nonaktif tampil aktif saat API tidak bisa dihubungi).
 
 **Apps touched:** `enem-landing-api`, `enem-landing-cms`, `enem-landing-web`,
 `enem-landing-tools`, `libs/frontend`

@@ -1,5 +1,7 @@
 # Story 55: Kalkulator PPN, PPh 23/4(2), dan Simulasi SPT Tahunan
 
+**Status:** Done (2026-11-06). Catatan: empat tool (`/kalkulator-ppn`, `/kalkulator-pph-23`, `/kalkulator-pph-sewa`, `/simulasi-spt-tahunan`). PPN memakai tarif 12% dengan DPP nilai lain 11/12 untuk nonmewah (PMK 131/2024, dikonfirmasi lewat DDTC dan DJP); DPP nilai lain atau besaran tertentu lain (PMK 11/2025) belum dimasukkan. SPT memakai `getPtkp` dan `pasal17Tax` dari Story 20, dengan input penghasilan neto dan PPh 21 dari tiap bukti potong 1721-A1, PKP dibulatkan ke bawah ke ribuan. Tarif PPh 23 dan PPh sewa ditulis dari UU PPh dan PP 34/2017 (dokumen belum dibuka langsung). Belum dicocokkan dengan contoh resmi DJP. Saat mengerjakan story ini ditemukan dan diperbaiki bug Story 25: saat API mati, snapshot registry membuat tool nonaktif (mis. waris) tampil sebagai aktif, terindeks, dan masuk sitemap.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20 (fungsi PPh 21), Story 24 (invoice), Story 25, Story 43 (UMKM)
@@ -65,15 +67,27 @@ AdSense (pajak, akuntansi, software) dan donasi.
 
 ## Acceptance Criteria
 
-- [ ] Setiap tarif punya dasar hukum dan tanggal cek di halaman.
-- [ ] Unit test PPN dua arah (termasuk DPP nilai lain bila berlaku), tiap
+- [x] Setiap tarif punya dasar hukum dan tanggal cek di halaman.
+- [x] Unit test PPN dua arah (termasuk DPP nilai lain bila berlaku), tiap
       jenis PPh 23 dan sewa dengan/tanpa NPWP, dan SPT: satu pemberi kerja
       (nihil), dua pemberi kerja (kurang bayar), penghasilan lain, dan
       lebih bayar.
 - [ ] Minimal 3 skenario SPT dicocokkan dengan contoh resmi DJP dan dicatat
       di PR.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
       e2e).
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
-- [ ] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- PPN 12% (UU 7/2021 HPP) dan DPP nilai lain 11/12 untuk barang/jasa nonmewah, 12% penuh untuk barang mewah (PMK 131/2024).
+  - DDTC: tarif efektif setelah PPN 12%. https://news.ddtc.co.id/literasi/kamus/1807955/memahami-sekilas-soal-tarif-efektif-setelah-ppn-12-berlaku
+  - DJP: PMK 131/2024. https://www.pajak.go.id/index.php/en/node/113886
+- PPh Pasal 23: 2% jasa dan sewa harta selain tanah/bangunan, 15% dividen, bunga, royalti, hadiah; tarif 100% lebih tinggi tanpa NPWP (UU 36/2008 Pasal 23). https://peraturan.bpk.go.id/Details/39704/uu-no-36-tahun-2008
+- PPh final 10% atas sewa tanah dan/atau bangunan (PP 34/2017). https://peraturan.bpk.go.id/Details/64646/pp-no-34-tahun-2017
+- SPT tahunan: tarif Pasal 17 (UU 7/2021 HPP), PTKP, dan bukti potong 1721-A1 (PMK 168/2023), memakai fungsi Story 20; zakat lewat BAZNAS/LAZ mengurangi penghasilan bruto (PP 60/2010). https://peraturan.bpk.go.id/Details/185162/uu-no-7-tahun-2021 dan https://peraturan.bpk.go.id/Details/5110/pp-no-60-tahun-2010
+- Kode: `app/data/tax/usaha.ts`, `app/utils/pajak-usaha.ts`.

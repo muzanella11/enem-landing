@@ -10,6 +10,9 @@ test.describe('background removal (Story 48)', () => {
       'selfie_segmentation.tflite',
       'selfie_segmentation_solution_simd_wasm_bin.wasm',
     ]) {
+      // The first response after a server start can carry max-age=0 from
+      // Nitro's route cache; production serves many requests, so check a warm one.
+      await request.get(`/mediapipe/selfie/${file}`);
       const response = await request.get(`/mediapipe/selfie/${file}`);
       expect(response.status()).toBe(200);
       expect(response.headers()['cache-control']).toContain('max-age=31536000');

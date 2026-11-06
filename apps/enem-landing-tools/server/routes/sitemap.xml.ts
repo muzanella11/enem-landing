@@ -24,6 +24,8 @@ export default defineEventHandler(async (event) => {
     // Snapshot keeps the sitemap valid while the API is down.
   }
 
+  // The snapshot keeps disabled tools (with enabled: false); never list them.
+  tools = tools.filter((tool) => tool.enabled !== false);
   const urls = [
     '',
     ...tools.map((tool) => `/${tool.slug}`),

@@ -577,6 +577,145 @@ export const TOOLS_SNAPSHOT: ToolsPublicConfig = {
       category: 'dokumen',
       badge: 'baru',
     },
+    {
+      slug: 'kalkulator-bbm',
+      name: 'Kalkulator BBM',
+      shortDescription:
+        'Konsumsi BBM, biaya bensin perjalanan, dan jarak tempuh.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-kecepatan',
+      name: 'Kalkulator Jarak, Waktu, Kecepatan',
+      shortDescription:
+        'Waktu tempuh, kecepatan, atau jarak, plus jam tiba WIB/WITA/WIT.',
+      category: 'dokumen',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-bbm-kapal',
+      name: 'Kalkulator BBM Kapal',
+      shortDescription:
+        'Waktu tempuh knot, kebutuhan dan biaya bahan bakar kapal.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-perjalanan-kereta',
+      name: 'Kalkulator Perjalanan Kereta',
+      shortDescription:
+        'Waktu tempuh, kecepatan dari jadwal, dan biaya BBM lokomotif.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-bahan-bakar-pesawat',
+      name: 'Kalkulator Bahan Bakar Pesawat',
+      shortDescription: 'Waktu terbang, kebutuhan dan biaya avtur.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-asuransi-mobil',
+      name: 'Simulasi Asuransi Mobil',
+      shortDescription:
+        'Premi all risk dan TLO sesuai batas tarif OJK per wilayah.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-asuransi-motor',
+      name: 'Simulasi Asuransi Motor',
+      shortDescription:
+        'Premi asuransi sepeda motor comprehensive dan TLO sesuai OJK.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-kur',
+      name: 'Simulasi KUR',
+      shortDescription:
+        'Angsuran KUR 2026 per bulan dan tabel angsuran, bunga 3%-9%.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-gadai-emas',
+      name: 'Simulasi Gadai Emas',
+      shortDescription:
+        'Taksiran, sewa modal per 15 hari, tebusan, dan angsuran gadai emas.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-cicil-emas',
+      name: 'Simulasi Cicil Emas',
+      shortDescription: 'Cicilan emas per bulan dengan uang muka dan margin.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-saham',
+      name: 'Kalkulator Saham',
+      shortDescription:
+        'Lot, fee, pajak jual 0,1%, untung rugi, dan harga impas.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-average-saham',
+      name: 'Kalkulator Average Down Saham',
+      shortDescription: 'Harga rata-rata dan lot untuk target average down/up.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-dividen',
+      name: 'Kalkulator Dividen',
+      shortDescription: 'Dividen bersih setelah pajak dan dividend yield.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-reksa-dana',
+      name: 'Simulasi Reksa Dana',
+      shortDescription: 'Unit dari NAB, biaya, dan simulasi investasi rutin.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-ppn',
+      name: 'Kalkulator PPN',
+      shortDescription:
+        'PPN 12% dengan DPP 11/12, harga sebelum dan sesudah PPN.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-pph-23',
+      name: 'Kalkulator PPh 23',
+      shortDescription:
+        'Potongan PPh 23 jasa, sewa harta, royalti, tanpa NPWP.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'kalkulator-pph-sewa',
+      name: 'Kalkulator Pajak Sewa',
+      shortDescription:
+        'PPh final 10% sewa tanah/bangunan, bruto atau gross-up.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
+    {
+      slug: 'simulasi-spt-tahunan',
+      name: 'Simulasi SPT Tahunan',
+      shortDescription:
+        'Kurang bayar, lebih bayar, atau nihil dari bukti potong A1.',
+      category: 'keuangan',
+      badge: 'baru',
+    },
   ].map((tool, index) => ({
     ...tool,
     category: tool.category as ToolsPublicConfig['tools'][number]['category'],

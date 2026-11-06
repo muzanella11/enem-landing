@@ -1,5 +1,7 @@
 # Story 54: Kalkulator Saham dan Reksa Dana
 
+**Status:** Done (2026-11-06). Catatan: empat tool (`/kalkulator-saham`, `/kalkulator-average-saham`, `/kalkulator-dividen`, `/simulasi-reksa-dana`). Fraksi harga lima kelompok dikonfirmasi dari halaman BEI; PPh final jual saham 0,1% dari rekap DDTC; PPh dividen 10% dan pengecualiannya dari PP 9/2021 dan PMK 18/2021 (dokumen belum dibuka langsung). Fee broker dan biaya reksa dana adalah input; levy/KPEI/KSEI dianggap sudah termasuk dalam fee broker. Harga impas dan target dibulatkan ke fraksi harga yang valid.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25, Story 41 (fungsi keuangan)
@@ -64,14 +66,24 @@ investasi bodong, robot trading, dan iklan "pasti untung".
 
 ## Acceptance Criteria
 
-- [ ] Setiap aturan bursa dan pajak punya sumber dan tanggal cek di
+- [x] Setiap aturan bursa dan pajak punya sumber dan tanggal cek di
       halaman.
-- [ ] Unit test lot/lembar, fee dan pajak beli/jual, harga impas, target
+- [x] Unit test lot/lembar, fee dan pajak beli/jual, harga impas, target
       harga dengan fraksi harga yang valid, average down/up, dividen, dan
       unit reksa dana.
-- [ ] Disclaimer "bukan rekomendasi investasi" tampil di dekat hasil.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
+- [x] Disclaimer "bukan rekomendasi investasi" tampil di dekat hasil.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
       e2e).
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
-- [ ] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Satuan perdagangan 1 lot = 100 lembar dan fraksi harga (Rp1 di bawah Rp200, Rp2 sampai di bawah Rp500, Rp5 sampai di bawah Rp2.000, Rp10 sampai di bawah Rp5.000, Rp25 mulai Rp5.000): BEI, Jam dan Mekanisme Perdagangan, dan Peraturan II-A (Kep-00055/BEI/03-2023). https://www.idx.co.id/id/produk/mekanisme-dan-jam-perdagangan
+- PPh final 0,1% dari nilai bruto penjualan saham di bursa (PP 41/1994 jo. PP 14/1997): rekap DDTC. https://perpajakan.ddtc.co.id/id/panduan-pajak/rekap-peraturan/rekap-peraturan-atas-transaksi-penjualan-saham
+- PPh dividen orang pribadi dalam negeri 10% final, dikecualikan bila diinvestasikan kembali (PP 9/2021, PMK 18/PMK.03/2021). https://jdih.kemenkeu.go.id/
+- Harga impas = harga beli x (1 + fee beli) / (1 - fee jual - 0,1%), dibulatkan ke atas sesuai fraksi; rata-rata tertimbang per lot; unit reksa dana = (nominal - biaya beli) / NAB; investasi rutin memakai fungsi Story 41.
+- Kode: `app/data/investasi/index.ts`, `app/utils/saham.ts`.

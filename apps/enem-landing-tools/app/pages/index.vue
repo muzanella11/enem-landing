@@ -22,7 +22,9 @@ const groups = computed(() =>
   CATEGORY_ORDER.map((category) => ({
     category,
     label: CATEGORY_LABELS[category],
-    tools: config.value.tools.filter((tool) => tool.category === category),
+    tools: config.value.tools.filter(
+      (tool) => tool.category === category && tool.enabled !== false,
+    ),
   })).filter((group) => group.tools.length > 0),
 );
 
@@ -57,12 +59,14 @@ useHead({
           '@context': 'https://schema.org',
           '@type': 'ItemList',
           name: 'Daftar tools',
-          itemListElement: config.value.tools.map((tool, index) => ({
-            '@type': 'ListItem',
-            position: index + 1,
-            name: tool.name,
-            url: `${siteUrl}/${tool.slug}`,
-          })),
+          itemListElement: config.value.tools
+            .filter((tool) => tool.enabled !== false)
+            .map((tool, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: tool.name,
+              url: `${siteUrl}/${tool.slug}`,
+            })),
         }),
     },
   ],

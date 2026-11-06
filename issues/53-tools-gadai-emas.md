@@ -1,5 +1,7 @@
 # Story 53: Simulasi Gadai Emas dan Cicil Emas
 
+**Status:** Done (2026-11-06). Catatan: dua tool (`/simulasi-gadai-emas` dengan mode gadai 120 hari dan gadai emas angsuran, `/simulasi-cicil-emas`). Pegadaian hanya mempublikasikan rentang (sewa modal 1%-1,2% per 15 hari, admin Rp2.000 sampai Rp125.000, rasio taksir 92%-95%, Krasida 1,25%-1,40% per bulan), bukan tabel golongan lengkap, jadi tarif berupa input dengan nilai bawaan dari rentang itu. Biaya admin hanya terisi otomatis untuk dua titik yang disebut resmi (pinjaman sampai Rp500.000 dan di atas Rp20 juta). Metode angsuran flat dicocokkan dengan simulasi Customer Care Pegadaian untuk produk BPKB (Rp1.916.667 dan Rp1.083.333), belum dengan simulasi Krasida sendiri. Bank syariah dan cicil emas Pegadaian belum punya data tarif; margin cicil emas diisi pengguna.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25, Story 38 (harga emas)
@@ -59,15 +61,24 @@ pinjaman tidak berizin.
 
 ## Acceptance Criteria
 
-- [ ] Setiap tarif punya sumber resmi penyelenggara dan tanggal cek di
+- [x] Setiap tarif punya sumber resmi penyelenggara dan tanggal cek di
       halaman.
 - [ ] Unit test sewa modal per periode (tepat di batas periode dan
       satu hari sesudahnya), tiap golongan pinjaman, biaya admin, dan
       cicilan emas; minimal 3 skenario dicocokkan dengan simulasi resmi
       penyelenggara dan dicatat di PR.
-- [ ] Taksiran yang memakai harga Story 38 diberi label perkiraan.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
+- [x] Taksiran yang memakai harga Story 38 diberi label perkiraan.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
       e2e).
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
-- [ ] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Pegadaian, "Sistem Pembayaran di Pegadaian, Sudah Tahu Bedanya?" (26 Jul 2026) beserta jawaban Customer Care Pegadaian di halaman yang sama: KCA 120 hari dengan sewa modal 1%-1,2% per 15 hari, biaya admin Rp2.000-Rp125.000, rasio taksir 92%-95%; Krasida 1,25%-1,40% per bulan, rasio 95%, tenor 6-36 bulan; contoh angsuran flat Rp20 juta 1,25% (12 bulan Rp1.916.667, 24 bulan Rp1.083.333). https://pegadaian.co.id/artikel/keuangan/sistem-pembayaran-dan-bunga-di-pegadaian
+- Periode sewa modal: hari ke-1 sampai ke-15 satu periode, dibulatkan ke atas per 15 hari.
+- Taksiran = berat x kadar (Story 38) x harga per gram; harga spot dari Story 38 hanya sebagai perkiraan.
+- Kode: `app/data/gadai/index.ts`, `app/utils/gadai.ts`.

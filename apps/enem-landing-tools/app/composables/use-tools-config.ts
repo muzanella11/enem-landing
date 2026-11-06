@@ -17,8 +17,12 @@ export const useToolsConfig = () => {
     () => data.value ?? { ...TOOLS_SNAPSHOT, fallback: true },
   );
 
+  // The live registry only lists enabled tools; the build-time snapshot
+  // lists every tool with its flag, so disabled ones are filtered here too.
   const findTool = (slug: string) =>
-    config.value.tools.find((tool) => tool.slug === slug) ?? null;
+    config.value.tools.find(
+      (tool) => tool.slug === slug && tool.enabled !== false,
+    ) ?? null;
 
   /** A tool missing from the live registry is treated as disabled. */
   const isToolEnabled = (slug: string) => findTool(slug) !== null;

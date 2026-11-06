@@ -1,5 +1,7 @@
 # Story 51: Simulasi Premi Asuransi Mobil dan Motor
 
+**Status:** Done (2026-11-06). Catatan: dua tool (`/simulasi-asuransi-mobil`, `/simulasi-asuransi-motor`). Teks utama SEOJK 6/SEOJK.05/2017 dibaca dari PDF di situs OJK, tetapi PDF itu tidak memuat tabel lampirannya; tabel tarif kategori 1-8 diambil dari dua RIPLAY perusahaan asuransi yang mengutip SEOJK tersebut dan saling cocok untuk kategori 1-5 (kategori 6-8 dari satu RIPLAY). Tarif perluasan jaminan, TJH bertingkat, dan kecelakaan diri berasal dari satu RIPLAY. Tambahan premi kendaraan di atas 5 tahun dihitung 5% dari tarif per tahun kelebihan usia (tafsiran dari "paling sedikit 5% dari tarif per tahun"). Contoh perhitungan kedua RIPLAY cocok (Rp5.200.000, Rp4.264.000, Rp5.550.000). Belum dicek apakah SEOJK 6/2017 sudah diganti aturan baru.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25, Story 29 (kredit kendaraan), Story 42 (biaya kendaraan)
@@ -65,14 +67,24 @@ tombol "beli polis".
 
 ## Acceptance Criteria
 
-- [ ] Setiap tarif punya dasar hukum, nomor aturan, dan tanggal cek yang
+- [x] Setiap tarif punya dasar hukum, nomor aturan, dan tanggal cek yang
       tampil di halaman.
 - [ ] Unit test tiap wilayah, kategori nilai, jenis jaminan, perluasan, dan
       simulasi multi-tahun dengan penyusutan, dicocokkan dengan contoh
       perhitungan dari aturan atau publikasi resmi.
-- [ ] Hasil ditampilkan sebagai rentang batas bawah sampai batas atas.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
+- [x] Hasil ditampilkan sebagai rentang batas bawah sampai batas atas.
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
       e2e).
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
-- [ ] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- OJK: SEOJK No. 6/SEOJK.05/2017 tentang Penetapan Tarif Premi atau Kontribusi pada Lini Usaha Asuransi Harta Benda dan Asuransi Kendaraan Bermotor Tahun 2017 (berlaku 1 April 2017; tarif 12 bulan untuk kendaraan sampai 5 tahun; tarif di antara batas bawah dan atas; zona wilayah menurut TNKB; tambahan paling sedikit 5% untuk kendaraan di atas 5 tahun). https://ojk.go.id/id/kanal/iknb/regulasi/asuransi/surat-edaran-ojk/Documents/SAL%20-%20SE%20OJK%20Tarif%20Premi.pdf
+- Tabel tarif kategori 1-8 (Lampiran IV Tabel IV.A) dan contoh Rp205 juta: RIPLAY Asuransi Kendaraan Bermotor PT Asuransi Bina Dana Arta Tbk. https://myoona.id/content/dam/oona/documents/downloadable-brochures/all-products/bahasa/oona-riplay-asuransi-kendaraan-bermotor-versi-umum.pdf
+- Tabel kategori 1-5, perluasan jaminan (banjir, gempa, SRCC, terorisme), TJH bertingkat, kecelakaan diri, dan contoh Rp250 juta: RIPLAY Roojai. https://www.roojai.co.id/wp-content/uploads/2024/03/roojai-riplay-MV-id-20230405.pdf
+- Pembagian wilayah: 1 Sumatera dan kepulauan sekitarnya; 2 DKI Jakarta, Jawa Barat, Banten; 3 selain itu.
+- Kode: `app/data/asuransi/tarif-ojk.ts`, `app/utils/asuransi.ts`.

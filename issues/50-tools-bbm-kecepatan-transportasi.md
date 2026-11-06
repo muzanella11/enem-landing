@@ -1,5 +1,7 @@
 # Story 50: Kalkulator BBM, Jarak Tempuh, dan Kecepatan (Kendaraan, Kapal Laut, Kereta, Pesawat)
 
+**Status:** Done (2026-11-06). Catatan: lima tool dibuat (`/kalkulator-bbm`, `/kalkulator-kecepatan`, `/kalkulator-bbm-kapal`, `/kalkulator-perjalanan-kereta`, `/kalkulator-bahan-bakar-pesawat`), semuanya menampilkan biaya rupiah dari harga yang diisi. Harga BBM Pertamina per provinsi (40 wilayah, berlaku 2 September 2026) dibaca dari halaman resmi Pertamina Patra Niaga lewat browser karena tabelnya dimuat JavaScript. Tidak ada preset konsumsi kendaraan, kapal, lokomotif, atau pesawat karena belum ada sumber yang bisa dicantumkan; semuanya input pengguna. Cadangan bahan bakar memakai persen. Halaman jawaban (mis. "300 km berapa jam") belum dibuat.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25, Story 40 (konversi satuan, termasuk knot)
@@ -138,24 +140,37 @@ perjalanan punya nilai iklan yang baik.
 
 ## Acceptance Criteria
 
-- [ ] Unit test tiap rumus dengan satuan berbeda: konversi km/liter dan
+- [x] Unit test tiap rumus dengan satuan berbeda: konversi km/liter dan
       liter/100 km dua arah, jarak-waktu-kecepatan (tiap kombinasi dua
       input), knot dan mil laut, angin depan/belakang, kg ke liter avtur,
       cadangan persen, dan waktu berhenti kereta.
-- [ ] Unit test biaya: jumlah bahan bakar x harga untuk tiap satuan harga
+- [x] Unit test biaya: jumlah bahan bakar x harga untuk tiap satuan harga
       (liter, kg, ton), konversi satuan harga dengan massa jenis, biaya per
       km/mil laut/jam, biaya per orang, dan pulang pergi.
-- [ ] Setiap tool yang memakai bahan bakar punya field harga dan menampilkan
+- [x] Setiap tool yang memakai bahan bakar punya field harga dan menampilkan
       total rupiah yang dikeluarkan.
-- [ ] Perkiraan jam tiba benar melewati tengah malam dan antarzona waktu
+- [x] Perkiraan jam tiba benar melewati tengah malam dan antarzona waktu
       WIB/WITA/WIT.
-- [ ] Setiap harga BBM punya sumber dan tanggal berlaku yang tampil di
+- [x] Setiap harga BBM punya sumber dan tanggal berlaku yang tampil di
       halaman; setiap preset konsumsi punya sumber.
-- [ ] Catatan "bukan untuk navigasi/perencanaan operasional" tampil di
+- [x] Catatan "bukan untuk navigasi/perencanaan operasional" tampil di
       halaman kapal dan pesawat.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna (diuji
       e2e).
-- [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil
+- [x] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil
       muncul) lulus.
-- [ ] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+- [x] Bagian "Referensi perhitungan" di file ini diisi saat story selesai.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Harga BBM per provinsi: Pertamina Patra Niaga, Harga BBM Terbaru (update 2 September 2026). https://pertaminapatraniaga.com/page/harga-terbaru-bbm
+- Rumus dasar: jarak = kecepatan x waktu; km/liter = jarak / liter; liter/100 km = 100 / (km/liter); biaya = bahan bakar x harga per satuan.
+- Mil laut dan knot: 1 mil laut = 1.852 m, 1 knot = 1 mil laut per jam (definisi internasional, BIPM). https://www.bipm.org/en/measurement-units
+- Kecepatan pesawat terhadap darat = kecepatan jelajah + angin belakang (angin depan negatif).
+- Massa jenis avtur Jet A-1 775-840 kg/m³ pada 15 °C (ASTM D1655), bawaan 0,8 kg/liter. https://www.astm.org/d1655-24.html
+- Massa jenis bahan bakar kapal distilat maksimal 0,89 kg/liter pada 15 °C (ISO 8217), bawaan 0,85 kg/liter. https://www.iso.org/standard/76503.html
+- Zona waktu WIB (UTC+7), WITA (UTC+8), WIT (UTC+9).
+- Kode: `app/data/bbm/`, `app/utils/transportasi/index.ts`.
