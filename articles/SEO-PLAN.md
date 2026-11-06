@@ -171,10 +171,14 @@ Rules for these articles:
   after the tool is enabled.
 - When a new tool is added to the registry, add its row here in the same change, and update
   "Status" when the article is published.
+- "Draf" rows have a short first version in `articles/<slug>/` (Markdown + `images/hero.png`),
+  ready to paste into the CMS. Some drafts carry an HTML comment "Catatan editor" at the top
+  with data to fill in before publishing (UMP 2027, BI holiday PDF 2027, BAZNAS 2027 values);
+  remove the comment when done.
 
 | Category | Tool | Article topic (primary keyword) | Plan | Status |
 |----------|------|---------------------------------|------|--------|
-| Keuangan dan bisnis | `/upah-minimum` | UMP 2027 per provinsi dan cara menghitung kenaikannya ("ump 2027") | 6-month plan (November 2026) | Belum ditulis |
+| Keuangan dan bisnis | `/upah-minimum` | UMP 2027 per provinsi dan cara menghitung kenaikannya ("ump 2027") | 6-month plan (November 2026) | Draf: `articles/ump-2027-naik-berapa-persen/` |
 | Keuangan dan bisnis | `/kalkulator-lembur` | Cara menghitung upah lembur sesuai PP 35/2021 ("cara hitung lembur") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-gaji-bersih` | Gaji bersih setelah PPh 21 TER dan BPJS ("gaji bersih") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-pesangon` | Hak pesangon karyawan per alasan PHK ("hitung pesangon") | Backlog | Belum ditulis |
@@ -183,7 +187,7 @@ Rules for these articles:
 | Keuangan dan bisnis | `/kalkulator-token-listrik` | Token listrik 100 ribu dapat berapa kWh ("token listrik 100 ribu berapa kwh") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/biaya-bangun-rumah` | Biaya bangun rumah per meter persegi ("biaya bangun rumah per meter") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/link-whatsapp` | Cara membuat link WhatsApp dengan pesan otomatis ("link wa") | Backlog | Belum ditulis |
-| Keuangan dan bisnis | `/kalkulator-gaji-bersih` | Rekonsiliasi PPh 21 Desember dengan TER ("pph 21 desember") | 6-month plan (Desember 2026) | Belum ditulis |
+| Keuangan dan bisnis | `/kalkulator-gaji-bersih` | Rekonsiliasi PPh 21 Desember dengan TER ("pph 21 desember") | 6-month plan (Desember 2026) | Draf: `articles/pph-21-desember-lebih-besar/` |
 | Keuangan dan bisnis | `/buat-invoice` | Cara membuat invoice yang benar untuk UMKM ("contoh invoice") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/buat-kwitansi` | Cara membuat kwitansi dan kapan perlu meterai ("contoh kwitansi") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/terbilang` | Cara menulis terbilang rupiah yang benar ("terbilang rupiah") | Backlog | Belum ditulis |
@@ -197,7 +201,7 @@ Rules for these articles:
 | Keuangan dan bisnis | `/kalkulator-deposito` | Bunga deposito setelah pajak 20% ("bunga deposito") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-dana-pensiun` | Berapa dana pensiun yang dibutuhkan ("dana pensiun") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-pph-sewa` | Cara menghitung pajak sewa rumah dan ruko ("pajak sewa") | Backlog | Belum ditulis |
-| Keuangan dan bisnis | `/kalkulator-thr` | Cara menghitung THR dan pajaknya ("cara hitung thr") | 6-month plan (Januari 2027) | Belum ditulis |
+| Keuangan dan bisnis | `/kalkulator-thr` | Cara menghitung THR dan pajaknya ("cara hitung thr") | 6-month plan (Januari 2027) | Draf: `articles/cara-hitung-thr-karyawan/` |
 | Keuangan dan bisnis | `/kalkulator-bbm` | Biaya bensin mudik dan konsumsi BBM per km ("biaya bensin mudik") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-perjalanan-kereta` | Lama perjalanan kereta dan kecepatan rata-rata ("lama perjalanan kereta") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-bbm-kapal` | Waktu tempuh kapal dalam knot dan biaya bahan bakar ("kecepatan kapal knot") | Backlog | Belum ditulis |
@@ -208,7 +212,7 @@ Rules for these articles:
 | Keuangan dan bisnis | `/kalkulator-pajak-kendaraan` | Cara menghitung pajak kendaraan dan opsen ("cara menghitung pajak kendaraan") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/simulasi-gadai-emas` | Simulasi gadai emas untuk kebutuhan Lebaran ("simulasi gadai emas") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/simulasi-spt-tahunan` | SPT tahunan kurang bayar karena dua pemberi kerja ("spt kurang bayar") | Backlog | Belum ditulis |
-| Keuangan dan bisnis | `/kalkulator-pph-umkm` | PPh final UMKM 0,5% setelah PP 20/2026 ("pph umkm 0,5") | 6-month plan (Maret 2027) | Belum ditulis |
+| Keuangan dan bisnis | `/kalkulator-pph-umkm` | PPh final UMKM 0,5% setelah PP 20/2026 ("pph umkm 0,5") | 6-month plan (Maret 2027) | Draf: `articles/pph-final-umkm-0-5-persen/` |
 | Keuangan dan bisnis | `/kalkulator-ppn` | PPN 12% dan DPP 11/12: cara menghitungnya ("cara menghitung ppn") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/kalkulator-pph-23` | Tarif PPh 23 jasa, royalti, dan tanpa NPWP ("tarif pph 23") | Backlog | Belum ditulis |
 | Keuangan dan bisnis | `/simulasi-kur` | Simulasi KUR 2027: bunga dan angsuran ("simulasi kur") | Backlog | Belum ditulis |
@@ -229,14 +233,14 @@ Rules for these articles:
 | Pendidikan dan karier | `/ubah-huruf` | Aturan huruf kapital judul menurut EYD ("huruf kapital judul") | Backlog | Belum ditulis |
 | Pendidikan dan karier | `/kalkulator-nilai-rapor` | Cara menghitung nilai rapor dan nilai akhir berbobot ("cara menghitung nilai rapor") | Backlog | Belum ditulis |
 | Pendidikan dan karier | `/kalkulator-ipk` | Cara menghitung IPK dan IPS ("cara menghitung ipk") | Backlog | Belum ditulis |
-| Pendidikan dan karier | `/simulasi-nilai-skd` | Passing grade SKD CPNS dan cara menghitung skor ("passing grade skd") | 6-month plan (Ikut jadwal CPNS) | Belum ditulis |
+| Pendidikan dan karier | `/simulasi-nilai-skd` | Passing grade SKD CPNS dan cara menghitung skor ("passing grade skd") | 6-month plan (Ikut jadwal CPNS) | Draf: `articles/passing-grade-skd-cpns/` |
 | Kesehatan | `/kalkulator-bmi` | Cara menghitung BMI dan kategori menurut Kemenkes ("cara menghitung bmi") | Backlog | Belum ditulis |
 | Kesehatan | `/kalkulator-kalori` | Kebutuhan kalori harian untuk turun berat badan ("kebutuhan kalori harian") | Backlog | Belum ditulis |
 | Kesehatan | `/hitung-hpl` | Cara menghitung HPL dan usia kehamilan ("cara menghitung hpl") | Backlog | Belum ditulis |
 | Kesehatan | `/kalkulator-masa-subur` | Cara menghitung masa subur ("masa subur") | Backlog | Belum ditulis |
-| Kesehatan | `/iuran-bpjs-kesehatan` | Iuran BPJS Kesehatan mandiri dan KRIS ("iuran bpjs mandiri") | 6-month plan (April 2027) | Belum ditulis |
-| Ibadah | `/jadwal-imsakiyah` | Jadwal imsakiyah Ramadan 1448 H ("jadwal imsakiyah 2027") | 6-month plan (Februari 2027) | Belum ditulis |
-| Ibadah | `/kalkulator-zakat` | Zakat fitrah 2027: besaran beras dan uang ("zakat fitrah 2027") | 6-month plan (Februari 2027) | Belum ditulis |
+| Kesehatan | `/iuran-bpjs-kesehatan` | Iuran BPJS Kesehatan mandiri dan KRIS ("iuran bpjs mandiri") | 6-month plan (April 2027) | Draf: `articles/iuran-bpjs-kesehatan-mandiri/` |
+| Ibadah | `/jadwal-imsakiyah` | Jadwal imsakiyah Ramadan 1448 H ("jadwal imsakiyah 2027") | 6-month plan (Februari 2027) | Draf: `articles/jadwal-imsakiyah-ramadan-2027/` |
+| Ibadah | `/kalkulator-zakat` | Zakat fitrah 2027: besaran beras dan uang ("zakat fitrah 2027") | 6-month plan (Februari 2027) | Draf: `articles/zakat-fitrah-2027-berapa/` |
 | Ibadah | `/kalkulator-fidyah` | Cara menghitung fidyah puasa ("fidyah puasa") | Backlog (also linked from the 6-month plan) | Belum ditulis |
 | Ibadah | `/kalkulator-kafarat` | Jenis kafarat dan cara membayarnya ("kafarat") | Backlog | Belum ditulis |
 | Ibadah | `/jadwal-sholat` | Jadwal sholat sesuai Kemenag dan cara menghitungnya ("jadwal sholat") | Backlog | Belum ditulis |
@@ -245,7 +249,7 @@ Rules for these articles:
 | Dokumen, PDF, gambar, dan utilitas | `/konversi-luas-tanah` | 1 tumbak, 1 bata, 1 ubin berapa meter persegi ("1 tumbak berapa meter") | Backlog | Belum ditulis |
 | Dokumen, PDF, gambar, dan utilitas | `/buat-qr-code` | Cara membuat QR code WiFi, kontak, dan link ("buat qr code") | Backlog | Belum ditulis |
 | Dokumen, PDF, gambar, dan utilitas | `/gabung-pdf` | Cara menggabungkan file PDF tanpa aplikasi ("gabung pdf") | Backlog | Belum ditulis |
-| Dokumen, PDF, gambar, dan utilitas | `/libur-nasional` | Libur nasional dan cuti bersama 2027 serta long weekend ("libur nasional 2027") | 6-month plan (Desember 2026) | Belum ditulis |
+| Dokumen, PDF, gambar, dan utilitas | `/libur-nasional` | Libur nasional dan cuti bersama 2027 serta long weekend ("libur nasional 2027") | 6-month plan (Desember 2026) | Draf: `articles/libur-nasional-dan-cuti-bersama-2027/` |
 | Dokumen, PDF, gambar, dan utilitas | `/hitung-hari-kerja` | Cara menghitung hari kerja tanpa libur ("hitung hari kerja") | Backlog | Belum ditulis |
 | Dokumen, PDF, gambar, dan utilitas | `/pisah-pdf` | Cara memisahkan halaman PDF ("pisah pdf") | Backlog | Belum ditulis |
 | Dokumen, PDF, gambar, dan utilitas | `/atur-halaman-pdf` | Cara mengurutkan, memutar, dan menghapus halaman PDF ("atur halaman pdf") | Backlog | Belum ditulis |
