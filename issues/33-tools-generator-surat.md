@@ -1,5 +1,7 @@
 # Story 33: Generator Surat (Lamaran Kerja, Kuasa, Pernyataan, dan Lainnya)
 
+**Status:** Done (2026-11-06). Catatan: registry memakai satu entri hub `buat-surat`; tiap jenis surat punya halaman sendiri di `/buat-surat/<jenis>` (masuk sitemap) dengan contoh surat yang dirender di server. Enam jenis: lamaran kerja, pernyataan, kuasa, izin tidak masuk (kerja/sekolah), pengunduran diri (dengan pengingat 30 hari PP 35/2021), permohonan keterangan domisili. Isian tersimpan di localStorage dan dipakai bersama antar jenis surat. PDF dicek dengan poppler (A4 dan F4); belum dibuka manual di Safari dan Acrobat.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 24 (render PDF dengan `pdf-lib`, terbilang),
@@ -63,3 +65,12 @@ AdSense dan donasi. Iklan tidak pernah di dalam PDF atau pratinjau.
 - [ ] Muncul di registry (satu entri per jenis surat atau satu entri hub,
       diputuskan saat implementasi), meta/JSON-LD, sitemap; lint, test,
       e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- UU 10/2020 tentang Bea Meterai: meterai Rp10.000 untuk surat pernyataan, surat kuasa, dan dokumen sejenis yang dipakai sebagai alat bukti. https://peraturan.bpk.go.id/Details/151354/uu-no-10-tahun-2020
+- PP 35/2021 Pasal 36 huruf i: pengunduran diri diajukan tertulis paling lambat 30 hari sebelumnya (dasar pengingat di surat resign). https://peraturan.bpk.go.id/
+- Struktur surat mengikuti format surat pribadi/semi resmi yang lazim di Indonesia; bukan format baku instansi.
+- Data di kode: `app/data/surat/`.

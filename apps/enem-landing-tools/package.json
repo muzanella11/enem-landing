@@ -26,6 +26,7 @@
         "inputs": [
           "{projectRoot}/scripts/generate-og-images.mjs",
           "{projectRoot}/shared/tools-registry.ts",
+          "{projectRoot}/app/data/upah-minimum/index.ts",
           {
             "externalDependencies": [
               "satori",

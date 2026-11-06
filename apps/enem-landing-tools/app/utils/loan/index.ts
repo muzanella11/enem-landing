@@ -237,14 +237,19 @@ export interface UpfrontCostResult {
   total: number;
 }
 
+/**
+ * BPHTB: rate x (NPOP - NPOPTKP), never negative. Shared by the KPR upfront
+ * costs (Story 21) and the property transfer costs (Story 47).
+ */
+export const hitungBphtb = (npop: number, npoptkp: number, tarifPct = 5) =>
+  Math.round((Math.max(0, npop - npoptkp) * tarifPct) / 100);
+
 export const calculateUpfrontCosts = (
   input: UpfrontCostInput,
 ): UpfrontCostResult => {
   const provisi = Math.round((input.loanAmount * input.provisiPct) / 100);
   const asuransi = Math.round((input.loanAmount * input.asuransiPct) / 100);
-  const bphtb = Math.round(
-    (Math.max(0, input.propertyPrice - input.npoptkp) * input.bphtbPct) / 100,
-  );
+  const bphtb = hitungBphtb(input.propertyPrice, input.npoptkp, input.bphtbPct);
   const total =
     provisi +
     input.administrasi +
@@ -288,3 +293,34 @@ export const scheduleToCsv = (schedule: ScheduleRow[]): string => {
   // Excel uses the comma as the decimal separator.
   return `${'\uFEFF'}${[header, ...lines].join('\r\n')}\r\n`;
 };
+
+/**
+ * Effective annual rate (annuity) that gives the same installment as a
+ * flat rate - leasing ads quote flat rates, which look much cheaper
+ * (Story 29). Solved by bisection on the monthly rate.
+ */
+export const bungaEfektifDariFlat = (
+  flatAnnualPct: number,
+  tenorMonths: number,
+): number => {
+  if (flatAnnualPct <= 0 || tenorMonths <= 0) return 0;
+  const principal = 1_000_000;
+  const target =
+    principal / tenorMonths + (principal * flatAnnualPct) / 100 / 12;
+  let low = 0;
+  let high = 1;
+  for (let i = 0; i < 100; i += 1) {
+    const mid = (low + high) / 2;
+    if (pmt(mid, tenorMonths, principal) > target) high = mid;
+    else low = mid;
+  }
+  return Math.round(((low + high) / 2) * 12 * 100 * 100) / 100;
+};
+
+/** Flat-rate installment (leasing style). */
+export const cicilanFlat = (
+  principal: number,
+  flatAnnualPct: number,
+  tenorMonths: number,
+): number =>
+  Math.round(principal / tenorMonths + (principal * flatAnnualPct) / 100 / 12);

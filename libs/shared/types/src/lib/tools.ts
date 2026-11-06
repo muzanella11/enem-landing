@@ -3,7 +3,8 @@
  * constants in `@enem-landing/shared-definitions` (TOOL_CATEGORIES,
  * TOOL_BADGES, DONATION_PLATFORMS); this lib stays type-only.
  */
-export type ToolCategoryValue = 'keuangan' | 'dokumen' | 'ibadah';
+export type ToolCategoryValue =
+  'keuangan' | 'dokumen' | 'ibadah' | 'kesehatan' | 'pendidikan';
 export type ToolBadgeValue = 'baru' | 'populer';
 export type DonationPlatformValue =
   'sociabuzz' | 'saweria' | 'trakteer' | 'qris' | 'other';
@@ -36,6 +37,8 @@ export interface ToolsSettings {
   id: string;
   adsEnabled: boolean;
   adsenseClientId: string | null;
+  adsenseSlotResult: string | null;
+  adsenseSlotSidebar: string | null;
   donationCtaText: string;
   blockedCategoriesNote: string | null;
 }
@@ -47,6 +50,8 @@ export interface ToolsPublicConfig {
   settings: {
     adsEnabled: boolean;
     adsenseClientId: string | null;
+    adsenseSlotResult: string | null;
+    adsenseSlotSidebar: string | null;
     donationCtaText: string;
   };
 }

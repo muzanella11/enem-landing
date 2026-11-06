@@ -1,5 +1,7 @@
 # Story 45: Kalkulator Waris Islam (Faraid), Fidyah, dan Kafarat
 
+**Status:** Done untuk kode (2026-11-06), **belum rilis**. Catatan: `/kalkulator-waris` sengaja dinonaktifkan di registry (migration dan snapshot) karena kriteria "tinjauan oleh orang yang kompeten" belum dipenuhi; aktifkan dari CMS setelah ditinjau. 21 kasus faraid (termasuk aul, radd, gharrawain, minbariyyah) lulus unit test dengan total tepat 1, tetapi jawabannya disusun dari contoh umum buku faraid, belum dicocokkan halaman per halaman dengan satu rujukan. Kakek bersama saudara dan musytarakah ditandai sebagai perselisihan, tidak dihitung. Paman dan keponakan (ashabah jauh) belum didukung. Fidyah dan kafarat aktif; nilai fidyah Rp65.000 dan sekalian zakat fitrah Story 22 diperbarui ke Rp50.000 (SK Ketua BAZNAS RI 14/2026, dari berita).
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 22, Story 25
@@ -62,3 +64,18 @@ bisa dimatikan per tool, tanpa CTA donasi di dekat hasil.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Bagian ahli waris: QS An-Nisa 11, 12, dan 176. https://quran.kemenag.go.id/quran/per-ayat/surah/4?from=11&to=12
+- Kompilasi Hukum Islam (Inpres 1/1991) Buku II tentang Hukum Kewarisan. https://peraturan.bpk.go.id/Details/224221/inpres-no-1-tahun-1991
+- Kaidah faraid jumhur (ashabul furudh, ashabah bin nafsi/bil ghair/ma'al ghair, hajb, aul, radd tanpa suami/istri, gharrawain 1/3 sisa) mengikuti buku ajar faraid, mis. Muhammad Ali Ash-Shabuni, *Al-Mawarits fi asy-Syari'ah al-Islamiyyah* (terjemahan: Pembagian Waris Menurut Islam). Belum diverifikasi oleh ahli.
+- Harta bersih: biaya jenazah, utang, lalu wasiat maks 1/3 (KHI Pasal 171 dan 195).
+- Fidyah Rp65.000 per hari per jiwa: SK Ketua BAZNAS RI No. 14 Tahun 2026, dikutip Jawapos. https://www.jawapos.com/nasional/2602100086/baznas-tetapkan-zakat-fitrah-2026-sebesar-rp-50000-dan-fidyah-rp-65000-per-jiwa
+- Dasar fidyah: QS Al-Baqarah 184. https://quran.kemenag.go.id/quran/per-ayat/surah/2?from=184&to=184
+- Kafarat sumpah: QS Al-Maidah 89. https://quran.kemenag.go.id/quran/per-ayat/surah/5?from=89&to=89
+- Kafarat zihar: QS Al-Mujadilah 3-4. https://quran.kemenag.go.id/quran/per-ayat/surah/58?from=3&to=4
+- Kafarat jima' di siang Ramadan: HR Bukhari dan Muslim.
+- Data di kode: `app/data/fidyah.ts`, `app/utils/faraid/`.

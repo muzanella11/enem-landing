@@ -44,6 +44,19 @@ test.describe('file tools (processed in the browser)', () => {
     await expect(page.getByText('2 file siap.')).toBeVisible();
   });
 
+  test('atur halaman shows page thumbnails', async ({ page }) => {
+    await gotoReady(page, '/atur-halaman-pdf');
+    await page.locator('input[type=file]').setInputFiles({
+      name: 'laporan.pdf',
+      mimeType: 'application/pdf',
+      buffer: makePdf(3),
+    });
+    await expect(
+      page.getByText('3 halaman. Seret untuk mengurutkan.'),
+    ).toBeVisible();
+    await expect(page.getByAltText('Halaman 3')).toBeVisible();
+  });
+
   test('kompres gambar produces a JPG', async ({ page }) => {
     await gotoReady(page, '/kompres-gambar');
     await page.locator('input[type=file]').setInputFiles({

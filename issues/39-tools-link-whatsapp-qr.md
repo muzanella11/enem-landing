@@ -1,5 +1,7 @@
 # Story 39: Generator Link WhatsApp dan QR Code
 
+**Status:** Done (2026-11-06). Catatan: QR dibuat lokal dengan `uqr`, unduh PNG/SVG; QR WiFi dan vCard di-escape sesuai spesifikasi, password tidak pernah keluar dari browser. Belum dites pindai dengan beberapa aplikasi kamera HP.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -55,3 +57,13 @@ AdSense dan donasi. Cross-link ke invoice/kwitansi (Story 24).
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Tautan WhatsApp: format `https://wa.me/<nomor>?text=` dari dokumentasi WhatsApp (Click to Chat). https://faq.whatsapp.com/5913398998672934
+- QR code: ISO/IEC 18004, dibuat dengan pustaka uqr. https://github.com/unjs/uqr
+- QR WiFi: format `WIFI:T:...;S:...;P:...;;` (spesifikasi ZXing) dengan escape karakter `\ ; , : "`. https://github.com/zxing/zxing/wiki/Barcode-Contents
+- QR kontak: vCard 3.0 (RFC 2426). https://www.rfc-editor.org/rfc/rfc2426
+- Nomor Indonesia dinormalisasi ke kode negara 62.

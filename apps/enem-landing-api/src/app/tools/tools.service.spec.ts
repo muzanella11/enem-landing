@@ -178,4 +178,20 @@ describe('ToolsService', () => {
       },
     ]);
   });
+
+  it('serves the AdSense ad unit ids in the public config (Story 27)', async () => {
+    settingsRepo.find.mockResolvedValue([
+      {
+        id: 's',
+        adsEnabled: true,
+        adsenseClientId: 'ca-pub-1234567890',
+        adsenseSlotResult: '1111111111',
+        adsenseSlotSidebar: null,
+        donationCtaText: 'Traktir kopi',
+      },
+    ]);
+    const config = await service.getPublicConfig();
+    expect(config.settings.adsenseSlotResult).toBe('1111111111');
+    expect(config.settings.adsenseSlotSidebar).toBeNull();
+  });
 });

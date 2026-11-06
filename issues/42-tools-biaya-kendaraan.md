@@ -1,5 +1,7 @@
 # Story 42: Biaya SIM, STNK, BPKB, dan Estimasi Pajak Kendaraan
 
+**Status:** Done (2026-11-06). Catatan: tarif SIM/STNK/TNKB/BPKB dari Lampiran PP 76/2020 lewat Hukumonline (situs JDIH Setkab tidak bisa diakses saat dicek). Pajak kendaraan memakai kerangka UU 1/2022 (tarif maksimum 1,2%, DKI 2%, opsen 66%, denda 1%/bulan maks 24 bulan); tarif per provinsi berupa input yang bisa diubah, belum ada data per provinsi dan belum dicocokkan dengan contoh Bapenda/Samsat. Nilai SWDKLLJ dan dendanya (PMK 16/2017) belum dicek ulang ke situs Jasa Raharja. Pengesahan STNK dan mutasi belum dimasukkan karena tarifnya belum terverifikasi.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -55,3 +57,13 @@ AdSense dan donasi.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- PNBP Polri: PP 76/2020 (Lampiran angka I, II, IV, VIII) untuk SIM, STNK, BPKB; dikutip dari Hukumonline (10 Okt 2025) karena JDIH Setkab tidak dapat diakses. https://www.hukumonline.com/klinik/a/ini-tarif-sim--stnk-dan-bpkb-tebaru-lt586da674b5694
+- TNKB per pasang (motor Rp60.000, mobil Rp100.000): Hukumonline. https://www.hukumonline.com/klinik/a/biaya-penerbitan-dan-perpanjangan-stnk-serta-tnkb-lt5522126327fb6/
+- PKB: UU 1/2022 (HKPD), tarif maksimum 1,2% (DKI 2%), progresif maksimum 6% (DKI 10%), opsen PKB 66%, sanksi bunga 1% per bulan maksimal 24 bulan. https://peraturan.bpk.go.id/Details/195682/uu-no-1-tahun-2022
+- SWDKLLJ Jasa Raharja (motor Rp35.000, mobil penumpang Rp143.000; denda Rp32.000 dan Rp100.000): PMK 16/PMK.010/2017, belum dicek ulang ke situs Jasa Raharja. https://peraturan.bpk.go.id/Details/115327/pmk-no-16pmk0102017
+- Data di kode: `app/data/kendaraan/index.ts`.

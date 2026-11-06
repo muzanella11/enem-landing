@@ -21,6 +21,20 @@ export class UpdateToolsSettingsDto {
   adsenseClientId?: string | null;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @Matches(/^\d{6,20}$/, {
+    message: 'adsenseSlotResult must be a numeric ad unit id',
+  })
+  adsenseSlotResult?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @Matches(/^\d{6,20}$/, {
+    message: 'adsenseSlotSidebar must be a numeric ad unit id',
+  })
+  adsenseSlotSidebar?: string | null;
+
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)

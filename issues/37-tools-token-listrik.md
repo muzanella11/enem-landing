@@ -1,5 +1,7 @@
 # Story 37: Kalkulator Token Listrik PLN
 
+**Status:** Done (2026-11-06). Catatan: tarif Triwulan IV 2026 dari pemberitaan (Kompas, CNBC, CNN), dokumen tariff adjustment PLN belum dicek langsung; pencocokan dengan struk token nyata belum dilakukan; pajak daerah default 3% dan bisa diubah pengguna.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -57,3 +59,12 @@ AdSense dan donasi. Halaman per nominal menambah halaman terindeks.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Tarif listrik Triwulan IV 2026 per golongan: CNBC Indonesia (4 Nov 2026) dan Kompas (2 Nov 2026), belum dicocokkan ke struk token. https://www.cnbcindonesia.com/news/20261104072435-4-782094/resmi-daftar-tarif-listrik-pln-per-kwh-berlaku-hingga-desember-2026 dan https://money.kompas.com/read/2026/11/02/083952426/tarif-listrik-pln-november-2026-cek-daftar-lengkap-semua-golongan
+- PLN: penyesuaian tarif tenaga listrik (tariff adjustment). https://web.pln.co.id/
+- PPN 11% hanya untuk rumah tangga 6.600 VA ke atas (UU 7/2021 HPP); Pajak Penerangan Jalan/PBJT tenaga listrik per daerah (UU 1/2022, bawaan 3%).
+- Data di kode: `app/data/listrik/tarif.ts`.

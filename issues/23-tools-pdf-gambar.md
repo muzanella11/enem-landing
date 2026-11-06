@@ -1,5 +1,7 @@
 # Story 23: Alat PDF dan Gambar (Client-side)
 
+**Status:** Done (2026-11-06). Catatan: uji di HP sungguhan (Chrome Android, Safari iOS) belum dilakukan.
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub)
@@ -110,3 +112,12 @@ aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
 - Ukuran JS (gzip) saat diukur: halaman index sekitar 90 KB. Chunk lazy terbesar:
   decoder HEIC sekitar 333 KB, pdf-lib sekitar 171 KB, pdf.js sekitar 125 KB.
 - Pengujian di HP sungguhan (Chrome Android, Safari iOS) belum dilakukan.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Tidak ada rumus regulasi. Pemrosesan memakai pustaka: pdf-lib 1.17.1 (gabung, pisah, atur halaman, gambar ke PDF) https://pdf-lib.js.org/ dan pdf.js (pdfjs-dist 6.4.299) untuk pratinjau https://mozilla.github.io/pdf.js/
+- Ukuran kertas A4 (210 x 297 mm, ISO 216) dan F4 (215 x 330 mm, ukuran folio lazim di Indonesia); konversi mm ke point = mm / 25,4 x 72.
+- Ukuran pas foto 2x3, 3x4, 4x6 cm pada 300 dpi (konvensi umum cetak foto).
+- HEIC ke JPEG memakai heic2any (libheif).

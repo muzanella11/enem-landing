@@ -14,6 +14,7 @@ const props = withDefaults(
 );
 
 const { config } = useToolsConfig();
+const embed = useEmbed();
 const options = computed(() => config.value.donationOptions);
 const ctaText = computed(
   () => config.value.settings.donationCtaText || 'Traktir kopi',
@@ -23,7 +24,7 @@ const openQris = ref<string | null>(null);
 
 <template>
   <div
-    v-if="options.length > 0"
+    v-if="options.length > 0 && !embed"
     :class="
       variant === 'inline'
         ? 'rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900'

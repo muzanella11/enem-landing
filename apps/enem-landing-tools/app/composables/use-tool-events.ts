@@ -7,8 +7,10 @@ import { useTracker } from '@enem-landing/frontend/tracking';
  */
 export const useToolEvents = (toolId: string) => {
   const tracker = useTracker();
+  const embed = useEmbed();
   const send = (name: string, extra: Record<string, string> = {}) => {
-    if (import.meta.server) return;
+    // Embedded widgets (Story 49) never track visitors of other sites.
+    if (import.meta.server || embed.value) return;
     void tracker.track(name, { toolId, ...extra });
   };
   return {

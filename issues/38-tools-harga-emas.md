@@ -1,5 +1,7 @@
 # Story 38: Harga Emas Hari Ini dan Kalkulator Emas
 
+**Status:** Done (2026-11-06). Catatan: riwayat harga dicatat harian oleh enem-landing-api mulai 2026-11-06, jadi grafik terisi bertahap; ketentuan pemakaian gold-api.com dan exchangerate-api.com belum dicek.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 22 (server route `/api/harga-emas`), Story 25
@@ -60,3 +62,13 @@ investasi bodong dan robot trading.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Harga spot emas (XAU/USD): gold-api.com, dicatat harian oleh API sejak 2026-11-06. https://gold-api.com/
+- Kurs USD/IDR: exchangerate-api.com. https://www.exchangerate-api.com/
+- 1 troy ounce = 31,1034768 gram.
+- Kadar karat: kemurnian teoretis karat/24 (24K 99,9%, 22K 91,6%, dan seterusnya); kadar toko emas muda bisa berbeda dan bisa diubah pengguna.
+- Data di kode: `app/data/emas/karat.ts`.

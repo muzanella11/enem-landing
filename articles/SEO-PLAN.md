@@ -118,3 +118,35 @@ directly. Frontmatter fields map to the CMS post form (`pages/blog/[id].vue`) as
       approach is..." framing rather than invented first-hand stories
 - [x] Technical claims grounded in current, official documentation for each technology
 - [x] No application code touched; all output is confined to `articles/`
+
+## Tools Hub (tools.muzanella.com): 6-Month Content Plan and Search Console Routine
+
+Added for Story 49 (2026-11-06). Blog articles on muzanella.com link to the matching tool, and
+each tool page links back to the article where it adds context. Articles are written with the
+`write-article` skill. The calendar follows when people actually search each topic.
+
+| Month | Article topic (primary keyword) | Target tool |
+|-------|---------------------------------|-------------|
+| November 2026 | UMP 2027 per provinsi dan cara menghitung kenaikannya ("ump 2027") | `/upah-minimum` |
+| December 2026 | Rekonsiliasi PPh 21 Desember dengan TER ("pph 21 desember") | `/kalkulator-gaji-bersih` |
+| December 2026 | Libur nasional dan cuti bersama 2027, long weekend ("libur nasional 2027") | `/libur-nasional` (after the BI PDF for 2027 is out) |
+| January 2027 | Cara hitung THR dan pajaknya ("cara hitung thr") | `/kalkulator-thr`, `/thr/<nominal>` |
+| February 2027 | Zakat fitrah dan fidyah 2027 ("zakat fitrah 2027") | `/kalkulator-zakat`, `/kalkulator-fidyah` |
+| February 2027 | Jadwal imsakiyah Ramadan 1448 H ("jadwal imsakiyah 2027") | `/jadwal-imsakiyah` |
+| March 2027 | PPh final UMKM 0,5% setelah PP 20/2026 ("pph umkm 0,5") | `/kalkulator-pph-umkm` |
+| April 2027 | Iuran BPJS Kesehatan mandiri dan KRIS ("iuran bpjs mandiri") | `/iuran-bpjs-kesehatan` |
+| Follow CPNS schedule | Passing grade SKD dan berkas CPNS ("passing grade skd") | `/simulasi-nilai-skd`, `/kompres-pdf`, `/pas-foto-latar-merah-biru` |
+
+### Search Console checklist
+
+- [ ] Verify the `tools.muzanella.com` domain property (DNS TXT record).
+- [ ] Submit `https://tools.muzanella.com/sitemap.xml`.
+- [ ] After 4 weeks: export queries per page; add answer pages (`/gaji-bersih/<nominal>`,
+      `/thr/<nominal>`, token, land units) only for amounts that show impressions, and remove
+      ones that get none after 3 months.
+- [ ] Monthly: list pages with high impressions and CTR below 2%, rewrite their title and
+      description, and recheck after 4 weeks.
+- [ ] Monthly: check Coverage for `noindex` surprises (disabled tools, `/embed/*` should stay
+      excluded) and 404s.
+- [ ] Each season: update the data first (UMP, holidays, zakat/fidyah, BPJS), then publish
+      the article.

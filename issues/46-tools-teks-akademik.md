@@ -1,5 +1,7 @@
 # Story 46: Tools Teks dan Akademik (Penghitung Kata, Ubah Huruf, Daftar Pustaka, Nilai Rapor)
 
+**Status:** Done (2026-11-06). Catatan: daftar pustaka dicek terhadap pola contoh APA edisi 7 dan Cite Them Right (Harvard) dengan adaptasi Indonesia ("dkk.", "t.t.", "dan", "[Skripsi, ...]", "Tersedia di/Diakses"); belum dicocokkan ke satu pedoman kampus tertentu. Nama dengan satu kata (mis. Sugiyono) ditulis utuh; penulis lembaga lewat centang. Daftar pustaka hanya disimpan di localStorage bila pengguna mencentang "Simpan".
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25, Story 35 (pola tool akademik)
@@ -56,3 +58,14 @@ AdSense memungkinkan.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- APA Style edisi 7: contoh referensi buku, artikel jurnal, halaman web, dan skripsi/tesis (urutan penulis, tahun dalam kurung, judul miring, volume miring, DOI sebagai URL, sampai 20 penulis). https://apastyle.apa.org/style-grammar-guidelines/references/examples
+- Harvard (Cite Them Right): format penulis (tahun) judul, "et al." (di sini "dkk.") untuk 4 penulis atau lebih, "Available at ... (Accessed: ...)" (di sini "Tersedia di ... (Diakses: ...)"). https://www.citethemrightonline.com/
+- Ejaan Bahasa Indonesia yang Disempurnakan (EYD) Edisi V, Badan Bahasa: huruf kapital pada judul, kata tugas tetap kecil, kedua unsur kata ulang dikapitalkan. https://ejaan.kemdikbud.go.id/
+- Waktu baca: 200 kata per menit (angka umum membaca dalam hati), hanya perkiraan.
+- Nilai rapor: rata-rata tertimbang dengan bobot dinormalkan; nilai yang dibutuhkan = (target x total bobot - nilai tertimbang yang ada) / bobot komponen kosong.
+- Kode: `app/utils/teks/index.ts`, `app/utils/teks/pustaka.ts`.

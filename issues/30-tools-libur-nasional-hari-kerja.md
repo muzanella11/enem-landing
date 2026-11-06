@@ -1,5 +1,7 @@
 # Story 30: Kalender Libur Nasional dan Cuti Bersama 2027, Hitung Hari Kerja
 
+**Status:** Done (2026-11-06). Catatan: data 2026 disalin dari PDF kalender BI lewat browser (PDF berbasis gambar, tanpa lapisan teks), termasuk libur fakultatif Hindu; 2027 tampil "menunggu publikasi" sampai PDF BI terbit; route memakai `/libur-nasional` (tidak bergantung tahun) bukan `/libur-nasional-2027`; file .ics belum dicoba manual di Google/Apple Calendar.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -90,3 +92,12 @@ ke kalkulator THR (Story 26) di sekitar Idul Fitri dan Natal.
       pola 5 dan 6 hari, tanggal terbalik) dan saran long weekend.
 - [ ] File `.ics` terbuka benar di Google Calendar dan Apple Calendar.
 - [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Bank Indonesia: Hari Libur dan Cuti Bersama Tahun 2026 (PDF, diunggah 22 Desember 2025), yang merujuk SKB 3 Menteri tentang hari libur nasional dan cuti bersama 2026. https://www.bi.go.id/id/publikasi/Kalender/Documents/Kalender-Libur-BI-2026.pdf
+- Halaman kalender BI: https://www.bi.go.id/id/publikasi/kalender/Default.aspx
+- Format kalender .ics: RFC 5545 (iCalendar). https://www.rfc-editor.org/rfc/rfc5545
+- Data di kode: `app/data/libur/index.ts`.

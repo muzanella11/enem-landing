@@ -13,16 +13,17 @@ const props = defineProps<{
 
 const HEIGHTS = { result: 280, sidebar: 600 } as const;
 
-const runtime = useRuntimeConfig().public;
 const { config, adsEnabledFor } = useToolsConfig();
+const embed = useEmbed();
 const { state: consent } = useConsent();
 // False while a share-link fragment is still being removed from the URL.
 const fragmentCleared = useState('share-fragment-cleared', () => true);
 
+// Ad unit ids come from the CMS (Story 27), like the publisher id.
 const slotId = computed(() =>
   props.placement === 'result'
-    ? (runtime.adsenseSlotResult as string)
-    : (runtime.adsenseSlotSidebar as string),
+    ? (config.value.settings.adsenseSlotResult ?? '')
+    : (config.value.settings.adsenseSlotSidebar ?? ''),
 );
 const clientId = computed(() => config.value.settings.adsenseClientId ?? '');
 const active = computed(
@@ -93,7 +94,7 @@ watch([consent, fragmentCleared], () => void tryLoad());
 
 <template>
   <div
-    v-if="active"
+    v-if="active && !embed"
     ref="container"
     class="overflow-hidden rounded-xl border border-dashed border-slate-200 bg-slate-50"
     :style="{ minHeight: `${height}px` }"

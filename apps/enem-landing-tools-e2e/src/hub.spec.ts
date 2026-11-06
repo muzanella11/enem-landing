@@ -83,4 +83,17 @@ test.describe('tools hub', () => {
       page.locator('meta[name="robots"][content*="noindex"]'),
     ).toHaveCount(1);
   });
+
+  test('without a publisher id: ads.txt is 404 and there is no verification tag (Story 27)', async ({
+    page,
+    request,
+  }) => {
+    // The seeded settings have no AdSense publisher id.
+    expect((await request.get('/ads.txt')).status()).toBe(404);
+    await gotoReady(page, '/');
+    await expect(
+      page.locator('meta[name="google-adsense-account"]'),
+    ).toHaveCount(0);
+    await expect(page.locator('script[src*="adsbygoogle.js"]')).toHaveCount(0);
+  });
 });

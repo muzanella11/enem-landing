@@ -13,6 +13,14 @@ export class ToolsSettingsEntity {
   @Column({ type: 'varchar', nullable: true })
   adsenseClientId!: string | null;
 
+  /** AdSense ad unit id for the slot below results (Story 27). */
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  adsenseSlotResult!: string | null;
+
+  /** AdSense ad unit id for the desktop sidebar slot (Story 27). */
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  adsenseSlotSidebar!: string | null;
+
   @Column({ default: 'Traktir kopi' })
   donationCtaText!: string;
 

@@ -1,5 +1,7 @@
 # Story 25: CMS untuk Tools Hub (Monitoring Multi-site + Registry Tool, Iklan, Donasi)
 
+**Status:** Done (2026-11-06).
+
 **Apps touched:** `enem-landing-api`, `enem-landing-cms`, `enem-landing-web`,
 `enem-landing-tools`, `libs/frontend`
 
@@ -246,3 +248,9 @@ Validasi URL donasi: hanya `https`.
 - BFF CMS untuk menu Tools memakai satu route `server/api/tools-admin/[...path].ts`
   dengan whitelist path; otorisasi admin tetap di API.
 - Env baru CMS: `NUXT_PUBLIC_TOOLS_HOST` (iframe heatmap untuk site tools).
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Tidak ada perhitungan berbasis regulasi. Story ini berisi registry, monitoring, dan tracking.

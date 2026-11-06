@@ -28,6 +28,7 @@ import { TrackingSessionEntity } from './tracking/tracking-session.entity.js';
 import { TrackingSettingsEntity } from './tracking/tracking-settings.entity.js';
 import { TrackingModule } from './tracking/tracking.module.js';
 import { DonationOptionEntity } from './tools/donation-option.entity.js';
+import { GoldPriceEntity } from './tools/gold-price.entity.js';
 import { ToolEntity } from './tools/tool.entity.js';
 import { ToolsSettingsEntity } from './tools/tools-settings.entity.js';
 import { ToolsModule } from './tools/tools.module.js';
@@ -58,6 +59,7 @@ import { ToolsModule } from './tools/tools.module.js';
         ToolEntity,
         DonationOptionEntity,
         ToolsSettingsEntity,
+        GoldPriceEntity,
       ],
       synchronize: false,
     }),

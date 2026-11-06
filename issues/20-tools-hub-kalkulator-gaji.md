@@ -1,5 +1,7 @@
 # Story 20: Tools Hub + Kalkulator Gaji Bersih (PPh 21 TER + BPJS)
 
+**Status:** Done (2026-11-06). Catatan: batas upah JP 2026 belum terkonfirmasi dari sumber resmi (lihat Catatan implementasi).
+
 **Apps touched:** app baru `enem-landing-tools` (Nuxt 4 + Tailwind), `compose.yml`,
 `compose.prod.yml`, `compose.dev.yml`, `scripts/kill-ports.sh`, workflow CI/CD
 
@@ -303,3 +305,13 @@ Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
   pertama yang menyertakan image `enem-landing-tools`.
 - Masih manual oleh user: ID slot AdSense setelah AdSense disetujui (akan
   dipindah ke CMS di Story 27), dan URL SociaBuzz di CMS.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- PP 58/2023: tarif efektif rata-rata (TER) PPh 21 kategori A/B/C. https://jdih.kemenkeu.go.id/
+- PMK 168/2023: tata cara pemotongan PPh 21 (TER Januari-November, hitung ulang Desember, biaya jabatan 5% maks Rp6 juta/tahun, PTKP). https://jdih.kemenkeu.go.id/
+- BPJS Ketenagakerjaan: iuran JHT, JP, JKK, JKM dan batas upah Jaminan Pensiun (angka Maret 2025, Rp10.547.400). https://www.bpjsketenagakerjaan.go.id/
+- Perpres 64/2020: iuran BPJS Kesehatan 5% (1% pekerja, 4% pemberi kerja), batas upah Rp12 juta. https://www.bpjs-kesehatan.go.id/
+- Data di kode: `apps/enem-landing-tools/app/data/tax/2026.ts`.

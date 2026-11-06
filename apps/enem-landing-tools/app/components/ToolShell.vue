@@ -13,11 +13,19 @@ const props = withDefaults(
     seoTitle?: string;
     applicationCategory?: string;
     faqs?: FaqItem[];
+    /** Page path when it isn't `/${slug}` (e.g. a per-province page). */
+    path?: string;
+    /** OG image key under /og when it isn't the slug. */
+    ogKey?: string;
+    /** Extra breadcrumb between "Tools" and the title. */
+    parent?: { name: string; path: string };
     /** "Cara pakai" steps - rendered server-side so search engines see them. */
     howTo?: string[];
     sources?: readonly { label: string; url: string }[];
     checkedAt?: string;
     caveats?: readonly string[];
+    /** Health tools (Story 34): adds MedicalWebPage JSON-LD. */
+    medical?: boolean;
     /** "Cara hitung" etc. need room: hides the sidebar ad on long tools. */
     wide?: boolean;
   }>(),
@@ -26,24 +34,29 @@ const props = withDefaults(
     applicationCategory: 'FinanceApplication',
     faqs: () => [],
     howTo: () => [],
+    path: undefined,
+    ogKey: undefined,
+    parent: undefined,
     sources: () => [],
     checkedAt: undefined,
     caveats: () => [],
+    medical: false,
     wide: false,
   },
 );
 
 const { config, findTool, isToolEnabled } = useToolsConfig();
 const enabled = computed(() => isToolEnabled(props.slug));
+const embed = useEmbed();
 const pageTitle = props.seoTitle ?? props.title;
 
 const { siteUrl, url: canonicalUrl } = usePageSeo({
   title: pageTitle,
   description: props.description,
-  path: `/${props.slug}`,
-  ogKey: props.slug,
+  path: props.path ?? `/${props.slug}`,
+  ogKey: props.ogKey ?? props.slug,
   robots: () =>
-    enabled.value
+    enabled.value && !embed.value
       ? 'index, follow, max-image-preview:large, max-snippet:-1'
       : 'noindex, follow',
 });
@@ -76,14 +89,39 @@ const jsonLd = [
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Tools', item: `${siteUrl}/` },
+      ...(props.parent
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: props.parent.name,
+              item: `${siteUrl}${props.parent.path}`,
+            },
+          ]
+        : []),
       {
         '@type': 'ListItem',
-        position: 2,
+        position: props.parent ? 3 : 2,
         name: props.title,
         item: canonicalUrl,
       },
     ],
   },
+  ...(props.medical
+    ? [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'MedicalWebPage',
+          name: props.title,
+          url: canonicalUrl,
+          description: props.description,
+          inLanguage: 'id-ID',
+          audience: { '@type': 'PeopleAudience', audienceType: 'Patient' },
+          ...(props.checkedAt ? { lastReviewed: props.checkedAt } : {}),
+          citation: props.sources.map((source) => source.url),
+        },
+      ]
+    : []),
   ...(props.faqs.length > 0
     ? [
         {
@@ -113,10 +151,33 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+  <div v-if="embed" class="space-y-4 p-3">
+    <h1 class="text-lg font-bold text-slate-900">{{ title }}</h1>
+    <p v-if="!enabled" class="text-sm text-slate-600">
+      Tool ini sedang dinonaktifkan.
+    </p>
+    <div v-else class="space-y-4"><slot /></div>
+    <p class="text-xs text-slate-500">
+      Dibuat oleh
+      <a
+        :href="`${siteUrl}${path ?? `/${slug}`}`"
+        target="_blank"
+        rel="noopener"
+        class="btn-link"
+        >tools.muzanella.com</a
+      >. Dihitung di perangkatmu, tidak ada data yang dikirim.
+    </p>
+  </div>
+  <div v-else class="mx-auto max-w-6xl px-4 py-6 sm:py-10">
     <nav class="mb-3 text-sm text-slate-500" aria-label="Breadcrumb">
       <NuxtLink to="/" class="hover:text-teal-700">Tools</NuxtLink>
       <span aria-hidden="true"> / </span>
+      <template v-if="parent">
+        <NuxtLink :to="parent.path" class="hover:text-teal-700">{{
+          parent.name
+        }}</NuxtLink>
+        <span aria-hidden="true"> / </span>
+      </template>
       <span class="text-slate-700">{{ title }}</span>
     </nav>
 

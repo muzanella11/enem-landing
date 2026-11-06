@@ -15,7 +15,7 @@ export default defineConfig(() => ({
     watch: false,
     globals: true,
     environment: 'node',
-    include: ['{app,server}/**/*.{test,spec}.ts'],
+    include: ['{app,server,shared}/**/*.{test,spec}.ts'],
     reporters: ['default'],
     passWithNoTests: true,
     coverage: {

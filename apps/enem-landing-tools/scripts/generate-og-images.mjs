@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 import { TOOLS_SNAPSHOT } from '../shared/tools-registry.ts';
+import { UMP_PROVINSI } from '../app/data/upah-minimum/index.ts';
 
 const require = createRequire(import.meta.url);
 const appDir = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -155,6 +156,16 @@ for (const tool of TOOLS_SNAPSHOT.tools) {
   });
 }
 
+// Story 26: one image per province page.
+for (const provinsi of UMP_PROVINSI) {
+  await render(`upah-minimum-${provinsi.slug}`, {
+    eyebrow: 'Upah minimum provinsi',
+    title: `UMP ${provinsi.nama}`,
+    description:
+      'UMP 2026 dan 2027, kenaikannya, dan hitung gaji bersih dari angka UMP.',
+  });
+}
+
 console.log(
-  `OG images written to ${outDir} (${TOOLS_SNAPSHOT.tools.length + 1} files)`,
+  `OG images written to ${outDir} (${TOOLS_SNAPSHOT.tools.length + 1 + UMP_PROVINSI.length} files)`,
 );

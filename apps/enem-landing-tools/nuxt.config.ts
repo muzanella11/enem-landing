@@ -51,8 +51,6 @@ export default defineNuxtConfig({
       // Build date (YYYY-MM-DD) for sitemap <lastmod>: content changes ship
       // with a deploy, so the build date is an honest "last modified".
       buildDate: new Date().toISOString().slice(0, 10),
-      adsenseSlotResult: '',
-      adsenseSlotSidebar: '',
     },
   },
   typescript: {
@@ -82,6 +80,18 @@ export default defineNuxtConfig({
           new URL('../../libs/frontend/src/assets/images', import.meta.url),
         ),
       },
+      {
+        // Background removal model (Story 48), self-hosted and only fetched
+        // by the background pages. MediaPipe Selfie Segmentation, Apache-2.0.
+        dir: fileURLToPath(
+          new URL(
+            '../../node_modules/@mediapipe/selfie_segmentation',
+            import.meta.url,
+          ),
+        ),
+        baseURL: '/mediapipe/selfie',
+        maxAge: 60 * 60 * 24 * 365,
+      },
     ],
   },
   routeRules: {
@@ -92,6 +102,11 @@ export default defineNuxtConfig({
     // BFF routes manage their own caching (or must never be cached).
     '/api/**': { swr: false, cache: false },
     '/sitemap.xml': { swr: 3600 },
+    '/ads.txt': { swr: 600 },
+    // Widgets (Story 49) may be framed by any site; nothing else needs that.
+    '/embed/**': {
+      headers: { 'content-security-policy': 'frame-ancestors *' },
+    },
     '/favicon.ico': {
       headers: { 'cache-control': 'public, max-age=31536000, immutable' },
     },

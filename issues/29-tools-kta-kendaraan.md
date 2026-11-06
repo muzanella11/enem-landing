@@ -1,5 +1,7 @@
 # Story 29: Simulasi KTA dan Kredit Kendaraan
 
+**Status:** Done (2026-11-06). Catatan: pencocokan 3 skenario dengan simulasi resmi leasing/bank belum dilakukan; konversi flat ke efektif diuji terhadap fungsi RATE spreadsheet.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 21 (`app/utils/loan`), Story 25
@@ -74,3 +76,11 @@ pinjol. Affiliate leasing/bank tetap ditunda (Story 20).
 - [ ] 3 skenario dicocokkan dengan simulasi resmi leasing/bank, dicatat di PR.
 - [ ] Total pokok di tabel sama persis dengan plafon.
 - [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Rumus anuitas (PMT) untuk bunga efektif dan rumus bunga flat (bunga dari pokok awal x tenor), serta konversi bunga flat ke efektif setara (dicari dengan pencarian biner atas rumus anuitas, `bungaEfektifDariFlat`).
+- Tidak ada regulasi tarif; bunga dan biaya adalah input pengguna.
+- Kode: `apps/enem-landing-tools/app/utils/loan/index.ts`.

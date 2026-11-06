@@ -86,6 +86,8 @@ export class ToolsService {
       settings: {
         adsEnabled: settings.adsEnabled,
         adsenseClientId: settings.adsenseClientId,
+        adsenseSlotResult: settings.adsenseSlotResult ?? null,
+        adsenseSlotSidebar: settings.adsenseSlotSidebar ?? null,
         donationCtaText: settings.donationCtaText,
       },
     };
@@ -216,6 +218,8 @@ export class ToolsService {
       this.settingsRepository.create({
         adsEnabled: false,
         adsenseClientId: null,
+        adsenseSlotResult: null,
+        adsenseSlotSidebar: null,
         donationCtaText: 'Traktir kopi',
         blockedCategoriesNote: null,
       }),

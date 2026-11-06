@@ -1,5 +1,7 @@
 # Story 35: Kalkulator IPK dan Simulasi Nilai SKD CPNS
 
+**Status:** Done (2026-11-06). Catatan: kategori registry baru `pendidikan`. SKD memakai aturan seleksi 2024 (KepmenPANRB 321/2024) dengan label tahun yang jelas; angka diambil dari detikEdu dan Okezone yang saling cocok, dokumen KepmenPANRB-nya belum dibaca langsung. Aturan seleksi berikutnya belum terbit per tanggal ini. Batas predikat IPK (2,76 / 3,01 / 3,51) adalah aturan umum dan belum dicocokkan ke peraturan resmi. IPK tersimpan di localStorage dengan tombol hapus dan ekspor/impor JSON; SKD tidak disimpan.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -61,3 +63,12 @@ lulus bila filter AdSense memungkinkan.
       jenis formasi pada data aturan yang dipakai.
 - [ ] Sumber aturan SKD dan tahun berlakunya tampil di halaman.
 - [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- SKD: KepmenPANRB 321/2024 tentang Nilai Ambang Batas SKD Pengadaan PNS 2024 (umum TWK 65, TIU 80, TKP 166; cumlaude/diaspora total 311 dan TIU 85; disabilitas, Papua, daerah tertinggal total 286 dan TIU 60), dikutip dari detikEdu (18 Okt 2024) dan Okezone (5 Agu 2024). https://www.detik.com/edu/detikpedia/d-7594594/nilai-ambang-batas-skd-cpns-2024-cek-skormu dan https://economy.okezone.com/read/2024/08/05/320/3044349/nilai-ambang-batas-skd-cpns-2024-ini-rincian-lengkapnya?page=all
+- Jumlah soal dan penilaian (TWK 30, TIU 35 benar = 5; TKP 45 soal nilai 1-5): detikEdu, sumber yang sama.
+- IPK: rata-rata tertimbang SKS; batas predikat 2,76 / 3,01 / 3,51 adalah aturan umum yang belum dicocokkan ke peraturan resmi.
+- Data di kode: `app/data/cpns/skd.ts`, `app/data/ipk.ts`.

@@ -228,3 +228,17 @@ describe('helpers', () => {
     expect(csv).toContain('10,5');
   });
 });
+
+describe('flat vs effective rate (Story 29)', () => {
+  it('flat 6% over 36 months is roughly 11% effective (RATE in a spreadsheet)', async () => {
+    const { bungaEfektifDariFlat } = await import('./index.js');
+    // =RATE(36, -(1e6/36 + 1e6*0.06/12), 1e6)*12 = 11,08%
+    expect(bungaEfektifDariFlat(6, 36)).toBeCloseTo(11.08, 1);
+    expect(bungaEfektifDariFlat(0, 36)).toBe(0);
+  });
+
+  it('flat installment', async () => {
+    const { cicilanFlat } = await import('./index.js');
+    expect(cicilanFlat(36_000_000, 6, 36)).toBe(1_180_000);
+  });
+});

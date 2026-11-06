@@ -1,5 +1,7 @@
 # Story 21: Tool Simulasi KPR
 
+**Status:** Done (2026-11-06). Catatan: pencocokan 3 skenario dengan kalkulator bank belum dicatat di PR.
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub)
@@ -98,3 +100,12 @@ affiliate ditunda.
 - Metode flat menghitung bunga dari sisa pokok di awal tiap periode bunga (dan
   setelah pelunasan sebagian).
 - Grafik sisa pokok memakai SVG biasa, tanpa library chart.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Rumus anuitas standar (cicilan tetap, setara fungsi PMT spreadsheet), metode efektif (pokok tetap), dan flat; bunga fixed lalu floating dihitung ulang atas sisa pokok di setiap pergantian periode bunga.
+- Rasio cicilan 30-40% dari penghasilan adalah acuan umum perbankan, bukan aturan.
+- BPHTB 5% dikurangi NPOPTKP: UU 1/2022 (HKPD); NPOPTKP berbeda per daerah. https://peraturan.bpk.go.id/Details/195682/uu-no-1-tahun-2022
+- Kode: `apps/enem-landing-tools/app/utils/loan/index.ts`.

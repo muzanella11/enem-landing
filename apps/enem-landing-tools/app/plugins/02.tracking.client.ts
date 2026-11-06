@@ -7,6 +7,8 @@ import { installTracker } from '@enem-landing/frontend/tracking';
  * no recorder is passed, so rrweb is never bundled here.
  */
 export default defineNuxtPlugin(async (nuxtApp) => {
+  // Widgets embedded on other sites (Story 49): no tracker, no storage.
+  if (window.location.pathname.startsWith('/embed/')) return;
   await installTracker(nuxtApp, {
     site: 'tools',
     recording: false,

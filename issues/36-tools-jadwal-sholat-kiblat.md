@@ -1,5 +1,7 @@
 # Story 36: Jadwal Sholat, Imsakiyah Ramadan, dan Arah Kiblat
 
+**Status:** Done (2026-11-06). Catatan: jadwal divalidasi terhadap data Kemenag (via api.myquran.com) untuk 6 kota di 3 zona waktu, selisih maksimal 2 menit; koordinat 513 kabupaten/kota dari Wikidata (CC0); awal Ramadan 1448 H masih perkiraan Umm al-Qura sampai sidang isbat; halaman ibadah default tanpa iklan.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -71,3 +73,14 @@ tool dari CMS. Halaman ini terutama magnet trafik.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Kemenag RI (Bimas Islam): jadwal sholat sebagai acuan validasi. https://bimasislam.kemenag.go.id/jadwalshalat
+- Parameter Kemenag: sudut Subuh 20 derajat, Isya 18 derajat, ihtiyat per waktu, Imsak 10 menit sebelum Subuh, koreksi kerendahan ufuk 0,0293 x akar ketinggian. Divalidasi terhadap 12 jadwal acuan dari api.myquran.com (data Kemenag) dengan selisih maksimal 2 menit.
+- Perhitungan astronomi: pustaka adhan-js 4.4.6. https://github.com/batoulapps/adhan-js
+- Koordinat dan ketinggian 513 kabupaten/kota: Wikidata (CC0). https://www.wikidata.org/
+- Arah kiblat: fungsi `Qibla` dari adhan-js (arah great-circle ke Ka'bah dari koordinat kota).
+- Data di kode: `app/data/sholat/`.

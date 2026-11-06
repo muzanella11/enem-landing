@@ -6,6 +6,9 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
+  DefaultValuePipe,
+  Query,
   Post,
   Put,
   Req,
@@ -19,6 +22,7 @@ import { ReorderToolsDto } from './dto/reorder-tools.dto.js';
 import { UpdateDonationOptionDto } from './dto/update-donation-option.dto.js';
 import { UpdateToolDto } from './dto/update-tool.dto.js';
 import { UpdateToolsSettingsDto } from './dto/update-tools-settings.dto.js';
+import { GoldPriceService } from './gold-price.service.js';
 import { ToolsService } from './tools.service.js';
 
 const admin = (req: Request) =>
@@ -26,7 +30,18 @@ const admin = (req: Request) =>
 
 @Controller('tools')
 export class ToolsController {
-  constructor(private readonly toolsService: ToolsService) {}
+  constructor(
+    private readonly toolsService: ToolsService,
+    private readonly goldPriceService: GoldPriceService,
+  ) {}
+
+  /** Public - daily spot gold history for tools.muzanella.com (Story 38). */
+  @Get('gold-price/history')
+  goldPriceHistory(
+    @Query('days', new DefaultValuePipe(365), ParseIntPipe) days: number,
+  ) {
+    return this.goldPriceService.history(Math.min(Math.max(days, 1), 1830));
+  }
 
   /** Public - consumed by enem-landing-tools' BFF (cached). */
   @Get('config')

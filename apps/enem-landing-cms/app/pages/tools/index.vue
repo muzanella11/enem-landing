@@ -14,6 +14,8 @@ const CATEGORIES = [
   { value: 'keuangan', title: 'Keuangan' },
   { value: 'dokumen', title: 'Dokumen' },
   { value: 'ibadah', title: 'Ibadah' },
+  { value: 'kesehatan', title: 'Kesehatan' },
+  { value: 'pendidikan', title: 'Pendidikan' },
 ];
 const BADGES = [
   { value: null, title: 'Tanpa badge' },

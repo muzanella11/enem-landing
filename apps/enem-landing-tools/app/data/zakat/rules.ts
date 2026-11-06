@@ -9,9 +9,9 @@ export const ZAKAT_RULES = {
   fitrah: {
     berasKgPerJiwa: 2.5,
     berasLiterPerJiwa: 3.5,
-    /** BAZNAS RI value for Jabodetabek (latest confirmed at checkedAt: 2025). Regions set their own. */
-    uangPerJiwa: 47_000,
-    uangSourceLabel: 'SK BAZNAS RI 2025, wilayah Jabodetabek',
+    /** BAZNAS RI 2026 (SK Ketua BAZNAS RI No. 14 Tahun 2026). Regional BAZNAS set their own. */
+    uangPerJiwa: 50_000,
+    uangSourceLabel: 'SK Ketua BAZNAS RI No. 14 Tahun 2026',
   },
   sources: [
     {
@@ -19,9 +19,14 @@ export const ZAKAT_RULES = {
       url: 'https://baznas.go.id/zakat',
     },
     { label: 'BAZNAS: zakat fitrah', url: 'https://baznas.go.id/zakatfitrah' },
+    {
+      label:
+        'Jawapos: BAZNAS tetapkan zakat fitrah 2026 Rp50.000 dan fidyah Rp65.000 (SK 14/2026)',
+      url: 'https://www.jawapos.com/nasional/2602100086/baznas-tetapkan-zakat-fitrah-2026-sebesar-rp-50000-dan-fidyah-rp-65000-per-jiwa',
+    },
   ],
   caveats: [
-    'Nilai zakat fitrah dalam uang ditetapkan BAZNAS tiap daerah. Angka bawaan adalah acuan Jabodetabek; ubah sesuai ketetapan daerahmu.',
+    'Nilai zakat fitrah dalam uang ditetapkan BAZNAS tiap daerah. Angka bawaan adalah ketetapan BAZNAS RI 2026; ubah sesuai ketetapan daerahmu.',
     'Harga emas memakai harga spot internasional yang dikonversi ke Rupiah. Harga emas batangan (mis. Antam) biasanya lebih tinggi; kamu bisa mengisinya sendiri.',
   ],
 } as const;

@@ -1,5 +1,7 @@
 # Story 28: Kalkulator Pesangon
 
+**Status:** Done (2026-11-06). Catatan: tabel pengali per alasan PHK mengikuti PP 35/2021 dan belum dicocokkan ulang dengan teks resmi pasal per pasal; pencocokan 3 skenario dengan contoh resmi belum dilakukan; status aturan setelah putusan MK 168/PUU-XXI/2024 tampil sebagai catatan di halaman.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25, Story 26 (helper masa kerja dari THR)
@@ -72,3 +74,12 @@ aktif sebelum iklan dinyalakan di halaman ini.
 - [ ] Dasar hukum dan tanggal pengecekan tampil di halaman.
 - [ ] Tidak ada request jaringan yang membawa nilai upah pengguna.
 - [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- PP 35/2021 Pasal 40 sampai 57: uang pesangon, UPMK, uang penggantian hak, dan pengali per alasan PHK. https://peraturan.bpk.go.id/
+- PP 68/2009: lapisan PPh 21 final atas pesangon (0%, 5%, 15%, 25%). https://jdih.kemenkeu.go.id/
+- Putusan MK 168/PUU-XXI/2024 (uji materi klaster ketenagakerjaan UU 6/2023) sebagai catatan konteks. https://www.mkri.id/
+- Data di kode: `app/data/pesangon/pp-35-2021.ts`.

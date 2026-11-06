@@ -1,5 +1,11 @@
 /** Categories used to group tools on the tools hub index (Story 25). */
-export const TOOL_CATEGORIES = ['keuangan', 'dokumen', 'ibadah'] as const;
+export const TOOL_CATEGORIES = [
+  'keuangan',
+  'dokumen',
+  'ibadah',
+  'kesehatan',
+  'pendidikan',
+] as const;
 export type ToolCategory = (typeof TOOL_CATEGORIES)[number];
 
 export const TOOL_BADGES = ['baru', 'populer'] as const;

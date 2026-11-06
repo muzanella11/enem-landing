@@ -15,6 +15,8 @@ const isSaving = ref(false);
 const form = ref({
   adsEnabled: settings.value?.adsEnabled ?? false,
   adsenseClientId: settings.value?.adsenseClientId ?? '',
+  adsenseSlotResult: settings.value?.adsenseSlotResult ?? '',
+  adsenseSlotSidebar: settings.value?.adsenseSlotSidebar ?? '',
   donationCtaText: settings.value?.donationCtaText ?? 'Traktir kopi',
   blockedCategoriesNote: settings.value?.blockedCategoriesNote ?? '',
 });
@@ -27,6 +29,8 @@ const save = async () => {
       body: {
         ...form.value,
         adsenseClientId: form.value.adsenseClientId || null,
+        adsenseSlotResult: form.value.adsenseSlotResult || null,
+        adsenseSlotSidebar: form.value.adsenseSlotSidebar || null,
         blockedCategoriesNote: form.value.blockedCategoriesNote || null,
       },
     });
@@ -65,7 +69,27 @@ const save = async () => {
         placeholder="ca-pub-XXXXXXXXXXXXXXXX"
         variant="outlined"
         density="compact"
-        hint="ID slot iklan diatur lewat env NUXT_PUBLIC_ADSENSE_SLOT_* di enem-landing-tools."
+        hint="Begitu terisi, tag verifikasi AdSense dan /ads.txt otomatis aktif di tools.muzanella.com, walaupun iklan masih mati."
+        persistent-hint
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.adsenseSlotResult"
+        label="ID slot iklan di bawah hasil"
+        placeholder="1234567890"
+        variant="outlined"
+        density="compact"
+        hint="Angka data-ad-slot dari ad unit AdSense. Kosong = slot tidak dirender."
+        persistent-hint
+        class="mb-4"
+      />
+      <v-text-field
+        v-model="form.adsenseSlotSidebar"
+        label="ID slot iklan sidebar (desktop)"
+        placeholder="1234567890"
+        variant="outlined"
+        density="compact"
+        hint="Angka data-ad-slot dari ad unit AdSense. Kosong = slot tidak dirender."
         persistent-hint
         class="mb-4"
       />
@@ -78,6 +102,28 @@ const save = async () => {
         hint="Pengingat internal; blokir kategorinya tetap dilakukan di dashboard AdSense."
         persistent-hint
       />
+    </CContentCard>
+
+    <CContentCard title="Urutan setup AdSense" class="mt-4">
+      <ol class="text-body-2 pl-4">
+        <li>Daftarkan tools.muzanella.com di AdSense.</li>
+        <li>
+          Isi publisher ID di atas lalu simpan. Tag verifikasi dan /ads.txt
+          langsung aktif.
+        </li>
+        <li>Minta review di AdSense dan tunggu persetujuan.</li>
+        <li>
+          Blokir kategori pinjol, judi, investasi bodong, dan kripto berisiko di
+          AdSense.
+        </li>
+        <li>
+          Buat dua ad unit (di bawah hasil, sidebar), isi ID slotnya di atas.
+        </li>
+        <li>
+          Nyalakan saklar iklan global, lalu atur saklar iklan per tool di
+          halaman Tools.
+        </li>
+      </ol>
     </CContentCard>
 
     <CContentCard title="Donasi" class="mt-4">

@@ -1,5 +1,7 @@
 # Story 31: Hitung Weton, Konversi Hijriah, Hitung Umur dan Selisih Tanggal
 
+**Status:** Done (2026-11-06). Catatan: wuku belum diimplementasikan karena belum ada tanggal acuan wuku yang terverifikasi; weton memakai acuan 17 Agustus 1945 = Jumat Legi; Hijriah memakai kalender Umm al-Qura.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -66,3 +68,12 @@ daftar Story 20.
       29 Februari dan akhir bulan.
 - [ ] Hasil konsisten di semua zona waktu (test dengan `TZ` berbeda).
 - [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Weton: siklus pasaran Jawa 5 hari (Legi, Pahing, Pon, Wage, Kliwon) dan neptu hari/pasaran tradisional, dengan titik acuan 17 Agustus 1945 = Jumat Legi.
+- Hijriah: kalender Umm al-Qura lewat `Intl.DateTimeFormat` (`islamic-umalqura`) di browser; dapat berbeda 1 hari dari penetapan sidang isbat Kemenag.
+- Umur dan selisih tanggal: aritmetika kalender Gregorian.
+- Kode: `apps/enem-landing-tools/app/utils/tanggal/index.ts`.

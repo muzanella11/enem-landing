@@ -1,5 +1,7 @@
 # Story 24: Generator Invoice dan Kwitansi UMKM
 
+**Status:** Done (2026-11-06).
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub), opsional Story 23 (pola Web
@@ -119,3 +121,12 @@ Dievaluasi setelah ada data pemakaian dari versi gratis.
   WinAnsi seperti emoji diganti "?").
 - Template: Modern, Klasik, Ringkas. Kwitansi 1 sampai 3 per halaman A4, kotak
   penanda meterai untuk nominal di atas Rp5.000.000.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- UU 10/2020 tentang Bea Meterai: meterai Rp10.000 untuk dokumen yang menyebut nominal di atas Rp5.000.000. https://peraturan.bpk.go.id/Details/151354/uu-no-10-tahun-2020
+- PPN 11% sebagai tarif bawaan pajak di invoice (UU 7/2021 HPP), bisa diubah pengguna. https://peraturan.bpk.go.id/Details/185162/uu-no-7-tahun-2021
+- Terbilang mengikuti aturan penulisan bilangan Bahasa Indonesia (PUEBI/EYD).
+- Kode: `apps/enem-landing-tools/app/utils/invoice/`, `utils/terbilang.ts`.

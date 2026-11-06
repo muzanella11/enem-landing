@@ -1,5 +1,7 @@
 # Story 47: Biaya Properti (Bangun Rumah, PBB, BPHTB, AJB)
 
+**Status:** Done (2026-11-06). Catatan: rumus BPHTB Story 21 diekstrak menjadi `hitungBphtb` di `utils/loan` dan dipakai kedua tool. Biaya bangun per m² berupa input tanpa rentang harga bawaan (belum ada sumber rentang per tipe/daerah yang bisa dipertanggungjawabkan), dan rincian per pekerjaan belum dibuat. Tarif PBB/BPHTB, NJOPTKP, dan NPOPTKP bawaan adalah batas UU 1/2022; contoh Bapenda per daerah belum dicocokkan. Angka PNBP BPN (PP 128/2015) dan honor PPAT 1% (PP 24/2016) ditulis dari pengetahuan peraturan, belum dibuka dokumennya saat implementasi.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 21 (biaya awal KPR), Story 25
@@ -54,3 +56,14 @@ AdSense dan donasi.
 - [ ] Muncul di registry (Story 25), punya meta/JSON-LD, masuk sitemap.
 - [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
 - [ ] `nx lint`, `nx test`, dan e2e dasar (buka halaman, isi input, hasil muncul) lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- PBB-P2 dan BPHTB: UU 1/2022 (HKPD). PBB: tarif maks 0,5%, NJOPTKP min Rp10 juta, NJOP yang dipakai 20-100% setelah NJOPTKP. BPHTB: tarif maks 5%, NPOPTKP min Rp80 juta (Rp300 juta untuk waris/hibah wasiat keluarga), NPOP = harga transaksi atau NJOP bila lebih tinggi. https://peraturan.bpk.go.id/Details/195682/uu-no-1-tahun-2022
+- PPh final 2,5% atas pengalihan hak tanah/bangunan dibayar penjual: PP 34/2016. https://peraturan.bpk.go.id/Details/5770/pp-no-34-tahun-2016
+- Honor PPAT maksimal 1% dari harga transaksi: PP 24/2016. https://peraturan.bpk.go.id/Details/5764/pp-no-24-tahun-2016
+- PNBP pendaftaran peralihan hak = nilai tanah/1000 + Rp50.000, pengecekan sertifikat Rp50.000: PP 128/2015. https://peraturan.bpk.go.id/Details/5682/pp-no-128-tahun-2015
+- Biaya bangun: luas x biaya per m² input pengguna + cadangan persen.
+- Kode: `app/data/properti.ts`, `app/utils/properti.ts`, `hitungBphtb` di `app/utils/loan/index.ts`.

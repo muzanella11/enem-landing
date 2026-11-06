@@ -1,3 +1,22 @@
+<script setup lang="ts">
+const { config } = useToolsConfig();
+
+// AdSense site verification (Story 27): present as soon as a publisher id
+// is set in the CMS, even while ads are still switched off, so the site
+// can be reviewed without loading any ad script.
+useHead({
+  meta: () =>
+    config.value.settings.adsenseClientId
+      ? [
+          {
+            name: 'google-adsense-account',
+            content: config.value.settings.adsenseClientId,
+          },
+        ]
+      : [],
+});
+</script>
+
 <template>
   <div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
     <header class="border-b border-slate-200 bg-white">

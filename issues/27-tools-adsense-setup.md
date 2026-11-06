@@ -1,5 +1,7 @@
 # Story 27: Setup AdSense dari CMS (Slot ID, ads.txt, Verifikasi Situs)
 
+**Status:** Done (2026-11-06).
+
 **Apps touched:** `enem-landing-api`, `enem-landing-cms`, `enem-landing-tools`
 
 **Depends on:** Story 20 (komponen `AdSlot`), Story 25 (pengaturan tools di CMS)
@@ -70,3 +72,9 @@ deploy ulang.
       `.env.example`.
 - [ ] Unit test API untuk validasi slot dan config publik; e2e tools untuk
       `/ads.txt` dan meta tag.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Google AdSense: format ads.txt (`google.com, pub-..., DIRECT, f08c47fec0942fa0`) dan meta `google-adsense-account`. https://support.google.com/adsense/answer/12171612

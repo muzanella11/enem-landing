@@ -1,5 +1,7 @@
 # Story 26: Tools UMP/UMK 2027, Kalkulator Lembur, dan Kalkulator THR
 
+**Status:** Done (2026-11-06). Catatan: angka UMP 2025/2026 dari tabel Kontan (26 Des 2025), belum dicocokkan dengan SK gubernur; Aceh dan Papua Pegunungan belum ada di sumber; UMP 2027 dan UMK menyusul setelah diumumkan; tanggal hari raya 2027 diisi pengguna sampai kalender BI 2027 terbit.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (migrasi seed
 registry)
 
@@ -214,3 +216,14 @@ Mengikuti aturan hub di Story 20 (AdSense dan donasi, affiliate ditunda).
       muncul) lulus untuk `enem-landing-tools`.
 - [ ] Halaman live paling lambat awal Desember 2026 (UMP), data UMK
       menyusul bertahap.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- UMP 2025 dan 2026: Kontan, "Resmi! Ini UMP 2026 di 38 Provinsi Dari Tertinggi ke Terendah" (26 Desember 2025), belum dicocokkan ke SK gubernur. https://nasional.kontan.co.id/news/resmi-ini-ump-2026-di-38-provinsi-dari-tertinggi-ke-terendah-ump-masih-dibawah-khl
+- Lembur: PP 35/2021 Pasal 31 dan 32 (upah sejam = 1/173 upah sebulan, dasar minimal 75% bila ada tunjangan tidak tetap, pengali jam pertama 1,5x dan seterusnya 2x, aturan hari libur 5/6 hari kerja). https://peraturan.bpk.go.id/
+- THR: Permenaker 6/2016 (1 bulan upah untuk masa kerja 12 bulan, proporsional di bawahnya, rata-rata upah untuk pekerja harian, dibayar paling lambat H-7). https://jdih.kemnaker.go.id/
+- Pajak THR: PMK 168/2023 (lihat Story 20).
+- Tanggal hari raya: kalender Bank Indonesia (lihat Story 30).
+- Data di kode: `app/data/upah-minimum/index.ts`, `app/utils/payroll/lembur.ts`, `app/utils/payroll/thr.ts`.

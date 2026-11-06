@@ -7,8 +7,16 @@ const CATEGORY_LABELS: Record<ToolCategoryValue, string> = {
   keuangan: 'Keuangan dan bisnis',
   dokumen: 'Dokumen, PDF, dan gambar',
   ibadah: 'Ibadah',
+  kesehatan: 'Kesehatan',
+  pendidikan: 'Pendidikan dan karier',
 };
-const CATEGORY_ORDER: ToolCategoryValue[] = ['keuangan', 'dokumen', 'ibadah'];
+const CATEGORY_ORDER: ToolCategoryValue[] = [
+  'keuangan',
+  'dokumen',
+  'kesehatan',
+  'pendidikan',
+  'ibadah',
+];
 
 const groups = computed(() =>
   CATEGORY_ORDER.map((category) => ({

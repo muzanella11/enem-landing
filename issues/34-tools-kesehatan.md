@@ -1,5 +1,7 @@
 # Story 34: Tools Kesehatan (HPL Kehamilan, Masa Subur, BMI, Kebutuhan Kalori)
 
+**Status:** Done (2026-11-06). Catatan: kategori registry baru `kesehatan` (types, definitions, hub, CMS). Iklan keempat tool dimatikan lewat seed (`adsEnabled` false) karena filter kategori AdSense belum diatur; nyalakan dari CMS setelah filter siap. JSON-LD `MedicalWebPage` ditambahkan lewat prop `medical` di ToolShell. Ambang IMT dari Permenkes 41/2014 (dikutip lewat sumber sekunder; dokumen resmi belum dibaca langsung) dan WHO WPRO 2000. Tidak ada localStorage untuk input; e2e memeriksa hal ini.
+
 **Apps touched:** `enem-landing-tools`, `enem-landing-api` (seed registry)
 
 **Depends on:** Story 20, Story 25
@@ -69,3 +71,15 @@ Bila filter tidak cukup bisa diandalkan, iklan dimatikan per tool dari CMS.
       penyimpanan lokal tanpa aksi pengguna.
 - [ ] Sumber dan tanggal pengecekan tampil di halaman.
 - [ ] Muncul di registry, meta/JSON-LD, sitemap; lint, test, e2e lulus.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- IMT Kemenkes: Permenkes 41/2014 tentang Pedoman Gizi Seimbang (kurus < 17,0; 17,0-18,4; normal 18,5-25,0; gemuk 25,1-27,0; > 27,0). Angka dicek lewat sumber sekunder. https://peraturan.bpk.go.id/Details/119080/permenkes-no-41-tahun-2014
+- IMT WHO Asia-Pasifik: WHO WPRO (2000), The Asia-Pacific perspective: redefining obesity and its treatment. https://iris.who.int/handle/10665/206936
+- Kalori: Mifflin MD dkk. (1990), Am J Clin Nutr 51(2):241-247 (BMR), faktor aktivitas 1,2 sampai 1,9; 7.700 kkal per kg; batas minimum 1.200/1.500 kkal dari NHLBI. https://pubmed.ncbi.nlm.nih.gov/2305711/ dan https://www.nhlbi.nih.gov/health/educational/lose_wt/index.htm
+- HPL: aturan Naegele (HPHT + 280 hari, koreksi panjang siklus) dan pembagian trimester, ACOG Committee Opinion 700. https://www.acog.org/clinical/clinical-guidance/committee-opinion/articles/2017/05/methods-for-estimating-the-due-date
+- Buku KIA Kemenkes untuk tonggak kunjungan antenatal. https://kesga.kemkes.go.id/
+- Masa subur: Wilcox AJ dkk. (1995), NEJM 333:1517-1521 (jendela 5 hari sebelum sampai 1 hari setelah ovulasi); ACOG FAQ metode kesadaran kesuburan. https://www.nejm.org/doi/full/10.1056/NEJM199512073332301 dan https://www.acog.org/womens-health/faqs/fertility-awareness-based-methods-of-family-planning
+- Data di kode: `app/data/kesehatan/index.ts`.

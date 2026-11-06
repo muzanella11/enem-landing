@@ -15,6 +15,7 @@ import { TrackingRecordingChunkEntity } from '../app/tracking/tracking-recording
 import { TrackingSessionEntity } from '../app/tracking/tracking-session.entity.js';
 import { TrackingSettingsEntity } from '../app/tracking/tracking-settings.entity.js';
 import { DonationOptionEntity } from '../app/tools/donation-option.entity.js';
+import { GoldPriceEntity } from '../app/tools/gold-price.entity.js';
 import { ToolEntity } from '../app/tools/tool.entity.js';
 import { ToolsSettingsEntity } from '../app/tools/tools-settings.entity.js';
 
@@ -40,6 +41,7 @@ export const config: DataSourceOptions = {
     ToolEntity,
     DonationOptionEntity,
     ToolsSettingsEntity,
+    GoldPriceEntity,
   ],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false,

@@ -1,5 +1,7 @@
 # Story 22: Tool Kalkulator Zakat
 
+**Status:** Done (2026-11-06). Catatan: ketentuan pemakaian sumber harga emas belum dicek.
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub)
@@ -106,3 +108,13 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 - Nilai zakat fitrah uang memakai acuan BAZNAS RI 2025 Jabodetabek (Rp47.000) dan
   bisa diubah pengguna.
 - Iklan halaman zakat default mati (seed registry `adsEnabled = 0`).
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- BAZNAS: ketentuan zakat penghasilan dan maal (nisab 85 gram emas, tarif 2,5%). https://baznas.go.id/zakat
+- BAZNAS: zakat fitrah (2,5 kg / 3,5 liter beras per jiwa). https://baznas.go.id/zakatfitrah
+- Nilai uang zakat fitrah Rp50.000 per jiwa: SK Ketua BAZNAS RI No. 14 Tahun 2026 (diperbarui 2026-11-06 dari Rp47.000 tahun 2025), dikutip Jawapos. https://www.jawapos.com/nasional/2602100086/baznas-tetapkan-zakat-fitrah-2026-sebesar-rp-50000-dan-fidyah-rp-65000-per-jiwa
+- Harga emas untuk nisab: harga spot gold-api.com dikonversi dengan kurs exchangerate-api.com (lihat Story 38).
+- Data di kode: `apps/enem-landing-tools/app/data/zakat/rules.ts`.
