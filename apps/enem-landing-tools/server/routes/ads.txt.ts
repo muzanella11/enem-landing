@@ -1,5 +1,5 @@
 import type { ToolsPublicConfig } from '@enem-landing/shared-types';
-import { buildAdsTxt } from '../../shared/adsense';
+import { buildAdsTxt } from '@enem-landing/shared-utils';
 import { createApiClient } from '../utils/api-client';
 
 /**

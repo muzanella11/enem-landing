@@ -102,6 +102,9 @@ gtag('config', '${googleAnalyticsId}');`,
     // Server-only: the BFF routes are the only thing that ever talks to
     // enem-landing-api directly, the browser never sees this host.
     apiHost: process.env['API_HOST'] || 'http://localhost:3001',
+    // Comma-separated hosts listed as `subdomain=` in /ads.txt.
+    // Override with NUXT_ADS_TXT_SUBDOMAINS.
+    adsTxtSubdomains: 'tools.muzanella.com',
   },
   typescript: {
     // See refactor/README.md: default `true` breaks `nuxt build` under this
@@ -134,6 +137,7 @@ gtag('config', '${googleAnalyticsId}');`,
       },
     ],
     routeRules: {
+      '/ads.txt': { swr: 600 },
       // These are committed repo assets (favicon, avatar, OG image), not
       // user uploads - they only change via a new deploy, so a long cache
       // is safe. PageSpeed Insights flagged /avataaars.svg's default cache
