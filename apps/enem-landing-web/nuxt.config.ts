@@ -123,7 +123,11 @@ export default defineNuxtConfig({
     ],
     routeRules: {
       '/ads.txt': { swr: 600 },
-      '/api/adsense-account': { swr: 600 },
+      // No route cache for /api/adsense-account: with `swr: 600` prod kept
+      // serving a stale `{ clientId: null }` long after the publisher id was
+      // set in the CMS, so the verification tag never appeared. The API
+      // already caches /tools/config in Redis and clears it on every
+      // settings save, so this endpoint is cheap without a second cache.
       // These are committed repo assets (favicon, avatar, OG image), not
       // user uploads - they only change via a new deploy, so a long cache
       // is safe. PageSpeed Insights flagged /avataaars.svg's default cache
