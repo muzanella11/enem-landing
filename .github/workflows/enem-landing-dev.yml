@@ -127,9 +127,16 @@ jobs:
   # ansible-playbook directly (mau-apps' actual pattern) fits better than
   # forcing scripts/deploy.sh's host-ip-as-argument design into CI.
   deploy:
-    name: Deploy to dev VPS
+    name: Deploy to dev
     needs: migrate
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    # Dev and prod deploy to the same VPS, and deploy.yml ends with a
+    # `docker logout ghcr.io` and `docker image prune -a -f` that would break
+    # a rollout still running for the other environment. Same group as the
+    # prod deploy job so the two never run at the same time.
+    concurrency:
+      group: enem-landing-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment: development
     permissions:

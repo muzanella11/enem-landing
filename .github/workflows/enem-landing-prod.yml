@@ -81,8 +81,12 @@ jobs:
   # precedence in Ansible (wins over inventory host vars, including
   # connection vars), so this override is valid.
   deploy:
-    name: Deploy to prod VPS
+    name: Deploy to prod
     needs: migrate
+    # Shared with the dev deploy job (same VPS): see enem-landing-dev.yml.
+    concurrency:
+      group: enem-landing-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment: production
     permissions:
