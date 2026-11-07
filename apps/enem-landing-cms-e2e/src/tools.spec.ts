@@ -42,7 +42,7 @@ test.describe('tools (Story 25)', () => {
     await page.waitForTimeout(2_000);
 
     await page.getByRole('button', { name: 'Tambah tool' }).click();
-    await page.getByLabel('Nama').fill('Tool E2E');
+    await page.getByLabel('Nama', { exact: true }).fill('Tool E2E');
     await page.getByLabel('Slug (route di tools app)').fill(slug);
     await page.getByLabel('Deskripsi singkat').fill('Dibuat oleh test e2e.');
     await page.getByRole('button', { name: 'Simpan' }).click();
@@ -51,7 +51,7 @@ test.describe('tools (Story 25)', () => {
     await expect(row).toBeVisible();
 
     await row.getByRole('button', { name: 'Ubah' }).click();
-    await page.getByLabel('Nama').fill('Tool E2E diubah');
+    await page.getByLabel('Nama', { exact: true }).fill('Tool E2E diubah');
     await page.getByRole('button', { name: 'Simpan' }).click();
     await expect(page.locator('tr', { hasText: `/${slug}` })).toContainText(
       'Tool E2E diubah',
