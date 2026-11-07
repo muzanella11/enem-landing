@@ -35,7 +35,12 @@ export async function findPublishedTaxonomy(
     .addGroupBy('taxonomy.name')
     .addGroupBy('taxonomy.slug')
     .orderBy('taxonomy.name', 'ASC')
-    .getRawMany<{ id: string; name: string; slug: string; postCount: string }>();
+    .getRawMany<{
+      id: string;
+      name: string;
+      slug: string;
+      postCount: string;
+    }>();
 
   return rows.map((row) => ({ ...row, postCount: Number(row.postCount) }));
 }

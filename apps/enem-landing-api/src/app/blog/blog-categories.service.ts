@@ -23,7 +23,11 @@ export class BlogCategoriesService {
 
   /** Only the ones used by a published post, with that post count (public blog filter). */
   findPublished(): Promise<PublishedTaxonomyRow[]> {
-    return findPublishedTaxonomy(this.repository, 'blog_post_categories', 'categoryId');
+    return findPublishedTaxonomy(
+      this.repository,
+      'blog_post_categories',
+      'categoryId',
+    );
   }
 
   create(dto: CreateBlogCategoryDto): Promise<BlogCategoryEntity> {

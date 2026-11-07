@@ -83,7 +83,9 @@ const optionClass = (selected: boolean) =>
       aria-labelledby="blog-filter-title"
       class="bg-white w-full sm:max-w-lg rounded-t-lg sm:rounded-lg flex flex-col max-h-[85vh]"
     >
-      <div class="flex items-center justify-between px-5 py-4 border-b border-black/5">
+      <div
+        class="flex items-center justify-between px-5 py-4 border-b border-black/5"
+      >
         <h2 id="blog-filter-title" class="text-lg font-bold text-[#2C3E50]">
           Filter posts
         </h2>
@@ -98,7 +100,9 @@ const optionClass = (selected: boolean) =>
       </div>
 
       <div class="px-5 py-4 overflow-y-auto flex-1">
-        <h3 class="text-xs font-bold uppercase tracking-wide text-black/50 mb-2">
+        <h3
+          class="text-xs font-bold uppercase tracking-wide text-black/50 mb-2"
+        >
           Category
         </h3>
         <div class="flex flex-wrap gap-2 mb-6">
@@ -116,7 +120,9 @@ const optionClass = (selected: boolean) =>
           </button>
         </div>
 
-        <h3 class="text-xs font-bold uppercase tracking-wide text-black/50 mb-2">
+        <h3
+          class="text-xs font-bold uppercase tracking-wide text-black/50 mb-2"
+        >
           Tag
         </h3>
         <input

@@ -94,7 +94,10 @@ const categoryName = computed(
 const tagName = computed(
   () => tags.value?.find((item) => item.slug === tag.value)?.name ?? tag.value,
 );
-const applyFilter = (value: { category: string | null; tag: string | null }) => {
+const applyFilter = (value: {
+  category: string | null;
+  tag: string | null;
+}) => {
   filterOpen.value = false;
   router.push({ query: withQuery(value) });
 };
@@ -111,7 +114,9 @@ useSeoMeta({
 });
 // Search/filter result pages are thin duplicates of the main list.
 useHead(() => ({
-  meta: hasCriteria.value ? [{ name: 'robots', content: 'noindex, follow' }] : [],
+  meta: hasCriteria.value
+    ? [{ name: 'robots', content: 'noindex, follow' }]
+    : [],
 }));
 </script>
 
