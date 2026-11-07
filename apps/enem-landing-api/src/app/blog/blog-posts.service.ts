@@ -69,6 +69,14 @@ export class BlogPostsService {
           tagSlug: query.tag,
         });
       }
+      const search = query.q?.trim();
+      if (search) {
+        // Escape LIKE wildcards so a search for "50%" matches literally.
+        const pattern = `%${search.replace(/[\\%_]/g, '\\$&')}%`;
+        qb.andWhere('(post.title LIKE :search OR post.excerpt LIKE :search)', {
+          search: pattern,
+        });
+      }
       return qb;
     };
 

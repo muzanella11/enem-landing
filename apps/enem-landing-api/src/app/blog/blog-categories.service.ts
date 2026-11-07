@@ -2,6 +2,10 @@ import { slugify } from '@enem-landing/shared-utils';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import {
+  findPublishedTaxonomy,
+  type PublishedTaxonomyRow,
+} from './published-taxonomy.js';
 import { BlogCategoryEntity } from './blog-category.entity.js';
 import { CreateBlogCategoryDto } from './dto/create-blog-category.dto.js';
 import { UpdateBlogCategoryDto } from './dto/update-blog-category.dto.js';
@@ -15,6 +19,11 @@ export class BlogCategoriesService {
 
   findAll(): Promise<BlogCategoryEntity[]> {
     return this.repository.find({ order: { name: 'ASC' } });
+  }
+
+  /** Only the ones used by a published post, with that post count (public blog filter). */
+  findPublished(): Promise<PublishedTaxonomyRow[]> {
+    return findPublishedTaxonomy(this.repository, 'blog_post_categories', 'categoryId');
   }
 
   create(dto: CreateBlogCategoryDto): Promise<BlogCategoryEntity> {

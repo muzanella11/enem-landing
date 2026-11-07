@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -21,9 +22,13 @@ import { UpdateBlogCategoryDto } from './dto/update-blog-category.dto.js';
 export class BlogCategoriesController {
   constructor(private readonly blogCategoriesService: BlogCategoriesService) {}
 
+  // `?published=true` (public blog filter): only entries used by a
+  // published post, with `postCount`. Without it (CMS): every entry.
   @Get()
-  findAll() {
-    return this.blogCategoriesService.findAll();
+  findAll(@Query('published') published?: string) {
+    return published === 'true'
+      ? this.blogCategoriesService.findPublished()
+      : this.blogCategoriesService.findAll();
   }
 
   @UseGuards(SsoAuthGuard)

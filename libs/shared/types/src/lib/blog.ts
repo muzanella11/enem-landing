@@ -12,6 +12,14 @@ export interface BlogTag {
   slug: string;
 }
 
+/** A category or tag as returned with `?published=true`: only ones in use, with their published post count. */
+export interface BlogTaxonomyWithCount {
+  id: string;
+  name: string;
+  slug: string;
+  postCount: number;
+}
+
 export interface BlogPost {
   id: string;
   title: string;

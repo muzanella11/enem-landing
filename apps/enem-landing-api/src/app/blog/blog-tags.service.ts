@@ -2,6 +2,10 @@ import { slugify } from '@enem-landing/shared-utils';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import {
+  findPublishedTaxonomy,
+  type PublishedTaxonomyRow,
+} from './published-taxonomy.js';
 import { BlogTagEntity } from './blog-tag.entity.js';
 import { CreateBlogTagDto } from './dto/create-blog-tag.dto.js';
 import { UpdateBlogTagDto } from './dto/update-blog-tag.dto.js';
@@ -15,6 +19,11 @@ export class BlogTagsService {
 
   findAll(): Promise<BlogTagEntity[]> {
     return this.repository.find({ order: { name: 'ASC' } });
+  }
+
+  /** Only the ones used by a published post, with that post count (public blog filter). */
+  findPublished(): Promise<PublishedTaxonomyRow[]> {
+    return findPublishedTaxonomy(this.repository, 'blog_post_tags', 'tagId');
   }
 
   create(dto: CreateBlogTagDto): Promise<BlogTagEntity> {
