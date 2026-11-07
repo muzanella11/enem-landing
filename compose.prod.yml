@@ -87,9 +87,10 @@ services:
     # (no deep merge, see above), so NODE_OPTIONS is repeated here.
     environment:
       NODE_OPTIONS: --max-old-space-size=60
-      # GA4 measurement id (G-...) of property 320181329, prod only so dev
-      # traffic never lands in the real reports. Empty = GA off.
-      NUXT_PUBLIC_GA_MEASUREMENT_ID: ''
+      # GA4 measurement id of property 563108458 (muzanella.com), prod only so dev
+      # traffic never lands in the real reports (dev has its own property,
+      # 320181329 muzanellacomdev). Empty = GA off.
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: G-BTFTCN7Y7D
     deploy:
       resources:
         limits:
@@ -100,9 +101,10 @@ services:
     # (no deep merge, see above), so NODE_OPTIONS is repeated here.
     environment:
       NODE_OPTIONS: --max-old-space-size=60
-      # GA4 measurement id (G-...) of property 320181329, prod only so dev
-      # traffic never lands in the real reports. Empty = GA off.
-      NUXT_PUBLIC_GA_MEASUREMENT_ID: ''
+      # GA4 measurement id of property 563108458 (muzanella.com), prod only so dev
+      # traffic never lands in the real reports (dev has its own property,
+      # 320181329 muzanellacomdev). Empty = GA off.
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: G-BTFTCN7Y7D
     deploy:
       resources:
         limits:

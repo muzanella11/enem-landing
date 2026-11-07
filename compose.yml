@@ -62,8 +62,10 @@
 #     genuinely need different variable name conventions for the same
 #     internal URLs.
 #   - Google Analytics (GA4) for enem-landing-web and enem-landing-tools is
-#     a runtime setting, `NUXT_PUBLIC_GA_MEASUREMENT_ID`, set in
-#     compose.prod.yml only (dev traffic stays out of the real reports).
+#     a runtime setting, `NUXT_PUBLIC_GA_MEASUREMENT_ID`, set per
+#     environment: compose.prod.yml uses the prod property (563108458) and
+#     compose.dev.yml its own dev property (320181329), so dev traffic
+#     stays out of the real reports.
 #
 # Network `enem-landing-network` - created by story 09's init-server.yml
 # (overlay, attachable, external here) - do not rename without updating

@@ -115,6 +115,9 @@ services:
     networks: !override [enem-landing-dev-network]
     environment:
       <<: *node-tuning
+      # GA4 measurement id of property 320181329 (muzanellacomdev), kept
+      # separate from prod's 563108458 so dev traffic never pollutes it.
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: G-VV8H6F1QBP
     deploy:
       <<: *dev-deploy
       labels: !override
@@ -132,6 +135,9 @@ services:
     environment:
       <<: *node-tuning
       NUXT_PUBLIC_SITE_URL: https://dev-tools.muzanella.com
+      # GA4 measurement id of property 320181329 (muzanellacomdev), kept
+      # separate from prod's 563108458 so dev traffic never pollutes it.
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: G-VV8H6F1QBP
     deploy:
       <<: *dev-deploy
       labels: !override
