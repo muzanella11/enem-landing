@@ -106,7 +106,8 @@ export default defineNuxtConfig({
     // BFF routes manage their own caching (or must never be cached).
     '/api/**': { swr: false, cache: false },
     '/sitemap.xml': { swr: 3600 },
-    '/ads.txt': { swr: 600 },
+    // /ads.txt is not route-cached: a cached copy kept the old publisher id
+    // after a CMS change. The API's Redis cache of /tools/config is enough.
     // Self-hosted model files (Story 48) never change for a given package version.
     '/mediapipe/**': {
       swr: false,
