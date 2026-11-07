@@ -210,8 +210,10 @@ onMounted(() => {
           <slot />
         </div>
         <aside v-if="!wide" class="hidden lg:block">
-          <div class="sticky top-6">
+          <div class="sticky top-6 space-y-4">
             <AdSlot placement="sidebar" :slug="slug" />
+            <!-- Stays in view while the tool is used, unlike the footer CTA. -->
+            <DonationCta placement="sidebar" :slug="slug" />
           </div>
         </aside>
       </div>

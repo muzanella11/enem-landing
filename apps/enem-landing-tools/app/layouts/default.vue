@@ -21,11 +21,11 @@ useHead({
   <div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
     <header class="border-b border-slate-200 bg-white">
       <div
-        class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3"
+        class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3"
       >
         <NuxtLink
           to="/"
-          class="flex items-center gap-2 font-bold text-teal-800"
+          class="flex items-center gap-2 whitespace-nowrap font-bold text-teal-800"
         >
           <span
             class="grid h-8 w-8 place-items-center rounded-lg bg-teal-700 text-sm text-white"
@@ -34,13 +34,16 @@ useHead({
           >
           Tools muzanella
         </NuxtLink>
-        <nav class="flex items-center gap-4 text-sm text-slate-600">
-          <a href="https://muzanella.com" class="hover:text-teal-700"
+        <nav class="flex items-center gap-3 text-sm text-slate-600 sm:gap-4">
+          <a
+            href="https://muzanella.com"
+            class="hidden hover:text-teal-700 sm:inline"
             >muzanella.com</a
           >
           <a href="https://muzanella.com/blog" class="hover:text-teal-700"
             >Blog</a
           >
+          <DonationMenu />
         </nav>
       </div>
     </header>
