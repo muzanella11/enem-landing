@@ -36,7 +36,7 @@ on:
 jobs:
   e2e:
     name: Run e2e tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       mysql:
@@ -92,10 +92,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -109,7 +109,7 @@ jobs:
       # fewer) affected apps for the SAME commit moments later in the same
       # pipeline run, so a warm cache here lets it reuse this output.
       - name: Cache Nx computation cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .nx/cache
           key: nx-${{ runner.os }}-${{ github.sha }}
@@ -241,7 +241,7 @@ jobs:
         run: yarn e2e:serverless
 
       - name: Upload Playwright reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: playwright-report
