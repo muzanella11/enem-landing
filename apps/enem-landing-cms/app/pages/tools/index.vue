@@ -73,8 +73,14 @@ const update = async (tool: Tool, patch: Partial<Tool>) => {
   }
 };
 
-const move = async (index: number, direction: -1 | 1) => {
+// Position in the full list, not the row index on the current table page.
+const indexOf = (tool: Tool) =>
+  (tools.value ?? []).findIndex((item) => item.id === tool.id);
+
+const move = async (tool: Tool, direction: -1 | 1) => {
   const list = [...(tools.value ?? [])];
+  const index = indexOf(tool);
+  if (index < 0) return;
   const target = index + direction;
   if (target < 0 || target >= list.length) return;
   [list[index], list[target]] = [list[target]!, list[index]!];
@@ -197,25 +203,25 @@ const remove = async (tool: Tool) => {
         :items="tools ?? []"
         item-value="id"
         class="c-data-table"
-        :items-per-page="-1"
-        hide-default-footer
+        :items-per-page="20"
+        :items-per-page-options="[10, 20, 50, 100]"
       >
-        <template #item.order="{ index }">
+        <template #item.order="{ item }">
           <v-btn
             icon="mdi-arrow-up"
             variant="text"
             size="x-small"
-            :disabled="index === 0"
+            :disabled="indexOf(item) === 0"
             aria-label="Naikkan"
-            @click="move(index, -1)"
+            @click="move(item, -1)"
           />
           <v-btn
             icon="mdi-arrow-down"
             variant="text"
             size="x-small"
-            :disabled="index === (tools?.length ?? 0) - 1"
+            :disabled="indexOf(item) === (tools?.length ?? 0) - 1"
             aria-label="Turunkan"
-            @click="move(index, 1)"
+            @click="move(item, 1)"
           />
         </template>
         <template #item.name="{ item }">
