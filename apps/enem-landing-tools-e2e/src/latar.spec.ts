@@ -27,7 +27,17 @@ test.describe('background removal (Story 48)', () => {
     );
   });
 
-  test('processes a photo locally and offers a download', async ({ page }) => {
+  test('processes a photo locally and offers a download', async ({
+    page,
+    browserName,
+  }) => {
+    // MediaPipe needs WebGL, which headless Firefox on the GPU-less Linux CI
+    // runner does not provide, so inference never finishes there. Firefox
+    // passes on machines with a GPU; Chromium and WebKit cover CI.
+    test.skip(
+      browserName === 'firefox' && !!process.env['CI'],
+      'No WebGL for MediaPipe in headless Firefox on CI',
+    );
     const traffic = recordRequests(page);
     await gotoReady(page, '/hapus-latar-foto');
     await page.locator('input[type=file]').setInputFiles({
