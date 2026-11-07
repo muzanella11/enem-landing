@@ -33,6 +33,22 @@ const { data: stats } = await useFetch<{
 const config = useRuntimeConfig();
 const snackbar = useGlobalSnackbar();
 
+const search = ref('');
+// Vuetify filters on header columns only, and slug has no column of its own,
+// so match the raw item instead. Runs once per item via the "name" key.
+const matchTool = (
+  _value: unknown,
+  query: string,
+  item?: { raw: Tool },
+): boolean => {
+  const q = query.trim().toLowerCase();
+  if (!q || !item) return true;
+  return (
+    item.raw.name.toLowerCase().includes(q) ||
+    item.raw.slug.toLowerCase().includes(q)
+  );
+};
+
 const usageBySlug = computed(
   () => new Map((stats.value?.usage ?? []).map((row) => [row.toolId, row])),
 );
@@ -198,9 +214,24 @@ const remove = async (tool: Tool) => {
         >
       </template>
 
+      <v-text-field
+        v-model="search"
+        label="Cari tool"
+        placeholder="Nama atau slug"
+        prepend-inner-icon="mdi-magnify"
+        variant="outlined"
+        density="compact"
+        hide-details
+        clearable
+        class="mb-4"
+        style="max-width: 360px"
+      />
       <v-data-table
         :headers="headers"
         :items="tools ?? []"
+        :search="search ?? ''"
+        filter-keys="name"
+        :custom-filter="matchTool"
         item-value="id"
         class="c-data-table"
         :items-per-page="20"

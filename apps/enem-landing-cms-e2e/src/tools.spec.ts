@@ -47,6 +47,8 @@ test.describe('tools (Story 25)', () => {
     await page.getByLabel('Deskripsi singkat').fill('Dibuat oleh test e2e.');
     await page.getByRole('button', { name: 'Simpan' }).click();
     await expect(page.getByText('Tool disimpan.')).toBeVisible();
+    // The table is paginated and new tools go to the end, so filter by slug.
+    await page.getByRole('textbox', { name: 'Cari tool' }).fill(slug);
     const row = page.locator('tr', { hasText: `/${slug}` });
     await expect(row).toBeVisible();
 
