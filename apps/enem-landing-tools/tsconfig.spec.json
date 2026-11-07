@@ -23,6 +23,7 @@
     "vitest.config.mts",
     "app/**/*.spec.ts",
     "server/**/*.spec.ts",
+    "shared/**/*.spec.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/**/*.test.tsx",
