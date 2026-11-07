@@ -53,6 +53,26 @@
         "dependsOn": [
           "generate-og"
         ]
+      },
+      "prepare": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": [
+          "{projectRoot}/nuxt.config.ts",
+          "{projectRoot}/package.json"
+        ],
+        "outputs": [
+          "{projectRoot}/.nuxt"
+        ],
+        "options": {
+          "command": "nuxt prepare",
+          "cwd": "apps/enem-landing-tools"
+        }
+      },
+      "test": {
+        "dependsOn": [
+          "prepare"
+        ]
       }
     }
   },
