@@ -1,5 +1,7 @@
 # Story 22: Tool Kalkulator Zakat
 
+**Status:** Done (2026-11-06). Catatan: ketentuan pemakaian sumber harga emas belum dicek.
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub)
@@ -60,15 +62,14 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 - **Iklan display dengan filter ketat:** selain daftar blokir Story 20,
   blokir juga kategori yang tidak pantas di konteks ini (alkohol, kencan,
   produk ribawi yang mencolok seperti kartu kredit dan pinjaman). Bila
-  filter tidak cukup bisa diandalkan, halaman ini dibiarkan tanpa iklan.
-- **Tidak ada affiliate di hasil hitungan zakat.** Tautan ke lembaga amil
-  resmi (BAZNAS dan LAZ berizin) ditampilkan sebagai informasi, tanpa
-  komisi, kecuali ada kerja sama resmi yang transparan.
-- **Affiliate tidak langsung (opsional):** tabungan emas atau reksa dana
-  syariah di bagian edukasi zakat maal, terpisah jelas dari hasil hitung.
-- **Cross-link ke tool lain** (kalkulator gaji, simulasi KPR syariah bila
-  nanti ada) untuk mengalirkan trafik musiman ke halaman yang lebih bisa
-  dimonetisasi.
+  filter tidak cukup bisa diandalkan, iklan untuk halaman ini dimatikan
+  lewat toggle iklan per tool di CMS (Story 25).
+- **CTA donasi tidak ditampilkan di dekat hasil hitungan zakat**, hanya di
+  footer, supaya tidak tertukar dengan pembayaran zakat.
+- Tautan ke lembaga amil resmi (BAZNAS dan LAZ berizin) ditampilkan sebagai
+  informasi, tanpa komisi.
+- **Cross-link ke tool lain** (kalkulator gaji, simulasi KPR) untuk
+  mengalirkan trafik musiman ke halaman lain.
 
 ## Out of scope
 
@@ -85,13 +86,35 @@ nilainya terutama sebagai magnet trafik musiman (Ramadan) ke tool lain.
 
 ## Acceptance Criteria
 
-- [ ] Unit test untuk tiap mode, termasuk tepat di batas nisab, di bawah
+- [x] Unit test untuk tiap mode, termasuk tepat di batas nisab, di bawah
       nisab, dan perhitungan bruto vs neto.
-- [ ] Server route harga emas punya cache, fallback ke nilai terakhir, dan
+- [x] Server route harga emas punya cache, fallback ke nilai terakhir, dan
       timeout; kegagalan sumber tidak membuat halaman error.
 - [ ] Memori container tetap di bawah limit 100M dengan server route aktif.
-- [ ] Tidak ada request jaringan yang membawa nilai input pengguna.
-- [ ] Sumber ketentuan, sumber harga emas, dan tanggal update tampil di
+- [x] Tidak ada request jaringan yang membawa nilai input pengguna.
+- [x] Sumber ketentuan, sumber harga emas, dan tanggal update tampil di
       halaman.
-- [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] CTA donasi tidak muncul di area hasil hitungan zakat.
+- [x] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- **Pertanyaan terbuka 1 (sumber harga emas):** dipakai harga spot internasional
+  dari `api.gold-api.com` dikali kurs USD/IDR dari `open.er-api.com`, diambil di
+  server route `/api/harga-emas`, di-cache 6 jam, dengan fallback ke harga terakhir.
+  Harga emas batangan (mis. Antam) biasanya lebih tinggi; pengguna bisa mengisi harga
+  sendiri. Ketentuan pemakaian kedua sumber perlu dicek ulang sebelum rilis.
+- Nilai zakat fitrah uang memakai acuan BAZNAS RI 2025 Jabodetabek (Rp47.000) dan
+  bisa diubah pengguna.
+- Iklan halaman zakat default mati (seed registry `adsEnabled = 0`).
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- BAZNAS: ketentuan zakat penghasilan dan maal (nisab 85 gram emas, tarif 2,5%). https://baznas.go.id/zakat
+- BAZNAS: zakat fitrah (2,5 kg / 3,5 liter beras per jiwa). https://baznas.go.id/zakatfitrah
+- Nilai uang zakat fitrah Rp50.000 per jiwa: SK Ketua BAZNAS RI No. 14 Tahun 2026 (diperbarui 2026-11-06 dari Rp47.000 tahun 2025), dikutip Jawapos. https://www.jawapos.com/nasional/2602100086/baznas-tetapkan-zakat-fitrah-2026-sebesar-rp-50000-dan-fidyah-rp-65000-per-jiwa
+- Harga emas untuk nisab: harga spot gold-api.com dikonversi dengan kurs exchangerate-api.com (lihat Story 38).
+- Data di kode: `apps/enem-landing-tools/app/data/zakat/rules.ts`.

@@ -160,7 +160,7 @@ describe('TrackingHeatmapService', () => {
   it('getHeatmap queries aggregates by path and deviceBucket', async () => {
     await service.getHeatmap('/', 'desktop');
     expect(aggregateRepo.find).toHaveBeenCalledWith({
-      where: { path: '/', deviceBucket: 'desktop' },
+      where: { site: 'landing', path: '/', deviceBucket: 'desktop' },
     });
   });
 });

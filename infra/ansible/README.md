@@ -53,20 +53,39 @@ to `enem-landing-account-api` is BFF-proxied through each app's own
 `server/api/**` routes, same pattern as `enem-landing-api`, which is
 internal-only for the same reason.
 
+## Public domains
+
+All behind Cloudflare (proxied) and Traefik on the same VPS. The wildcard
+`*.muzanella.com` cert is requested once by `enem-landing-web`'s router and
+reused by every other router via SNI, so a new subdomain only needs a DNS
+record plus a Traefik router label in compose.
+
+| App | Prod | Dev |
+|---|---|---|
+| enem-landing-web | `muzanella.com` | `dev.muzanella.com` |
+| enem-landing-account-web | `account.muzanella.com` | `dev-account.muzanella.com` |
+| enem-landing-cms | `cms.muzanella.com` | `dev-cms.muzanella.com` |
+| enem-landing-tools | `tools.muzanella.com` | `dev-tools.muzanella.com` |
+| enem-landing-api, enem-landing-account-api | internal only | internal only |
+
+DNS records `tools` and `dev-tools` were added in Cloudflare by the user on
+2026-11-06 (verified resolving through the Cloudflare proxy the same day).
+
 ## Deploying the stack
 
 `scripts/deploy.sh <dev|prod> <host-ip> <deploy-vars.yml>` (story 09) runs
 `playbooks/deploy.yml` against an already-provisioned host - copies
 `compose.yml` + the matching `compose.<env>.yml` override, logs into GHCR,
-rolls the 5 services out one at a time via `docker stack deploy`. See that
+rolls the 6 services out one at a time via `docker stack deploy`. See that
 playbook's own header comment for the full `deploy-vars.yml` shape
 (`ghcr_pat` + `app_env` - only real secrets, never CORS/internal-host
 wiring, that lives directly in `compose.yml`).
 
 ## Memory budget (story 10)
 
-`compose.prod.yml` caps each of the 5 app containers at 100M with
-`NODE_OPTIONS=--max-old-space-size=60` - 500 MB total allocated, same
+`compose.prod.yml` caps each of the 6 app containers at 100M with
+`NODE_OPTIONS=--max-old-space-size=60` - 600 MB total allocated
+(`enem-landing-tools` added in Story 20), same
 tuning approach mau-apps uses (see that file's header for the full
 reasoning). Unlike mau-apps, there's no self-hosted MySQL/Redis/RabbitMQ
 container to budget for here at all - Aiven/Upstash from day one - so this

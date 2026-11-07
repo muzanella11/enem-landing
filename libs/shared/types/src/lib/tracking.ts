@@ -1,3 +1,5 @@
+import type { TrackingSite } from '@enem-landing/shared-definitions';
+
 /**
  * Single-row config, not a list — there is exactly one tracking settings
  * row per deployment (see Story 13, `GET`/`PUT /tracking/settings`).
@@ -46,6 +48,7 @@ export interface TrackingOverview {
  */
 export interface TrackingFunnel {
   id: string;
+  site: TrackingSite;
   name: string;
   steps: string[];
 }
@@ -72,6 +75,7 @@ export interface TrackingRecordingChunkMeta {
 /** Full `tracking_sessions` row - backs the CMS's visitor IP/geolocation detail list (Visitor Locations > Detail). */
 export interface TrackingVisitor {
   id: string;
+  site: TrackingSite;
   visitorId: string;
   startedAt: string;
   endedAt: string | null;

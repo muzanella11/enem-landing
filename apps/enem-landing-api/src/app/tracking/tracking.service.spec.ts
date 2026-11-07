@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('./geo-lookup.js', () => ({
@@ -32,6 +32,8 @@ describe('TrackingService', () => {
     create: ReturnType<typeof vi.fn>;
     save: ReturnType<typeof vi.fn>;
     createQueryBuilder: ReturnType<typeof vi.fn>;
+    find: ReturnType<typeof vi.fn>;
+    findOne: ReturnType<typeof vi.fn>;
   };
   let pageviewRepo: {
     create: ReturnType<typeof vi.fn>;
@@ -56,6 +58,7 @@ describe('TrackingService', () => {
       create: vi.fn((data) => data),
       save: vi.fn((entity) => Promise.resolve({ id: 'session-1', ...entity })),
       createQueryBuilder: vi.fn(),
+      find: vi.fn().mockResolvedValue([{ id: 'session-1', site: 'landing' }]),
       findOne: vi.fn(),
     };
     pageviewRepo = {
@@ -341,6 +344,92 @@ describe('TrackingService', () => {
 
       expect(result).toBeNull();
       expect(recordingService.uploadChunk).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('tools site (Story 25)', () => {
+    it('rejects recording chunks from a tools session without uploading', async () => {
+      sessionRepo.findOne.mockResolvedValue({
+        id: 'tools-session',
+        site: 'tools',
+        recordingSampled: true,
+      });
+
+      await expect(
+        service.recordSessionChunk('tools-session', 0, [{ type: 'test' }]),
+      ).rejects.toThrow(BadRequestException);
+      expect(recordingService.uploadChunk).not.toHaveBeenCalled();
+    });
+
+    it('never samples a tools session for recording', async () => {
+      await service.createSession(
+        { visitorId: 'v1', site: 'tools' },
+        '1.1.1.1',
+        undefined,
+        undefined,
+      );
+      expect(settingsService.getOrCreate).toHaveBeenCalledWith('tools');
+      expect(sessionRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ site: 'tools', recordingSampled: false }),
+      );
+    });
+
+    it('strips non-whitelisted keys and numeric values from tools event payloads', async () => {
+      sessionRepo.find.mockResolvedValue([
+        { id: 'tools-session', site: 'tools' },
+      ]);
+
+      await service.recordEvents([
+        {
+          sessionId: 'tools-session',
+          name: 'tool_calculate',
+          payload: {
+            toolId: 'kalkulator-gaji-bersih',
+            gaji: 15000000,
+            mode: '15000000',
+          },
+          occurredAt: '2026-01-01T00:00:00Z',
+        },
+      ]);
+
+      expect(eventRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: { toolId: 'kalkulator-gaji-bersih' },
+        }),
+      );
+    });
+
+    it('keeps landing payloads untouched', async () => {
+      await service.recordEvents([
+        {
+          sessionId: 'session-1',
+          name: 'contact_click',
+          payload: { anything: 123 },
+          occurredAt: '2026-01-01T00:00:00Z',
+        },
+      ]);
+      expect(eventRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ payload: { anything: 123 } }),
+      );
+    });
+
+    it('records clicks with the site passed by the BFF', async () => {
+      await service.recordClicks(
+        [
+          {
+            path: '/',
+            xPct: 0.1,
+            yPct: 0.1,
+            deviceBucket: 'mobile',
+            occurredAt: '2026-01-01T00:00:00Z',
+          },
+        ],
+        'tools',
+      );
+      expect(settingsService.getOrCreate).toHaveBeenCalledWith('tools');
+      expect(clickRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ site: 'tools' }),
+      );
     });
   });
 });

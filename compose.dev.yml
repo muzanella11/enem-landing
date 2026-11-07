@@ -97,6 +97,7 @@ services:
       <<: *node-tuning
       NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://dev-account.muzanella.com
       NUXT_PUBLIC_WEB_HOST: https://dev.muzanella.com
+      NUXT_PUBLIC_TOOLS_HOST: https://dev-tools.muzanella.com
       NUXT_PUBLIC_AUTH_COOKIE_NAME: ENEM_LANDING_DEV_AUTH_TOKEN
     deploy:
       <<: *dev-deploy
@@ -124,3 +125,20 @@ services:
         - traefik.http.routers.enem-landing-dev-web.tls=true
         - traefik.http.routers.enem-landing-dev-web.tls.certresolver=cloudflare
         - traefik.http.services.enem-landing-dev-web.loadbalancer.server.port=8001
+
+  enem-landing-tools:
+    image: ghcr.io/muzanella11/enem-landing-tools:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      <<: *node-tuning
+      NUXT_PUBLIC_SITE_URL: https://dev-tools.muzanella.com
+    deploy:
+      <<: *dev-deploy
+      labels: !override
+        - traefik.enable=true
+        - traefik.swarm.network=enem-landing-dev-network
+        - traefik.http.routers.enem-landing-dev-tools.rule=Host(`dev-tools.muzanella.com`)
+        - traefik.http.routers.enem-landing-dev-tools.entrypoints=websecure
+        - traefik.http.routers.enem-landing-dev-tools.tls=true
+        - traefik.http.routers.enem-landing-dev-tools.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-dev-tools.loadbalancer.server.port=8002

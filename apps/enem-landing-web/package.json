@@ -23,6 +23,8 @@
     }
   },
   "dependencies": {
+    "@enem-landing/frontend": "0.0.1",
+    "@enem-landing/shared-definitions": "0.0.1",
     "@enem-landing/shared-types": "0.0.1",
     "@enem-landing/shared-utils": "0.0.1",
     "quill-delta-to-html": "^0.12.1",

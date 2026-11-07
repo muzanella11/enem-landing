@@ -23,17 +23,17 @@ permissions:
 jobs:
   determine-affected:
     name: Determine affected apps
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       apps: ${{ steps.affected.outputs.apps }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -57,7 +57,7 @@ jobs:
           HEAD_SHA: ${{ github.sha }}
           REF_TYPE: ${{ github.ref_type }}
         run: |
-          APPS_LIST="enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web"
+          APPS_LIST="enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web enem-landing-tools"
           if [[ "$REF_TYPE" == "tag" ]]; then
             # Tag push (prod release) - always build every app regardless
             # of what changed, same reasoning as mau-apps: a release should
@@ -78,17 +78,17 @@ jobs:
     name: Build & push ${{ matrix.app }}
     needs: determine-affected
     if: needs.determine-affected.outputs.apps != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         app: ${{ fromJson(needs.determine-affected.outputs.apps) }}
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -101,7 +101,7 @@ jobs:
       # pipeline run for this exact commit, so a warm cache here reuses
       # that output instead of recompiling from scratch.
       - name: Cache Nx computation cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .nx/cache
           key: nx-${{ runner.os }}-${{ github.sha }}
@@ -114,13 +114,14 @@ jobs:
       # build` for ANY one Nuxt app can reach across to a DIFFERENT Nuxt
       # project's `.nuxt/tsconfig.json`, which doesn't exist yet in this
       # job's checkout (same root cause already fixed in e2e.yml - see that
-      # workflow's own comment). Preparing all 3 upfront removes the
+      # workflow's own comment). Preparing all 4 upfront removes the
       # ambiguity regardless of which app this particular job builds.
       - name: Prepare Nuxt apps
         run: |
           npx nuxi prepare apps/enem-landing-account-web
           npx nuxi prepare apps/enem-landing-cms
           npx nuxi prepare apps/enem-landing-web
+          npx nuxi prepare apps/enem-landing-tools
 
       # Deviation from mau-apps: the 2 NestJS apps here need `prune` (not
       # plain `build`) to produce `dist/package.json` + `dist/yarn.lock` +
@@ -143,14 +144,14 @@ jobs:
           esac
 
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Determine image tags for this environment
         id: tags
@@ -170,7 +171,7 @@ jobs:
           fi
 
       - name: Build and push image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: ${{ matrix.app }}

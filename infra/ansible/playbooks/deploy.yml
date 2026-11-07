@@ -5,7 +5,8 @@
 # mau-apps/infra/ansible/playbooks/deploy.yml, dengan header
 # dokumentasi app_env diganti ke variable enem-landing yang sebenarnya
 # (dibaca dari apps/{enem-landing-account-api,enem-landing-api,
-# enem-landing-account-web,enem-landing-cms,enem-landing-web}/.env.example)
+# enem-landing-account-web,enem-landing-cms,enem-landing-web,
+# enem-landing-tools}/.env.example)
 # dan tanpa RabbitMQ (enem-landing tidak punya service self-host apapun -
 # lihat issues/00-epic-overview.md keputusan #6).
 #

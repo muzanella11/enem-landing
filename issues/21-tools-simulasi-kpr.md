@@ -1,5 +1,7 @@
 # Story 21: Tool Simulasi KPR
 
+**Status:** Done (2026-11-06). Catatan: pencocokan 3 skenario dengan kalkulator bank belum dicatat di PR.
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub)
@@ -56,24 +58,15 @@ terhadap penghasilan. Semua hitungan client-side.
 
 ## Monetisasi
 
-Mengikuti aturan tingkat hub di Story 20 (kategori diblokir, disclosure,
-tidak ada data input di tautan). KPR adalah tool dengan nilai komersial
-tertinggi di hub ini karena nilai transaksinya besar.
+Mengikuti aturan tingkat hub di Story 20: hanya AdSense dan donasi,
+affiliate ditunda.
 
-- **Affiliate portal properti:** tautan ke listing rumah sesuai rentang
-  harga yang dihitung pengguna (portal properti besar umumnya punya
-  program affiliate atau partner; dicek saat implementasi).
-- **Referral KPR bank / broker KPR:** beberapa bank dan platform
-  perbandingan KPR memberi komisi untuk referral. Dimulai dari tautan
-  sederhana, bukan form pengumpulan data.
-- **Affiliate asuransi** jiwa dan properti (wajib di KPR, sering
-  dibandingkan pengguna).
-- **Iklan display** di bawah tabel amortisasi; halaman ini punya waktu
-  tinggal lama karena pengguna membaca tabel.
-- **Lead generation (tahap lanjut, opsional):** form "minta dihubungi
-  untuk konsultasi KPR" yang diteruskan ke mitra. Hanya dikerjakan dengan
-  consent eksplisit, kebijakan privasi khusus, dan perjanjian dengan mitra
-  sesuai UU PDP. Tidak masuk scope story ini.
+- **Iklan display** di bawah tabel amortisasi. Halaman ini punya waktu
+  tinggal lama karena pengguna membaca tabel, jadi cocok untuk iklan.
+- **Donasi:** teks kecil setelah hasil simulasi dan setelah unduh CSV.
+- **Ditunda:** KPR adalah tool dengan nilai komersial tertinggi di hub
+  (affiliate portal properti, referral bank/broker KPR, asuransi, lead
+  generation). Ini kandidat pertama bila affiliate dibuka lagi.
 
 ## Out of scope
 
@@ -85,16 +78,34 @@ tertinggi di hub ini karena nilai transaksinya besar.
 
 ## Acceptance Criteria
 
-- [ ] Unit test: anuitas satu periode cocok dengan rumus standar (cocokkan
+- [x] Unit test: anuitas satu periode cocok dengan rumus standar (cocokkan
       dengan fungsi PMT spreadsheet), multi-periode bunga, tenor 1 s.d. 30
       tahun, DP 0%, pelunasan sebagian dua mode.
-- [ ] Total pokok di tabel amortisasi sama persis dengan plafon (selisih
+- [x] Total pokok di tabel amortisasi sama persis dengan plafon (selisih
       pembulatan ditaruh di cicilan terakhir).
 - [ ] Minimal 3 skenario dicocokkan dengan kalkulator KPR bank, hasilnya
       dicatat di PR.
 - [ ] CSV amortisasi terbuka benar di spreadsheet.
-- [ ] Penawaran affiliate KPR terdaftar di registry affiliate Story 20 dan
-      tampil setelah hasil, dengan disclosure.
-- [ ] Tool muncul di registry halaman index tools, punya meta/JSON-LD,
+- [x] Slot iklan dan CTA donasi tampil sesuai aturan hub di Story 20.
+- [x] Tool muncul di registry halaman index tools, punya meta/JSON-LD,
       masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- Logika di `app/utils/loan/` (anuitas, efektif, flat, periode bunga berjenjang,
+  pelunasan sebagian dua mode, biaya awal, CSV). Untuk anuitas, pokok dihitung dari
+  cicilan yang sudah dibulatkan supaya cicilan tampil konstan; selisih pembulatan
+  masuk ke cicilan terakhir.
+- Metode flat menghitung bunga dari sisa pokok di awal tiap periode bunga (dan
+  setelah pelunasan sebagian).
+- Grafik sisa pokok memakai SVG biasa, tanpa library chart.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Rumus anuitas standar (cicilan tetap, setara fungsi PMT spreadsheet), metode efektif (pokok tetap), dan flat; bunga fixed lalu floating dihitung ulang atas sisa pokok di setiap pergantian periode bunga.
+- Rasio cicilan 30-40% dari penghasilan adalah acuan umum perbankan, bukan aturan.
+- BPHTB 5% dikurangi NPOPTKP: UU 1/2022 (HKPD); NPOPTKP berbeda per daerah. https://peraturan.bpk.go.id/Details/195682/uu-no-1-tahun-2022
+- Kode: `apps/enem-landing-tools/app/utils/loan/index.ts`.

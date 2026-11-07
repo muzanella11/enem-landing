@@ -42,5 +42,7 @@ import { TrackingSettingsService } from './tracking-settings.service.js';
     TrackingHeatmapService,
     TrackingRecordingService,
   ],
+  // ToolsModule reads tool usage/donation click counts from tracking events.
+  exports: [TrackingService],
 })
 export class TrackingModule {}

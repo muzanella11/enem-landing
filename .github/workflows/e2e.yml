@@ -36,7 +36,7 @@ on:
 jobs:
   e2e:
     name: Run e2e tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       mysql:
@@ -92,10 +92,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -109,7 +109,7 @@ jobs:
       # fewer) affected apps for the SAME commit moments later in the same
       # pipeline run, so a warm cache here lets it reuse this output.
       - name: Cache Nx computation cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .nx/cache
           key: nx-${{ runner.os }}-${{ github.sha }}
@@ -185,12 +185,14 @@ jobs:
           npx nuxi prepare apps/enem-landing-account-web
           npx nuxi prepare apps/enem-landing-cms
           npx nuxi prepare apps/enem-landing-web
+          npx nuxi prepare apps/enem-landing-tools
 
       - name: Build web apps
         run: |
           yarn nx build enem-landing-account-web
           yarn nx build enem-landing-cms
           yarn nx build enem-landing-web
+          yarn nx build enem-landing-tools
 
       - name: Start all servers
         run: |
@@ -219,6 +221,11 @@ jobs:
             > /tmp/web.log 2>&1 &
           echo "enem-landing-web started (PID: $!)"
 
+          nohup env NITRO_PORT=8002 \
+            node apps/enem-landing-tools/.output/server/index.mjs \
+            > /tmp/tools.log 2>&1 &
+          echo "enem-landing-tools started (PID: $!)"
+
       - name: Wait for all servers
         run: >-
           npx wait-on
@@ -227,13 +234,14 @@ jobs:
           http://localhost:8000
           http://localhost:4000
           http://localhost:8001
+          http://localhost:8002
           --timeout 120000
 
       - name: Run e2e tests
         run: yarn e2e:serverless
 
       - name: Upload Playwright reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: playwright-report
@@ -241,4 +249,5 @@ jobs:
             apps/enem-landing-account-web-e2e/test-output/playwright/report/
             apps/enem-landing-cms-e2e/test-output/playwright/report/
             apps/enem-landing-web-e2e/test-output/playwright/report/
+            apps/enem-landing-tools-e2e/test-output/playwright/report/
           retention-days: 7

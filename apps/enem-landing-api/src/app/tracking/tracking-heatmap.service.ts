@@ -1,4 +1,5 @@
 import { SchedulerService } from '@enem-landing/backend-scheduler';
+import type { TrackingSite } from '@enem-landing/shared-definitions';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,6 +11,7 @@ const CRON_EXPRESSION = '0 * * * *'; // hourly, on the hour
 const GRID_SIZE = 20;
 
 interface AggregateGroup {
+  site: TrackingSite;
   path: string;
   deviceBucket: string;
   gridX: number;
@@ -53,14 +55,18 @@ export class TrackingHeatmapService implements OnModuleInit {
   getHeatmap(
     path: string,
     deviceBucket: string,
+    site: TrackingSite = 'landing',
   ): Promise<TrackingClickAggregateEntity[]> {
-    return this.aggregateRepository.find({ where: { path, deviceBucket } });
+    return this.aggregateRepository.find({
+      where: { site, path, deviceBucket },
+    });
   }
 
-  async getDistinctPaths(): Promise<string[]> {
+  async getDistinctPaths(site: TrackingSite = 'landing'): Promise<string[]> {
     const rows = await this.aggregateRepository
       .createQueryBuilder('aggregate')
       .select('DISTINCT aggregate.path', 'path')
+      .where('aggregate.site = :site', { site })
       .getRawMany<{ path: string }>();
     return rows.map((row) => row.path);
   }
@@ -77,12 +83,14 @@ export class TrackingHeatmapService implements OnModuleInit {
     for (const click of rawClicks) {
       const gridX = this.clampGrid(Math.floor(click.xPct * GRID_SIZE));
       const gridY = this.clampGrid(Math.floor(click.yPct * GRID_SIZE));
-      const key = `${click.path}::${click.deviceBucket}::${gridX}::${gridY}`;
+      const site = click.site ?? 'landing';
+      const key = `${site}::${click.path}::${click.deviceBucket}::${gridX}::${gridY}`;
       const existing = grouped.get(key);
       if (existing) {
         existing.count += 1;
       } else {
         grouped.set(key, {
+          site,
           path: click.path,
           deviceBucket: click.deviceBucket,
           gridX,
@@ -95,6 +103,7 @@ export class TrackingHeatmapService implements OnModuleInit {
     for (const group of grouped.values()) {
       const existingAggregate = await this.aggregateRepository.findOne({
         where: {
+          site: group.site,
           path: group.path,
           deviceBucket: group.deviceBucket,
           gridX: group.gridX,

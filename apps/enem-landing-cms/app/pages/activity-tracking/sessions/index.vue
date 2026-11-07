@@ -21,7 +21,7 @@ const headers = [
 <template>
   <CListPage
     title="Sessions"
-    subtitle="Sesi pengunjung yang punya rekaman (session recording)."
+    subtitle="Sesi pengunjung muzanella.com yang punya rekaman. tools.muzanella.com tidak pernah direkam (Story 25)."
     :meta="`${sessions?.length ?? 0} sesi`"
   >
     <template #actions>

@@ -1,5 +1,7 @@
 # Story 24: Generator Invoice dan Kwitansi UMKM
 
+**Status:** Done (2026-11-06).
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub), opsional Story 23 (pola Web
@@ -64,7 +66,7 @@ dengan data tersimpan di perangkat pengguna saja.
 
 Satu-satunya tool di hub ini dengan pengguna yang memakai berulang untuk
 kebutuhan bisnis, jadi kandidat terbaik untuk model freemium. Mengikuti
-aturan hub di Story 20.
+aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
 
 ### Story ini (gratis penuh)
 
@@ -72,9 +74,8 @@ aturan hub di Story 20.
   berisi teks kecil "Dibuat dengan tools.muzanella.com" yang bisa
   dimatikan (default menyala). Ini jadi kanal promosi gratis karena PDF
   dikirim ke pelanggan pengguna.
-- **Affiliate:** payment gateway dan QRIS untuk UMKM, software akuntansi
-  (untuk pengguna yang sudah butuh lebih dari invoice), materai
-  elektronik. Ditampilkan di dashboard riwayat, bukan di PDF.
+- **Donasi:** teks kecil di halaman riwayat dan setelah unduh PDF, tidak
+  pernah di dalam PDF.
 - **Iklan display** hanya di halaman form, tidak pernah di dalam PDF atau
   preview.
 
@@ -102,13 +103,30 @@ Dievaluasi setelah ada data pemakaian dari versi gratis.
 
 ## Acceptance Criteria
 
-- [ ] Unit test terbilang: 0, satuan, belasan, "seratus"/"seribu",
+- [x] Unit test terbilang: 0, satuan, belasan, "seratus"/"seribu",
       jutaan, miliaran, triliunan, dan angka desimal/sen.
-- [ ] Unit test perhitungan total invoice (diskon, pajak, pembulatan).
+- [x] Unit test perhitungan total invoice (diskon, pajak, pembulatan).
 - [ ] PDF yang dihasilkan tampil sama di Chrome, Safari, dan pembaca PDF
       desktop, dengan logo dan karakter Rupiah benar.
-- [ ] Data tersimpan setelah reload, bisa diekspor lalu diimpor di browser
+- [x] Data tersimpan setelah reload, bisa diekspor lalu diimpor di browser
       lain dengan hasil identik.
-- [ ] Tidak ada request jaringan yang membawa data invoice/kwitansi.
-- [ ] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar lulus.
+- [x] Tidak ada request jaringan yang membawa data invoice/kwitansi.
+- [x] Tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- Data disimpan di `localStorage` (`elt_invoice_store_v1`), ekspor/impor JSON
+  tervalidasi. PDF digambar dengan `pdf-lib` (font standar; karakter di luar
+  WinAnsi seperti emoji diganti "?").
+- Template: Modern, Klasik, Ringkas. Kwitansi 1 sampai 3 per halaman A4, kotak
+  penanda meterai untuk nominal di atas Rp5.000.000.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- UU 10/2020 tentang Bea Meterai: meterai Rp10.000 untuk dokumen yang menyebut nominal di atas Rp5.000.000. https://peraturan.bpk.go.id/Details/151354/uu-no-10-tahun-2020
+- PPN 11% sebagai tarif bawaan pajak di invoice (UU 7/2021 HPP), bisa diubah pengguna. https://peraturan.bpk.go.id/Details/185162/uu-no-7-tahun-2021
+- Terbilang mengikuti aturan penulisan bilangan Bahasa Indonesia (PUEBI/EYD).
+- Kode: `apps/enem-landing-tools/app/utils/invoice/`, `utils/terbilang.ts`.

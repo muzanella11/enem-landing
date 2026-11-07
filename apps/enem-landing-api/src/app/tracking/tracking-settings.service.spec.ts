@@ -1,9 +1,10 @@
+import { BadRequestException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrackingSettingsService } from './tracking-settings.service.js';
 
 describe('TrackingSettingsService', () => {
   let repo: {
-    find: ReturnType<typeof vi.fn>;
+    findOne: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
     save: ReturnType<typeof vi.fn>;
   };
@@ -16,7 +17,7 @@ describe('TrackingSettingsService', () => {
 
   beforeEach(() => {
     repo = {
-      find: vi.fn(),
+      findOne: vi.fn(),
       create: vi.fn((data) => data),
       save: vi.fn((entity) => Promise.resolve({ id: 'row-1', ...entity })),
     };
@@ -33,15 +34,16 @@ describe('TrackingSettingsService', () => {
     cache.getCached.mockResolvedValue(cached);
 
     await expect(service.getOrCreate()).resolves.toBe(cached);
-    expect(repo.find).not.toHaveBeenCalled();
+    expect(repo.findOne).not.toHaveBeenCalled();
   });
 
   it('creates a default row with every feature disabled when none exists', async () => {
-    repo.find.mockResolvedValue([]);
+    repo.findOne.mockResolvedValue(null);
 
     const result = await service.getOrCreate();
 
     expect(repo.create).toHaveBeenCalledWith({
+      site: 'landing',
       pageviewEnabled: false,
       eventsEnabled: false,
       heatmapEnabled: false,
@@ -53,7 +55,7 @@ describe('TrackingSettingsService', () => {
   });
 
   it('update merges the dto onto the existing row and invalidates the cache', async () => {
-    repo.find.mockResolvedValue([{ id: 'row-1', pageviewEnabled: false }]);
+    repo.findOne.mockResolvedValue({ id: 'row-1', pageviewEnabled: false });
     const dto = {
       pageviewEnabled: true,
       eventsEnabled: false,
@@ -69,5 +71,49 @@ describe('TrackingSettingsService', () => {
     expect(cache.invalidate).toHaveBeenCalledWith(
       'cache:public:tracking-config',
     );
+  });
+
+  describe('tools site (Story 25)', () => {
+    it('rejects enabling session recording for tools', async () => {
+      await expect(
+        service.update(
+          {
+            pageviewEnabled: true,
+            eventsEnabled: true,
+            heatmapEnabled: true,
+            sessionRecordingEnabled: true,
+            sessionRecordingSampleRatePct: 10,
+          },
+          'tools',
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('always reports recording off for tools, even if the row says on', async () => {
+      repo.findOne.mockResolvedValue({
+        id: 'row-tools',
+        site: 'tools',
+        sessionRecordingEnabled: true,
+      });
+
+      const result = await service.getOrCreate('tools');
+
+      expect(result.sessionRecordingEnabled).toBe(false);
+      expect(repo.findOne).toHaveBeenCalledWith({ where: { site: 'tools' } });
+      expect(cache.getCached).toHaveBeenCalledWith(
+        'cache:public:tracking-config:tools',
+      );
+    });
+
+    it('also overrides a cached tools row that says recording is on', async () => {
+      cache.getCached.mockResolvedValue({
+        id: 'row-tools',
+        site: 'tools',
+        sessionRecordingEnabled: true,
+      });
+      const result = await service.getOrCreate('tools');
+      expect(result.sessionRecordingEnabled).toBe(false);
+    });
   });
 });

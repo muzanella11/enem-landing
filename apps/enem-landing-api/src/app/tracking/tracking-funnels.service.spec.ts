@@ -12,6 +12,7 @@ describe('TrackingFunnelsService', () => {
   };
   let pageviewRepo: { find: ReturnType<typeof vi.fn> };
   let eventRepo: { find: ReturnType<typeof vi.fn> };
+  let sessionRepo: { find: ReturnType<typeof vi.fn> };
   let service: TrackingFunnelsService;
 
   beforeEach(() => {
@@ -24,10 +25,14 @@ describe('TrackingFunnelsService', () => {
     };
     pageviewRepo = { find: vi.fn().mockResolvedValue([]) };
     eventRepo = { find: vi.fn().mockResolvedValue([]) };
+    sessionRepo = {
+      find: vi.fn().mockResolvedValue([{ id: 's1' }, { id: 's2' }]),
+    };
     service = new TrackingFunnelsService(
       funnelRepo as never,
       pageviewRepo as never,
       eventRepo as never,
+      sessionRepo as never,
     );
   });
 
@@ -163,6 +168,46 @@ describe('TrackingFunnelsService', () => {
 
       expect(eventRepo.find).toHaveBeenCalledWith({
         where: { name: 'contact_click', sessionId: expect.anything() },
+      });
+    });
+  });
+
+  describe('site scoping (Story 25)', () => {
+    it('ignores sessions from other sites', async () => {
+      funnelRepo.findOne.mockResolvedValue({
+        id: 'funnel-1',
+        site: 'tools',
+        name: 'Tools',
+        steps: ['/kalkulator-gaji-bersih'],
+      });
+      sessionRepo.find.mockResolvedValue([{ id: 'tools-session' }]);
+      pageviewRepo.find.mockResolvedValue([
+        {
+          sessionId: 'landing-session',
+          path: '/kalkulator-gaji-bersih',
+          enteredAt: new Date('2026-01-01T00:00:00Z'),
+        },
+        {
+          sessionId: 'tools-session',
+          path: '/kalkulator-gaji-bersih',
+          enteredAt: new Date('2026-01-01T00:00:00Z'),
+        },
+      ]);
+
+      const report = await service.getReport('funnel-1');
+
+      expect(sessionRepo.find).toHaveBeenCalledWith({
+        where: { site: 'tools' },
+        select: { id: true },
+      });
+      expect(report).toEqual([{ step: '/kalkulator-gaji-bersih', count: 1 }]);
+    });
+
+    it('findAll filters by site, defaulting to landing', async () => {
+      funnelRepo.find.mockResolvedValue([]);
+      await service.findAll();
+      expect(funnelRepo.find).toHaveBeenCalledWith({
+        where: { site: 'landing' },
       });
     });
   });

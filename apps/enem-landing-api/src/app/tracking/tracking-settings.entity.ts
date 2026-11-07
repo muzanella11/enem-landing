@@ -1,3 +1,4 @@
+import type { TrackingSite } from '@enem-landing/shared-definitions';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 /** Single-row config — see TrackingSettingsService for the get-or-create-default logic. */
@@ -5,6 +6,10 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class TrackingSettingsEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  /** Which tracked site this row belongs to (Story 25) - `landing` for every row recorded before multi-site tracking. */
+  @Column({ type: 'varchar', length: 32, default: 'landing' })
+  site!: TrackingSite;
 
   @Column({ default: false })
   pageviewEnabled!: boolean;

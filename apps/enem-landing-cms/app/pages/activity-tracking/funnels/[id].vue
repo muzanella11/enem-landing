@@ -6,13 +6,17 @@ import type {
 import { computed, ref } from 'vue';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
 
+import { useTrackingSite } from '../../../composables/use-tracking-site';
+
 definePageMeta({ layout: 'dashboard' });
 
 const route = useRoute();
 const funnelId = route.params['id'] as string;
 
+const { siteQuery, withSite } = useTrackingSite();
 const { data: funnels } = await useFetch<TrackingFunnel[]>(
   '/api/tracking/funnels',
+  { query: siteQuery },
 );
 const funnel = computed(() =>
   funnels.value?.find((item) => item.id === funnelId),
@@ -74,7 +78,7 @@ const save = async () => {
   >
     <template #actions>
       <v-btn
-        to="/activity-tracking/funnels"
+        :to="withSite('/activity-tracking/funnels')"
         variant="text"
         prepend-icon="mdi-arrow-left"
         >Funnels</v-btn

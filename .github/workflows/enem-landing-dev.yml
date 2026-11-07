@@ -39,7 +39,7 @@ jobs:
   check-open-pr:
     name: Check for duplicate PR run
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pull-requests: read
     outputs:
@@ -127,19 +127,26 @@ jobs:
   # ansible-playbook directly (mau-apps' actual pattern) fits better than
   # forcing scripts/deploy.sh's host-ip-as-argument design into CI.
   deploy:
-    name: Deploy to dev VPS
+    name: Deploy to dev
     needs: migrate
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
+    # Dev and prod deploy to the same VPS, and deploy.yml ends with a
+    # `docker logout ghcr.io` and `docker image prune -a -f` that would break
+    # a rollout still running for the other environment. Same group as the
+    # prod deploy job so the two never run at the same time.
+    concurrency:
+      group: enem-landing-deploy
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
     environment: development
     permissions:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 

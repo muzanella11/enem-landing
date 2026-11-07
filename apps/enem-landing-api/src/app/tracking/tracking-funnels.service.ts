@@ -1,4 +1,5 @@
 import type { TrackingFunnelReportStep } from '@enem-landing/shared-types';
+import type { TrackingSite } from '@enem-landing/shared-definitions';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -7,6 +8,7 @@ import { UpdateFunnelDto } from './dto/update-funnel.dto.js';
 import { TrackingEventEntity } from './tracking-event.entity.js';
 import { TrackingFunnelEntity } from './tracking-funnel.entity.js';
 import { TrackingPageviewEntity } from './tracking-pageview.entity.js';
+import { TrackingSessionEntity } from './tracking-session.entity.js';
 
 @Injectable()
 export class TrackingFunnelsService {
@@ -17,14 +19,18 @@ export class TrackingFunnelsService {
     private readonly pageviewRepository: Repository<TrackingPageviewEntity>,
     @InjectRepository(TrackingEventEntity)
     private readonly eventRepository: Repository<TrackingEventEntity>,
+    @InjectRepository(TrackingSessionEntity)
+    private readonly sessionRepository: Repository<TrackingSessionEntity>,
   ) {}
 
-  findAll(): Promise<TrackingFunnelEntity[]> {
-    return this.funnelRepository.find();
+  findAll(site: TrackingSite = 'landing'): Promise<TrackingFunnelEntity[]> {
+    return this.funnelRepository.find({ where: { site } });
   }
 
   create(dto: CreateFunnelDto): Promise<TrackingFunnelEntity> {
-    return this.funnelRepository.save(this.funnelRepository.create(dto));
+    return this.funnelRepository.save(
+      this.funnelRepository.create({ ...dto, site: dto.site ?? 'landing' }),
+    );
   }
 
   async update(
@@ -43,6 +49,15 @@ export class TrackingFunnelsService {
 
   async getReport(id: string): Promise<TrackingFunnelReportStep[]> {
     const funnel = await this.findOrThrow(id);
+
+    // A funnel only ever counts sessions from its own site (Story 25).
+    // Resolved up front so the first step, which has no session filter
+    // from a previous step, is still scoped correctly.
+    const siteSessions = await this.sessionRepository.find({
+      where: { site: funnel.site ?? 'landing' },
+      select: { id: true },
+    });
+    const siteSessionIds = new Set(siteSessions.map((session) => session.id));
 
     // Sessions still "in" the funnel, mapped to the timestamp at which
     // they reached the previous step - `null` means "no step reached
@@ -81,9 +96,11 @@ export class TrackingFunnelsService {
       };
 
       for (const pageview of pageviews) {
+        if (!siteSessionIds.has(pageview.sessionId)) continue;
         consider(pageview.sessionId, pageview.enteredAt);
       }
       for (const event of events) {
+        if (!siteSessionIds.has(event.sessionId)) continue;
         consider(event.sessionId, event.occurredAt);
       }
 

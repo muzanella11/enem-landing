@@ -1,5 +1,7 @@
 # Story 20: Tools Hub + Kalkulator Gaji Bersih (PPh 21 TER + BPJS)
 
+**Status:** Done (2026-11-06). Catatan: batas upah JP 2026 belum terkonfirmasi dari sumber resmi (lihat Catatan implementasi).
+
 **Apps touched:** app baru `enem-landing-tools` (Nuxt 4 + Tailwind), `compose.yml`,
 `compose.prod.yml`, `compose.dev.yml`, `scripts/kill-ports.sh`, workflow CI/CD
 
@@ -38,6 +40,12 @@ tool pertama, yaitu kalkulator gaji bersih.
   penjelasan PPh 21 TER bisa menautkan ke kalkulator, dan sebaliknya.
 
 ## Keputusan awal
+
+> **Catatan (2026-11-06):** sebagian keputusan di bawah diubah oleh
+> [Story 25](25-tools-cms-monitoring-registry.md): halaman tools memakai SWR
+> cache (bukan prerender penuh), registry tool, status iklan, dan opsi
+> donasi dibaca dari CMS (bukan data di app atau runtime config), dan tracking
+> memakai tracker bersama dengan site `tools` tanpa session recording.
 
 1. **App terpisah, bukan route di `enem-landing-web`.** Tools punya siklus
    rilis dan dependency sendiri (nanti ada WASM untuk PDF/gambar), dan tidak
@@ -157,37 +165,51 @@ diketik ulang di beberapa tempat.
 
 ### Strategi tingkat hub (berlaku untuk semua tool, dibangun di story ini)
 
-Ekspektasi realistis: RPM iklan display untuk trafik Indonesia rendah,
-jadi iklan saja baru berarti di trafik besar. Pendapatan utama diharapkan
-dari affiliate yang relevan dengan konteks tool, iklan menjadi pelengkap,
-dan donasi sebagai tambahan kecil. Urutan prioritas:
+**Affiliate ditunda** (keputusan user 2026-11-06). Pendapatan hub untuk
+saat ini hanya dari dua sumber:
 
-1. **Affiliate kontekstual.** Rekomendasi produk muncul *setelah* hasil
-   hitungan, relevan dengan angka pengguna (mis. take home pay rendah
-   memunculkan konten "cara menambah penghasilan", bukan pinjaman).
-   Jaringan kandidat: program affiliate langsung produk (aplikasi
-   investasi, asuransi, software akuntansi, marketplace) atau jaringan
-   seperti Involve Asia/Accesstrade. Ketersediaan dan syarat tiap program
-   dicek saat implementasi tool masing-masing.
-2. **Iklan display (Google AdSense)** setelah situs punya cukup konten dan
-   lolos review. Ditaruh di bawah hasil dan di sidebar desktop, tidak
-   pernah di antara input dan tombol hitung.
-3. **Donasi** lewat Saweria/Trakteer di footer ("traktir kopi"), tanpa
-   popup.
-4. **Fitur Pro berbayar** hanya untuk tool yang memang punya nilai tambah
+1. **Iklan display (Google AdSense)** setelah situs punya cukup konten dan
+   lolos review. RPM iklan untuk trafik Indonesia rendah, jadi iklan baru
+   berarti di trafik besar; karena itu tool dengan volume tinggi dan
+   musiman (THR, Ramadan) diprioritaskan. Iklan ditaruh di bawah hasil dan
+   di sidebar desktop, tidak pernah di antara input dan tombol hitung.
+2. **Donasi "traktir kopi"** lewat platform donasi, tanpa popup.
+3. **Fitur Pro berbayar** hanya untuk tool yang memang punya nilai tambah
    berkelanjutan (lihat Story 24). Tidak untuk kalkulator.
 
-Aturan yang berlaku di semua tool:
+Affiliate bisa dibuka lagi sebagai story terpisah setelah ada data trafik.
 
-- **Daftar kategori yang diblokir:** pinjol, judi/slot, investasi bodong,
-  dan produk kripto berisiko tinggi, baik di affiliate maupun di AdSense
-  (pakai fitur blocking kategori AdSense). Audiens tool keuangan rentan,
-  dan satu iklan pinjol cukup merusak kepercayaan.
-- **Disclosure affiliate** jelas di dekat tautan ("tautan affiliate, kami
-  dapat komisi tanpa biaya tambahan untukmu").
-- **Tidak ada data input yang ikut ke tautan affiliate atau iklan.** Tidak
-  ada parameter gaji/nominal di URL affiliate, dan state tool tidak
-  pernah ada di URL saat slot iklan dimuat.
+#### Platform donasi
+
+Hasil cek 2026-11-06 (wajib dicek ulang ke halaman resmi saat
+implementasi):
+
+| Platform | Potongan per donasi | Catatan |
+|---|---|---|
+| Saweria | sekitar 5% | Biaya pencairan sekitar Rp5.000; beberapa sumber menyebut biaya layanan tambahan |
+| Trakteer | 5% | Plus biaya metode bayar (QRIS sekitar 0,77%, e-wallet sekitar 2%, VA sekitar Rp4.000), pencairan sekitar Rp5.000 |
+| SociaBuzz | 5% | Biaya penarikan lebih rendah menurut halaman resmi (bank Rp4.500, GoPay Rp1.000) |
+| QRIS statis milik sendiri | Hanya MDR QRIS, jauh di bawah 5% | Tanpa halaman profil/notifikasi; butuh akun merchant QRIS. Cek ketentuan MDR BI terbaru |
+
+Keputusan:
+
+- **Komponen donasi tidak terikat satu platform.** Daftar opsi donasi
+  (label, URL, gambar QRIS opsional) dikonfigurasi dari CMS (Story 25),
+  sehingga platform bisa diganti atau ditambah tanpa deploy.
+- **Platform utama: SociaBuzz** (keputusan user 2026-11-06), karena
+  mendukung donasi dalam mata uang asing selain Rupiah, sehingga pengunjung
+  luar negeri juga bisa berdonasi. QRIS statis bisa ditambahkan belakangan
+  sebagai opsi kedua lewat CMS.
+
+#### Aturan yang berlaku di semua tool
+
+- **Daftar kategori iklan yang diblokir:** pinjol, judi/slot, investasi
+  bodong, dan produk kripto berisiko tinggi (pakai fitur blocking kategori
+  AdSense). Audiens tool keuangan rentan, dan satu iklan pinjol cukup
+  merusak kepercayaan.
+- **Tidak ada iklan yang mirip tombol aksi** (unduh, hitung, bagikan).
+- **State tool tidak pernah ada di URL saat slot iklan dimuat** (lihat pola
+  link berbagi di atas).
 - **Core Web Vitals tetap prioritas:** slot iklan punya tinggi tetap
   (tanpa CLS), dimuat lazy setelah interaksi atau saat terlihat.
 - **Consent:** banner persetujuan cookie untuk iklan/analytics sesuai
@@ -195,21 +217,18 @@ Aturan yang berlaku di semua tool:
 
 Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
 
-- Komponen `AdSlot` (lazy, ukuran tetap, bisa dimatikan lewat runtime
-  config sampai AdSense disetujui).
-- Komponen `AffiliateCard` dengan disclosure bawaan, plus registry
-  penawaran affiliate per tool (data, bukan hardcode di halaman).
-- Event klik affiliate ke tracking yang sudah ada (Story 12-16), hanya
-  ID penawaran dan nama tool.
-- Link donasi di footer.
+- Komponen `AdSlot` (lazy, ukuran tetap, bisa dimatikan tanpa rebuild;
+  sumber status iklan lihat Story 25).
+- Komponen `DonationCta`: tautan di footer, plus varian teks kecil yang
+  bisa ditaruh setelah hasil/unduhan. Bukan popup, bukan overlay.
+- Event klik donasi ke tracking yang sudah ada (Story 12-16), hanya nama
+  tool dan posisi CTA.
 
 ### Monetisasi kalkulator gaji bersih
 
-- **Affiliate:** aplikasi reksa dana/investasi (setelah hasil: "sisihkan
-  X% dari gaji bersihmu"), asuransi kesehatan tambahan, platform lowongan
-  kerja atau kursus skill (konteks "naik gaji").
-- **Iklan:** trafik musiman tinggi menjelang THR dan saat pengumuman
-  kenaikan UMP, cocok untuk AdSense.
+- **Iklan:** trafik musiman tinggi menjelang THR, rekonsiliasi Desember,
+  dan saat pengumuman kenaikan UMP, cocok untuk AdSense.
+- **Donasi:** teks kecil setelah hasil hitung tampil.
 - **Lisensi widget (tahap lanjut):** versi embed kalkulator untuk situs
   HR, portal lowongan, dan blog keuangan, gratis dengan tautan balik
   (backlink, bagus untuk SEO) atau berbayar tanpa branding.
@@ -238,28 +257,61 @@ Infrastruktur yang dibuat di story ini (dipakai ulang tool berikutnya):
       `kill-ports.sh`, dan bisa di-build jadi image Docker seperti app lain.
 - [ ] Stack dev dan prod menyajikan tools hub di domain masing-masing dengan
       HTTPS, tanpa menaikkan limit memori app lain.
-- [ ] Halaman index tools menampilkan kalkulator gaji bersih dari registry
+- [x] Halaman index tools menampilkan kalkulator gaji bersih dari registry
       tool.
-- [ ] Unit test fungsi hitung mencakup minimal: tiap kategori TER (A, B, C),
+- [x] Unit test fungsi hitung mencakup minimal: tiap kategori TER (A, B, C),
       batas atas upah BPJS Kesehatan dan JP, rekonsiliasi Desember (kurang
       bayar dan lebih bayar), bulan dengan THR, dan kasus gaji di bawah
       PTKP. Angka acuan test dicocokkan dengan contoh hitungan resmi DJP
       bila tersedia.
 - [ ] Hasil kalkulator untuk minimal 3 skenario dicocokkan manual dengan
       kalkulator atau contoh resmi, dan hasil pencocokannya dicatat di PR.
-- [ ] Tidak ada request jaringan yang membawa nilai input gaji (diverifikasi
+- [x] Tidak ada request jaringan yang membawa nilai input gaji (diverifikasi
       lewat tab Network).
-- [ ] Hasil bisa dibagikan via link dan terisi ulang dengan benar saat
+- [x] Hasil bisa dibagikan via link dan terisi ulang dengan benar saat
       dibuka; fragment sudah terhapus dari address bar sebelum slot iklan
       dimuat.
-- [ ] Komponen `AdSlot`, `AffiliateCard`, dan registry affiliate tersedia
-      dan dipakai di kalkulator gaji; slot iklan bisa dimatikan lewat
-      runtime config tanpa rebuild.
+- [x] Komponen `AdSlot` dan `DonationCta` tersedia dan dipakai di
+      kalkulator gaji; slot iklan bisa dimatikan tanpa rebuild.
 - [ ] Tidak ada CLS dari slot iklan (CLS di bawah 0,1 di Lighthouse).
 - [ ] Banner consent berfungsi; menolak consent menghasilkan iklan
       non-personal dan tidak ada cookie iklan personal.
 - [ ] Halaman tool punya meta tag, canonical, JSON-LD, masuk sitemap, dan
       skor Lighthouse mobile (Performance, SEO, Accessibility) minimal 90.
-- [ ] Sumber aturan dan tanggal pengecekannya tampil di halaman tool.
-- [ ] `nx lint` dan `nx test` lulus untuk app baru; e2e dasar (buka halaman,
+- [x] Sumber aturan dan tanggal pengecekannya tampil di halaman tool.
+- [x] `nx lint` dan `nx test` lulus untuk app baru; e2e dasar (buka halaman,
       isi input, hasil muncul) ditambahkan sesuai konvensi per-app.
+
+## Catatan implementasi (2026-11-06)
+
+- App `apps/enem-landing-tools` (port 8002), dibuat lewat `scripts/create-app.sh`.
+  Service baru di `compose.yml`, `compose.prod.yml` (limit 100M), `compose.dev.yml`
+  (`dev-tools.muzanella.com`), `compose.local.yml`, target `enem-landing-tools` di
+  `Dockerfile`, dan masuk `build-push.yml` serta `e2e.yml`.
+- Aturan pajak/BPJS ada di `app/data/tax/2026.ts`, logika di `app/utils/payroll/`.
+  Kategori dan batas TER A/B/C sudah dicocokkan dengan sumber per 2026-11-06.
+- **Pertanyaan terbuka 1 belum tuntas:** batas upah JP memakai angka resmi Maret
+  2025 (Rp10.547.400). Penyesuaian 2026 belum ditemukan di sumber resmi; catatan ini
+  tampil di halaman tool.
+- Link berbagi: fragment dihapus dari address bar oleh plugin
+  `01.share-fragment.client.ts`, termasuk setelah navigasi awal vue-router (yang
+  sempat menulis ulang hash). Slot iklan menunggu sampai fragment benar-benar hilang.
+- Donasi: komponen `DonationCta`, opsi dikelola dari CMS. Baris SociaBuzz sudah
+  di-seed tanpa URL; isi URL halaman SociaBuzz di CMS supaya CTA tampil.
+- **DNS selesai (2026-11-06):** record `tools` dan `dev-tools` sudah ditambahkan
+  user di Cloudflare dan terverifikasi resolve lewat proxy Cloudflare, sama
+  seperti subdomain lain. Router Traefik dan wildcard cert sudah disiapkan di
+  compose, jadi tidak ada langkah DNS/TLS tambahan; situs live setelah deploy
+  pertama yang menyertakan image `enem-landing-tools`.
+- Masih manual oleh user: ID slot AdSense setelah AdSense disetujui (akan
+  dipindah ke CMS di Story 27), dan URL SociaBuzz di CMS.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- PP 58/2023: tarif efektif rata-rata (TER) PPh 21 kategori A/B/C. https://jdih.kemenkeu.go.id/
+- PMK 168/2023: tata cara pemotongan PPh 21 (TER Januari-November, hitung ulang Desember, biaya jabatan 5% maks Rp6 juta/tahun, PTKP). https://jdih.kemenkeu.go.id/
+- BPJS Ketenagakerjaan: iuran JHT, JP, JKK, JKM dan batas upah Jaminan Pensiun (angka Maret 2025, Rp10.547.400). https://www.bpjsketenagakerjaan.go.id/
+- Perpres 64/2020: iuran BPJS Kesehatan 5% (1% pekerja, 4% pemberi kerja), batas upah Rp12 juta. https://www.bpjs-kesehatan.go.id/
+- Data di kode: `apps/enem-landing-tools/app/data/tax/2026.ts`.

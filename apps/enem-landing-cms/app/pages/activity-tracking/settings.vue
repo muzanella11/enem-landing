@@ -1,24 +1,34 @@
 <script lang="ts" setup>
 import type { TrackingSettings } from '@enem-landing/shared-types';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useGlobalSnackbar } from '@enem-landing/frontend';
+
+import { useTrackingSite } from '../../composables/use-tracking-site';
 
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Activity Tracking Settings' });
 
+const { siteQuery, withSite, isTools, siteLabel } = useTrackingSite();
 const { data: settings } = await useFetch<TrackingSettings>(
   '/api/tracking/settings',
+  { query: siteQuery },
 );
 const snackbar = useGlobalSnackbar();
 const isSaving = ref(false);
 
-const form = ref<TrackingSettings>({
-  pageviewEnabled: settings.value?.pageviewEnabled ?? false,
-  eventsEnabled: settings.value?.eventsEnabled ?? false,
-  heatmapEnabled: settings.value?.heatmapEnabled ?? false,
-  sessionRecordingEnabled: settings.value?.sessionRecordingEnabled ?? false,
-  sessionRecordingSampleRatePct:
-    settings.value?.sessionRecordingSampleRatePct ?? 10,
+const toForm = (
+  value: TrackingSettings | null | undefined,
+): TrackingSettings => ({
+  pageviewEnabled: value?.pageviewEnabled ?? false,
+  eventsEnabled: value?.eventsEnabled ?? false,
+  heatmapEnabled: value?.heatmapEnabled ?? false,
+  sessionRecordingEnabled: value?.sessionRecordingEnabled ?? false,
+  sessionRecordingSampleRatePct: value?.sessionRecordingSampleRatePct ?? 10,
+});
+const form = ref<TrackingSettings>(toForm(settings.value));
+// Switching site refetches; reset the form to that site's values.
+watch(settings, (value) => {
+  form.value = toForm(value);
 });
 
 const save = async () => {
@@ -26,7 +36,10 @@ const save = async () => {
   try {
     await $fetch('/api/tracking/settings', {
       method: 'put',
-      body: form.value,
+      query: siteQuery.value,
+      body: isTools.value
+        ? { ...form.value, sessionRecordingEnabled: false }
+        : form.value,
     });
     snackbar.success('Activity tracking settings saved.');
   } catch (err) {
@@ -40,11 +53,12 @@ const save = async () => {
 <template>
   <CFormPage
     title="Activity Tracking Settings"
-    subtitle="Aktifkan/nonaktifkan tiap fitur tracking di enem-landing-web secara independen."
+    :subtitle="`Aktifkan/nonaktifkan tiap fitur tracking di ${siteLabel} secara independen.`"
   >
     <template #actions>
+      <CSiteSwitcher class="mr-2" />
       <v-btn
-        to="/activity-tracking"
+        :to="withSite('/activity-tracking')"
         variant="text"
         prepend-icon="mdi-arrow-left"
         >Overview</v-btn
@@ -77,13 +91,20 @@ const save = async () => {
         v-model="form.sessionRecordingEnabled"
         label="Session Recording"
         color="primary"
-        hide-details
+        :disabled="isTools"
+        :hint="
+          isTools
+            ? 'Dimatikan permanen demi privasi input pengguna tools.'
+            : undefined
+        "
+        :persistent-hint="isTools"
+        :hide-details="!isTools"
         class="mb-2"
       />
       <v-slider
         v-model="form.sessionRecordingSampleRatePct"
         label="Sample Rate"
-        :disabled="!form.sessionRecordingEnabled"
+        :disabled="isTools || !form.sessionRecordingEnabled"
         min="0"
         max="100"
         step="1"

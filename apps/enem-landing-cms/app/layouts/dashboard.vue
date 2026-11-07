@@ -23,6 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { title: 'Skills', icon: 'mdi-star-outline', url: '/skills' },
   { title: 'Blog', icon: 'mdi-post-outline', url: '/blog' },
   { title: 'Cache', icon: 'mdi-memory', url: '/cache' },
+  { title: 'Tools', icon: 'mdi-toolbox-outline', url: '/tools' },
   {
     title: 'Activity Tracking',
     icon: 'mdi-chart-line',

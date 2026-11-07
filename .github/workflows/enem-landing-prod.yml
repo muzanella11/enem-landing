@@ -81,18 +81,22 @@ jobs:
   # precedence in Ansible (wins over inventory host vars, including
   # connection vars), so this override is valid.
   deploy:
-    name: Deploy to prod VPS
+    name: Deploy to prod
     needs: migrate
-    runs-on: ubuntu-latest
+    # Shared with the dev deploy job (same VPS): see enem-landing-dev.yml.
+    concurrency:
+      group: enem-landing-deploy
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
     environment: production
     permissions:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -165,12 +169,12 @@ jobs:
   release-notes:
     name: Create GitHub Release
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: true

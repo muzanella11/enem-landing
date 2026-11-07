@@ -7,9 +7,10 @@
 # Used together with the base:
 #   docker stack deploy -c compose.yml -c compose.prod.yml <stack-name>
 #
-# Budget (5 apps, all managed MySQL/Redis via Aiven/Upstash from day one -
+# Budget (6 apps, all managed MySQL/Redis via Aiven/Upstash from day one -
 # no self-hosted stateful service to budget for at all, unlike mau-apps'
-# RabbitMQ/MySQL/Redis): 5 apps @ 100M = 500 MB allocated to containers.
+# RabbitMQ/MySQL/Redis): 6 apps @ 100M = 600 MB allocated to containers
+# (enem-landing-tools added in Story 20; its heavy work runs in browsers).
 # Even a small 1 GB VPS leaves real headroom for OS + Docker daemon +
 # Traefik (~64M, see infra/ansible/playbooks/templates/traefik-stack.yml.j2)
 # on top of this - this workspace never had mau-apps' original
@@ -82,6 +83,13 @@ services:
           memory: 100M
   enem-landing-web:
     image: ghcr.io/muzanella11/enem-landing-web:prod
+    <<: *node-tuning
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+  enem-landing-tools:
+    image: ghcr.io/muzanella11/enem-landing-tools:prod
     <<: *node-tuning
     deploy:
       resources:

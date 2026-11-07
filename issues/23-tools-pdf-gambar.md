@@ -1,5 +1,7 @@
 # Story 23: Alat PDF dan Gambar (Client-side)
 
+**Status:** Done (2026-11-06). Catatan: uji di HP sungguhan (Chrome Android, Safari iOS) belum dilakukan.
+
 **Apps touched:** `enem-landing-tools`
 
 **Depends on:** Story 20 (fondasi tools hub)
@@ -64,15 +66,12 @@ browser, dengan pesan jelas "file kamu tidak pernah di-upload".
 ## Monetisasi
 
 Tool utilitas file punya volume trafik paling tinggi dan pengguna yang
-kembali berulang, tapi niat belinya rendah. Model yang cocok adalah iklan
-volume tinggi plus affiliate ringan. Mengikuti aturan hub di Story 20.
+kembali berulang, jadi paling cocok untuk iklan volume tinggi. Mengikuti
+aturan hub di Story 20 (hanya AdSense dan donasi, affiliate ditunda).
 
 - **Iklan display** di area tunggu (saat file diproses) dan di bawah
   tombol unduh. Tidak boleh ada iklan yang mirip tombol unduh (pola
   menipu yang umum di situs sejenis).
-- **Affiliate kontekstual:** cloud storage, Canva atau editor desain,
-  jasa cetak online (setelah gambar-ke-PDF atau pas foto), toko printer
-  dan kertas di marketplace.
 - **Tidak ada fitur berbayar** untuk batas ukuran atau jumlah file: semua
   proses di perangkat pengguna, jadi membatasi demi upsell terasa tidak
   jujur dan biayanya nol bagi kita.
@@ -87,7 +86,7 @@ volume tinggi plus affiliate ringan. Mengikuti aturan hub di Story 20.
 
 ## Acceptance Criteria
 
-- [ ] Tab Network tidak menunjukkan request apa pun yang membawa isi file,
+- [x] Tab Network tidak menunjukkan request apa pun yang membawa isi file,
       untuk setiap tool.
 - [ ] Tool tetap berfungsi setelah halaman dimuat lalu jaringan diputus.
 - [ ] Bundle JS halaman index tools tidak bertambah signifikan (WASM hanya
@@ -99,5 +98,26 @@ volume tinggi plus affiliate ringan. Mengikuti aturan hub di Story 20.
       kamera biasa.
 - [ ] Data GPS EXIF hilang dari hasil kompres/konversi (diverifikasi
       dengan pembaca EXIF).
-- [ ] Setiap tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
-- [ ] `nx lint`, `nx test`, dan e2e dasar (pakai file fixture kecil) lulus.
+- [x] Setiap tool muncul di registry, punya meta/JSON-LD, masuk sitemap.
+- [x] `nx lint`, `nx test`, dan e2e dasar (pakai file fixture kecil) lulus.
+
+## Catatan implementasi (2026-11-06)
+
+- PDF: `pdf-lib` 1.17.1 (MIT) di Web Worker, thumbnail dengan `pdfjs-dist` 6.4.299
+  (Apache-2.0) hanya di halaman atur halaman.
+- Gambar: memakai codec bawaan browser lewat `OffscreenCanvas` di Web Worker, bukan
+  `@jsquash/*`, sehingga tidak perlu WASM untuk JPG/PNG/WebP/AVIF. HEIC memakai
+  `heic2any` 0.0.4 (MIT, membungkus libheif) yang hanya dimuat bila ada file HEIC.
+  ZIP memakai `fflate` 0.8.3 (MIT).
+- Ukuran JS (gzip) saat diukur: halaman index sekitar 90 KB. Chunk lazy terbesar:
+  decoder HEIC sekitar 333 KB, pdf-lib sekitar 171 KB, pdf.js sekitar 125 KB.
+- Pengujian di HP sungguhan (Chrome Android, Safari iOS) belum dilakukan.
+
+## Referensi perhitungan
+
+Dasar perhitungan dan data yang dipakai tool ini (dicek 2026-11-06):
+
+- Tidak ada rumus regulasi. Pemrosesan memakai pustaka: pdf-lib 1.17.1 (gabung, pisah, atur halaman, gambar ke PDF) https://pdf-lib.js.org/ dan pdf.js (pdfjs-dist 6.4.299) untuk pratinjau https://mozilla.github.io/pdf.js/
+- Ukuran kertas A4 (210 x 297 mm, ISO 216) dan F4 (215 x 330 mm, ukuran folio lazim di Indonesia); konversi mm ke point = mm / 25,4 x 72.
+- Ukuran pas foto 2x3, 3x4, 4x6 cm pada 300 dpi (konvensi umum cetak foto).
+- HEIC ke JPEG memakai heic2any (libheif).

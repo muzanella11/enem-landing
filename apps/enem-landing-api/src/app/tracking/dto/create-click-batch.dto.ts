@@ -1,3 +1,7 @@
+import {
+  TRACKING_SITES,
+  type TrackingSite,
+} from '@enem-landing/shared-definitions';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -5,6 +9,7 @@ import {
   IsISO8601,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -36,6 +41,11 @@ export class CreateClickItemDto {
 }
 
 export class CreateClickBatchDto {
+  /** Which site sent this - set by that site's BFF, defaults to `landing` (Story 25). */
+  @IsOptional()
+  @IsIn(TRACKING_SITES)
+  site?: TrackingSite;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateClickItemDto)

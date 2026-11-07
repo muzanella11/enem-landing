@@ -43,6 +43,7 @@
 #   enem-landing-cms:         4000 (NITRO_PORT)
 #   enem-landing-account-web: 8000 (NITRO_PORT)
 #   enem-landing-web:         8001 (NITRO_PORT)
+#   enem-landing-tools:       8002 (NITRO_PORT)
 #
 # Node 26 (this workspace's `engines.node`, package.json) - mau-apps uses
 # node:20-alpine, not carried over since this workspace targets a newer
@@ -97,4 +98,14 @@ FROM base-web AS enem-landing-web
 COPY ./apps/enem-landing-web/.output ./
 ENV NITRO_PORT=8001
 EXPOSE 8001
+CMD [ "node", "/web/server/index.mjs" ]
+
+# tools.muzanella.com (Story 20) - same shape as enem-landing-web: a
+# self-contained Nitro `.output`. All calculations and file processing
+# run in the visitor's browser; this server only renders pages and
+# proxies tracking/tools-config/gold-price requests.
+FROM base-web AS enem-landing-tools
+COPY ./apps/enem-landing-tools/.output ./
+ENV NITRO_PORT=8002
+EXPOSE 8002
 CMD [ "node", "/web/server/index.mjs" ]
