@@ -13,10 +13,21 @@ export const recordRequests = (page: Page) => {
     requests,
     containing: (needle: string) =>
       requests.filter(
-        (entry) => entry.url.includes(needle) || entry.body.includes(needle),
+        (entry) =>
+          withoutBuildTokens(entry.url).includes(needle) ||
+          entry.body.includes(needle),
       ),
   };
 };
+
+/**
+ * Drops the random parts Nuxt adds to URLs on every build (the `_b`
+ * build-id query on `_payload.json` and hashed `/_nuxt/` asset names) so a
+ * short needle like `175` can't match them by chance. User input never
+ * lands in either.
+ */
+const withoutBuildTokens = (url: string) =>
+  url.replace(/([?&])_b=[^&#]*/g, '$1').replace(/\/_nuxt\/[^?#]*/g, '/_nuxt/');
 
 /** Hides the consent banner so it never covers the controls under test. */
 export const acceptConsent = async (page: Page) => {

@@ -23,4 +23,14 @@ describe('adsense helpers', () => {
     );
     expect(buildAdsTxt('')).toBeNull();
   });
+
+  it('adds subdomain lines for the root domain file', () => {
+    expect(
+      buildAdsTxt('ca-pub-1234567890123456', [' tools.muzanella.com ', '']),
+    ).toBe(
+      'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n' +
+        'subdomain=tools.muzanella.com\n',
+    );
+    expect(buildAdsTxt(null, ['tools.muzanella.com'])).toBeNull();
+  });
 });
