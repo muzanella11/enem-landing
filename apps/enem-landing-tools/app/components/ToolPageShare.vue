@@ -139,7 +139,7 @@ const round =
     <span
       class="text-xs font-medium text-teal-700 transition-opacity"
       :class="copied ? 'opacity-100' : 'opacity-0'"
-      aria-live="polite"
+      role="status"
       >{{ copied ? 'Link disalin' : '' }}</span
     >
   </div>
