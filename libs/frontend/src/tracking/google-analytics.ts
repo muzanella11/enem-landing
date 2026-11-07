@@ -15,8 +15,9 @@ declare global {
 }
 
 /** Only GA4 ids (`G-XXXXXXXXXX`); old `UA-` ids stopped collecting in 2023. */
-export const isGaMeasurementId = (id: string | null | undefined): id is string =>
-  /^G-[A-Z0-9]{4,20}$/.test((id ?? '').trim());
+export const isGaMeasurementId = (
+  id: string | null | undefined,
+): id is string => /^G-[A-Z0-9]{4,20}$/.test((id ?? '').trim());
 
 /**
  * Loads gtag.js once and configures `measurementId`. No-op on the server,

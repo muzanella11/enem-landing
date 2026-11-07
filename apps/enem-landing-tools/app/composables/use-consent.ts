@@ -1,7 +1,10 @@
 /**
- * Cookie/ads consent (UU PDP, Story 20). `unset` until the visitor
- * chooses; ads load only after a choice, and `denied` means
- * non-personalized ads with no personalization cookies.
+ * Cookie/ads consent (Story 20). Recording is always on for now: the
+ * banner is hidden and there is no opt-out on the site, so every visitor
+ * is `granted` (personalized ads + Google Analytics). /privasi points to
+ * Google's own ad settings for opting out of personalized ads. The state
+ * and the banner component are kept so asking can be switched back on;
+ * `unset` only exists during SSR, before the client plugin ran.
  */
 export type ConsentState = 'unset' | 'granted' | 'denied';
 
@@ -10,13 +13,9 @@ const STORAGE_KEY = 'elt_consent';
 export const useConsent = () => {
   const state = useState<ConsentState>('consent', () => 'unset');
 
+  // Always recording for now (see above), whatever was stored before.
   const load = () => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === 'granted' || stored === 'denied') state.value = stored;
-    } catch {
-      // Storage blocked: stays `unset`, the banner shows each visit.
-    }
+    state.value = 'granted';
   };
 
   const set = (value: Exclude<ConsentState, 'unset'>) => {

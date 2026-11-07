@@ -68,8 +68,8 @@ useHead({
       </div>
     </footer>
 
-    <ClientOnly>
-      <ConsentBanner />
-    </ClientOnly>
+    <!-- Consent banner hidden for now: every visitor is `granted` (see
+         use-consent.ts). Put <ClientOnly><ConsentBanner /></ClientOnly>
+         back, and restore load() there, to ask again. -->
   </div>
 </template>
