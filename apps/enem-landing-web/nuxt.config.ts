@@ -138,6 +138,7 @@ gtag('config', '${googleAnalyticsId}');`,
     ],
     routeRules: {
       '/ads.txt': { swr: 600 },
+      '/api/adsense-account': { swr: 600 },
       // These are committed repo assets (favicon, avatar, OG image), not
       // user uploads - they only change via a new deploy, so a long cache
       // is safe. PageSpeed Insights flagged /avataaars.svg's default cache
