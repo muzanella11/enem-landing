@@ -5,8 +5,6 @@ usePageSeo({
     'Bagaimana tools.muzanella.com memperlakukan data, cookie, dan iklan.',
   path: '/privasi',
 });
-
-const { state, set } = useConsent();
 </script>
 
 <template>
@@ -31,34 +29,29 @@ const { state, set } = useConsent();
       <li>Titik klik (koordinat) untuk heatmap, tanpa teks halaman.</li>
     </ul>
     <p>Kami tidak merekam sesi atau layar pengunjung.</p>
+    <h2 class="text-xl font-semibold text-slate-900">Google Analytics</h2>
+    <p>
+      Kami memakai Google Analytics untuk statistik kunjungan (halaman yang
+      dibuka, perangkat, sumber kunjungan). Google Analytics memasang cookie dan
+      tidak pernah menerima angka atau file yang kamu isi.
+    </p>
     <h2 class="text-xl font-semibold text-slate-900">Iklan</h2>
     <p>
-      Situs ini dapat menampilkan iklan Google AdSense. Kalau kamu menolak iklan
-      personal, yang tampil hanya iklan non-personal. Link berbagi hasil
-      menyimpan data di bagian setelah tanda # pada alamat, yang tidak pernah
-      dikirim browser ke server mana pun, dan bagian itu dihapus dari address
-      bar sebelum iklan dimuat.
+      Situs ini menampilkan iklan Google AdSense. Google, sebagai vendor pihak
+      ketiga, memakai cookie untuk menayangkan iklan berdasarkan kunjunganmu ke
+      situs ini dan situs lain. Kamu bisa menonaktifkan iklan personal lewat
+      <a
+        href="https://adssettings.google.com"
+        class="btn-link"
+        target="_blank"
+        rel="noopener"
+        >Setelan Iklan Google</a
+      >.
     </p>
-    <h2 class="text-xl font-semibold text-slate-900">Pilihanmu</h2>
     <p>
-      Status saat ini:
-      <strong>{{
-        state === 'granted'
-          ? 'iklan personal diizinkan'
-          : state === 'denied'
-            ? 'hanya iklan non-personal'
-            : 'belum memilih'
-      }}</strong>
+      Link berbagi hasil menyimpan data di bagian setelah tanda # pada alamat,
+      yang tidak pernah dikirim browser ke server mana pun, dan bagian itu
+      dihapus dari address bar sebelum iklan dan statistik dimuat.
     </p>
-    <ClientOnly>
-      <div class="flex gap-2">
-        <button type="button" class="btn-secondary" @click="set('denied')">
-          Tolak iklan personal
-        </button>
-        <button type="button" class="btn-primary" @click="set('granted')">
-          Izinkan
-        </button>
-      </div>
-    </ClientOnly>
   </div>
 </template>

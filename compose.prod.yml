@@ -83,14 +83,26 @@ services:
           memory: 100M
   enem-landing-web:
     image: ghcr.io/muzanella11/enem-landing-web:prod
-    <<: *node-tuning
+    # Not `<<: *node-tuning`: it would be replaced by this `environment:`
+    # (no deep merge, see above), so NODE_OPTIONS is repeated here.
+    environment:
+      NODE_OPTIONS: --max-old-space-size=60
+      # GA4 measurement id (G-...) of property 320181329, prod only so dev
+      # traffic never lands in the real reports. Empty = GA off.
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: ''
     deploy:
       resources:
         limits:
           memory: 100M
   enem-landing-tools:
     image: ghcr.io/muzanella11/enem-landing-tools:prod
-    <<: *node-tuning
+    # Not `<<: *node-tuning`: it would be replaced by this `environment:`
+    # (no deep merge, see above), so NODE_OPTIONS is repeated here.
+    environment:
+      NODE_OPTIONS: --max-old-space-size=60
+      # GA4 measurement id (G-...) of property 320181329, prod only so dev
+      # traffic never lands in the real reports. Empty = GA off.
+      NUXT_PUBLIC_GA_MEASUREMENT_ID: ''
     deploy:
       resources:
         limits:
