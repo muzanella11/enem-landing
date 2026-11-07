@@ -81,6 +81,9 @@ export default defineNuxtConfig({
     // Server-only: the BFF routes are the only thing that ever talks to
     // enem-landing-api directly, the browser never sees this host.
     apiHost: process.env['API_HOST'] || 'http://localhost:3001',
+    // Comma-separated hosts listed as `subdomain=` in /ads.txt.
+    // Override with NUXT_ADS_TXT_SUBDOMAINS.
+    adsTxtSubdomains: 'tools.muzanella.com',
     public: {
       // GA4 measurement id (G-...), set at runtime via
       // NUXT_PUBLIC_GA_MEASUREMENT_ID. Empty = no Google Analytics.
@@ -119,6 +122,8 @@ export default defineNuxtConfig({
       },
     ],
     routeRules: {
+      '/ads.txt': { swr: 600 },
+      '/api/adsense-account': { swr: 600 },
       // These are committed repo assets (favicon, avatar, OG image), not
       // user uploads - they only change via a new deploy, so a long cache
       // is safe. PageSpeed Insights flagged /avataaars.svg's default cache
