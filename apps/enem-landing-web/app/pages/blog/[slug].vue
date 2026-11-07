@@ -4,6 +4,7 @@ import type { BlogPost } from '@enem-landing/shared-types';
 import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
 import sanitizeHtml from 'sanitize-html';
 import BlogPostCard from '../../components/BlogPostCard.vue';
+import BuyMeCoffee from '../../components/BuyMeCoffee.vue';
 import ShareBar from '../../components/ShareBar.vue';
 
 definePageMeta({ layout: 'blog' });
@@ -154,6 +155,7 @@ const formatDate = (value: string | null | undefined) =>
         :title="post.title"
         placement="article-bottom"
       />
+      <BuyMeCoffee :post-slug="slug" class="mt-8" />
     </div>
 
     <section v-if="related?.length" class="max-w-5xl mx-auto mt-20">
