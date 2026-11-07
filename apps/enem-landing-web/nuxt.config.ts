@@ -89,6 +89,9 @@ export default defineNuxtConfig({
       // NUXT_PUBLIC_GA_MEASUREMENT_ID. Empty = no Google Analytics.
       // Loaded by app/plugins/google-analytics.client.ts.
       gaMeasurementId: '',
+      // Tools site linked from the nav, footer, and homepage. Override per
+      // environment with NUXT_PUBLIC_TOOLS_HOST (dev: dev-tools.muzanella.com).
+      toolsHost: 'https://tools.muzanella.com',
     },
   },
   typescript: {

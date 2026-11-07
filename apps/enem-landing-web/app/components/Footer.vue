@@ -2,6 +2,9 @@
 import type { SocialLink } from '@enem-landing/shared-types';
 
 defineProps<{ socialLinks: SocialLink[] }>();
+
+const { toolsHost } = useRuntimeConfig().public;
+const toolsLabel = String(toolsHost).replace(/^https?:\/\//, '');
 </script>
 
 <template>
@@ -18,6 +21,14 @@ defineProps<{ socialLinks: SocialLink[] }>();
 
       <div>
         <h3 class="uppercase font-bold mb-4">Around the Web</h3>
+        <p class="text-lg font-light mb-4">
+          Free calculators and PDF tools:
+          <a
+            :href="String(toolsHost)"
+            class="font-bold underline underline-offset-4 hover:text-[#1ABC9C]"
+            >{{ toolsLabel }}</a
+          >
+        </p>
         <div class="flex justify-center gap-3">
           <a
             v-for="link in socialLinks"

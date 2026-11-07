@@ -115,6 +115,21 @@ const openPortfolio = (project: Project) => {
   activePortfolio.value = project;
 };
 
+// Homepage "Tools" section: a few popular tools from tools.muzanella.com.
+const { toolsHost } = useRuntimeConfig().public;
+const FEATURED_TOOLS = [
+  {
+    slug: 'kalkulator-gaji-bersih',
+    name: 'Kalkulator Gaji Bersih',
+    topic: 'Salary and PPh 21',
+  },
+  { slug: 'simulasi-kpr', name: 'Simulasi KPR', topic: 'Home loan' },
+  { slug: 'gabung-pdf', name: 'Gabung PDF', topic: 'Merge PDF files' },
+  { slug: 'kompres-pdf', name: 'Kompres PDF', topic: 'Compress PDF files' },
+  { slug: 'jadwal-sholat', name: 'Jadwal Sholat', topic: 'Prayer times' },
+  { slug: 'kalkulator-bmi', name: 'Kalkulator BMI', topic: 'Body mass index' },
+];
+
 const businessCardShown = ref(false);
 const toggleBusinessCard = () => {
   businessCardShown.value = !businessCardShown.value;
@@ -292,6 +307,45 @@ const submitContact = async () => {
             <h3 class="mt-3 font-semibold">{{ project.title }}</h3>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Tools -->
+    <section id="tools" class="py-24 px-4 bg-[#2C3E50]/5">
+      <div class="max-w-5xl mx-auto text-center">
+        <h2 class="text-3xl lg:text-5xl font-bold uppercase text-[#2C3E50]">
+          Free Tools
+        </h2>
+        <SectionDivider />
+        <p class="max-w-2xl mx-auto text-lg text-black/70">
+          Free calculators and document tools in Indonesian: salary and tax,
+          loans, PDF, prayer times, health, and more. Everything runs in your
+          browser, so your numbers and files never leave your device.
+        </p>
+
+        <ul
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10 text-left"
+        >
+          <li v-for="tool in FEATURED_TOOLS" :key="tool.slug">
+            <a
+              :href="`${toolsHost}/${tool.slug}`"
+              class="block h-full rounded-lg bg-white border border-black/5 p-5 hover:border-[#0E7C6B] hover:shadow-md transition"
+            >
+              <span class="block font-semibold text-[#2C3E50]">{{
+                tool.name
+              }}</span>
+              <span class="block text-sm text-black/60 mt-1">{{
+                tool.topic
+              }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <a
+          :href="String(toolsHost)"
+          class="inline-block mt-10 px-6 py-3 rounded bg-[#0E7C6B] text-white font-bold uppercase text-sm hover:bg-[#0B6657] transition-colors"
+          >See all tools</a
+        >
       </div>
     </section>
 

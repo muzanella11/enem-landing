@@ -125,6 +125,8 @@ services:
       # GA4 measurement id of property 320181329 (muzanellacomdev), kept
       # separate from prod's 563108458 so dev traffic never pollutes it.
       NUXT_PUBLIC_GA_MEASUREMENT_ID: G-VV8H6F1QBP
+      # Nav/footer/homepage "Tools" links point at the dev tools site.
+      NUXT_PUBLIC_TOOLS_HOST: https://dev-tools.muzanella.com
     deploy:
       <<: *dev-deploy
       labels: !override

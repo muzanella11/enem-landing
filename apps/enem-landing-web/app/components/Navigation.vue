@@ -1,21 +1,42 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 
 defineProps<{ title: string }>();
 
+interface NavItem {
+  href: string;
+  label: string;
+  /** A real page on this site (e.g. `/blog`), rendered as a `NuxtLink`. */
+  route?: boolean;
+  /** Another site (the tools subdomain), rendered as a plain link. */
+  external?: boolean;
+}
+
 /**
- * `route: true` items are real pages (e.g. `/blog`), not in-page anchors -
- * they render as a plain `NuxtLink` and are skipped by the
+ * `route`/`external` items are not in-page anchors - they are skipped by the
  * `scrollTo`/`IntersectionObserver` logic below, which only makes sense
  * for hash anchors within this single-page layout.
  */
-const NAV_ITEMS = [
+const SECTION_ITEMS: NavItem[] = [
   { href: '#experience', label: 'Experience' },
   { href: '#portfolio', label: 'Portfolio' },
   { href: '#about', label: 'About' },
   { href: '#contact', label: 'Contact' },
-  { href: '/blog', label: 'Blog', route: true },
 ];
+const { toolsHost } = useRuntimeConfig().public;
+const NAV_ITEMS = computed<NavItem[]>(() => [
+  ...SECTION_ITEMS,
+  { href: '/blog', label: 'Blog', route: true },
+  { href: String(toolsHost), label: 'Tools', external: true },
+]);
 
 const isOpen = ref(false);
 const isShrunk = ref(false);
@@ -62,7 +83,7 @@ const onScroll = () => {
   const scrolledToBottom =
     window.innerHeight + window.scrollY >= document.body.scrollHeight - 2;
   if (scrolledToBottom) {
-    activeHref.value = NAV_ITEMS[NAV_ITEMS.length - 1]?.href ?? '';
+    activeHref.value = SECTION_ITEMS[SECTION_ITEMS.length - 1]?.href ?? '';
   }
 };
 
@@ -92,8 +113,7 @@ onMounted(() => {
     { rootMargin: '-40% 0px -55% 0px' },
   );
 
-  for (const item of NAV_ITEMS) {
-    if (item.route) continue;
+  for (const item of SECTION_ITEMS) {
     const el = document.querySelector(item.href);
     if (el) sectionObserver.observe(el);
   }
@@ -161,8 +181,15 @@ const goHome = () => {
           class="hidden lg:flex items-center gap-1 text-sm font-bold tracking-wide"
         >
           <li v-for="item in NAV_ITEMS" :key="item.href">
+            <a
+              v-if="item.external"
+              :href="item.href"
+              class="block px-3 py-3 rounded hover:text-[#0E7C6B] transition-colors duration-300"
+            >
+              {{ item.label }}
+            </a>
             <NuxtLink
-              v-if="item.route"
+              v-else-if="item.route"
               :to="item.href"
               class="block px-3 py-3 rounded hover:text-[#0E7C6B] transition-colors duration-300"
             >
@@ -193,8 +220,11 @@ const goHome = () => {
         class="lg:hidden pt-4 pb-2 space-y-1 text-sm font-bold tracking-wide"
       >
         <li v-for="item in NAV_ITEMS" :key="item.href">
+          <a v-if="item.external" :href="item.href" class="block py-1">
+            {{ item.label }}
+          </a>
           <NuxtLink
-            v-if="item.route"
+            v-else-if="item.route"
             :to="item.href"
             class="block py-1"
             @click="isOpen = false"
