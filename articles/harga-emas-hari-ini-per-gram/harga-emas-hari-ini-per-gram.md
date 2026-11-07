@@ -16,7 +16,7 @@ keywords:
   - "xau usd ke rupiah"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram konversi harga emas: harga spot XAU/USD per troy ounce dikali kurs USD/IDR lalu dibagi 31,1034768 menjadi rupiah per gram"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

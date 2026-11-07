@@ -16,7 +16,7 @@ keywords:
   - "tambah hari dari tanggal"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram selisih tanggal: tanggal akhir dikurangi tanggal awal menjadi jumlah hari, ditambah satu bila kedua tanggal ikut dihitung"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

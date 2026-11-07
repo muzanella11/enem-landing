@@ -16,7 +16,7 @@ keywords:
   - "satuan luas tanah"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram konversi luas tanah: tumbak, bata, dan ubin masing-masing dikali 14 meter persegi, bahu dikali 7.000, are dikali 100 menjadi meter persegi"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

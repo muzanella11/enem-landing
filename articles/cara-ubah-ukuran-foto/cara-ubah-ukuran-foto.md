@@ -16,7 +16,7 @@ keywords:
   - "cm ke pixel"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram ukuran foto: ukuran dalam sentimeter dibagi 2,54 lalu dikali dpi menjadi piksel, foto dipotong ke rasio yang benar lalu diubah ukurannya"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

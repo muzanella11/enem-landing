@@ -16,7 +16,7 @@ keywords:
   - "dana darurat keluarga"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram dana darurat: pengeluaran bulanan dikali 6, 9, atau 12 bulan sesuai status keluarga, dikurangi dana yang sudah ada, dibagi setoran per bulan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

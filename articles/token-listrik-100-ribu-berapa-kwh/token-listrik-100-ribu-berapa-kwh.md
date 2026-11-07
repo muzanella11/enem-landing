@@ -17,7 +17,7 @@ keywords:
   - "token listrik 1300 va"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram token listrik: nominal dikurangi biaya admin, dibagi 1 plus pajak daerah, lalu dibagi tarif per kWh menjadi jumlah kWh"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

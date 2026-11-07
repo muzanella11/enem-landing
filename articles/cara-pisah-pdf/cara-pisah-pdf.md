@@ -16,7 +16,7 @@ keywords:
   - "split pdf"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram pisah PDF: satu file PDF dipilih rentang halamannya, misalnya 1-3 dan 5, lalu disalin menjadi file PDF baru"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

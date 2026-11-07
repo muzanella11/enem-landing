@@ -16,7 +16,7 @@ keywords:
   - "emas 22 karat"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram nilai perhiasan: berat dalam gram dikali kadar karat per 24 dan harga emas murni per gram, lalu dikurangi ongkos pembuatan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

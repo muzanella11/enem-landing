@@ -17,7 +17,7 @@ keywords:
   - "nilai ambang batas skd"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram skor SKD: jawaban benar TWK dan TIU dikali 5, skor TKP 1 sampai 5 per soal, lalu dibandingkan dengan ambang batas tiap subtes"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-06"
 ---

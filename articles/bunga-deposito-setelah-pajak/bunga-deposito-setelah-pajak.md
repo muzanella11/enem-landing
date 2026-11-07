@@ -17,7 +17,7 @@ keywords:
   - "deposito 100 juta"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram bunga deposito: pokok dikali bunga per tahun dan tenor per 12 menjadi bunga kotor, dipotong PPh final 20% menjadi bunga bersih"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "simulasi kredit mobil"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram kredit kendaraan: harga dikurangi uang muka menjadi pokok, bunga flat dihitung dari pokok awal kali tenor, lalu dibandingkan dengan bunga efektif setara"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "kafarat jima ramadan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram kafarat: jenis pelanggaran menentukan urutan pilihan kafarat, dari memerdekakan budak, puasa, sampai memberi makan orang miskin"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

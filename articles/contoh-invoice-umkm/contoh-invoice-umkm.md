@@ -16,7 +16,7 @@ keywords:
   - "invoice umkm"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram isi invoice: data penjual dan pembeli, rincian item menjadi subtotal, dikurangi diskon dan ditambah pajak menjadi total tagihan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

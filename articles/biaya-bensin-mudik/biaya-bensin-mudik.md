@@ -16,7 +16,7 @@ keywords:
   - "km per liter"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram biaya bensin: jarak tempuh dibagi konsumsi km per liter menjadi liter BBM, dikali harga per liter menjadi biaya, lalu dibagi jumlah penumpang"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

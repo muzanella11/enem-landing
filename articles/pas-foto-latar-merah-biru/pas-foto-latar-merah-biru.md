@@ -17,7 +17,7 @@ keywords:
   - "cara membuat pas foto"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram pas foto: foto dipotong ke ukuran 2x3, 3x4, atau 4x6, latar diganti merah atau biru, lalu disusun dalam lembar cetak 4R atau A4"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

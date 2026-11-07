@@ -16,7 +16,7 @@ keywords:
   - "kalender hijriah 1448"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram konversi tanggal: tanggal Masehi dihitung ke kalender Hijriah Umm al-Qura, hasilnya bisa berbeda satu hari dengan penetapan sidang isbat"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "biaya sim c"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram biaya SIM: golongan SIM dan jenis permohonan baru atau perpanjang menentukan tarif PNBP, ditambah biaya tes kesehatan dan psikologi"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "premi asuransi motor"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram premi asuransi motor: harga motor dikali tarif OJK sesuai jenis jaminan TLO atau comprehensive dan wilayah plat nomor menjadi premi per tahun"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

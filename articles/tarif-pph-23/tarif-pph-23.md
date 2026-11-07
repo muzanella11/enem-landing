@@ -16,7 +16,7 @@ keywords:
   - "cara menghitung pph 23"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram PPh 23: jenis penghasilan menentukan tarif 2 atau 15 persen, digandakan bila tanpa NPWP, dikali nilai bruto menjadi PPh yang dipotong"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

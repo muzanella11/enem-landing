@@ -16,7 +16,7 @@ keywords:
   - "biaya bangun rumah 2 lantai"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram estimasi biaya bangun: luas lantai 1 dan lantai 2 dijumlah, dikali biaya per meter persegi, lalu ditambah cadangan persen"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

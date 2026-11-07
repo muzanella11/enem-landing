@@ -17,7 +17,7 @@ keywords:
   - "berat badan ideal"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram BMI: berat badan dibagi kuadrat tinggi badan dalam meter menjadi IMT, lalu dibandingkan dengan kategori Kemenkes"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

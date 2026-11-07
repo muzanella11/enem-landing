@@ -16,7 +16,7 @@ keywords:
   - "average down berapa lot"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram average down: posisi lama dan pembelian baru dijumlah nilai dan lotnya, lalu dibagi total lot menjadi harga rata-rata baru"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

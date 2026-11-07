@@ -16,7 +16,7 @@ keywords:
   - "rata-rata tertimbang"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram nilai akhir: nilai tugas, UTS, dan UAS masing-masing dikali bobot, dijumlah, lalu dibagi total bobot menjadi nilai akhir"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

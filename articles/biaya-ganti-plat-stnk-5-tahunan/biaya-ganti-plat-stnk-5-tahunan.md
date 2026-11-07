@@ -17,7 +17,7 @@ keywords:
   - "biaya tnkb"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram biaya STNK 5 tahunan: PKB dan opsen, SWDKLLJ, penerbitan STNK, dan TNKB dijumlah menjadi total biaya ganti plat"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

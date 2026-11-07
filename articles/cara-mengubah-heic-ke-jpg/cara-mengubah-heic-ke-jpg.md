@@ -17,7 +17,7 @@ keywords:
   - "png ke jpg"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram konversi gambar: file HEIC, PNG, atau WebP didekode di browser lalu disimpan ulang sebagai JPG, PNG, atau WebP"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

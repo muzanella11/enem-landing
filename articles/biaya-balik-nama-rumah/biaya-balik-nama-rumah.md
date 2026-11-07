@@ -17,7 +17,7 @@ keywords:
   - "pajak jual beli rumah"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram biaya balik nama: NPOP dari harga atau NJOP yang lebih tinggi menjadi dasar BPHTB pembeli, harga menjadi dasar PPh penjual dan honor PPAT, ditambah PNBP BPN"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

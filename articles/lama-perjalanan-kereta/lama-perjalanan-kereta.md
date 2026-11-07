@@ -16,7 +16,7 @@ keywords:
   - "menghitung kecepatan dari jadwal"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram perjalanan kereta: jarak dibagi kecepatan menjadi waktu jalan, ditambah jumlah stasiun kali lama berhenti menjadi lama perjalanan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

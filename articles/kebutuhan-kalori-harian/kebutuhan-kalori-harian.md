@@ -16,7 +16,7 @@ keywords:
   - "kalori untuk turun berat badan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram kebutuhan kalori: berat, tinggi, usia, dan jenis kelamin menjadi BMR, dikali faktor aktivitas menjadi TDEE, dikurangi defisit menjadi target kalori"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "rumus celsius ke fahrenheit"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram konversi satuan: nilai dalam satuan asal dikali faktor ke satuan dasar SI, lalu dibagi faktor satuan tujuan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

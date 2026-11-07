@@ -16,7 +16,7 @@ keywords:
   - "angsuran emas"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram cicil emas: harga emas dikurangi uang muka menjadi pokok, ditambah margin per bulan kali tenor menjadi angsuran, lalu dibandingkan dengan harga tunai"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

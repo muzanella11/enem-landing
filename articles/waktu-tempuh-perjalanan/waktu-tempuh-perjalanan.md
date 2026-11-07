@@ -16,7 +16,7 @@ keywords:
   - "beda waktu wib wita wit"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram waktu tempuh: jarak dibagi kecepatan menjadi durasi, ditambah jam berangkat dan selisih zona waktu menjadi jam tiba"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "weton tanggal lahir"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram weton: tanggal lahir menentukan hari dalam siklus 7 hari dan pasaran dalam siklus 5 hari, lalu neptu hari dan pasaran dijumlahkan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

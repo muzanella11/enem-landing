@@ -16,7 +16,7 @@ keywords:
   - "investasi 1 juta per bulan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram investasi rutin: setoran bulanan dan imbal hasil bulanan efektif berbunga majemuk selama sekian tahun menjadi nilai akhir, lalu disesuaikan inflasi"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

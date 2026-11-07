@@ -16,7 +16,7 @@ keywords:
   - "cara membagi pajak dan service"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram patungan: pesanan tiap orang dan menu bersama menjadi subtotal per orang, lalu pajak, service, diskon, dan ongkir dibagi proporsional"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

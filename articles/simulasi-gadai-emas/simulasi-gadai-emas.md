@@ -17,7 +17,7 @@ keywords:
   - "gadai emas lebaran"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram gadai emas: berat dikali kadar dan harga menjadi taksiran, pinjaman maksimal sebagian dari taksiran, lalu sewa modal per 15 hari ditambahkan saat menebus"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

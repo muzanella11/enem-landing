@@ -16,7 +16,7 @@ keywords:
   - "kredit tanpa agunan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram KTA: plafon dikurangi biaya provisi menjadi dana diterima, sementara plafon dengan bunga efektif dan tenor menghasilkan cicilan tetap dan total bunga"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

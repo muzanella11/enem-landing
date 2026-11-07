@@ -16,7 +16,7 @@ keywords:
   - "konsumsi bbm kapal"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram perjalanan kapal: jarak dalam mil laut dibagi kecepatan knot menjadi jam, dikali konsumsi per jam menjadi bahan bakar, ditambah cadangan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

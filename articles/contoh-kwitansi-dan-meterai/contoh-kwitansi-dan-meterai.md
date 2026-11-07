@@ -16,7 +16,7 @@ keywords:
   - "kwitansi pembayaran"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram kwitansi: nominal pembayaran dicek terhadap batas Rp5 juta, di atas batas wajib meterai Rp10.000, lalu kwitansi ditandatangani penerima"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

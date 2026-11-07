@@ -17,7 +17,7 @@ keywords:
   - "kompres gambar online"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram kompres foto: foto asli dikompres dengan kualitas JPEG yang diturunkan bertahap, lalu dimensinya diperkecil bila masih di atas target ukuran"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

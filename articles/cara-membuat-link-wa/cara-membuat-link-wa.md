@@ -16,7 +16,7 @@ keywords:
   - "wa.me"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram pembuatan link WhatsApp: nomor 08 diubah menjadi 628, pesan di-encode, lalu digabung menjadi tautan wa.me dan QR code"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "ipk cumlaude"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram IPK: SKS tiap mata kuliah dikali bobot nilai menjadi mutu, total mutu dibagi total SKS menjadi IPS dan IPK"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

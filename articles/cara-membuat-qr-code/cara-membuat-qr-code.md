@@ -16,7 +16,7 @@ keywords:
   - "cara membuat qr code"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram QR code: data link, WiFi, atau kontak disusun dalam format standar, dikodekan menjadi QR, lalu diunduh sebagai PNG atau SVG"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "persiapan pensiun"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram dana pensiun: pengeluaran hari ini dinaikkan inflasi sampai usia pensiun, dikali lama pensiun menjadi dana dibutuhkan, lalu dibagi menjadi setoran bulanan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

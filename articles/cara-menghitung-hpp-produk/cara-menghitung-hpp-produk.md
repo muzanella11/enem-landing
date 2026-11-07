@@ -17,7 +17,7 @@ keywords:
   - "hpp umkm"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram HPP: biaya bahan baku, tenaga kerja, dan overhead dijumlah lalu dibagi jumlah unit menjadi HPP per unit"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

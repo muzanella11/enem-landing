@@ -17,7 +17,7 @@ keywords:
   - "jadwal imsakiyah jakarta 2027"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram jadwal imsakiyah: koordinat kota dan tanggal dihitung dengan sudut subuh 20 derajat, imsak 10 menit sebelum subuh, dan maghrib sebagai waktu berbuka"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-06"
 ---

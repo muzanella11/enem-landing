@@ -16,7 +16,7 @@ keywords:
   - "struktur surat lamaran"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram surat lamaran kerja: tanggal dan perihal, tujuan, pembuka, data diri, alasan melamar, lampiran, dan penutup disusun berurutan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

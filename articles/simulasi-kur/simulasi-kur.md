@@ -17,7 +17,7 @@ keywords:
   - "plafon kur"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram KUR: plafon menentukan jenis KUR, sektor dan urutan pengajuan menentukan bunga, lalu rumus anuitas menghasilkan angsuran bulanan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

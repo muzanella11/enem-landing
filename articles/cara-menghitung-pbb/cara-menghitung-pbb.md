@@ -16,7 +16,7 @@ keywords:
   - "pbb rumah"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram PBB: NJOP tanah ditambah NJOP bangunan, dikurangi NJOPTKP, dikali persentase NJOP dan tarif daerah menjadi PBB terutang"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

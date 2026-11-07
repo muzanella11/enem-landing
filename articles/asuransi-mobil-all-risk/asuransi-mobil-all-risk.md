@@ -16,7 +16,7 @@ keywords:
   - "asuransi tlo"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram premi asuransi mobil: harga mobil menentukan kategori, plat nomor menentukan wilayah, tarif OJK dikali harga, ditambah perluasan dan TJH"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "menghitung bahan bakar pesawat"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram bahan bakar pesawat: kecepatan jelajah ditambah atau dikurangi angin menjadi kecepatan darat, jarak dibagi kecepatan darat menjadi lama terbang, dikali konsumsi per jam"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

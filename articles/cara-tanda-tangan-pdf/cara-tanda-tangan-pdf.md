@@ -16,7 +16,7 @@ keywords:
   - "ttd pdf tanpa print"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram tanda tangan PDF: tanda tangan digambar atau diambil dari foto, latarnya dibersihkan, lalu ditempel dan digeser ke posisi di halaman PDF"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

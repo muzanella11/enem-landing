@@ -17,7 +17,7 @@ keywords:
   - "kompres pdf hasil scan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram kompres PDF: tiap halaman dirender ulang dengan resolusi dan kualitas JPEG yang diturunkan bertahap sampai ukuran file di bawah target"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -16,7 +16,7 @@ keywords:
   - "menghitung ovulasi"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram masa subur: hari pertama haid ditambah panjang siklus dikurangi 14 hari menjadi perkiraan ovulasi, jendela subur dari 5 hari sebelum sampai 1 hari setelahnya"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

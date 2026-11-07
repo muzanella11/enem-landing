@@ -17,7 +17,7 @@ keywords:
   - "pph final umkm orang pribadi"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram PPh final UMKM: omzet bulanan dikurangi sisa omzet Rp500 juta bebas pajak, lalu dikali 0,5 persen menjadi setoran bulanan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-06"
 ---

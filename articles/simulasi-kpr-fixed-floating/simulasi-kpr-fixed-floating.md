@@ -16,7 +16,7 @@ keywords:
   - "biaya awal kpr"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram KPR: periode bunga fixed dengan cicilan rendah, lalu sisa pokok dihitung ulang dengan bunga floating sehingga cicilan naik untuk sisa tenor"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

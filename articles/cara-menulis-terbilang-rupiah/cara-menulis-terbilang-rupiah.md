@@ -17,7 +17,7 @@ keywords:
   - "contoh terbilang"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram terbilang: angka dipecah per tiga digit menjadi kelompok miliar, juta, ribu, dan satuan, lalu tiap kelompok ditulis dengan huruf"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

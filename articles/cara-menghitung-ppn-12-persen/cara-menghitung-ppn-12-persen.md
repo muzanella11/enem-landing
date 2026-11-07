@@ -16,7 +16,7 @@ keywords:
   - "harga termasuk ppn"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram PPN: harga jual dikali 11/12 menjadi DPP nilai lain, dikali tarif 12 persen menjadi PPN dengan tarif efektif 11 persen"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

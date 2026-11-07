@@ -17,7 +17,7 @@ keywords:
   - "pph 21 desember disetahunkan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram rekonsiliasi PPh 21: potongan Januari sampai November memakai tarif TER, lalu pajak setahun dihitung dengan tarif Pasal 17, dan selisihnya dipotong di bulan Desember"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-06"
 ---

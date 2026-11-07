@@ -17,7 +17,7 @@ keywords:
   - "menghitung margin keuntungan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram harga jual: HPP dikali 1 plus markup atau dibagi 1 minus margin, keduanya menghasilkan harga jual yang sama"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

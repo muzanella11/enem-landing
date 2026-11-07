@@ -17,7 +17,7 @@ keywords:
   - "watermark dokumen"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram watermark PDF: teks atau logo dengan transparansi dan sudut tertentu ditempatkan di atas setiap halaman PDF lalu disimpan sebagai file baru"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

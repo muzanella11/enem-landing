@@ -16,7 +16,7 @@ keywords:
   - "menghitung usia kehamilan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram HPL: hari pertama haid terakhir ditambah 280 hari dan koreksi panjang siklus menjadi hari perkiraan lahir, dibagi tiga trimester"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

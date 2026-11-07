@@ -17,7 +17,7 @@ keywords:
   - "pajak pesangon"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram pesangon: masa kerja menentukan bulan uang pesangon dan UPMK, dikali pengali alasan PHK dan upah, lalu dipotong PPh final berlapis"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

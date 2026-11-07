@@ -16,7 +16,7 @@ keywords:
   - "rashdul kiblat"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram arah kiblat: koordinat kota dan koordinat Ka'bah dihubungkan lintasan lingkaran besar, menghasilkan sudut dari utara sejati sekitar 295 derajat untuk Jakarta"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

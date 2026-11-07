@@ -17,7 +17,7 @@ keywords:
   - "thr karyawan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram perhitungan THR: masa kerja menentukan THR penuh atau proporsional, dikali upah sebulan, lalu dipotong PPh 21 di bulan pembayaran"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-06"
 ---

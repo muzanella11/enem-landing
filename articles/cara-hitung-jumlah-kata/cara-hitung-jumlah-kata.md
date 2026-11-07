@@ -16,7 +16,7 @@ keywords:
   - "penghitung kata online"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram penghitung kata: teks dipecah menjadi kata, karakter, kalimat, dan paragraf, lalu jumlah kata dibagi 200 menjadi perkiraan waktu baca"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

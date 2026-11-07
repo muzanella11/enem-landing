@@ -16,7 +16,7 @@ keywords:
   - "sudut subuh kemenag"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram jadwal sholat: koordinat dan ketinggian kota serta tanggal menentukan posisi matahari, sudut Kemenag menentukan Subuh dan Isya, ditambah ihtiyat menjadi jadwal"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

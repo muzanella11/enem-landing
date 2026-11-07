@@ -17,7 +17,7 @@ keywords:
   - "gross up pajak sewa"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram pajak sewa: nilai sewa bruto dikali 10 persen menjadi PPh final, dipotong penyewa atau disetor pemilik, sisanya diterima pemilik"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

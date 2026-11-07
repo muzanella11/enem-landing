@@ -16,7 +16,7 @@ keywords:
   - "hari kerja desember 2026"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram hari kerja: semua tanggal di rentang dikurangi Sabtu dan Minggu, dikurangi libur nasional dan cuti bersama menjadi jumlah hari kerja"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

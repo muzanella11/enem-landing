@@ -17,7 +17,7 @@ keywords:
   - "dividend yield"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram dividen: dividen per lembar dikali jumlah lembar menjadi dividen bruto, dipotong PPh 10 persen kecuali diinvestasikan kembali, dan dibagi modal menjadi yield"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

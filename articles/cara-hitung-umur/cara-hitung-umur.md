@@ -16,7 +16,7 @@ keywords:
   - "umur tahun bulan hari"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram menghitung umur: tanggal acuan dikurangi tanggal lahir per tahun, bulan, dan hari, dengan meminjam hari dari bulan sebelumnya bila perlu"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

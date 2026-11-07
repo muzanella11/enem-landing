@@ -16,7 +16,7 @@ keywords:
   - "reksa dana untuk pemula"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram reksa dana: nominal pembelian dikurangi biaya beli dibagi NAB menjadi unit, lalu unit dikali NAB saat jual dikurangi biaya jual menjadi dana diterima"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

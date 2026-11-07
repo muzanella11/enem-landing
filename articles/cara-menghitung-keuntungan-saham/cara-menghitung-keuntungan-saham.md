@@ -16,7 +16,7 @@ keywords:
   - "harga impas saham"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram keuntungan saham: harga beli kali lembar ditambah fee beli menjadi modal, harga jual kali lembar dikurangi fee jual dan pajak 0,1 persen menjadi dana diterima"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -17,7 +17,7 @@ keywords:
   - "kata tugas huruf kecil"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram huruf kapital judul: setiap kata diperiksa, kata tugas di tengah judul tetap kecil, kata lain dan kata pertama ditulis kapital"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

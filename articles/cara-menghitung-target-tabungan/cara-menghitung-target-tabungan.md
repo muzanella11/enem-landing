@@ -16,7 +16,7 @@ keywords:
   - "rencana tabungan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram target tabungan: target dana dikurangi tabungan yang ada, dibagi jumlah bulan dengan memperhitungkan bunga, menjadi setoran per bulan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

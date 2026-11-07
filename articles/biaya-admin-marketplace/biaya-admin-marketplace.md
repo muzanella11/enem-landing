@@ -17,7 +17,7 @@ keywords:
   - "harga jual di marketplace"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram pendapatan penjual marketplace: harga jual dikurangi biaya admin persen, biaya layanan, biaya per pesanan, dan HPP menjadi laba bersih"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

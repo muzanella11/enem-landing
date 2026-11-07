@@ -16,7 +16,7 @@ keywords:
   - "pdf jadi gambar"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram PDF ke JPG: setiap halaman PDF dirender pada 150 atau 300 dpi menjadi gambar JPG atau PNG terpisah"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

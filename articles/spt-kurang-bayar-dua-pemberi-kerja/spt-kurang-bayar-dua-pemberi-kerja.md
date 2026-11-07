@@ -16,7 +16,7 @@ keywords:
   - "bukti potong 1721 a1"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram SPT dua pemberi kerja: dua bukti potong dijumlah menjadi penghasilan neto, dikurangi satu PTKP, dikenai tarif progresif, dikurangi pajak yang sudah dipotong menjadi kurang bayar"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

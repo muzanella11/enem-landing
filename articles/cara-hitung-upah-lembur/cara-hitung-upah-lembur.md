@@ -17,7 +17,7 @@ keywords:
   - "upah lembur per jam"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram perhitungan lembur: upah sebulan dibagi 173 menjadi upah sejam, lalu dikali pengali per jam sesuai jenis hari"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -17,7 +17,7 @@ keywords:
   - "format apa 7"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram format APA 7: penulis, tahun dalam kurung, judul miring, sumber, dan DOI atau URL disusun berurutan menjadi satu entri daftar pustaka"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

@@ -17,7 +17,7 @@ keywords:
   - "potongan gaji bpjs dan pph 21"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram gaji bersih: gaji kotor ditambah iuran perusahaan menjadi bruto TER untuk PPh 21, sementara gaji kotor dikurangi iuran karyawan dan PPh 21 menjadi take home pay"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

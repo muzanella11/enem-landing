@@ -16,7 +16,7 @@ keywords:
   - "mengurutkan halaman pdf"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram atur halaman PDF: thumbnail halaman diputar, digeser urutannya, atau dihapus, lalu disimpan menjadi PDF baru"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

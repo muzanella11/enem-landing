@@ -16,7 +16,7 @@ keywords:
   - "break even point"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram BEP: harga jual dikurangi biaya variabel menjadi kontribusi per unit, lalu biaya tetap dibagi kontribusi menjadi BEP unit"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

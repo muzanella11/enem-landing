@@ -16,7 +16,7 @@ keywords:
   - "merge pdf"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram gabung PDF: beberapa file PDF diurutkan lalu halaman-halamannya disalin berurutan menjadi satu file PDF di dalam browser"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

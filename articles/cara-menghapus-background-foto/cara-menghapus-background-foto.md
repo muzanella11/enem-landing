@@ -16,7 +16,7 @@ keywords:
   - "ganti latar foto"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram hapus background: foto diproses model segmentasi menjadi mask orang, tepi mask dihaluskan, lalu foto digabung dengan latar transparan atau warna baru"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

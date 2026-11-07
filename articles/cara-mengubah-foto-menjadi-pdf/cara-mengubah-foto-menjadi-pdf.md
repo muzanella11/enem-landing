@@ -16,7 +16,7 @@ keywords:
   - "foto ke pdf a4"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram gambar ke PDF: beberapa foto JPG, PNG, atau HEIC diurutkan lalu ditempatkan masing-masing di halaman A4 atau F4 menjadi satu file PDF"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-07"
 ---

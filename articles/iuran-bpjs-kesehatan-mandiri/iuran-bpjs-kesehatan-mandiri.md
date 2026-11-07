@@ -17,7 +17,7 @@ keywords:
   - "denda bpjs kesehatan"
 featuredImage: "./images/hero.png"
 imageAlt: "Diagram iuran BPJS mandiri: jumlah anggota per kelas dikali iuran per orang menjadi iuran keluarga per bulan, ditambah tunggakan maksimal 24 bulan"
-status: "draft"
+status: "published"
 author: "Nurfirliana Muzanella"
 date: "2026-11-06"
 ---
