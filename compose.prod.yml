@@ -7,41 +7,37 @@
 # Used together with the base:
 #   docker stack deploy -c compose.yml -c compose.prod.yml <stack-name>
 #
-# Budget (6 apps, all managed MySQL/Redis via Aiven/Upstash from day one -
-# no self-hosted stateful service to budget for at all, unlike mau-apps'
-# RabbitMQ/MySQL/Redis): 6 apps @ 100M = 600 MB allocated to containers
-# (enem-landing-tools added in Story 20; its heavy work runs in browsers).
-# Even a small 1 GB VPS leaves real headroom for OS + Docker daemon +
-# Traefik (~64M, see infra/ansible/playbooks/templates/traefik-stack.yml.j2)
-# on top of this - this workspace never had mau-apps' original
-# self-hosted-MySQL/Redis-era budget pressure (~1.7-2 GB) to begin with.
-# Actual server RAM hasn't been confirmed against this budget yet (no VPS
-# provisioned this session) - re-check with `free -h` on the real host
-# during story 10's remaining provisioning work, same caution mau-apps'
-# own comment gives ("tetap dipantau, bukan alasan untuk berhenti disiplin").
+# Budget (re-sized 2026-11-07 for the 3.6 GB / 2 vCPU VPS at 43.133.149.209,
+# which also runs the dev stack and Traefik). The original 100M/60M-heap
+# limits were sized for a small VPS; on the new host they caused the prod
+# CMS to crash with "JavaScript heap out of memory" (Bad Gateway), while
+# account-api and api were running at 85% and 74% of their 100M limit.
+#   prod: 5 apps @ 256M (heap 160) + CMS @ 384M (heap 256) = 1664M
+#   dev:  5 apps @ 192M (heap 120) + CMS @ 256M (heap 160) = 1216M
+#   Traefik 64M -> ~2.9 GB of ceilings on a 3.6 GB host (+2 GB swap).
+# These are ceilings, not reservations: actual use was ~0.7 GB in total.
+# Re-check with `free -h` and `docker stats` before raising them further.
 #
 # `restart_policy.condition: on-failure` is already set via
 # `x-deploy-defaults` in compose.yml - a container that exceeds its memory
 # limit and gets OOM-killed restarts from there automatically, no need to
 # repeat it here.
 #
-# Tuning (mirrors mau-apps' Story 2.4 finding exactly): `NODE_OPTIONS:
-# --max-old-space-size=60` per app, deliberately far below the 100M
+# Tuning (mirrors mau-apps' Story 2.4 finding): `NODE_OPTIONS:
+# --max-old-space-size` per app, deliberately well below the container
 # mem_limit - V8 heap is only part of a Node process's total memory (native
 # addons/buffers/stack sit outside the heap), so the heap limit needs
 # significant headroom below the container ceiling, not to sit flush
 # against it. If a future workload here ever needs bulk-processing headroom
 # the way mau-topup-api's IAK catalog sync did (see mau-apps' own comment
 # for that incident), raise that one app's limit + heap together, keeping
-# the same ~60% heap/ceiling ratio - don't raise it speculatively before an
-# actual OOM is observed.
+# the same ~60-65% heap/ceiling ratio.
 #
-# compose.dev.yml deliberately has no equivalent limit/tuning, matching
-# mau-apps (dev server spec not held to the same bar as prod).
+# compose.dev.yml has its own, lower limits (dev shares this VPS).
 
 x-node-tuning: &node-tuning
   environment:
-    NODE_OPTIONS: --max-old-space-size=60
+    NODE_OPTIONS: --max-old-space-size=160
 
 services:
   # enem-landing-account-api doesn't use `<<: *node-tuning` (unlike the 4
@@ -54,39 +50,44 @@ services:
   enem-landing-account-api:
     image: ghcr.io/muzanella11/enem-landing-account-api:prod
     environment:
-      NODE_OPTIONS: --max-old-space-size=60
+      NODE_OPTIONS: --max-old-space-size=160
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 256M
   enem-landing-account-web:
     image: ghcr.io/muzanella11/enem-landing-account-web:prod
     <<: *node-tuning
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 256M
   enem-landing-api:
     image: ghcr.io/muzanella11/enem-landing-api:prod
     environment:
-      NODE_OPTIONS: --max-old-space-size=60
+      NODE_OPTIONS: --max-old-space-size=160
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 256M
   enem-landing-cms:
     image: ghcr.io/muzanella11/enem-landing-cms:prod
-    <<: *node-tuning
+    # Raised from 60M heap / 100M limit on 2026-11-07: prod crashed twice with
+    # "JavaScript heap out of memory" at ~58 MB heap (exit 139, Bad Gateway
+    # on /tools). The VPS now has 3.6 GB RAM, so the old small-server budget
+    # no longer applies. Same ~65% heap/ceiling ratio as the header explains.
+    environment:
+      NODE_OPTIONS: --max-old-space-size=256
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 384M
   enem-landing-web:
     image: ghcr.io/muzanella11/enem-landing-web:prod
     # Not `<<: *node-tuning`: it would be replaced by this `environment:`
     # (no deep merge, see above), so NODE_OPTIONS is repeated here.
     environment:
-      NODE_OPTIONS: --max-old-space-size=60
+      NODE_OPTIONS: --max-old-space-size=160
       # GA4 measurement id of property 563108458 (muzanella.com), prod only so dev
       # traffic never lands in the real reports (dev has its own property,
       # 320181329 muzanellacomdev). Empty = GA off.
@@ -94,13 +95,13 @@ services:
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 256M
   enem-landing-tools:
     image: ghcr.io/muzanella11/enem-landing-tools:prod
     # Not `<<: *node-tuning`: it would be replaced by this `environment:`
     # (no deep merge, see above), so NODE_OPTIONS is repeated here.
     environment:
-      NODE_OPTIONS: --max-old-space-size=60
+      NODE_OPTIONS: --max-old-space-size=160
       # GA4 measurement id of property 563108458 (muzanella.com), prod only so dev
       # traffic never lands in the real reports (dev has its own property,
       # 320181329 muzanellacomdev). Empty = GA off.
@@ -108,4 +109,4 @@ services:
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 256M

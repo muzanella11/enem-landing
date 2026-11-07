@@ -36,16 +36,18 @@
 # `DATABASE_URL_API` themselves (GitHub Environment `development`
 # secrets), not overridden per-key here the way mau-apps does.
 #
-# Resource limits mirror compose.prod.yml - dev shares prod's VPS, so an
-# unbounded dev container could starve prod.
+# Resource limits sit below compose.prod.yml's - dev shares prod's VPS, so an
+# unbounded dev container could starve prod. Budget (2026-11-07, 3.6 GB VPS):
+# 5 apps @ 192M (heap 120) + CMS @ 256M (heap 160) = 1216M, next to prod's
+# 1664M and Traefik's 64M. See compose.prod.yml's header for the full budget.
 
 x-node-tuning: &node-tuning
-  NODE_OPTIONS: --max-old-space-size=60
+  NODE_OPTIONS: --max-old-space-size=120
 
 x-dev-deploy: &dev-deploy
   resources:
     limits:
-      memory: 100M
+      memory: 192M
 
 networks:
   enem-landing-dev-network:
@@ -94,13 +96,18 @@ services:
     image: ghcr.io/muzanella11/enem-landing-cms:dev
     networks: !override [enem-landing-dev-network]
     environment:
-      <<: *node-tuning
+      # The CMS needs the most heap (prod OOM'd at 60M on 2026-11-07), so it
+      # gets more than the other dev apps.
+      NODE_OPTIONS: --max-old-space-size=160
       NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://dev-account.muzanella.com
       NUXT_PUBLIC_WEB_HOST: https://dev.muzanella.com
       NUXT_PUBLIC_TOOLS_HOST: https://dev-tools.muzanella.com
       NUXT_PUBLIC_AUTH_COOKIE_NAME: ENEM_LANDING_DEV_AUTH_TOKEN
     deploy:
       <<: *dev-deploy
+      resources:
+        limits:
+          memory: 256M
       labels: !override
         - traefik.enable=true
         - traefik.swarm.network=enem-landing-dev-network
