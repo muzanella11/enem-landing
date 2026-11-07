@@ -4,6 +4,7 @@ import type { BlogPost } from '@enem-landing/shared-types';
 import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
 import sanitizeHtml from 'sanitize-html';
 import BlogPostCard from '../../components/BlogPostCard.vue';
+import ShareBar from '../../components/ShareBar.vue';
 
 definePageMeta({ layout: 'blog' });
 
@@ -111,6 +112,12 @@ const formatDate = (value: string | null | undefined) =>
       <p class="text-sm text-black/40 mt-4">
         {{ formatDate(post.publishedAt) }}
       </p>
+      <ShareBar
+        :url="canonicalUrl"
+        :title="post.title"
+        placement="article-top"
+        class="justify-center mt-6"
+      />
     </header>
 
     <img
@@ -136,6 +143,17 @@ const formatDate = (value: string | null | undefined) =>
         class="px-3 py-1 rounded-full text-xs bg-[#2C3E50]/5 text-[#2C3E50] hover:bg-[#0E7C6B] hover:text-white transition-colors"
         >#{{ tag.name }}</NuxtLink
       >
+    </div>
+
+    <div class="max-w-3xl mx-auto mt-10 pt-6 border-t border-black/5">
+      <p class="font-semibold text-[#2C3E50] mb-3">
+        Found this useful? Share it with someone who needs it.
+      </p>
+      <ShareBar
+        :url="canonicalUrl"
+        :title="post.title"
+        placement="article-bottom"
+      />
     </div>
 
     <section v-if="related?.length" class="max-w-5xl mx-auto mt-20">

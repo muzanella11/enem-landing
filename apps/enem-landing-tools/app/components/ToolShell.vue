@@ -202,6 +202,13 @@ onMounted(() => {
         Dihitung di perangkatmu. Tidak ada data yang dikirim ke server.
       </p>
 
+      <ToolPageShare
+        :tool-id="slug"
+        :url="canonicalUrl"
+        :title="pageTitle"
+        class="mt-3"
+      />
+
       <div
         class="mt-6 grid gap-6"
         :class="wide ? '' : 'lg:grid-cols-[minmax(0,1fr)_300px]'"

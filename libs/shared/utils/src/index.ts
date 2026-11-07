@@ -5,3 +5,5 @@ export * from './lib/ensure-https.js';
 export * from './lib/extract-upload-id.js';
 export * from './lib/slugify.js';
 export * from './lib/static-account.js';
+export * from './lib/share-links.js';
+export * from './lib/share-icons.js';
