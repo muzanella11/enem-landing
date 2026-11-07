@@ -61,15 +61,9 @@
 #     instead of one shared anchor, since the 2 APIs and 3 Nuxt apps
 #     genuinely need different variable name conventions for the same
 #     internal URLs.
-#   - `enem-landing-web`'s `GOOGLE_ANALYTICS_ID` is NOT set here - it's read
-#     directly via `process.env['GOOGLE_ANALYTICS_ID']` inside
-#     `nuxt.config.ts` (not `runtimeConfig`), so it only ever takes effect
-#     at `nx build` time (baked into the image), never at container
-#     runtime - setting it in `environment:` here would be a silent no-op.
-#     Since the ID is fixed/non-secret and the same for every environment,
-#     baking it once at build time is fine - it just needs to be present in
-#     the shell env of whatever runs `nx build enem-landing-web` for CI
-#     (story 10's still-open build-push.yml), not here.
+#   - Google Analytics (GA4) for enem-landing-web and enem-landing-tools is
+#     a runtime setting, `NUXT_PUBLIC_GA_MEASUREMENT_ID`, set in
+#     compose.prod.yml only (dev traffic stays out of the real reports).
 #
 # Network `enem-landing-network` - created by story 09's init-server.yml
 # (overlay, attachable, external here) - do not rename without updating
@@ -196,8 +190,6 @@ services:
     networks: [enem-landing-network]
     environment:
       NUXT_API_HOST: http://enem-landing-api:3001
-      # GOOGLE_ANALYTICS_ID deliberately NOT here - build-time only, see
-      # header comment.
     deploy:
       <<: *deploy-defaults
       labels:

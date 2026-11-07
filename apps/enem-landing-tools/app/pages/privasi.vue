@@ -31,6 +31,14 @@ const { state, set } = useConsent();
       <li>Titik klik (koordinat) untuk heatmap, tanpa teks halaman.</li>
     </ul>
     <p>Kami tidak merekam sesi atau layar pengunjung.</p>
+    <h2 class="text-xl font-semibold text-slate-900">Google Analytics</h2>
+    <p>
+      Kalau kamu memilih "Setuju", kami juga memakai Google Analytics untuk
+      statistik kunjungan (halaman yang dibuka, perangkat, sumber kunjungan).
+      Google Analytics memasang cookie dan tidak pernah menerima angka atau
+      file yang kamu isi. Kalau kamu menolak, atau belum memilih, Google
+      Analytics tidak dimuat sama sekali.
+    </p>
     <h2 class="text-xl font-semibold text-slate-900">Iklan</h2>
     <p>
       Situs ini dapat menampilkan iklan Google AdSense. Kalau kamu menolak iklan
@@ -44,9 +52,9 @@ const { state, set } = useConsent();
       Status saat ini:
       <strong>{{
         state === 'granted'
-          ? 'iklan personal diizinkan'
+          ? 'iklan personal dan Google Analytics diizinkan'
           : state === 'denied'
-            ? 'hanya iklan non-personal'
+            ? 'hanya iklan non-personal, tanpa Google Analytics'
             : 'belum memilih'
       }}</strong>
     </p>

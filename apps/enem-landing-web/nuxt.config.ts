@@ -2,13 +2,6 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import { defineNuxtConfig } from 'nuxt/config';
 
-// Ported from the old root nuxt.config.js's `googleAnalytics: { id:
-// process.env.GOOGLE_ANALYTICS_ID }` (the `@nuxtjs/google-analytics`
-// module, Nuxt 2-only) - same gtag.js snippet that module injected,
-// added directly to `app.head` since there's no Nuxt 4 equivalent module.
-// Omitted entirely (not just empty) when unset, so local dev doesn't ship
-// a broken tracking script.
-const googleAnalyticsId = process.env['GOOGLE_ANALYTICS_ID'];
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'),
 );
@@ -76,20 +69,6 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#0E7C6B' },
       ],
       script: [
-        ...(googleAnalyticsId
-          ? [
-              {
-                src: `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`,
-                async: true,
-              },
-              {
-                innerHTML: `window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${googleAnalyticsId}');`,
-              },
-            ]
-          : []),
         {
           type: 'module',
           src: 'https://static.cloudflareinsights.com/beacon.min.js',
@@ -102,6 +81,12 @@ gtag('config', '${googleAnalyticsId}');`,
     // Server-only: the BFF routes are the only thing that ever talks to
     // enem-landing-api directly, the browser never sees this host.
     apiHost: process.env['API_HOST'] || 'http://localhost:3001',
+    public: {
+      // GA4 measurement id (G-...), set at runtime via
+      // NUXT_PUBLIC_GA_MEASUREMENT_ID. Empty = no Google Analytics.
+      // Loaded by app/plugins/google-analytics.client.ts.
+      gaMeasurementId: '',
+    },
   },
   typescript: {
     // See refactor/README.md: default `true` breaks `nuxt build` under this
