@@ -9,14 +9,16 @@ import { createApiClient } from '../../utils/api-client.js';
  * subdomain. The tag loads no ad script. Never fails the page: any API
  * error or invalid id resolves to `{ clientId: null }`.
  */
-export default defineEventHandler(async (): Promise<{ clientId: string | null }> => {
-  try {
-    const config = (await createApiClient().get(
-      '/tools/config',
-    )) as unknown as ToolsPublicConfig;
-    const clientId = config.settings.adsenseClientId?.trim() ?? null;
-    return { clientId: publisherIdFromClientId(clientId) ? clientId : null };
-  } catch {
-    return { clientId: null };
-  }
-});
+export default defineEventHandler(
+  async (): Promise<{ clientId: string | null }> => {
+    try {
+      const config = (await createApiClient().get(
+        '/tools/config',
+      )) as unknown as ToolsPublicConfig;
+      const clientId = config.settings.adsenseClientId?.trim() ?? null;
+      return { clientId: publisherIdFromClientId(clientId) ? clientId : null };
+    } catch {
+      return { clientId: null };
+    }
+  },
+);
