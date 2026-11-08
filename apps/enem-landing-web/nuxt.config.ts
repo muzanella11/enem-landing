@@ -166,6 +166,11 @@ export default defineNuxtConfig({
       '/og-image.png': {
         headers: { 'cache-control': 'public, max-age=31536000, immutable' },
       },
+      // Committed fallback images (image-not-available.svg), same reasoning;
+      // Pingdom flagged their 4h default.
+      '/img/**': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
     },
   },
 });

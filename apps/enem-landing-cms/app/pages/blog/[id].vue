@@ -6,7 +6,10 @@ import type {
   BlogTag,
 } from '@enem-landing/shared-types';
 import { extractUploadId } from '@enem-landing/shared-utils';
-import { useGlobalSnackbar } from '@enem-landing/frontend';
+import {
+  optimizeImageForUpload,
+  useGlobalSnackbar,
+} from '@enem-landing/frontend';
 import 'quill/dist/quill.snow.css';
 
 type DeltaOp = { insert?: unknown; [key: string]: unknown };
@@ -165,7 +168,7 @@ onBeforeUnmount(() => {
 
 const uploadImage = async (file: File, purpose: string): Promise<string> => {
   const body = new FormData();
-  body.append('file', file);
+  body.append('file', await optimizeImageForUpload(file));
   body.append('purpose', purpose);
   const response = await $fetch<{ data: { url: string } }>('/api/uploads', {
     method: 'post',

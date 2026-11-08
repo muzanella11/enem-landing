@@ -111,6 +111,10 @@ export class UploadsService {
           Key: key,
           Body: file.buffer,
           ContentType: file.mimetype,
+          // Keys are fresh UUIDs and never overwritten, so browsers and
+          // Cloudflare can keep them for a year (Pingdom: no Expires/Cache-
+          // Control on any cdn.muzanella.com image).
+          CacheControl: 'public, max-age=31536000, immutable',
         }),
       );
 
