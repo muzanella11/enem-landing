@@ -1,7 +1,16 @@
 <script lang="ts" setup>
 import type { BlogPost } from '@enem-landing/shared-types';
 
-defineProps<{ post: BlogPost }>();
+// `priority`: cards in the first row, visible without scrolling. Their
+// covers load eagerly (one of them is usually the page's LCP element);
+// the rest stay lazy.
+// `headingLevel`: 2 on listing pages (right under the page's h1), 3 under
+// an h2 like "Related Posts" - skipping a level fails PageSpeed's
+// accessibility heading-order audit.
+withDefaults(
+  defineProps<{ post: BlogPost; priority?: boolean; headingLevel?: 2 | 3 }>(),
+  { priority: false, headingLevel: 2 },
+);
 
 const IMAGE_NOT_AVAILABLE = '/img/image-not-available.svg';
 
@@ -23,7 +32,11 @@ const formatDate = (value: string | null) =>
     <img
       :src="post.coverImageUrl || IMAGE_NOT_AVAILABLE"
       :alt="post.title"
-      loading="lazy"
+      width="1200"
+      height="630"
+      :loading="priority ? 'eager' : 'lazy'"
+      :fetchpriority="priority ? 'high' : 'auto'"
+      decoding="async"
       class="w-full h-48 object-cover"
     />
     <div class="p-5">
@@ -35,15 +48,16 @@ const formatDate = (value: string | null) =>
           category.name
         }}</span>
       </div>
-      <h3
+      <component
+        :is="`h${headingLevel}`"
         class="font-semibold text-lg group-hover:text-[#0E7C6B] transition-colors"
       >
         {{ post.title }}
-      </h3>
+      </component>
       <p v-if="post.excerpt" class="text-sm text-black/60 mt-2 line-clamp-3">
         {{ post.excerpt }}
       </p>
-      <p class="text-xs text-black/40 mt-3">
+      <p class="text-xs text-black/60 mt-3">
         {{ formatDate(post.publishedAt) }}
       </p>
     </div>

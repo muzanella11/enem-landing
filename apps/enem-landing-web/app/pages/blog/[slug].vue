@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import type { BlogPost } from '@enem-landing/shared-types';
-import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
-import sanitizeHtml from 'sanitize-html';
 import { trackGaEvent } from '@enem-landing/frontend/tracking';
 import ArticleAd from '../../components/ArticleAd.vue';
 import BlogPostCard from '../../components/BlogPostCard.vue';
@@ -20,7 +18,10 @@ const SITE_URL = 'https://muzanella.com';
 // null (same pattern as `pages/index.vue`'s seo-meta fetch), so a
 // draft/missing slug (the BFF route 404s) falls straight through to this
 // explicit check instead of hitting Nuxt's generic error boundary.
-const { data: post } = await useFetch<BlogPost>(`/api/blog-posts/${slug}`);
+// `contentHtml`: the body, rendered and sanitized by the BFF (see
+// server/utils/render-post-html.ts) instead of in the browser.
+type RenderedPost = Omit<BlogPost, 'contentDelta'> & { contentHtml: string };
+const { data: post } = await useFetch<RenderedPost>(`/api/blog-posts/${slug}`);
 if (!post.value) {
   throw createError({ statusCode: 404, statusMessage: 'Post not found' });
 }
@@ -29,18 +30,7 @@ const { data: related } = await useFetch<BlogPost[]>(
   `/api/blog-posts/${slug}/related`,
 );
 
-const contentHtml = computed(() => {
-  const ops = (post.value?.contentDelta as { ops?: unknown[] })?.ops ?? [];
-  const converter = new QuillDeltaToHtmlConverter(ops as never[], {});
-  return sanitizeHtml(converter.convert(), {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2']),
-    allowedAttributes: {
-      ...sanitizeHtml.defaults.allowedAttributes,
-      img: ['src', 'alt', 'width', 'height'],
-      a: ['href', 'name', 'target', 'rel'],
-    },
-  });
-});
+const contentHtml = computed(() => post.value?.contentHtml ?? '');
 
 // Story 56: ads are on only when the CMS switches say so (`articleSlot`
 // is null otherwise). Short articles get just the ad at the end.
@@ -148,7 +138,7 @@ const formatDate = (value: string | null | undefined) =>
       <h1 class="text-3xl lg:text-5xl font-bold text-[#2C3E50]">
         {{ post.title }}
       </h1>
-      <p class="text-sm text-black/40 mt-4">
+      <p class="text-sm text-black/60 mt-4">
         {{ formatDate(post.publishedAt) }}
       </p>
       <ShareBar
@@ -159,11 +149,18 @@ const formatDate = (value: string | null | undefined) =>
       />
     </header>
 
+    <!-- The cover is the article's LCP element: high priority, and its
+         box reserved (covers are 1200x630-ratio images) so the text below
+         doesn't jump when it loads. -->
     <img
       v-if="post.coverImageUrl"
       :src="post.coverImageUrl"
       :alt="post.title"
-      class="max-w-3xl w-full mx-auto rounded-lg mb-12 object-cover max-h-[28rem]"
+      width="1200"
+      height="630"
+      fetchpriority="high"
+      decoding="async"
+      class="max-w-3xl w-full h-auto mx-auto rounded-lg mb-12 object-cover max-h-[28rem]"
     />
 
     <div
@@ -225,6 +222,7 @@ const formatDate = (value: string | null | undefined) =>
           v-for="relatedPost in related"
           :key="relatedPost.id"
           :post="relatedPost"
+          :heading-level="3"
         />
       </div>
     </section>

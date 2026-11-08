@@ -62,7 +62,7 @@ onBeforeUnmount(() => observer?.disconnect());
     :data-ad-placement="placement"
     aria-label="Advertisement"
   >
-    <p class="px-2 pt-1 text-[10px] uppercase tracking-wide text-black/40">
+    <p class="px-2 pt-1 text-[10px] uppercase tracking-wide text-black/60">
       Advertisement
     </p>
     <ins

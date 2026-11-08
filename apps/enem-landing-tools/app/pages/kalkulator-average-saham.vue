@@ -82,7 +82,7 @@ const faqs = [
         </div>
         <button
           type="button"
-          class="mt-6 text-rose-700"
+          class="mt-6 btn-remove"
           :aria-label="`Hapus pembelian ${i + 1}`"
           @click="pembelian.splice(i, 1)"
         >

@@ -101,7 +101,7 @@ const optionClass = (selected: boolean) =>
 
       <div class="px-5 py-4 overflow-y-auto flex-1">
         <h3
-          class="text-xs font-bold uppercase tracking-wide text-black/50 mb-2"
+          class="text-xs font-bold uppercase tracking-wide text-black/60 mb-2"
         >
           Category
         </h3>
@@ -121,7 +121,7 @@ const optionClass = (selected: boolean) =>
         </div>
 
         <h3
-          class="text-xs font-bold uppercase tracking-wide text-black/50 mb-2"
+          class="text-xs font-bold uppercase tracking-wide text-black/60 mb-2"
         >
           Tag
         </h3>
@@ -145,7 +145,7 @@ const optionClass = (selected: boolean) =>
             #{{ item.name }}
             <span class="opacity-60">{{ item.postCount }}</span>
           </button>
-          <p v-if="filteredTags.length === 0" class="text-sm text-black/50">
+          <p v-if="filteredTags.length === 0" class="text-sm text-black/60">
             No tags match "{{ tagSearch }}".
           </p>
         </div>

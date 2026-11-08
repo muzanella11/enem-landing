@@ -189,7 +189,7 @@ const howTo = [
       <button
         type="button"
         role="tab"
-        :aria-pressed="tab === 'buat'"
+        :aria-selected="tab === 'buat'"
         @click="tab = 'buat'"
       >
         Buat invoice
@@ -197,7 +197,7 @@ const howTo = [
       <button
         type="button"
         role="tab"
-        :aria-pressed="tab === 'riwayat'"
+        :aria-selected="tab === 'riwayat'"
         @click="tab = 'riwayat'"
       >
         Riwayat ({{ store.invoices.length }})
@@ -205,7 +205,7 @@ const howTo = [
       <button
         type="button"
         role="tab"
-        :aria-pressed="tab === 'profil'"
+        :aria-selected="tab === 'profil'"
         @click="tab = 'profil'"
       >
         Profil usaha

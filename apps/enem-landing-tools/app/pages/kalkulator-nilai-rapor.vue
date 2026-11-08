@@ -90,7 +90,7 @@ const faqs = [
         />
         <button
           type="button"
-          class="text-rose-700"
+          class="btn-remove"
           :aria-label="`Hapus ${k.nama}`"
           @click="komponen.splice(i, 1)"
         >

@@ -215,7 +215,7 @@ watch(
               <td class="px-1 py-1">
                 <button
                   type="button"
-                  class="text-rose-700"
+                  class="btn-remove"
                   :aria-label="`Hapus ${alat.nama}`"
                   @click="peralatan.splice(index, 1)"
                 >

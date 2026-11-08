@@ -22,7 +22,7 @@ interface GoldPrice {
 }
 
 // Only the gold price comes from the server; nothing the user types is sent.
-const { data: gold, pending: goldPending } = useFetch<GoldPrice>(
+const { data: gold, status: goldStatus } = useFetch<GoldPrice>(
   '/api/harga-emas',
   {
     key: 'harga-emas',
@@ -71,6 +71,14 @@ onMounted(() => {
     submitted.value = true;
   }
 });
+
+// `server: false` leaves the request 'idle' during SSR. Treating that as
+// loading keeps the server HTML and the hydrating client identical; showing
+// "not available" on the server caused a hydration mismatch (console error,
+// PageSpeed best practices).
+const goldPending = computed(
+  () => goldStatus.value === 'idle' || goldStatus.value === 'pending',
+);
 
 const goldPrice = computed(
   () => form.goldOverride || gold.value?.pricePerGram || 0,
