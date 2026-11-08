@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
 import type { Skill } from '@enem-landing/shared-types';
+import defaultAvatarSvg from '@enem-landing/frontend/assets/images/avataaars.svg?raw';
 import SectionDivider from './SectionDivider.vue';
 
-defineProps<{
+const props = defineProps<{
   title: string;
   subheading: string;
   avatarUrl: string;
@@ -10,15 +12,27 @@ defineProps<{
 }>();
 
 const DEFAULT_AVATAR = '/avataaars.svg';
+// The avatar is the homepage's LCP element. The default one is inlined
+// (about 3 KB compressed) so it paints with the HTML instead of waiting
+// for its own request, which PageSpeed measured at ~1s on mobile.
+const DEFAULT_AVATAR_DATA = `data:image/svg+xml,${encodeURIComponent(defaultAvatarSvg)}`;
+
+const isDefault = computed(() => props.avatarUrl === DEFAULT_AVATAR);
+const src = computed(() =>
+  isDefault.value ? DEFAULT_AVATAR_DATA : props.avatarUrl,
+);
+// The default SVG is 264x280, not square: reserving 240x240 made the page
+// shift by ~15px once it decoded (CLS). CMS uploads are square photos.
+const size = computed(() =>
+  isDefault.value ? { width: 264, height: 280 } : { width: 240, height: 240 },
+);
 
 // A broken/404ing avatarUrl (deleted upload, bad CMS entry) would
 // otherwise render as a broken-image icon - the `src` check guards
-// against looping if DEFAULT_AVATAR itself ever failed to load.
+// against looping if the default itself ever failed to load.
 const onImageError = (event: Event) => {
   const img = event.target as HTMLImageElement;
-  if (img.src !== new URL(DEFAULT_AVATAR, window.location.href).href) {
-    img.src = DEFAULT_AVATAR;
-  }
+  if (img.src !== DEFAULT_AVATAR_DATA) img.src = DEFAULT_AVATAR_DATA;
 };
 </script>
 
@@ -26,10 +40,10 @@ const onImageError = (event: Event) => {
   <header class="bg-[#0E7C6B] text-white text-center pt-40 lg:pt-48 pb-24 px-4">
     <div class="max-w-3xl mx-auto flex flex-col items-center">
       <img
-        :src="avatarUrl"
+        :src="src"
         :alt="title"
-        width="240"
-        height="240"
+        :width="size.width"
+        :height="size.height"
         fetchpriority="high"
         class="w-48 lg:w-60 mb-8 rounded-full bg-white"
         @error="onImageError"

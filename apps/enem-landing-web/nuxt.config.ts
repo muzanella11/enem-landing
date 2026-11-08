@@ -32,6 +32,22 @@ export default defineNuxtConfig({
     host: 'localhost',
     port: 8001,
   },
+  // PageSpeed: the two small stylesheets (Tailwind entry + one component
+  // chunk) were the only render-blocking requests left on the homepage.
+  // Inlining them into the SSR HTML removes that round trip.
+  features: { inlineStyles: true },
+  hooks: {
+    // PageSpeed: Nuxt adds <link rel="prefetch"> for every lazy chunk of
+    // the entry, which on the homepage meant downloading rrweb (~250 KB,
+    // only needed by the few sampled session recordings) and the blog
+    // article chunk while the page itself was still loading. Lazy chunks
+    // still load on demand; they're just no longer prefetched.
+    'build:manifest': (manifest) => {
+      for (const chunk of Object.values(manifest)) {
+        chunk.prefetch = false;
+      }
+    },
+  },
   app: {
     head: {
       htmlAttrs: { lang: 'en', 'data-version': VERSION },
@@ -48,15 +64,19 @@ export default defineNuxtConfig({
         // Loaded non-render-blocking (preload + swap to stylesheet on load,
         // the standard web.dev pattern) - PageSpeed Insights flagged this
         // stylesheet as the single biggest render-blocking request (~750ms
-        // on mobile/4G). `display=swap` already covers FOUT once it loads.
+        // on mobile/4G). `display=optional` instead of `swap`: once the
+        // page painted early, swapping fonts in afterwards shifted the
+        // layout (CLS 0.1 on desktop). With `optional` a first visit on a
+        // slow connection keeps the fallback font; later visits (cached)
+        // get Lato/Montserrat with no shift.
         {
           rel: 'preload',
           as: 'style',
-          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=optional',
         },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=optional',
           media: 'print',
           onload: "this.media='all'",
         },

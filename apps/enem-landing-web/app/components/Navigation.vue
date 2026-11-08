@@ -245,12 +245,3 @@ const goHome = () => {
     </div>
   </nav>
 </template>
-
-<style scoped>
-.nav-indicator {
-  transition:
-    left 400ms cubic-bezier(0.65, 0, 0.35, 1),
-    width 400ms cubic-bezier(0.65, 0, 0.35, 1),
-    opacity 200ms ease;
-}
-</style>
