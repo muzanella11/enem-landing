@@ -35,6 +35,17 @@ export class UpdateToolsSettingsDto {
   adsenseSlotSidebar?: string | null;
 
   @IsOptional()
+  @IsBoolean()
+  blogAdsEnabled?: boolean;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @Matches(/^\d{6,20}$/, {
+    message: 'adsenseSlotArticle must be a numeric ad unit id',
+  })
+  adsenseSlotArticle?: string | null;
+
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)

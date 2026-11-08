@@ -3,9 +3,12 @@ import { computed } from 'vue';
 import type { BlogPost } from '@enem-landing/shared-types';
 import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
 import sanitizeHtml from 'sanitize-html';
+import { trackGaEvent } from '@enem-landing/frontend/tracking';
+import ArticleAd from '../../components/ArticleAd.vue';
 import BlogPostCard from '../../components/BlogPostCard.vue';
 import BuyMeCoffee from '../../components/BuyMeCoffee.vue';
 import ShareBar from '../../components/ShareBar.vue';
+import { splitArticleHtml } from '../../utils/split-article-html';
 
 definePageMeta({ layout: 'blog' });
 
@@ -38,6 +41,41 @@ const contentHtml = computed(() => {
     },
   });
 });
+
+// Story 56: ads are on only when the CMS switches say so (`articleSlot`
+// is null otherwise). Short articles get just the ad at the end.
+const { data: adsense } = await useAdsenseAccount();
+const adClientId = computed(() => adsense.value?.clientId ?? '');
+const adSlotId = computed(() => adsense.value?.articleSlot ?? '');
+const showAds = computed(() => Boolean(adClientId.value && adSlotId.value));
+const contentParts = computed<[string, string | null]>(() => {
+  if (!showAds.value) return [contentHtml.value, null];
+  return splitArticleHtml(contentHtml.value) ?? [contentHtml.value, null];
+});
+
+// Story 56: which articles send readers on to the tools hub (GA4 only;
+// the in-house tracker already records the click itself).
+const { toolsHost } = useRuntimeConfig().public;
+const toolsHostname = (() => {
+  try {
+    return new URL(String(toolsHost)).hostname;
+  } catch {
+    return '';
+  }
+})();
+const onContentClick = (event: MouseEvent) => {
+  const link = (event.target as HTMLElement | null)?.closest?.('a');
+  if (!link || !toolsHostname) return;
+  let url: URL;
+  try {
+    url = new URL(link.href);
+  } catch {
+    return;
+  }
+  if (url.hostname !== toolsHostname) return;
+  const toolId = url.pathname.split('/').filter(Boolean)[0] ?? 'hub';
+  trackGaEvent('blog_to_tools', { tool_id: toolId, post_slug: slug });
+};
 
 const seoTitle = computed(
   () => post.value?.metaTitle || post.value?.title || '',
@@ -130,8 +168,21 @@ const formatDate = (value: string | null | undefined) =>
 
     <div
       class="c-post-content max-w-3xl mx-auto text-lg leading-relaxed"
-      v-html="contentHtml"
+      @click="onContentClick"
+      v-html="contentParts[0]"
     />
+    <template v-if="contentParts[1] !== null">
+      <ArticleAd
+        :client-id="adClientId"
+        :slot-id="adSlotId"
+        placement="in-article"
+      />
+      <div
+        class="c-post-content max-w-3xl mx-auto text-lg leading-relaxed"
+        @click="onContentClick"
+        v-html="contentParts[1]"
+      />
+    </template>
 
     <div
       v-if="post.tags.length"
@@ -157,6 +208,13 @@ const formatDate = (value: string | null | undefined) =>
       />
       <BuyMeCoffee :post-slug="slug" class="mt-8" />
     </div>
+
+    <ArticleAd
+      v-if="showAds"
+      :client-id="adClientId"
+      :slot-id="adSlotId"
+      placement="end"
+    />
 
     <section v-if="related?.length" class="max-w-5xl mx-auto mt-20">
       <h2 class="text-2xl font-bold uppercase text-center text-[#2C3E50] mb-8">

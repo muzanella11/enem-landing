@@ -88,6 +88,8 @@ export class ToolsService {
         adsenseClientId: settings.adsenseClientId,
         adsenseSlotResult: settings.adsenseSlotResult ?? null,
         adsenseSlotSidebar: settings.adsenseSlotSidebar ?? null,
+        blogAdsEnabled: settings.blogAdsEnabled ?? false,
+        adsenseSlotArticle: settings.adsenseSlotArticle ?? null,
         donationCtaText: settings.donationCtaText,
       },
     };
@@ -220,6 +222,8 @@ export class ToolsService {
         adsenseClientId: null,
         adsenseSlotResult: null,
         adsenseSlotSidebar: null,
+        blogAdsEnabled: false,
+        adsenseSlotArticle: null,
         donationCtaText: 'Traktir kopi',
         blockedCategoriesNote: null,
       }),

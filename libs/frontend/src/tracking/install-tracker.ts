@@ -11,7 +11,10 @@ const TABLET_MAX_WIDTH = 1024;
 const RECORDING_FLUSH_INTERVAL_MS = 10_000;
 
 /** Minimal shape of rrweb's `record` - kept local so this lib never depends on rrweb. */
-type RecordFn = (options: { emit: (event: unknown) => void }) => unknown;
+type RecordFn = (options: {
+  emit: (event: unknown) => void;
+  maskAllInputs?: boolean;
+}) => unknown;
 
 export interface InstallTrackerOptions extends TrackerOptions {
   /**
@@ -98,6 +101,9 @@ export const installTracker = async (
       emit: (event) => {
         buffer.push(event);
       },
+      // Story 56: what visitors type (contact form) is never recorded;
+      // the privacy page promises this.
+      maskAllInputs: true,
     });
 
     const flushInterval = setInterval(flush, RECORDING_FLUSH_INTERVAL_MS);

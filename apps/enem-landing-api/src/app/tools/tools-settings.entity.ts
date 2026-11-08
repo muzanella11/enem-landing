@@ -21,6 +21,14 @@ export class ToolsSettingsEntity {
   @Column({ type: 'varchar', length: 32, nullable: true })
   adsenseSlotSidebar!: string | null;
 
+  /** Story 56: ads in muzanella.com blog articles; also needs `adsEnabled`. */
+  @Column({ default: false })
+  blogAdsEnabled!: boolean;
+
+  /** AdSense ad unit id for the blog article slots (Story 56). */
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  adsenseSlotArticle!: string | null;
+
   @Column({ default: 'Traktir kopi' })
   donationCtaText!: string;
 

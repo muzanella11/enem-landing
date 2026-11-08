@@ -5,6 +5,12 @@
  * Google's own ad settings for opting out of personalized ads. The state
  * and the banner component are kept so asking can be switched back on;
  * `unset` only exists during SSR, before the client plugin ran.
+ *
+ * Story 56: visitors from the EEA, the UK, and Switzerland are asked by
+ * Google's own CMP (AdSense "Privacy & messaging"), not by this state.
+ * GA's Consent Mode defaults deny storage there until the CMP answers,
+ * and `AdSlot` no longer forces personalized ads, so the CMP's choice
+ * wins. This state only matters outside those regions.
  */
 export type ConsentState = 'unset' | 'granted' | 'denied';
 

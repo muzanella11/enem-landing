@@ -39,6 +39,9 @@ export interface ToolsSettings {
   adsenseClientId: string | null;
   adsenseSlotResult: string | null;
   adsenseSlotSidebar: string | null;
+  /** Story 56: ads in muzanella.com blog articles (also needs `adsEnabled`). */
+  blogAdsEnabled: boolean;
+  adsenseSlotArticle: string | null;
   donationCtaText: string;
   blockedCategoriesNote: string | null;
 }
@@ -52,6 +55,8 @@ export interface ToolsPublicConfig {
     adsenseClientId: string | null;
     adsenseSlotResult: string | null;
     adsenseSlotSidebar: string | null;
+    blogAdsEnabled: boolean;
+    adsenseSlotArticle: string | null;
     donationCtaText: string;
   };
 }
