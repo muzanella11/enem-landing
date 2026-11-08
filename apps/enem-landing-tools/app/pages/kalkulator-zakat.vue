@@ -173,26 +173,34 @@ const howTo = [
         </button>
       </div>
 
+      <!-- Heights are reserved for the price status and the nisab line: the
+           price arrives after load (client-only fetch), and growing these
+           lines then pushed the form down (PageSpeed CLS). -->
       <div v-if="needsGold" class="rounded-xl bg-slate-50 p-4 text-sm">
-        <p v-if="goldPending">Mengambil harga emas terbaru...</p>
-        <template v-else>
-          <p v-if="gold?.pricePerGram">
-            Harga emas:
-            <strong class="tabular"
-              >{{ formatRupiah(gold.pricePerGram) }}/gram</strong
-            >
-            <span v-if="goldUpdated" class="text-slate-500">
-              (per {{ goldUpdated
-              }}{{ gold.stale ? ', harga terakhir yang tersimpan' : '' }})</span
-            >
-          </p>
-          <p v-else class="text-amber-800">
-            Harga emas otomatis sedang tidak tersedia. Isi harga emas di bawah.
-          </p>
-          <p v-if="gold?.source" class="text-xs text-slate-500">
-            Sumber: {{ gold.source }}
-          </p>
-        </template>
+        <div class="min-h-[3.75rem] sm:min-h-[2.75rem]">
+          <p v-if="goldPending">Mengambil harga emas terbaru...</p>
+          <template v-else>
+            <p v-if="gold?.pricePerGram">
+              Harga emas:
+              <strong class="tabular"
+                >{{ formatRupiah(gold.pricePerGram) }}/gram</strong
+              >
+              <span v-if="goldUpdated" class="text-slate-500">
+                (per {{ goldUpdated
+                }}{{
+                  gold.stale ? ', harga terakhir yang tersimpan' : ''
+                }})</span
+              >
+            </p>
+            <p v-else class="text-amber-800">
+              Harga emas otomatis sedang tidak tersedia. Isi harga emas di
+              bawah.
+            </p>
+            <p v-if="gold?.source" class="text-xs text-slate-500">
+              Sumber: {{ gold.source }}
+            </p>
+          </template>
+        </div>
         <div class="mt-3 max-w-xs">
           <RupiahInput
             id="harga-emas"
@@ -201,11 +209,13 @@ const howTo = [
             hint="Mis. harga emas batangan Antam hari ini, per gram."
           />
         </div>
-        <p v-if="goldPrice > 0" class="mt-2 text-slate-600">
-          Nisab: {{ formatRupiah(nisabTahunan(goldPrice)) }} per tahun ({{
-            formatRupiah(nisabBulanan(goldPrice))
-          }}
-          per bulan).
+        <p class="mt-2 min-h-[2.5rem] text-slate-600 sm:min-h-[1.25rem]">
+          <template v-if="goldPrice > 0">
+            Nisab: {{ formatRupiah(nisabTahunan(goldPrice)) }} per tahun ({{
+              formatRupiah(nisabBulanan(goldPrice))
+            }}
+            per bulan).
+          </template>
         </p>
       </div>
 

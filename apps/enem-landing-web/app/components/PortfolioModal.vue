@@ -22,6 +22,10 @@ const onImageError = (event: Event) => {
 // first - the list card only ever shows that one, so the detail view is
 // where the rest become visible. Falls back to the placeholder (same as
 // the portfolio list card) when the project has no images at all.
+// Gallery images are h-64 (256px tall) screenshots: 1000px wide covers
+// them at 2x without shipping the multi-MB originals.
+const cdnImage = useCdnImage();
+
 const galleryImages = computed(() => {
   const images = props.project?.image ?? [];
   const mainImage = props.project?.mainImage;
@@ -57,7 +61,7 @@ const galleryImages = computed(() => {
         <img
           v-for="(image, index) in galleryImages"
           :key="image"
-          :src="image"
+          :src="cdnImage.src(image, 1000)"
           :alt="`${project.title} ${index + 1}`"
           class="h-64 w-auto max-w-full object-contain rounded bg-slate-50 shrink-0 snap-center"
           @error="onImageError"

@@ -18,8 +18,9 @@ const DEFAULT_AVATAR = '/avataaars.svg';
 const DEFAULT_AVATAR_DATA = `data:image/svg+xml,${encodeURIComponent(defaultAvatarSvg)}`;
 
 const isDefault = computed(() => props.avatarUrl === DEFAULT_AVATAR);
+const cdnImage = useCdnImage();
 const src = computed(() =>
-  isDefault.value ? DEFAULT_AVATAR_DATA : props.avatarUrl,
+  isDefault.value ? DEFAULT_AVATAR_DATA : cdnImage.src(props.avatarUrl, 480),
 );
 // The default SVG is 264x280, not square: reserving 240x240 made the page
 // shift by ~15px once it decoded (CLS). CMS uploads are square photos.

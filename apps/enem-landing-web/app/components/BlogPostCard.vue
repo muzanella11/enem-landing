@@ -13,6 +13,9 @@ withDefaults(
 );
 
 const IMAGE_NOT_AVAILABLE = '/img/image-not-available.svg';
+// Cards are at most ~400px wide (3 per row).
+const cdnImage = useCdnImage();
+const CARD_WIDTHS = [400, 640] as const;
 
 const formatDate = (value: string | null) =>
   value
@@ -30,7 +33,9 @@ const formatDate = (value: string | null) =>
     class="block rounded-lg overflow-hidden group border border-black/5 hover:shadow-lg transition-shadow"
   >
     <img
-      :src="post.coverImageUrl || IMAGE_NOT_AVAILABLE"
+      :src="cdnImage.src(post.coverImageUrl, 640) || IMAGE_NOT_AVAILABLE"
+      :srcset="cdnImage.srcset(post.coverImageUrl, CARD_WIDTHS)"
+      sizes="(max-width: 768px) 100vw, 400px"
       :alt="post.title"
       width="1200"
       height="630"

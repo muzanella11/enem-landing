@@ -32,6 +32,11 @@ const { data: related } = await useFetch<BlogPost[]>(
 
 const contentHtml = computed(() => post.value?.contentHtml ?? '');
 
+// Covers are 2400px PNGs; with the CMS image switch on they're served at
+// display size (max-w-3xl = 768px) as WebP/AVIF from muzanella.com.
+const cdnImage = useCdnImage();
+const COVER_WIDTHS = [480, 800, 1200] as const;
+
 // Story 56: ads are on only when the CMS switches say so (`articleSlot`
 // is null otherwise). Short articles get just the ad at the end.
 const { data: adsense } = await useAdsenseAccount();
@@ -154,7 +159,9 @@ const formatDate = (value: string | null | undefined) =>
          doesn't jump when it loads. -->
     <img
       v-if="post.coverImageUrl"
-      :src="post.coverImageUrl"
+      :src="cdnImage.src(post.coverImageUrl, 800)"
+      :srcset="cdnImage.srcset(post.coverImageUrl, COVER_WIDTHS)"
+      sizes="(max-width: 800px) 100vw, 768px"
       :alt="post.title"
       width="1200"
       height="630"

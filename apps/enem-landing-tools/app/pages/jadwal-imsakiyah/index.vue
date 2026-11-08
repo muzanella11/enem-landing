@@ -44,7 +44,8 @@ const howTo = [
     wide
   >
     <KotaPicker base-path="/jadwal-imsakiyah" />
-    <KotaDirectory
+    <LazyKotaDirectory
+      hydrate-never
       base-path="/jadwal-imsakiyah"
       title="Imsakiyah per kabupaten/kota"
     />

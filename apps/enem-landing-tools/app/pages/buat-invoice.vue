@@ -658,8 +658,14 @@ const howTo = [
           <InvoiceDataTools />
         </section>
       </template>
+      <!-- The editor reads localStorage, so the server only renders this
+           placeholder. Its height matches the editor (measured at 412px
+           and 1350px) so the FAQ and footer don't jump down once it
+           mounts (PageSpeed CLS 0.35). -->
       <template #fallback>
-        <p class="text-sm text-slate-500">Memuat data dari browser...</p>
+        <div class="min-h-[1940px] xl:min-h-[1020px]" aria-busy="true">
+          <p class="text-sm text-slate-500">Memuat data dari browser...</p>
+        </div>
       </template>
     </ClientOnly>
 

@@ -27,6 +27,12 @@ const onImageError = (event: Event) => {
 const coverImage = (project: Project) =>
   project.mainImage || project.image[0] || IMAGE_NOT_AVAILABLE;
 
+// Portfolio uploads are full-size screenshots (up to 4 MB, Pingdom); cards
+// show them at most ~384px wide, so they're served resized when the CMS
+// image switch is on.
+const cdnImage = useCdnImage();
+const PORTFOLIO_WIDTHS = [400, 640, 960] as const;
+
 // SEO meta is optional content (managed via enem-landing-cms) - fall back
 // to sensible defaults rather than a hard failure when nothing's been set
 // for this page yet.
@@ -292,9 +298,12 @@ const submitContact = async () => {
               @click="openPortfolio(project)"
             >
               <img
-                :src="coverImage(project)"
+                :src="cdnImage.src(coverImage(project), 640)"
+                :srcset="cdnImage.srcset(coverImage(project), PORTFOLIO_WIDTHS)"
+                sizes="(max-width: 640px) 100vw, 384px"
                 :alt="project.title"
                 loading="lazy"
+                decoding="async"
                 class="w-full h-52 object-cover"
                 @error="onImageError"
               />
