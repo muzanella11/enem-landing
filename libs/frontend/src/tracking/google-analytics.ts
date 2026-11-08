@@ -8,7 +8,7 @@
  * page; the in-house tracker stays the source of truth for usage, so only
  * a handful of events are mirrored here (see `trackGaEvent`).
  */
-import { whenIdle } from './when-idle.js';
+import { whenEngaged, whenIdle } from './when-idle.js';
 
 type Gtag = (...args: unknown[]) => void;
 
@@ -93,7 +93,8 @@ export const setDefaultConsent = (gtag: Gtag): void => {
 
 /**
  * Sets up gtag once and configures `measurementId`; gtag.js itself is
- * fetched when the browser is idle, while calls made before that wait in
+ * fetched on the visitor's first interaction (or 8s after load) and then
+ * when the browser is idle, while calls made before that wait in
  * `dataLayer`. No-op on the server, for an invalid id, or when already
  * set up. Returns whether GA is active.
  */
@@ -117,14 +118,16 @@ export const loadGoogleAnalytics = (
   gtag('js', new Date());
   gtag('config', id);
 
-  whenIdle(() => {
-    if (document.querySelector('script[data-gtag]')) return;
-    const script = document.createElement('script');
-    script.async = true;
-    script.dataset['gtag'] = '1';
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-    document.head.appendChild(script);
-  });
+  whenEngaged(() =>
+    whenIdle(() => {
+      if (document.querySelector('script[data-gtag]')) return;
+      const script = document.createElement('script');
+      script.async = true;
+      script.dataset['gtag'] = '1';
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
+      document.head.appendChild(script);
+    }),
+  );
   return true;
 };
 

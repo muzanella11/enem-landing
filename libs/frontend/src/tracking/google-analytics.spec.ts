@@ -80,14 +80,22 @@ describe('google analytics', () => {
   });
 
   describe('loadGoogleAnalytics', () => {
-    it('queues consent before config and defers gtag.js until idle', () => {
+    it('queues consent before config and defers gtag.js until engagement + idle', () => {
       const appended: { src?: string }[] = [];
       const idle: (() => void)[] = [];
+      const listeners: Record<string, (() => void)[]> = {};
+      const timers: (() => void)[] = [];
       const fakeWindow: Record<string, unknown> = {
         requestIdleCallback: (cb: () => void) => idle.push(cb),
+        addEventListener: (name: string, cb: () => void) =>
+          (listeners[name] ??= []).push(cb),
+        removeEventListener: () => undefined,
+        setTimeout: (cb: () => void) => timers.push(cb),
+        clearTimeout: () => undefined,
       };
       vi.stubGlobal('window', fakeWindow);
       vi.stubGlobal('document', {
+        readyState: 'complete',
         querySelector: () => null,
         createElement: () => ({ dataset: {} }),
         head: { appendChild: (el: { src?: string }) => appended.push(el) },
@@ -103,6 +111,17 @@ describe('google analytics', () => {
         'js',
         'config',
       ]);
+      // Nothing is fetched before the visitor interacts (or the fallback).
+      expect(idle).toHaveLength(0);
+      expect(timers).toHaveLength(1);
+      expect(Object.keys(listeners)).toEqual(
+        expect.arrayContaining(['scroll', 'pointerdown', 'keydown']),
+      );
+
+      listeners['scroll']?.[0]?.();
+      // A second signal (or the fallback timer) doesn't load it twice.
+      timers[0]?.();
+      expect(idle).toHaveLength(1);
       expect(appended).toHaveLength(0);
 
       idle.forEach((cb) => cb());

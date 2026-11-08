@@ -72,6 +72,10 @@ export default defineNuxtConfig({
   // component classes (.card, .field-input, ...), so the module must not
   // inject its default one on top.
   css: ['~/assets/css/tailwind.css'],
+  // PageSpeed: the Tailwind entry stylesheet was the only render-blocking
+  // request on the hub; inlining it into the SSR HTML removes that round
+  // trip (same as enem-landing-web).
+  features: { inlineStyles: true },
   tailwindcss: { cssPath: false },
   vite: {
     resolve: { tsconfigPaths: true },

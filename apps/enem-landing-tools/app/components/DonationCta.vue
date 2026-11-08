@@ -63,9 +63,9 @@ const openQris = ref<string | null>(null);
         >
           {{ option.label }}
         </button>
-        <span v-if="option.note" class="text-xs opacity-75"
-          >({{ option.note }})</span
-        >
+        <!-- No opacity: on the footer's slate-600 it fell below the 4.5:1
+             contrast ratio (PageSpeed accessibility). -->
+        <span v-if="option.note" class="text-xs">({{ option.note }})</span>
       </template>
     </p>
     <template v-for="option in options" :key="`qris-${option.id}`">
