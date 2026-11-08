@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MIN_PARAGRAPHS_FOR_IN_ARTICLE_AD,
   splitArticleHtml,
-} from '../app/utils/split-article-html';
+} from './split-article-html';
 
 const paragraphs = (count: number) =>
   Array.from({ length: count }, (_, i) => `<p>Paragraph ${i + 1}</p>`).join('');

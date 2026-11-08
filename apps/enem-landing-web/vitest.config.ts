@@ -15,7 +15,7 @@ export default defineConfig(() => ({
     watch: false,
     globals: true,
     environment: 'jsdom',
-    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['{app,server}/**/*.{test,spec}.ts'],
     reporters: ['default'],
     passWithNoTests: true,
     coverage: {
