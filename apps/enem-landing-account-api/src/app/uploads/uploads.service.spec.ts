@@ -109,6 +109,12 @@ describe('UploadsService', () => {
       const result = await service.upload(file, dto, 'user-1');
 
       expect(sendMock).toHaveBeenCalledTimes(1);
+      expect(sendMock.mock.calls[0]?.[0].input).toEqual(
+        expect.objectContaining({
+          ContentType: 'image/png',
+          CacheControl: 'public, max-age=31536000, immutable',
+        }),
+      );
       expect(repo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           app: 'enem-landing-cms',

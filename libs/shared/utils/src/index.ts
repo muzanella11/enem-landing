@@ -7,3 +7,4 @@ export * from './lib/slugify.js';
 export * from './lib/static-account.js';
 export * from './lib/share-links.js';
 export * from './lib/share-icons.js';
+export * from './lib/cdn-image.js';

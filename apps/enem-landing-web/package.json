@@ -19,6 +19,26 @@
             "prettier --write 'apps/enem-landing-web/{app,server}/**/*.{ts,vue}'"
           ]
         }
+      },
+      "prepare": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": [
+          "{projectRoot}/nuxt.config.ts",
+          "{projectRoot}/package.json"
+        ],
+        "outputs": [
+          "{projectRoot}/.nuxt"
+        ],
+        "options": {
+          "command": "nuxt prepare",
+          "cwd": "apps/enem-landing-web"
+        }
+      },
+      "test": {
+        "dependsOn": [
+          "prepare"
+        ]
       }
     }
   },

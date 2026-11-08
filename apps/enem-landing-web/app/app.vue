@@ -1,9 +1,7 @@
 <script setup lang="ts">
-// AdSense site verification for the root domain. Ads only run on
-// tools.muzanella.com; this tag loads no ad script.
-const { data: adsense } = await useFetch<{ clientId: string | null }>(
-  '/api/adsense-account',
-);
+// AdSense site verification for the root domain. This tag loads no ad
+// script; ads only run in blog articles when switched on (Story 56).
+const { data: adsense } = await useAdsenseAccount();
 
 useHead({
   meta: () =>

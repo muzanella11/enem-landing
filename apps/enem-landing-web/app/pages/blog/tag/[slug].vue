@@ -57,7 +57,7 @@ useSeoMeta({
       <div class="max-w-5xl mx-auto">
         <p
           v-if="paginated && paginated.items.length === 0"
-          class="text-center text-black/50"
+          class="text-center text-black/60"
         >
           No posts with this tag yet.
         </p>
@@ -66,9 +66,10 @@ useSeoMeta({
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           <BlogPostCard
-            v-for="post in paginated?.items ?? []"
+            v-for="(post, index) in paginated?.items ?? []"
             :key="post.id"
             :post="post"
+            :priority="index < 3"
           />
         </div>
 
@@ -82,7 +83,7 @@ useSeoMeta({
             class="px-4 py-2 rounded bg-[#2C3E50]/5 hover:bg-[#0E7C6B] hover:text-white transition-colors text-sm font-bold"
             >Previous</NuxtLink
           >
-          <span class="text-sm text-black/50"
+          <span class="text-sm text-black/60"
             >Page {{ page }} of {{ totalPages }}</span
           >
           <NuxtLink

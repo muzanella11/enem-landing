@@ -32,8 +32,19 @@ usePageSeo({
     <h2 class="text-xl font-semibold text-slate-900">Google Analytics</h2>
     <p>
       Kami memakai Google Analytics untuk statistik kunjungan (halaman yang
-      dibuka, perangkat, sumber kunjungan). Google Analytics memasang cookie dan
-      tidak pernah menerima angka atau file yang kamu isi.
+      dibuka, perangkat, sumber kunjungan) dan untuk mengetahui halaman mana
+      yang menghasilkan pendapatan iklan. Selain kunjungan, Google Analytics
+      hanya menerima nama tool dan kejadian umum seperti "tombol hitung
+      ditekan", "hasil dibagikan", atau "file diunduh". Google Analytics
+      memasang cookie dan tidak pernah menerima angka atau file yang kamu isi.
+      Kamu bisa menolaknya lewat
+      <a
+        href="https://tools.google.com/dlpage/gaoptout"
+        class="btn-link"
+        target="_blank"
+        rel="noopener"
+        >add-on penonaktifan Google Analytics</a
+      >.
     </p>
     <h2 class="text-xl font-semibold text-slate-900">Iklan</h2>
     <p>
@@ -47,6 +58,12 @@ usePageSeo({
         rel="noopener"
         >Setelan Iklan Google</a
       >.
+    </p>
+    <p>
+      Pengunjung dari Wilayah Ekonomi Eropa, Inggris, dan Swiss akan melihat
+      pesan persetujuan dari Google sebelum cookie iklan atau statistik
+      dipasang, dan bisa mengubah pilihannya kapan saja lewat tautan yang
+      disediakan pesan tersebut.
     </p>
     <p>
       Link berbagi hasil menyimpan data di bagian setelah tanda # pada alamat,

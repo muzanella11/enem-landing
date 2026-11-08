@@ -9,5 +9,10 @@ const year = new Date().getFullYear();
       Nurfirliana Muzanella // Email: muzanella11@gmail.com // Phone:
       087867701092
     </p>
+    <p class="mt-2">
+      <NuxtLink to="/privacy" class="underline hover:text-[#1ABC9C]"
+        >Privacy and cookies</NuxtLink
+      >
+    </p>
   </div>
 </template>

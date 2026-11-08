@@ -733,6 +733,8 @@ export const TOOLS_SNAPSHOT: ToolsPublicConfig = {
     adsenseClientId: null,
     adsenseSlotResult: null,
     adsenseSlotSidebar: null,
+    blogAdsEnabled: false,
+    adsenseSlotArticle: null,
     donationCtaText: 'Traktir kopi',
   },
 };

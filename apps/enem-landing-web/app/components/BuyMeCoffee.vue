@@ -26,7 +26,7 @@ const openQris = ref<string | null>(null);
     <p class="font-semibold text-amber-900">
       <span aria-hidden="true">☕</span> Enjoyed this article? Buy me a coffee
     </p>
-    <p class="text-sm text-amber-900/70 mt-1">
+    <p class="text-sm text-amber-900 mt-1">
       It keeps the articles and the free tools coming.
     </p>
     <div class="flex flex-wrap items-center gap-2 mt-3">
@@ -56,7 +56,7 @@ const openQris = ref<string | null>(null);
         >
           {{ option.label }}
         </button>
-        <span v-if="option.note" class="text-xs text-amber-900/70"
+        <span v-if="option.note" class="text-xs text-amber-900"
           >({{ option.note }})</span
         >
       </template>

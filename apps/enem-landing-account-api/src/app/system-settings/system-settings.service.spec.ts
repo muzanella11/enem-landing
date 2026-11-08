@@ -88,4 +88,46 @@ describe('SystemSettingsService', () => {
       });
     });
   });
+
+  describe('getPublic', () => {
+    it('reports image transformations on only for the string true', async () => {
+      repo.findOne.mockResolvedValue({
+        key: 'IMAGE_TRANSFORMS_ENABLED',
+        value: 'true',
+      });
+      await expect(service.getPublic()).resolves.toEqual({
+        imageTransformsEnabled: true,
+      });
+      repo.findOne.mockResolvedValue({
+        key: 'IMAGE_TRANSFORMS_ENABLED',
+        value: 'false',
+      });
+      await expect(service.getPublic()).resolves.toEqual({
+        imageTransformsEnabled: false,
+      });
+    });
+
+    it('is off when the setting was never saved', async () => {
+      const original = process.env['IMAGE_TRANSFORMS_ENABLED'];
+      delete process.env['IMAGE_TRANSFORMS_ENABLED'];
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.getPublic()).resolves.toEqual({
+        imageTransformsEnabled: false,
+      });
+      if (original !== undefined)
+        process.env['IMAGE_TRANSFORMS_ENABLED'] = original;
+    });
+
+    it('exposes nothing but the whitelisted switch', async () => {
+      repo.findOne.mockResolvedValue({
+        key: 'IMAGE_TRANSFORMS_ENABLED',
+        value: 'true',
+      });
+      const result = await service.getPublic();
+      expect(Object.keys(result)).toEqual(['imageTransformsEnabled']);
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { key: 'IMAGE_TRANSFORMS_ENABLED' },
+      });
+    });
+  });
 });

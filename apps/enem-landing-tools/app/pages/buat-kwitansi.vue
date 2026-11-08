@@ -268,6 +268,13 @@ const howTo = [
         <InvoiceDataTools />
         <DonationCta placement="history" :slug="SLUG" />
       </section>
+      <!-- Server-side placeholder as tall as the editor (measured at 412px
+           and 1350px), so content below doesn't shift on mount (CLS). -->
+      <template #fallback>
+        <div class="min-h-[750px] lg:min-h-[530px]" aria-busy="true">
+          <p class="text-sm text-slate-500">Memuat data dari browser...</p>
+        </div>
+      </template>
     </ClientOnly>
     <AdSlot placement="result" :slug="SLUG" />
   </ToolShell>

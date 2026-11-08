@@ -234,7 +234,7 @@ const faqs = [
         </select>
         <button
           type="button"
-          class="text-rose-700"
+          class="btn-remove"
           :aria-label="`Hapus mata kuliah ${mi + 1}`"
           @click="semester.matkul.splice(mi, 1)"
         >

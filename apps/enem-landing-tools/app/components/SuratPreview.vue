@@ -18,9 +18,11 @@ defineProps<{ surat: SuratJadi }>();
     <p v-if="surat.perihal">
       Perihal : <strong>{{ surat.perihal }}</strong>
     </p>
-    <h3 v-if="surat.judul" class="text-center font-bold underline">
+    <!-- A title inside the previewed letter, not a page section: a <p>
+         keeps the page's heading outline valid (PageSpeed heading-order). -->
+    <p v-if="surat.judul" class="text-center font-bold underline">
       {{ surat.judul }}
-    </h3>
+    </p>
     <template v-for="(blok, index) in surat.blok" :key="index">
       <p
         v-if="blok.jenis === 'p'"

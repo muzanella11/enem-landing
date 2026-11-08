@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ENV_FALLBACK_KEYS } from './system-settings.constants.js';
+import {
+  ENV_FALLBACK_KEYS,
+  type PublicSystemSettings,
+} from './system-settings.constants.js';
 import { SystemSettingEntity } from './system-setting.entity.js';
 
 @Injectable()
@@ -27,6 +30,14 @@ export class SystemSettingsService {
   async get(key: string): Promise<string> {
     const row = await this.repo.findOne({ where: { key } });
     return row?.value ?? process.env[key] ?? '';
+  }
+
+  /** The non-secret switches the public sites may read (no auth). */
+  async getPublic(): Promise<PublicSystemSettings> {
+    return {
+      imageTransformsEnabled:
+        (await this.get('IMAGE_TRANSFORMS_ENABLED')) === 'true',
+    };
   }
 
   async upsertMany(settings: Record<string, string>): Promise<void> {

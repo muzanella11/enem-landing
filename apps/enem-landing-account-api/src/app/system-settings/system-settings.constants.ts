@@ -19,4 +19,23 @@ export const ENV_FALLBACK_KEYS = [
   'SMTP_FROM_NAME',
   'SMTP_FROM_EMAIL',
   'ADMIN_NOTIFICATION_EMAIL',
+  'IMAGE_TRANSFORMS_ENABLED',
 ] as const;
+
+/**
+ * Non-secret switches the public sites read through the unauthenticated
+ * `GET /system-settings/public` (see `PublicSystemSettingsController`).
+ * Only keys listed here ever leave the API that way - never add a
+ * credential.
+ */
+export const PUBLIC_SETTING_KEYS = ['IMAGE_TRANSFORMS_ENABLED'] as const;
+
+/** Shape of `GET /system-settings/public`. */
+export interface PublicSystemSettings {
+  /**
+   * Serve cdn.muzanella.com images resized as WebP/AVIF through Cloudflare
+   * Image Transformations (/cdn-cgi/image/...). Only on once the zone has
+   * Transformations enabled, or those images 404.
+   */
+  imageTransformsEnabled: boolean;
+}

@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import type { BlogPost } from '@enem-landing/shared-types';
-import { QuillDeltaToHtmlConverter } from 'quill-delta-to-html';
-import sanitizeHtml from 'sanitize-html';
+import { trackGaEvent } from '@enem-landing/frontend/tracking';
+import ArticleAd from '../../components/ArticleAd.vue';
 import BlogPostCard from '../../components/BlogPostCard.vue';
 import BuyMeCoffee from '../../components/BuyMeCoffee.vue';
 import ShareBar from '../../components/ShareBar.vue';
+import { splitArticleHtml } from '../../utils/split-article-html';
 
 definePageMeta({ layout: 'blog' });
 
@@ -17,7 +18,10 @@ const SITE_URL = 'https://muzanella.com';
 // null (same pattern as `pages/index.vue`'s seo-meta fetch), so a
 // draft/missing slug (the BFF route 404s) falls straight through to this
 // explicit check instead of hitting Nuxt's generic error boundary.
-const { data: post } = await useFetch<BlogPost>(`/api/blog-posts/${slug}`);
+// `contentHtml`: the body, rendered and sanitized by the BFF (see
+// server/utils/render-post-html.ts) instead of in the browser.
+type RenderedPost = Omit<BlogPost, 'contentDelta'> & { contentHtml: string };
+const { data: post } = await useFetch<RenderedPost>(`/api/blog-posts/${slug}`);
 if (!post.value) {
   throw createError({ statusCode: 404, statusMessage: 'Post not found' });
 }
@@ -26,18 +30,47 @@ const { data: related } = await useFetch<BlogPost[]>(
   `/api/blog-posts/${slug}/related`,
 );
 
-const contentHtml = computed(() => {
-  const ops = (post.value?.contentDelta as { ops?: unknown[] })?.ops ?? [];
-  const converter = new QuillDeltaToHtmlConverter(ops as never[], {});
-  return sanitizeHtml(converter.convert(), {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2']),
-    allowedAttributes: {
-      ...sanitizeHtml.defaults.allowedAttributes,
-      img: ['src', 'alt', 'width', 'height'],
-      a: ['href', 'name', 'target', 'rel'],
-    },
-  });
+const contentHtml = computed(() => post.value?.contentHtml ?? '');
+
+// Covers are 2400px PNGs; with the CMS image switch on they're served at
+// display size (max-w-3xl = 768px) as WebP/AVIF from muzanella.com.
+const cdnImage = useCdnImage();
+const COVER_WIDTHS = [480, 800, 1200] as const;
+
+// Story 56: ads are on only when the CMS switches say so (`articleSlot`
+// is null otherwise). Short articles get just the ad at the end.
+const { data: adsense } = await useAdsenseAccount();
+const adClientId = computed(() => adsense.value?.clientId ?? '');
+const adSlotId = computed(() => adsense.value?.articleSlot ?? '');
+const showAds = computed(() => Boolean(adClientId.value && adSlotId.value));
+const contentParts = computed<[string, string | null]>(() => {
+  if (!showAds.value) return [contentHtml.value, null];
+  return splitArticleHtml(contentHtml.value) ?? [contentHtml.value, null];
 });
+
+// Story 56: which articles send readers on to the tools hub (GA4 only;
+// the in-house tracker already records the click itself).
+const { toolsHost } = useRuntimeConfig().public;
+const toolsHostname = (() => {
+  try {
+    return new URL(String(toolsHost)).hostname;
+  } catch {
+    return '';
+  }
+})();
+const onContentClick = (event: MouseEvent) => {
+  const link = (event.target as HTMLElement | null)?.closest?.('a');
+  if (!link || !toolsHostname) return;
+  let url: URL;
+  try {
+    url = new URL(link.href);
+  } catch {
+    return;
+  }
+  if (url.hostname !== toolsHostname) return;
+  const toolId = url.pathname.split('/').filter(Boolean)[0] ?? 'hub';
+  trackGaEvent('blog_to_tools', { tool_id: toolId, post_slug: slug });
+};
 
 const seoTitle = computed(
   () => post.value?.metaTitle || post.value?.title || '',
@@ -110,7 +143,7 @@ const formatDate = (value: string | null | undefined) =>
       <h1 class="text-3xl lg:text-5xl font-bold text-[#2C3E50]">
         {{ post.title }}
       </h1>
-      <p class="text-sm text-black/40 mt-4">
+      <p class="text-sm text-black/60 mt-4">
         {{ formatDate(post.publishedAt) }}
       </p>
       <ShareBar
@@ -121,17 +154,39 @@ const formatDate = (value: string | null | undefined) =>
       />
     </header>
 
+    <!-- The cover is the article's LCP element: high priority, and its
+         box reserved (covers are 1200x630-ratio images) so the text below
+         doesn't jump when it loads. -->
     <img
       v-if="post.coverImageUrl"
-      :src="post.coverImageUrl"
+      :src="cdnImage.src(post.coverImageUrl, 800)"
+      :srcset="cdnImage.srcset(post.coverImageUrl, COVER_WIDTHS)"
+      sizes="(max-width: 800px) 100vw, 768px"
       :alt="post.title"
-      class="max-w-3xl w-full mx-auto rounded-lg mb-12 object-cover max-h-[28rem]"
+      width="1200"
+      height="630"
+      fetchpriority="high"
+      decoding="async"
+      class="max-w-3xl w-full h-auto mx-auto rounded-lg mb-12 object-cover max-h-[28rem]"
     />
 
     <div
       class="c-post-content max-w-3xl mx-auto text-lg leading-relaxed"
-      v-html="contentHtml"
+      @click="onContentClick"
+      v-html="contentParts[0]"
     />
+    <template v-if="contentParts[1] !== null">
+      <ArticleAd
+        :client-id="adClientId"
+        :slot-id="adSlotId"
+        placement="in-article"
+      />
+      <div
+        class="c-post-content max-w-3xl mx-auto text-lg leading-relaxed"
+        @click="onContentClick"
+        v-html="contentParts[1]"
+      />
+    </template>
 
     <div
       v-if="post.tags.length"
@@ -158,6 +213,13 @@ const formatDate = (value: string | null | undefined) =>
       <BuyMeCoffee :post-slug="slug" class="mt-8" />
     </div>
 
+    <ArticleAd
+      v-if="showAds"
+      :client-id="adClientId"
+      :slot-id="adSlotId"
+      placement="end"
+    />
+
     <section v-if="related?.length" class="max-w-5xl mx-auto mt-20">
       <h2 class="text-2xl font-bold uppercase text-center text-[#2C3E50] mb-8">
         Related Posts
@@ -167,6 +229,7 @@ const formatDate = (value: string | null | undefined) =>
           v-for="relatedPost in related"
           :key="relatedPost.id"
           :post="relatedPost"
+          :heading-level="3"
         />
       </div>
     </section>

@@ -17,6 +17,11 @@
       "types": "./dist/tracking/index.d.ts",
       "import": "./dist/tracking/index.js",
       "default": "./dist/tracking/index.js"
+    },
+    "./ads": {
+      "types": "./dist/ads/index.d.ts",
+      "import": "./dist/ads/index.js",
+      "default": "./dist/ads/index.js"
     }
   },
   "nx": {

@@ -79,7 +79,7 @@ const faqs = [
         <button
           v-if="bukti.length > 1"
           type="button"
-          class="mt-6 text-rose-700"
+          class="mt-6 btn-remove"
           :aria-label="`Hapus bukti potong ${i + 1}`"
           @click="bukti.splice(i, 1)"
         >

@@ -37,7 +37,8 @@ const howTo = [
     wide
   >
     <KotaPicker base-path="/jadwal-sholat" />
-    <KotaDirectory
+    <LazyKotaDirectory
+      hydrate-never
       base-path="/jadwal-sholat"
       title="Jadwal sholat per kabupaten/kota"
     />

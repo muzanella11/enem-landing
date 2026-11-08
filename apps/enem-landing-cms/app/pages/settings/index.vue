@@ -19,6 +19,7 @@ interface SystemSettings {
   SMTP_FROM_NAME: string;
   SMTP_FROM_EMAIL: string;
   ADMIN_NOTIFICATION_EMAIL: string;
+  IMAGE_TRANSFORMS_ENABLED: string;
 }
 
 const { data: settingsResponse } = await useFetch<{ data: SystemSettings }>(
@@ -49,6 +50,8 @@ const form = ref({
   SMTP_FROM_EMAIL: settingsResponse.value?.data?.SMTP_FROM_EMAIL ?? '',
   ADMIN_NOTIFICATION_EMAIL:
     settingsResponse.value?.data?.ADMIN_NOTIFICATION_EMAIL ?? '',
+  IMAGE_TRANSFORMS_ENABLED:
+    settingsResponse.value?.data?.IMAGE_TRANSFORMS_ENABLED === 'true',
 });
 
 const save = async () => {
@@ -57,6 +60,7 @@ const save = async () => {
     const body: Record<string, string> = {
       ...form.value,
       SMTP_SECURE: String(form.value.SMTP_SECURE),
+      IMAGE_TRANSFORMS_ENABLED: String(form.value.IMAGE_TRANSFORMS_ENABLED),
     };
     if (body.R2_SECRET_ACCESS_KEY === MASK) delete body.R2_SECRET_ACCESS_KEY;
     if (body.SMTP_PASSWORD === MASK) delete body.SMTP_PASSWORD;
@@ -137,6 +141,30 @@ const sendTestEmail = async () => {
         density="compact"
         hide-details="auto"
       />
+    </CContentCard>
+
+    <CContentCard title="Images (Cloudflare Image Transformations)">
+      <v-switch
+        v-model="form.IMAGE_TRANSFORMS_ENABLED"
+        label="Serve CDN images resized through Cloudflare"
+        color="primary"
+        hint="Images on cdn.muzanella.com (blog covers, article images, portfolio) are served at their display size as WebP/AVIF via muzanella.com/cdn-cgi/image/. Turn this on ONLY after Image Transformations is enabled for the muzanella.com zone in Cloudflare, otherwise those images fail to load. Applies without a deploy, within about a minute."
+        persistent-hint
+      />
+      <ol class="text-body-2 pl-4 mt-4">
+        <li>
+          Cloudflare dashboard, zone muzanella.com, Images, Transformations:
+          enable it for this zone.
+        </li>
+        <li>
+          Make sure cdn.muzanella.com is an allowed source (same zone, so it
+          usually is).
+        </li>
+        <li>
+          Turn the switch on, save, then open a blog article and check its
+          images show.
+        </li>
+      </ol>
     </CContentCard>
 
     <CContentCard title="Email (SMTP)">

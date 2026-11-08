@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import type { Experience, Project } from '@enem-landing/shared-types';
-import { useGlobalSnackbar } from '@enem-landing/frontend';
+import {
+  optimizeImageForUpload,
+  useGlobalSnackbar,
+} from '@enem-landing/frontend';
 
 definePageMeta({ layout: 'dashboard' });
 
@@ -127,7 +130,7 @@ const saveProject = async () => {
     let resolvedMainImage = mainImageKey.value;
     for (const pending of pendingImages.value) {
       const formData = new FormData();
-      formData.append('file', pending.file);
+      formData.append('file', await optimizeImageForUpload(pending.file));
       formData.append('purpose', 'portfolio-project-image');
       const response = await $fetch<{ data: { url: string } }>('/api/uploads', {
         method: 'post',

@@ -100,7 +100,7 @@ const faqs = [
           <button
             v-if="form.orang.length > 1"
             type="button"
-            class="text-rose-700"
+            class="btn-remove"
             :aria-label="`Hapus orang ${i + 1}`"
             @click="hapusOrang(i)"
           >
@@ -138,7 +138,7 @@ const faqs = [
           />
           <button
             type="button"
-            class="text-rose-700"
+            class="btn-remove"
             :aria-label="`Hapus item ${ii + 1}`"
             @click="form.item.splice(ii, 1)"
           >

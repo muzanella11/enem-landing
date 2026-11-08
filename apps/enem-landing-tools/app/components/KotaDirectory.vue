@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { KOTA } from '~/data/sholat/kota';
 
-/** Every city grouped by province - also the internal links for SEO. */
+/**
+ * Every city grouped by province - also the internal links for SEO.
+ * Rendered with `hydrate-never` by the schedule index pages: hydrating its
+ * 500+ NuxtLinks was most of their Total Blocking Time on PageSpeed mobile.
+ * The links work as normal page loads.
+ */
 defineProps<{ basePath: string; title: string }>();
 const groups = computed(() => {
   const map = new Map<string, typeof KOTA>();

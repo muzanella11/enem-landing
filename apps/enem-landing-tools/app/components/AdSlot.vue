@@ -1,10 +1,21 @@
 <script setup lang="ts">
+import {
+  loadAdsenseScript,
+  preloadAdsenseScript,
+  pushAdsenseSlot,
+} from '@enem-landing/frontend/ads';
+
 /**
  * One AdSense unit (Story 20). Reserves its exact height up front (no
- * layout shift), loads only after the visitor made a consent choice and
+ * layout shift), fills only after the visitor made a consent choice and
  * the slot scrolls into view, and serves non-personalized ads when
  * consent was denied. Never placed between inputs and the calculate
  * button, and never styled like a button.
+ *
+ * Story 56: adsbygoogle.js itself is fetched when the browser is idle
+ * (not when the slot becomes visible), because the AdSense tag is what
+ * shows Google's consent message to visitors from the EEA, the UK, and
+ * Switzerland. Script + queue handling live in `@enem-landing/frontend/ads`.
  */
 const props = defineProps<{
   placement: 'result' | 'sidebar';
@@ -35,46 +46,34 @@ const container = ref<HTMLElement | null>(null);
 const visible = ref(false);
 const pushed = ref(false);
 
-type AdsQueue = unknown[] & { requestNonPersonalizedAds?: number };
-declare global {
-  interface Window {
-    adsbygoogle?: AdsQueue;
-  }
-}
-
-const ensureScript = (client: string) => {
-  if (document.querySelector('script[data-adsbygoogle]')) return;
-  const script = document.createElement('script');
-  script.async = true;
-  script.crossOrigin = 'anonymous';
-  script.dataset['adsbygoogle'] = '1';
-  script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(client)}`;
-  document.head.appendChild(script);
-};
-
 const tryLoad = async () => {
   if (
     pushed.value ||
     !active.value ||
     !visible.value ||
+    !fragmentCleared.value ||
     consent.value === 'unset'
   ) {
     return;
   }
   pushed.value = true;
-  const queue: AdsQueue = (window.adsbygoogle = window.adsbygoogle || []);
-  queue.requestNonPersonalizedAds = consent.value === 'denied' ? 1 : 0;
-  ensureScript(clientId.value);
+  // Idempotent; covers a slot that scrolls into view before idle.
+  loadAdsenseScript(clientId.value);
   await nextTick();
-  try {
-    queue.push({});
-  } catch {
-    // Ad errors never affect the tool.
-  }
+  pushAdsenseSlot({ nonPersonalized: consent.value === 'denied' });
 };
 
 onMounted(() => {
   if (!container.value) return;
+  // The script reads the page URL, so it also waits for a share-link
+  // fragment to be gone (Story 20).
+  watch(
+    fragmentCleared,
+    (cleared) => {
+      if (cleared) preloadAdsenseScript(clientId.value);
+    },
+    { immediate: true },
+  );
   const observer = new IntersectionObserver(
     (entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {

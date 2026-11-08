@@ -192,7 +192,7 @@ const howTo = [
             </button>
             <button
               type="button"
-              class="px-1 text-rose-700"
+              class="btn-remove"
               :aria-label="`Hapus halaman ${page.index + 1}`"
               @click="removePage(position)"
             >

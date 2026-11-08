@@ -32,34 +32,29 @@ export default defineNuxtConfig({
     host: 'localhost',
     port: 8001,
   },
+  // PageSpeed: the two small stylesheets (Tailwind entry + one component
+  // chunk) were the only render-blocking requests left on the homepage.
+  // Inlining them into the SSR HTML removes that round trip.
+  features: { inlineStyles: true },
+  hooks: {
+    // PageSpeed: Nuxt adds <link rel="prefetch"> for every lazy chunk of
+    // the entry, which on the homepage meant downloading rrweb (~250 KB,
+    // only needed by the few sampled session recordings) and the blog
+    // article chunk while the page itself was still loading. Lazy chunks
+    // still load on demand; they're just no longer prefetched.
+    'build:manifest': (manifest) => {
+      for (const chunk of Object.values(manifest)) {
+        chunk.prefetch = false;
+      }
+    },
+  },
   app: {
     head: {
       htmlAttrs: { lang: 'en', 'data-version': VERSION },
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        {
-          rel: 'preconnect',
-          href: 'https://fonts.gstatic.com',
-          crossorigin: '',
-        },
-        // Original site's theme (startbootstrap-freelancer) pairs Montserrat
-        // (headings/nav) with Lato (body) — same fonts, ported to Tailwind.
-        // Loaded non-render-blocking (preload + swap to stylesheet on load,
-        // the standard web.dev pattern) - PageSpeed Insights flagged this
-        // stylesheet as the single biggest render-blocking request (~750ms
-        // on mobile/4G). `display=swap` already covers FOUT once it loads.
-        {
-          rel: 'preload',
-          as: 'style',
-          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
-        },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700&display=swap',
-          media: 'print',
-          onload: "this.media='all'",
-        },
+        // Lato/Montserrat are self-hosted: see the @font-face rules at the
+        // top of app/assets/css/styles.css.
       ],
       meta: [
         { name: 'format-detection', content: 'telephone=no' },
@@ -68,19 +63,18 @@ export default defineNuxtConfig({
         // teal (see Masthead.vue's header background).
         { name: 'theme-color', content: '#0E7C6B' },
       ],
-      script: [
-        {
-          type: 'module',
-          src: 'https://static.cloudflareinsights.com/beacon.min.js',
-          'data-cf-beacon': '{"token": "226b9613dc144a14820f52e77817faea"}',
-        },
-      ],
+      // Cloudflare Web Analytics is loaded by app/plugins/cf-beacon.client.ts
+      // on the first interaction, like GA (PageSpeed).
     },
   },
   runtimeConfig: {
     // Server-only: the BFF routes are the only thing that ever talks to
     // enem-landing-api directly, the browser never sees this host.
     apiHost: process.env['API_HOST'] || 'http://localhost:3001',
+    // Server-only: read for the public system settings (CMS /settings
+    // switches like Cloudflare Image Transformations). Override with
+    // NUXT_ACCOUNT_API_HOST.
+    accountApiHost: process.env['ACCOUNT_API_HOST'] || 'http://localhost:3000',
     // Comma-separated hosts listed as `subdomain=` in /ads.txt.
     // Override with NUXT_ADS_TXT_SUBDOMAINS.
     adsTxtSubdomains: 'tools.muzanella.com',
@@ -144,6 +138,15 @@ export default defineNuxtConfig({
         headers: { 'cache-control': 'public, max-age=31536000, immutable' },
       },
       '/og-image.png': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
+      // Committed fallback images (image-not-available.svg), same reasoning;
+      // Pingdom flagged their 4h default.
+      // Self-hosted fonts (versioned only by deploys, same as above).
+      '/fonts/**': {
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+      },
+      '/img/**': {
         headers: { 'cache-control': 'public, max-age=31536000, immutable' },
       },
     },

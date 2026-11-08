@@ -83,12 +83,17 @@ const seedPost = async (request: APIRequestContext): Promise<SeededPost> => {
 const cleanupPost = async (request: APIRequestContext, seeded: SeededPost) => {
   const headers = { Authorization: `Bearer ${seeded.token}` };
   await request.delete(`${API}/blog-posts/${seeded.postId}`, { headers });
-  await request.delete(`${API}/blog-categories/${seeded.categoryId}`, { headers });
+  await request.delete(`${API}/blog-categories/${seeded.categoryId}`, {
+    headers,
+  });
   await request.delete(`${API}/blog-tags/${seeded.tagId}`, { headers });
 };
 
 test.describe('blog', () => {
-  test('renders the listing, a post, and category/tag filters', async ({ page, request }) => {
+  test('renders the listing, a post, and category/tag filters', async ({
+    page,
+    request,
+  }) => {
     // Default 30s can be tight for this one - it's 2 full navigations plus
     // seeding/cleanup API calls plus a full pass of SEO-tag assertions,
     // and gets slower still under parallel cross-browser load on a single
@@ -129,6 +134,24 @@ test.describe('blog', () => {
         '@type': 'Article',
         headline: POST_TITLE,
       });
+
+      // Story 56: ad slots follow the CMS switches the BFF resolves. This
+      // post is short, so at most the end-of-article slot renders, and
+      // adsbygoogle.js never loads while blog ads are off.
+      const { articleSlot } = (await (
+        await request.get('/api/adsense-account')
+      ).json()) as { articleSlot: string | null };
+      if (articleSlot) {
+        await expect(page.locator('[data-ad-placement="end"]')).toHaveCount(1);
+        await expect(
+          page.locator('[data-ad-placement="in-article"]'),
+        ).toHaveCount(0);
+      } else {
+        await expect(page.locator('[data-ad-placement]')).toHaveCount(0);
+        await expect(page.locator('script[src*="adsbygoogle.js"]')).toHaveCount(
+          0,
+        );
+      }
 
       // Category filter - the detail page's own category badge links here.
       await page.getByRole('link', { name: CATEGORY_NAME }).first().click();

@@ -6,3 +6,6 @@ export * from './stores/index.js';
 
 // Composables
 export * from './composables/index.js';
+
+// Images
+export * from './images/index.js';
