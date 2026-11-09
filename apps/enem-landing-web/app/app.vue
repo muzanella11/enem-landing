@@ -12,6 +12,8 @@ useHead({
 </script>
 
 <template>
+  <!-- Top progress bar shown while navigating between pages (brand teal). -->
+  <NuxtLoadingIndicator color="#0E7C6B" :height="3" />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
