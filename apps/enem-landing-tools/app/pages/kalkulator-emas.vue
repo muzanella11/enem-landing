@@ -236,7 +236,7 @@ const howTo = [
           <p
             class="result-row font-semibold"
             :class="
-              hasil.investasi.selisih >= 0 ? 'text-teal-800' : 'text-rose-700'
+              hasil.investasi.selisih >= 0 ? 'text-primary' : 'text-rose-700'
             "
           >
             <span>{{ hasil.investasi.selisih >= 0 ? 'Untung' : 'Rugi' }}</span>

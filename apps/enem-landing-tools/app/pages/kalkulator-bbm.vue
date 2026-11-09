@@ -237,7 +237,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Biaya BBM {{ form.pulangPergi ? 'pulang pergi' : 'sekali jalan' }}
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(biaya.biaya) }}
       </p>
       <p class="tabular text-sm">
@@ -260,7 +260,7 @@ const faqs = [
       aria-live="polite"
     >
       <p class="text-sm text-slate-600">Konsumsi BBM</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ angka(konsumsi) }} km/liter
       </p>
       <p class="tabular text-sm">
@@ -277,7 +277,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Jarak yang bisa ditempuh (cadangan {{ form.cadangan }}%)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ angka(jarak.km, 0) }} km
       </p>
       <p class="tabular text-sm">

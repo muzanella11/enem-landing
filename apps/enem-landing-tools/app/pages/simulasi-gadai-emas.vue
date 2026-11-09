@@ -228,7 +228,7 @@ const faqs = [
           Total tebusan setelah {{ form.hari }} hari ({{ kca.tebus.periode }}
           periode 15 hari)
         </p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(kca.tebus.tebusan) }}
         </p>
         <p class="tabular text-sm">
@@ -251,7 +251,7 @@ const faqs = [
       </template>
       <template v-else-if="krasida">
         <p class="text-sm text-slate-600">Angsuran per bulan</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(krasida.angsuran) }}
         </p>
         <p class="tabular text-sm">

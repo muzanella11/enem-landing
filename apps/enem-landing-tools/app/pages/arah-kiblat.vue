@@ -162,10 +162,10 @@ const howTo = [
             class="absolute inset-0 flex items-center justify-center transition-transform"
             :style="{ transform: `rotate(${panah}deg)` }"
           >
-            <div class="h-24 w-2 -translate-y-10 rounded-full bg-teal-700" />
+            <div class="h-24 w-2 -translate-y-10 rounded-full bg-primary" />
           </div>
         </div>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ derajat.toFixed(1) }}°
         </p>
         <p class="text-sm text-slate-600">

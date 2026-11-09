@@ -96,7 +96,10 @@ const faqs = [
         <p class="text-sm text-slate-500">{{ kota!.provinsi }} · {{ zona }}</p>
       </div>
       <ClientOnly>
-        <p v-if="berikutnya" class="rounded-lg bg-teal-50 p-3 text-teal-900">
+        <p
+          v-if="berikutnya"
+          class="rounded-lg bg-primary-50 p-3 text-primary-dark"
+        >
           {{ WAKTU_LABEL[berikutnya.key] }} dalam
           <strong>{{ formatSisa(berikutnya.menit) }}</strong>
         </p>
@@ -106,7 +109,7 @@ const faqs = [
           v-for="key in WAKTU"
           :key="key"
           class="rounded-xl border border-slate-200 p-3"
-          :class="berikutnya?.key === key ? 'border-teal-600 bg-teal-50' : ''"
+          :class="berikutnya?.key === key ? 'border-primary bg-primary-50' : ''"
         >
           <p class="text-sm text-slate-500">{{ WAKTU_LABEL[key] }}</p>
           <p class="text-2xl font-bold">{{ hariIni.waktu[key] }}</p>
@@ -151,7 +154,7 @@ const faqs = [
               :key="hari.tanggal"
               class="border-t border-slate-100"
               :class="
-                hari.tanggal === tanggal ? 'bg-teal-50 font-semibold' : ''
+                hari.tanggal === tanggal ? 'bg-primary-50 font-semibold' : ''
               "
             >
               <td class="px-4 py-1.5 sm:px-2">

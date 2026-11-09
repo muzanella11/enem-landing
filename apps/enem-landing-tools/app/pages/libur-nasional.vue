@@ -144,7 +144,7 @@ const howTo = [
           <input
             v-model="tampilkan[jenis]"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           {{ label }}
         </label>
@@ -169,7 +169,7 @@ const howTo = [
         <ClientOnly>
           <p
             v-if="berikutnya && hariLagi !== null"
-            class="rounded-lg bg-teal-50 p-3 text-teal-900"
+            class="rounded-lg bg-primary-50 p-3 text-primary-dark"
           >
             Libur berikutnya: <strong>{{ berikutnya.nama }}</strong> ({{
               tanggalLabel(berikutnya.tanggal)

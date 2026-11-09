@@ -81,7 +81,7 @@ const faqs = [
     <ResultNote :text="DISCLAIMER_SAHAM" />
     <section v-if="hasil" class="card space-y-2" aria-live="polite">
       <p class="text-sm text-slate-600">Dividen bersih</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.bersih) }}
       </p>
       <p class="tabular text-sm">

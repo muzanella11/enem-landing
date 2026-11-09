@@ -215,7 +215,7 @@ const faqs = [
     </section>
     <section v-if="hasil" class="card space-y-3" aria-live="polite">
       <p class="text-sm text-slate-600">Total tagihan</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.total) }}
       </p>
       <ul class="tabular divide-y divide-slate-100">

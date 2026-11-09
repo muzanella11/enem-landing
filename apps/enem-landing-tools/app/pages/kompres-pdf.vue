@@ -217,7 +217,7 @@ const howTo = [
       <p class="tabular text-lg" aria-live="polite">
         {{ formatBytes(pdf.file.value.size) }} →
         <strong>{{ formatBytes(output.size) }}</strong>
-        <span v-if="output.size < pdf.file.value.size" class="text-teal-700">
+        <span v-if="output.size < pdf.file.value.size" class="text-primary">
           (-{{ Math.round((1 - output.size / pdf.file.value.size) * 100) }}%)
         </span>
       </p>

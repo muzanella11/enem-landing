@@ -164,7 +164,7 @@ const salin = async () => {
   </div>
   <section v-if="hasil.length" class="card" aria-live="polite">
     <div class="flex items-center justify-between">
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ bulatkan(luasM2 ?? 0) }} m²
       </p>
       <button type="button" class="btn-secondary" @click="salin">

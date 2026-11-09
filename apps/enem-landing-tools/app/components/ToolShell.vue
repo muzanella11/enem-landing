@@ -170,10 +170,10 @@ onMounted(() => {
   </div>
   <div v-else class="mx-auto max-w-6xl px-4 py-6 sm:py-10">
     <nav class="mb-3 text-sm text-slate-500" aria-label="Breadcrumb">
-      <NuxtLink to="/" class="hover:text-teal-700">Tools</NuxtLink>
+      <NuxtLink to="/" class="hover:text-primary">Tools</NuxtLink>
       <span aria-hidden="true"> / </span>
       <template v-if="parent">
-        <NuxtLink :to="parent.path" class="hover:text-teal-700">{{
+        <NuxtLink :to="parent.path" class="hover:text-primary">{{
           parent.name
         }}</NuxtLink>
         <span aria-hidden="true"> / </span>
@@ -196,7 +196,7 @@ onMounted(() => {
 
     <template v-else>
       <p
-        class="mt-3 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-800"
+        class="mt-3 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary"
       >
         <span aria-hidden="true">🔒</span>
         Dihitung di perangkatmu. Tidak ada data yang dikirim ke server.
@@ -283,7 +283,7 @@ onMounted(() => {
           <li v-for="tool in relatedTools" :key="tool.slug">
             <NuxtLink
               :to="`/${tool.slug}`"
-              class="card block h-full transition hover:border-teal-600"
+              class="card block h-full transition hover:border-primary"
             >
               <span class="font-semibold text-slate-900">{{ tool.name }}</span>
               <span class="mt-1 block text-sm text-slate-600">{{

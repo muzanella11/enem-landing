@@ -54,7 +54,7 @@ const faqs = [
     <section class="card grid gap-3 sm:grid-cols-3" aria-live="polite">
       <div>
         <p class="text-sm text-slate-600">Kata</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ stat.kata.toLocaleString('id-ID') }}
         </p>
       </div>

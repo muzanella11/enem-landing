@@ -25,10 +25,10 @@ useHead({
       >
         <NuxtLink
           to="/"
-          class="flex items-center gap-2 whitespace-nowrap font-bold text-teal-800"
+          class="flex items-center gap-2 whitespace-nowrap font-bold text-primary"
         >
           <span
-            class="grid h-8 w-8 place-items-center rounded-lg bg-teal-700 text-sm text-white"
+            class="grid h-8 w-8 place-items-center rounded-lg bg-primary text-sm text-white"
             aria-hidden="true"
             >T</span
           >
@@ -37,10 +37,10 @@ useHead({
         <nav class="flex items-center gap-3 text-sm text-slate-600 sm:gap-4">
           <a
             href="https://muzanella.com"
-            class="hidden hover:text-teal-700 sm:inline"
+            class="hidden hover:text-primary sm:inline"
             >muzanella.com</a
           >
-          <a href="https://muzanella.com/blog" class="hover:text-teal-700"
+          <a href="https://muzanella.com/blog" class="hover:text-primary"
             >Blog</a
           >
           <DonationMenu />

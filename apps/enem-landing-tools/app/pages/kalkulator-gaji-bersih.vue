@@ -132,7 +132,7 @@ const howTo = [
           <input
             v-model="form.ikutBpjsKesehatan"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           Ikut BPJS Kesehatan
         </label>
@@ -140,7 +140,7 @@ const howTo = [
           <input
             v-model="form.ikutBpjsKetenagakerjaan"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           Ikut BPJS Ketenagakerjaan
         </label>
@@ -237,7 +237,7 @@ const howTo = [
           <p class="text-sm text-slate-500">
             Gaji bersih diterima bulan {{ MONTH_NAMES[form.month - 1] }}
           </p>
-          <p class="tabular text-3xl font-bold text-teal-800">
+          <p class="tabular text-3xl font-bold text-primary">
             {{ formatRupiah(month.takeHomePay) }}
           </p>
           <p class="mt-1 text-sm text-slate-600">
@@ -372,7 +372,7 @@ const howTo = [
         <div class="grid gap-4 sm:grid-cols-3">
           <div>
             <p class="text-sm text-slate-500">Gaji bersih setahun</p>
-            <p class="tabular text-2xl font-bold text-teal-800">
+            <p class="tabular text-2xl font-bold text-primary">
               {{ formatRupiah(year.totals.takeHomePay) }}
             </p>
           </div>

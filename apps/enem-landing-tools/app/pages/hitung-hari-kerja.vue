@@ -113,7 +113,7 @@ const howTo = [
           ><input
             v-model="form.hitungLibur"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           Hitung libur nasional dan cuti bersama</label
         >
@@ -133,7 +133,7 @@ const howTo = [
       aria-live="polite"
     >
       <p class="text-sm text-slate-500">Hari kerja</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ result.hariKerja }} hari
       </p>
       <p class="text-sm text-slate-700">

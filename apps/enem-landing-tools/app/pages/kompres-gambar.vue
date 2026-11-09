@@ -113,7 +113,7 @@ const howTo = [
             type="range"
             min="10"
             max="95"
-            class="w-full accent-teal-700"
+            class="w-full accent-primary"
           />
         </div>
         <div>

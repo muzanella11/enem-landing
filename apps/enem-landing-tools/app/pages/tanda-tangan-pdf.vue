@@ -337,7 +337,7 @@ const howTo = [
             draggable="false"
             class="absolute cursor-move"
             :class="
-              item.id === terpilih ? 'outline outline-2 outline-teal-600' : ''
+              item.id === terpilih ? 'outline outline-2 outline-primary' : ''
             "
             :style="{
               left: `${item.rect.x * 100}%`,

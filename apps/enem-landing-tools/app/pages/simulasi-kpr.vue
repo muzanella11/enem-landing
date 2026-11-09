@@ -427,7 +427,7 @@ const howTo = [
             <input
               v-model="form.prepay.enabled"
               type="checkbox"
-              class="h-4 w-4 accent-teal-700"
+              class="h-4 w-4 accent-primary"
             />
             Aktifkan pelunasan sebagian
           </label>
@@ -505,7 +505,7 @@ const howTo = [
                   index > 0 &&
                   period.payment > (result.periods[index - 1]?.payment ?? 0)
                     ? 'text-rose-700'
-                    : 'text-teal-800'
+                    : 'text-primary'
                 "
               >
                 {{ formatRupiah(period.payment) }}
@@ -565,7 +565,7 @@ const howTo = [
                     ? 'font-semibold text-rose-700'
                     : ratio > 30
                       ? 'font-semibold text-amber-700'
-                      : 'text-teal-800'
+                      : 'text-primary'
                 "
               >
                 {{ formatPercent(ratio, 1) }}
@@ -689,9 +689,7 @@ const howTo = [
                 <td class="px-4 py-2 sm:px-2">{{ row.month }}</td>
                 <td class="px-2 py-2 text-right">
                   {{ formatRupiah(row.payment) }}
-                  <span
-                    v-if="row.prepayment"
-                    class="block text-xs text-teal-700"
+                  <span v-if="row.prepayment" class="block text-xs text-primary"
                     >+ pelunasan {{ formatRupiah(row.prepayment) }}</span
                   >
                 </td>

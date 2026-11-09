@@ -60,7 +60,7 @@ const howTo = [
         <input id="tanggal-b" v-model="b" type="date" class="field-input" />
         <p
           v-if="selisih !== null"
-          class="tabular text-2xl font-bold text-teal-800"
+          class="tabular text-2xl font-bold text-primary"
           aria-live="polite"
         >
           {{ Math.abs(selisih).toLocaleString('id-ID') }} hari
@@ -101,7 +101,7 @@ const howTo = [
         />
         <p
           v-if="hasilTambah"
-          class="text-xl font-bold text-teal-800"
+          class="text-xl font-bold text-primary"
           aria-live="polite"
         >
           {{ tanggal(hasilTambah) }}

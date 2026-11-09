@@ -141,7 +141,7 @@ const faqs = [
           <p class="text-sm text-slate-600">
             Harta yang dibagi (setelah jenazah, utang, wasiat)
           </p>
-          <p class="tabular text-3xl font-bold text-teal-800">
+          <p class="tabular text-3xl font-bold text-primary">
             {{ formatRupiah(hasil.bersih.bersih) }}
           </p>
           <p v-if="hasil.bersih.wasiatDipotong" class="text-sm text-amber-800">

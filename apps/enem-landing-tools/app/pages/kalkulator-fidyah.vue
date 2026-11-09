@@ -80,7 +80,7 @@ const faqs = [
     </form>
     <section v-if="hasil" class="card space-y-2" aria-live="polite">
       <p class="text-sm text-slate-600">Fidyah dalam uang</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.uang) }}
       </p>
       <p class="tabular text-sm">

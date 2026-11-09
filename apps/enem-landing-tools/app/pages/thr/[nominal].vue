@@ -53,7 +53,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         THR penuh (masa kerja 12 bulan atau lebih)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(nominal) }}
       </p>
       <p class="tabular text-sm">

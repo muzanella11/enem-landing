@@ -259,7 +259,7 @@ const faqs = [
 
     <section class="card space-y-2" aria-live="polite">
       <p class="text-sm text-slate-600">IPK kumulatif ({{ ipk.sks }} SKS)</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ angka(ipk.ip) }}
       </p>
       <p v-if="ipk.predikat">

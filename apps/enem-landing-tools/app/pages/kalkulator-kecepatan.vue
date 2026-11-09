@@ -214,17 +214,17 @@ const faqs = [
     <section v-if="hasil" class="card space-y-2" aria-live="polite">
       <p
         v-if="cari === 'waktu'"
-        class="tabular text-3xl font-bold text-teal-800"
+        class="tabular text-3xl font-bold text-primary"
       >
         {{ formatDurasi(hasil.jam) }}
       </p>
       <p
         v-else-if="cari === 'kecepatan'"
-        class="tabular text-3xl font-bold text-teal-800"
+        class="tabular text-3xl font-bold text-primary"
       >
         {{ angka(hasil.kmh) }} km/jam
       </p>
-      <p v-else class="tabular text-3xl font-bold text-teal-800">
+      <p v-else class="tabular text-3xl font-bold text-primary">
         {{ angka(hasil.jarakKm) }} km
       </p>
       <p class="tabular text-sm">

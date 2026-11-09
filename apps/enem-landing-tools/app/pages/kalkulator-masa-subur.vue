@@ -107,7 +107,7 @@ const faqs = [
               class="border-t border-slate-100"
             >
               <td class="py-2">{{ pendek(s.haid) }}</td>
-              <td class="py-2 font-semibold text-teal-800">
+              <td class="py-2 font-semibold text-primary">
                 {{ pendek(s.suburMulai) }} - {{ pendek(s.suburSelesai) }}
               </td>
               <td class="py-2">{{ pendek(s.ovulasi) }}</td>

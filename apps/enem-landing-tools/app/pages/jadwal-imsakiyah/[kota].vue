@@ -99,7 +99,7 @@ const faqs = [
               <td class="px-2 py-1.5 text-right">
                 {{ row.jadwal.waktu.ashar }}
               </td>
-              <td class="px-2 py-1.5 text-right font-semibold text-teal-800">
+              <td class="px-2 py-1.5 text-right font-semibold text-primary">
                 {{ row.jadwal.waktu.maghrib }}
               </td>
               <td class="px-4 py-1.5 text-right sm:px-2">

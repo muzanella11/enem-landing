@@ -156,7 +156,7 @@ const faqs = [
         </p>
         <p
           class="tabular text-3xl font-bold"
-          :class="hasil.laba >= 0 ? 'text-teal-800' : 'text-rose-800'"
+          :class="hasil.laba >= 0 ? 'text-primary' : 'text-rose-800'"
         >
           {{ formatRupiah(hasil.laba) }}
         </p>

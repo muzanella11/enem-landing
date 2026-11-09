@@ -60,7 +60,7 @@ const faqs = [
     >
       <template v-if="hasil">
         <p class="text-sm text-slate-600">Titik impas per bulan</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ hasil.unit.toLocaleString('id-ID') }} unit
         </p>
         <p class="tabular text-sm">

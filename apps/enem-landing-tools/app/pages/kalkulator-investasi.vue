@@ -110,7 +110,7 @@ const faqs = [
         <p class="text-sm text-slate-600">
           Nilai setelah {{ akhir.tahun }} tahun
         </p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(akhir.nilai) }}
         </p>
         <p class="tabular text-sm">

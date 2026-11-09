@@ -138,7 +138,7 @@ const howTo = [
           min="5"
           max="100"
           step="5"
-          class="w-full accent-teal-700"
+          class="w-full accent-primary"
         />
       </div>
       <div v-else>

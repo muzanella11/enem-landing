@@ -84,7 +84,7 @@ const faqs = [
       <ResultNote :text="DISCLAIMER_INVESTASI" />
       <section class="card space-y-2" aria-live="polite">
         <p class="text-sm text-slate-600">Setoran per bulan</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(hasil.setoran) }}
         </p>
         <p class="text-sm">

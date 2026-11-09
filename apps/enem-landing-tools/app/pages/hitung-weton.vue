@@ -67,7 +67,7 @@ const howTo = [
       </div>
       <div v-if="hasil" aria-live="polite" class="space-y-2">
         <p class="text-sm text-slate-500">Weton</p>
-        <p class="text-3xl font-bold text-teal-800">
+        <p class="text-3xl font-bold text-primary">
           {{ hasil.hari }} {{ hasil.pasaran }}
         </p>
         <p class="tabular text-slate-700">

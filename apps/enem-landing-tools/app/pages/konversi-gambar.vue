@@ -72,7 +72,7 @@ const howTo = [
             type="range"
             min="40"
             max="100"
-            class="w-full accent-teal-700"
+            class="w-full accent-primary"
           />
         </div>
       </div>

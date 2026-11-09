@@ -62,7 +62,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         PPN (tarif efektif {{ hasil.tarifEfektif.toLocaleString('id-ID') }}%)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.ppn) }}
       </p>
       <p class="tabular text-sm">

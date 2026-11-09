@@ -40,7 +40,7 @@ const onImport = async (event: Event) => {
         @change="onImport"
       />
     </div>
-    <p v-if="imported" class="text-teal-700">Data berhasil diimpor.</p>
+    <p v-if="imported" class="text-primary">Data berhasil diimpor.</p>
     <p v-if="importError" class="text-rose-700">{{ importError }}</p>
     <p v-if="saveError" class="text-rose-700">{{ saveError }}</p>
   </div>

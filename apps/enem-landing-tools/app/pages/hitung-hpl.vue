@@ -92,7 +92,7 @@ const faqs = [
       />
       <section class="card space-y-3" aria-live="polite">
         <p class="text-sm text-slate-600">Hari perkiraan lahir</p>
-        <p class="text-3xl font-bold text-teal-800">
+        <p class="text-3xl font-bold text-primary">
           {{ formatTanggal(hasil.hpl, true) }}
         </p>
         <p v-if="hasil.usia">

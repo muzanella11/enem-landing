@@ -89,7 +89,7 @@ const faqs = [
     </section>
     <section class="card space-y-2" aria-live="polite">
       <p class="text-sm text-slate-600">Total PNBP</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(total) }}
       </p>
       <ul class="tabular text-sm">

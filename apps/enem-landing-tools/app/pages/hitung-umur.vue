@@ -65,7 +65,7 @@ const howTo = [
         </div>
       </div>
       <div v-if="umur" aria-live="polite" class="space-y-1">
-        <p class="text-3xl font-bold text-teal-800">
+        <p class="text-3xl font-bold text-primary">
           {{ umur.tahun }} tahun {{ umur.bulan }} bulan {{ umur.hari }} hari
         </p>
         <p class="tabular text-slate-700">

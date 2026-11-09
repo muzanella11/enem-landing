@@ -37,7 +37,7 @@ const who = computed(() => hasil.value && kategoriWhoAsia(hasil.value.imt));
 const normal = computed(() => hasil.value && beratNormal(hasil.value.tinggi));
 const TONE = {
   kurang: 'text-sky-800',
-  normal: 'text-teal-800',
+  normal: 'text-primary',
   lebih: 'text-amber-800',
   obesitas: 'text-rose-800',
 };

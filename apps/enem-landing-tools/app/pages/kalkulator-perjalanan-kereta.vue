@@ -213,7 +213,7 @@ const faqs = [
     <section v-if="waktu || jadwal" class="card space-y-2" aria-live="polite">
       <template v-if="waktu !== null">
         <p class="text-sm text-slate-600">Perkiraan waktu tempuh</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatDurasi(waktu) }}
         </p>
       </template>
@@ -221,7 +221,7 @@ const faqs = [
         <p class="text-sm text-slate-600">
           Kecepatan rata-rata ({{ formatDurasi(jadwal.jam) }})
         </p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ angka(jadwal.kmh) }} km/jam
         </p>
       </template>

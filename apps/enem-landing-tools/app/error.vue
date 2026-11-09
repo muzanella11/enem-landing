@@ -15,7 +15,7 @@ const { config } = useToolsConfig();
 <template>
   <NuxtLayout>
     <div class="mx-auto max-w-3xl px-4 py-16">
-      <p class="text-sm font-semibold text-teal-700">{{ error.statusCode }}</p>
+      <p class="text-sm font-semibold text-primary">{{ error.statusCode }}</p>
       <h1 class="mt-2 text-3xl font-bold">
         {{ notFound ? 'Halaman tidak ditemukan' : 'Terjadi kesalahan' }}
       </h1>

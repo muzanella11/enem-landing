@@ -175,7 +175,7 @@ const faqs = [
           (terlambat {{ telat }} bulan)</template
         >
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.total) }}
       </p>
       <table class="tabular w-full text-sm">

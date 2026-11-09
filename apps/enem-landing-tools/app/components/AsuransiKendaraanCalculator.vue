@@ -190,7 +190,7 @@ watch(hasil, (v) => {
       Premi tahun pertama (kategori {{ hasil.kategori.kategori }}, wilayah
       {{ wilayah }})
     </p>
-    <p class="tabular text-3xl font-bold text-teal-800">
+    <p class="tabular text-3xl font-bold text-primary">
       {{ rentang(hasil.total) }}
     </p>
     <p v-if="form.tarifPenawaran > 0" class="tabular text-sm">

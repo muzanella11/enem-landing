@@ -68,7 +68,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Bila memberi makan {{ kafarat.miskin }} orang miskin
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(total) }}
       </p>
       <p class="text-sm font-medium">Urutan bentuk kafarat:</p>

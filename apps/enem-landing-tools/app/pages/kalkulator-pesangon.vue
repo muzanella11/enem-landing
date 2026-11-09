@@ -184,7 +184,7 @@ const howTo = [
     <template v-if="submitted && canCalculate">
       <section class="card space-y-3" aria-live="polite">
         <p class="text-sm text-slate-500">Diterima setelah pajak</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(result.bersih) }}
         </p>
         <p class="text-sm text-slate-600">

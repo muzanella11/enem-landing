@@ -59,7 +59,7 @@ const howTo = [
         <input id="masehi" v-model="masehi" type="date" class="field-input" />
         <p
           v-if="keH"
-          class="text-2xl font-bold text-teal-800"
+          class="text-2xl font-bold text-primary"
           aria-live="polite"
         >
           {{ keH.hari }} {{ keH.namaBulan }} {{ keH.tahun }} H
@@ -107,7 +107,7 @@ const howTo = [
             />
           </div>
         </div>
-        <p class="text-2xl font-bold text-teal-800" aria-live="polite">
+        <p class="text-2xl font-bold text-primary" aria-live="polite">
           {{ keM ? formatMasehi(keM) : 'Tanggal tidak ada di bulan itu' }}
         </p>
       </section>

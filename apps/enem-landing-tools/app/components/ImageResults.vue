@@ -32,7 +32,7 @@ const emit = defineEmits<{ one: [ImageResult]; all: [] }>();
           <strong>{{ formatBytes(result.blob.size) }}</strong>
           <span
             v-if="result.blob.size < result.originalSize"
-            class="text-teal-700"
+            class="text-primary"
           >
             (-{{
               Math.round((1 - result.blob.size / result.originalSize) * 100)
