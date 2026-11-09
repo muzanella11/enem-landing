@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -11,6 +12,7 @@ import {
   Query,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -24,8 +26,12 @@ export class BlogPostsController {
   constructor(private readonly blogPostsService: BlogPostsService) {}
 
   @Get()
-  findPublished(@Query() query: BlogPostsQueryDto) {
-    return this.blogPostsService.findPublished(query);
+  async findPublished(@Query() query: BlogPostsQueryDto) {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.findPublished(query),
+    );
   }
 
   // Declared before the `:slug`/`:slug/related` routes below - Nest
@@ -33,50 +39,78 @@ export class BlogPostsController {
   // `admin` must come first or it'd be captured by the `:slug` handler.
   @UseGuards(SsoAuthGuard)
   @Get('admin')
-  findAllForAdmin(@Req() req: Request) {
+  async findAllForAdmin(@Req() req: Request) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogPostsService.findAllForAdmin();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.findAllForAdmin(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('admin/:id')
-  findOneForAdmin(@Req() req: Request, @Param('id') id: string) {
+  async findOneForAdmin(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogPostsService.findOneForAdmin(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.findOneForAdmin(id),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post()
-  create(@Req() req: Request, @Body() dto: CreateBlogPostDto) {
+  async create(@Req() req: Request, @Body() dto: CreateBlogPostDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogPostsService.create(dto);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.blogPostsService.create(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put(':id')
-  update(
+  async update(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateBlogPostDto,
   ) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogPostsService.update(id, dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.update(id, dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete(':id')
-  remove(@Req() req: Request, @Param('id') id: string) {
+  async remove(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogPostsService.remove(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.remove(id),
+    );
   }
 
   @Get(':slug/related')
-  findRelated(@Param('slug') slug: string) {
-    return this.blogPostsService.findRelatedBySlug(slug);
+  async findRelated(@Param('slug') slug: string) {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.findRelatedBySlug(slug),
+    );
   }
 
   @Get(':slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.blogPostsService.findBySlug(slug);
+  async findBySlug(@Param('slug') slug: string) {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogPostsService.findBySlug(slug),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -9,6 +10,7 @@ import {
   Post,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -22,21 +24,33 @@ export class ContactSubmissionsController {
   ) {}
 
   @Post()
-  create(@Req() req: Request, @Body() dto: CreateContactSubmissionDto) {
-    return this.contactSubmissionsService.create(dto, req.ip ?? 'unknown');
+  async create(@Req() req: Request, @Body() dto: CreateContactSubmissionDto) {
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.contactSubmissionsService.create(dto, req.ip ?? 'unknown'),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get()
-  findAll(@Req() req: Request) {
+  async findAll(@Req() req: Request) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.contactSubmissionsService.findAll();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.contactSubmissionsService.findAll(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Patch(':id/read')
-  markAsRead(@Req() req: Request, @Param('id') id: string) {
+  async markAsRead(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.contactSubmissionsService.markAsRead(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.contactSubmissionsService.markAsRead(id),
+    );
   }
 }

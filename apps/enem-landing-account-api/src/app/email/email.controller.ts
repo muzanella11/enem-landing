@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { Role } from '@enem-landing/shared-definitions';
 import {
   BadRequestException,
@@ -7,6 +8,7 @@ import {
   Post,
   Request,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import type { AuthJwtPayload } from '../auth/auth-jwt-payload.js';
@@ -65,7 +67,7 @@ export class EmailController {
       subject: template.subject,
       html: template.generateHtml(),
     });
-    return { statusCode: 200, message: `Test email sent to ${to}` };
+    return successResponse(HttpStatus.CREATED, `Test email sent to ${to}`);
   }
 
   /**
@@ -109,12 +111,11 @@ export class EmailController {
     const failures = results.filter(
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     );
-    return {
-      statusCode: 200,
-      message:
-        failures.length === 0
-          ? 'Emails sent'
-          : `${failures.length}/${results.length} email(s) failed to send`,
-    };
+    return successResponse(
+      HttpStatus.CREATED,
+      failures.length === 0
+        ? 'Emails sent'
+        : `${failures.length}/${results.length} email(s) failed to send`,
+    );
   }
 }

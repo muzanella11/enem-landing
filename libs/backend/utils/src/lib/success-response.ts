@@ -13,5 +13,6 @@ export interface SuccessResponseBody<T> {
 export const successResponse = <T>(
   statusCode: number,
   message: string,
-  data?: T,
+  // A Promise here would serialize as `{}`: await the service call first.
+  data?: T extends PromiseLike<unknown> ? never : T,
 ): SuccessResponseBody<T> => ({ statusCode, message, data });

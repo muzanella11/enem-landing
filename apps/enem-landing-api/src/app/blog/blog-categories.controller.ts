@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -11,6 +12,7 @@ import {
   Query,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -25,34 +27,50 @@ export class BlogCategoriesController {
   // `?published=true` (public blog filter): only entries used by a
   // published post, with `postCount`. Without it (CMS): every entry.
   @Get()
-  findAll(@Query('published') published?: string) {
-    return published === 'true'
-      ? this.blogCategoriesService.findPublished()
-      : this.blogCategoriesService.findAll();
+  async findAll(@Query('published') published?: string) {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await (published === 'true'
+        ? this.blogCategoriesService.findPublished()
+        : this.blogCategoriesService.findAll()),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post()
-  create(@Req() req: Request, @Body() dto: CreateBlogCategoryDto) {
+  async create(@Req() req: Request, @Body() dto: CreateBlogCategoryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogCategoriesService.create(dto);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.blogCategoriesService.create(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put(':id')
-  update(
+  async update(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateBlogCategoryDto,
   ) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogCategoriesService.update(id, dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogCategoriesService.update(id, dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete(':id')
-  remove(@Req() req: Request, @Param('id') id: string) {
+  async remove(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.blogCategoriesService.remove(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.blogCategoriesService.remove(id),
+    );
   }
 }

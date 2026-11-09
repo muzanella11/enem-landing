@@ -4,7 +4,26 @@ export interface CreateAxiosInstanceConfig {
   baseURL?: string;
   token?: string;
   customHeaders?: Record<string, string>;
+  /**
+   * Resolve with the API's `data` instead of the whole
+   * `{ statusCode, message, data }` envelope (`successResponse` in
+   * `@enem-landing/backend-utils`). For BFF clients that pass enem-landing-api
+   * payloads straight through to their own pages.
+   */
+  unwrapEnvelope?: boolean;
 }
+
+interface ResponseEnvelope {
+  statusCode: number;
+  message: string;
+  data?: unknown;
+}
+
+const isResponseEnvelope = (body: unknown): body is ResponseEnvelope =>
+  typeof body === 'object' &&
+  body !== null &&
+  typeof (body as ResponseEnvelope).statusCode === 'number' &&
+  typeof (body as ResponseEnvelope).message === 'string';
 
 /**
  * Ported from mau-apps (`libs/shared/utils/src/lib/axios.ts`) — a thin
@@ -15,7 +34,7 @@ export interface CreateAxiosInstanceConfig {
 export const createAxiosInstance = (
   config: CreateAxiosInstanceConfig,
 ): AxiosInstance => {
-  const { baseURL, token, customHeaders } = config;
+  const { baseURL, token, customHeaders, unwrapEnvelope } = config;
 
   const instance = axios.create({
     baseURL,
@@ -34,7 +53,10 @@ export const createAxiosInstance = (
   });
 
   instance.interceptors.response.use(
-    (response) => response.data,
+    (response) =>
+      unwrapEnvelope && isResponseEnvelope(response.data)
+        ? response.data.data
+        : response.data,
     (error) => Promise.reject(error),
   );
 

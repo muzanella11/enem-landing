@@ -23,6 +23,10 @@ export const createApiClient = (event: H3Event) => {
   return createAxiosInstance({
     baseURL: config.apiHost as string,
     token: getAuthToken(event),
+    // enem-landing-api wraps every payload in successResponse; BFF routes
+    // pass the bare data through to pages. The account-api client below
+    // keeps the envelope, which its callers already read.
+    unwrapEnvelope: true,
   });
 };
 

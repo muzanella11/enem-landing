@@ -7,7 +7,12 @@ import { createAxiosInstance } from '@enem-landing/shared-utils';
  */
 export const createApiClient = () => {
   const config = useRuntimeConfig();
-  const client = createAxiosInstance({ baseURL: config.apiHost as string });
+  const client = createAxiosInstance({
+    baseURL: config.apiHost as string,
+    // enem-landing-api wraps every payload in successResponse; BFF routes
+    // pass the bare data through to pages.
+    unwrapEnvelope: true,
+  });
   // Shorter than the shared 10s default: a slow API must not hold up a
   // page render, the callers all have a fallback.
   client.defaults.timeout = 5000;

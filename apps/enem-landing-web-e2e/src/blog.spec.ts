@@ -43,19 +43,25 @@ const seedPost = async (request: APIRequestContext): Promise<SeededPost> => {
     headers,
     data: { name: CATEGORY_NAME },
   });
-  const { id: categoryId } = (await category.json()) as { id: string };
+  const {
+    data: { id: categoryId },
+  } = (await category.json()) as { data: { id: string } };
 
   const tag = await request.post(`${API}/blog-tags`, {
     headers,
     data: { name: TAG_NAME },
   });
-  const { id: tagId } = (await tag.json()) as { id: string };
+  const {
+    data: { id: tagId },
+  } = (await tag.json()) as { data: { id: string } };
 
   const created = await request.post(`${API}/blog-posts`, {
     headers,
     data: { title: POST_TITLE },
   });
-  const { id: postId } = (await created.json()) as { id: string };
+  const {
+    data: { id: postId },
+  } = (await created.json()) as { data: { id: string } };
 
   const published = await request.put(`${API}/blog-posts/${postId}`, {
     headers,
@@ -75,7 +81,9 @@ const seedPost = async (request: APIRequestContext): Promise<SeededPost> => {
       tagIds: [tagId],
     },
   });
-  const { slug } = (await published.json()) as { slug: string };
+  const {
+    data: { slug },
+  } = (await published.json()) as { data: { slug: string } };
 
   return { token, categoryId, tagId, postId, slug };
 };

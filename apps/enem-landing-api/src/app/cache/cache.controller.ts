@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { RedisService } from '@enem-landing/backend-redis';
 import { CacheService } from '@enem-landing/backend-cache';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
@@ -10,6 +11,7 @@ import {
   Query,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -32,13 +34,16 @@ export class CacheController {
     try {
       await this.redisService.ping();
     } catch {
-      return { connected: false, keys: [] };
+      return successResponse(HttpStatus.OK, 'Success', {
+        connected: false,
+        keys: [],
+      });
     }
 
     const keys = await Promise.all(
       ALL_KEYS.map((key) => this.cacheService.getEntry(key)),
     );
-    return { connected: true, keys };
+    return successResponse(HttpStatus.OK, 'Success', { connected: true, keys });
   }
 
   @Delete()
@@ -53,6 +58,6 @@ export class CacheController {
       throw new BadRequestException('Unknown cache key');
     }
 
-    return { ok: true };
+    return successResponse(HttpStatus.OK, 'Success', { ok: true });
   }
 }
