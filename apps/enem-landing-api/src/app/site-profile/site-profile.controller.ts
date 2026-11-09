@@ -1,6 +1,15 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
-import { Body, Controller, Get, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Put,
+  Req,
+  UseGuards,
+  HttpStatus,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
 import { UpdateSiteProfileDto } from './dto/update-site-profile.dto.js';
@@ -11,14 +20,22 @@ export class SiteProfileController {
   constructor(private readonly siteProfileService: SiteProfileService) {}
 
   @Get()
-  get() {
-    return this.siteProfileService.getOrCreate();
+  async get() {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.siteProfileService.getOrCreate(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put()
-  update(@Req() req: Request, @Body() dto: UpdateSiteProfileDto) {
+  async update(@Req() req: Request, @Body() dto: UpdateSiteProfileDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.siteProfileService.update(dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.siteProfileService.update(dto),
+    );
   }
 }

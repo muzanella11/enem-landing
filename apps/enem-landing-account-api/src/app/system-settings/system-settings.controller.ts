@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { Role } from '@enem-landing/shared-definitions';
 import {
   Body,
@@ -7,6 +8,7 @@ import {
   Put,
   Request,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard.js';
@@ -28,7 +30,7 @@ export class SystemSettingsController {
   async getAll(@Request() req: ExpressRequest) {
     assertAdmin(req.user as AuthJwtPayload);
     const data = await this.systemSettingsService.getAll();
-    return { statusCode: 200, message: 'Success', data };
+    return successResponse(HttpStatus.OK, 'Success', data);
   }
 
   @Put()
@@ -39,6 +41,10 @@ export class SystemSettingsController {
     assertAdmin(req.user as AuthJwtPayload);
     await this.systemSettingsService.upsertMany(body);
     const data = await this.systemSettingsService.getAll();
-    return { statusCode: 200, message: 'Settings updated successfully', data };
+    return successResponse(
+      HttpStatus.OK,
+      'Settings updated successfully',
+      data,
+    );
   }
 }

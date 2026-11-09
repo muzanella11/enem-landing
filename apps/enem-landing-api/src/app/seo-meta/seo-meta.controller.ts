@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -9,6 +10,7 @@ import {
   Post,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -21,27 +23,43 @@ export class SeoMetaController {
 
   @UseGuards(SsoAuthGuard)
   @Get()
-  findAll(@Req() req: Request) {
+  async findAll(@Req() req: Request) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.seoMetaService.findAll();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.seoMetaService.findAll(),
+    );
   }
 
   @Get(':pageKey')
-  findByPageKey(@Param('pageKey') pageKey: string) {
-    return this.seoMetaService.findByPageKey(pageKey);
+  async findByPageKey(@Param('pageKey') pageKey: string) {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.seoMetaService.findByPageKey(pageKey),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post()
-  upsert(@Req() req: Request, @Body() dto: UpsertSeoMetaDto) {
+  async upsert(@Req() req: Request, @Body() dto: UpsertSeoMetaDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.seoMetaService.upsert(dto);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.seoMetaService.upsert(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete(':pageKey')
-  remove(@Req() req: Request, @Param('pageKey') pageKey: string) {
+  async remove(@Req() req: Request, @Param('pageKey') pageKey: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.seoMetaService.remove(pageKey);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.seoMetaService.remove(pageKey),
+    );
   }
 }

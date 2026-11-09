@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -11,6 +12,7 @@ import {
   Query,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -44,171 +46,255 @@ export class TrackingController {
   @Get('config')
   async getConfig(@Query() query: SiteQueryDto) {
     const settings = await this.trackingSettingsService.getOrCreate(query.site);
-    return {
+    return successResponse(HttpStatus.OK, 'Success', {
       pageviewEnabled: settings.pageviewEnabled,
       eventsEnabled: settings.eventsEnabled,
       heatmapEnabled: settings.heatmapEnabled,
       sessionRecordingEnabled: settings.sessionRecordingEnabled,
       sessionRecordingSampleRatePct: settings.sessionRecordingSampleRatePct,
-    };
+    });
   }
 
   @Post('session')
-  createSession(@Req() req: Request, @Body() dto: CreateSessionDto) {
-    return this.trackingService.createSession(
-      dto,
-      req.ip ?? 'unknown',
-      req.headers['user-agent'],
-      req.headers['accept-language'],
+  async createSession(@Req() req: Request, @Body() dto: CreateSessionDto) {
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingService.createSession(
+        dto,
+        req.ip ?? 'unknown',
+        req.headers['user-agent'],
+        req.headers['accept-language'],
+      ),
     );
   }
 
   @Post('pageview')
-  recordPageviews(@Body() dto: CreatePageviewBatchDto) {
-    return this.trackingService.recordPageviews(dto.items);
+  async recordPageviews(@Body() dto: CreatePageviewBatchDto) {
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingService.recordPageviews(dto.items),
+    );
   }
 
   @Post('pageview/:id/duration')
-  recordPageviewDuration(
+  async recordPageviewDuration(
     @Param('id') id: string,
     @Body() dto: RecordPageviewDurationDto,
   ) {
-    return this.trackingService.recordPageviewDuration(id, dto.durationMs);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingService.recordPageviewDuration(id, dto.durationMs),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('settings')
-  getSettings(@Req() req: Request, @Query() query: SiteQueryDto) {
+  async getSettings(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingSettingsService.getOrCreate(query.site);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingSettingsService.getOrCreate(query.site),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('settings')
-  updateSettings(
+  async updateSettings(
     @Req() req: Request,
     @Query() query: SiteQueryDto,
     @Body() dto: UpdateTrackingSettingsDto,
   ) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingSettingsService.update(dto, query.site);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingSettingsService.update(dto, query.site),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('overview')
-  getOverview(@Req() req: Request, @Query() query: SiteQueryDto) {
+  async getOverview(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingService.getOverview(query.site);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingService.getOverview(query.site),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('visitors')
-  getVisitors(@Req() req: Request, @Query() query: SiteQueryDto) {
+  async getVisitors(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingService.getVisitors(query.site);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingService.getVisitors(query.site),
+    );
   }
 
   @Post('events')
-  recordEvents(@Body() dto: CreateEventBatchDto) {
-    return this.trackingService.recordEvents(dto.items);
+  async recordEvents(@Body() dto: CreateEventBatchDto) {
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingService.recordEvents(dto.items),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('funnels')
-  findAllFunnels(@Req() req: Request, @Query() query: SiteQueryDto) {
+  async findAllFunnels(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingFunnelsService.findAll(query.site);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingFunnelsService.findAll(query.site),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post('funnels')
-  createFunnel(@Req() req: Request, @Body() dto: CreateFunnelDto) {
+  async createFunnel(@Req() req: Request, @Body() dto: CreateFunnelDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingFunnelsService.create(dto);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingFunnelsService.create(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('funnels/:id')
-  updateFunnel(
+  async updateFunnel(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateFunnelDto,
   ) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingFunnelsService.update(id, dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingFunnelsService.update(id, dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete('funnels/:id')
-  removeFunnel(@Req() req: Request, @Param('id') id: string) {
+  async removeFunnel(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingFunnelsService.remove(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingFunnelsService.remove(id),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('funnels/:id/report')
-  getFunnelReport(@Req() req: Request, @Param('id') id: string) {
+  async getFunnelReport(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingFunnelsService.getReport(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingFunnelsService.getReport(id),
+    );
   }
 
   @Post('clicks')
-  recordClicks(@Body() dto: CreateClickBatchDto) {
-    return this.trackingService.recordClicks(dto.items, dto.site);
+  async recordClicks(@Body() dto: CreateClickBatchDto) {
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingService.recordClicks(dto.items, dto.site),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('heatmap/paths')
-  getHeatmapPaths(@Req() req: Request, @Query() query: SiteQueryDto) {
+  async getHeatmapPaths(@Req() req: Request, @Query() query: SiteQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingHeatmapService.getDistinctPaths(query.site);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingHeatmapService.getDistinctPaths(query.site),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('heatmap')
-  getHeatmap(@Req() req: Request, @Query() query: GetHeatmapQueryDto) {
+  async getHeatmap(@Req() req: Request, @Query() query: GetHeatmapQueryDto) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingHeatmapService.getHeatmap(
-      query.path,
-      query.device,
-      query.site,
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingHeatmapService.getHeatmap(
+        query.path,
+        query.device,
+        query.site,
+      ),
     );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post('heatmap/aggregate')
-  triggerHeatmapAggregation(@Req() req: Request) {
+  async triggerHeatmapAggregation(@Req() req: Request) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingHeatmapService.triggerNow();
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingHeatmapService.triggerNow(),
+    );
   }
 
   @Post('session-recording')
-  recordSessionChunk(@Body() dto: RecordSessionChunkDto) {
-    return this.trackingService.recordSessionChunk(
-      dto.sessionId,
-      dto.sequence,
-      dto.events,
+  async recordSessionChunk(@Body() dto: RecordSessionChunkDto) {
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingService.recordSessionChunk(
+        dto.sessionId,
+        dto.sequence,
+        dto.events,
+      ),
     );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('sessions')
-  getSessionsWithRecording(@Req() req: Request) {
+  async getSessionsWithRecording(@Req() req: Request) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingRecordingService.getSessionsWithRecording();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingRecordingService.getSessionsWithRecording(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('sessions/:id/recording')
-  getSessionRecording(@Req() req: Request, @Param('id') id: string) {
+  async getSessionRecording(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingRecordingService.getRecordingChunks(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.trackingRecordingService.getRecordingChunks(id),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post('recordings/prune')
-  triggerRecordingPrune(@Req() req: Request) {
+  async triggerRecordingPrune(@Req() req: Request) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.trackingRecordingService.triggerPruneNow();
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.trackingRecordingService.triggerPruneNow(),
+    );
   }
 }

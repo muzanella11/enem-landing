@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -8,6 +9,7 @@ import {
   Put,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -20,19 +22,27 @@ export class ProjectsController {
 
   @UseGuards(SsoAuthGuard)
   @Put(':id')
-  update(
+  async update(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateProjectDto,
   ) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.experiencesService.updateProject(id, dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.experiencesService.updateProject(id, dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete(':id')
-  remove(@Req() req: Request, @Param('id') id: string) {
+  async remove(@Req() req: Request, @Param('id') id: string) {
     assertAdminRole((req as Request & { user: User }).user);
-    return this.experiencesService.removeProject(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.experiencesService.removeProject(id),
+    );
   }
 }

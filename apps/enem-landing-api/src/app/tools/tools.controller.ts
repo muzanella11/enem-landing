@@ -1,3 +1,4 @@
+import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -13,6 +14,7 @@ import {
   Put,
   Req,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { assertAdminRole } from '../common/assert-admin-role.js';
@@ -37,110 +39,169 @@ export class ToolsController {
 
   /** Public - daily spot gold history for tools.muzanella.com (Story 38). */
   @Get('gold-price/history')
-  goldPriceHistory(
+  async goldPriceHistory(
     @Query('days', new DefaultValuePipe(365), ParseIntPipe) days: number,
   ) {
-    return this.goldPriceService.history(Math.min(Math.max(days, 1), 1830));
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.goldPriceService.history(Math.min(Math.max(days, 1), 1830)),
+    );
   }
 
   /** Public - consumed by enem-landing-tools' BFF (cached). */
   @Get('config')
-  getConfig() {
-    return this.toolsService.getPublicConfig();
+  async getConfig() {
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.getPublicConfig(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('admin/tools')
-  findAllTools(@Req() req: Request) {
+  async findAllTools(@Req() req: Request) {
     admin(req);
-    return this.toolsService.findAllTools();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.findAllTools(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post('admin/tools')
-  createTool(@Req() req: Request, @Body() dto: CreateToolDto) {
+  async createTool(@Req() req: Request, @Body() dto: CreateToolDto) {
     admin(req);
-    return this.toolsService.createTool(dto);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.toolsService.createTool(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('admin/tools/reorder')
-  reorderTools(@Req() req: Request, @Body() dto: ReorderToolsDto) {
+  async reorderTools(@Req() req: Request, @Body() dto: ReorderToolsDto) {
     admin(req);
-    return this.toolsService.reorderTools(dto.ids);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.reorderTools(dto.ids),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('admin/tools/:id')
-  updateTool(
+  async updateTool(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateToolDto,
   ) {
     admin(req);
-    return this.toolsService.updateTool(id, dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.updateTool(id, dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete('admin/tools/:id')
-  removeTool(@Req() req: Request, @Param('id') id: string) {
+  async removeTool(@Req() req: Request, @Param('id') id: string) {
     admin(req);
-    return this.toolsService.removeTool(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.removeTool(id),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('admin/donation-options')
-  findAllDonationOptions(@Req() req: Request) {
+  async findAllDonationOptions(@Req() req: Request) {
     admin(req);
-    return this.toolsService.findAllDonationOptions();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.findAllDonationOptions(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Post('admin/donation-options')
-  createDonationOption(
+  async createDonationOption(
     @Req() req: Request,
     @Body() dto: CreateDonationOptionDto,
   ) {
     admin(req);
-    return this.toolsService.createDonationOption(dto);
+    return successResponse(
+      HttpStatus.CREATED,
+      'Success',
+      await this.toolsService.createDonationOption(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('admin/donation-options/:id')
-  updateDonationOption(
+  async updateDonationOption(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateDonationOptionDto,
   ) {
     admin(req);
-    return this.toolsService.updateDonationOption(id, dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.updateDonationOption(id, dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Delete('admin/donation-options/:id')
-  removeDonationOption(@Req() req: Request, @Param('id') id: string) {
+  async removeDonationOption(@Req() req: Request, @Param('id') id: string) {
     admin(req);
-    return this.toolsService.removeDonationOption(id);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.removeDonationOption(id),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('admin/settings')
-  getSettings(@Req() req: Request) {
+  async getSettings(@Req() req: Request) {
     admin(req);
-    return this.toolsService.getSettings();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.getSettings(),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Put('admin/settings')
-  updateSettings(@Req() req: Request, @Body() dto: UpdateToolsSettingsDto) {
+  async updateSettings(
+    @Req() req: Request,
+    @Body() dto: UpdateToolsSettingsDto,
+  ) {
     admin(req);
-    return this.toolsService.updateSettings(dto);
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.updateSettings(dto),
+    );
   }
 
   @UseGuards(SsoAuthGuard)
   @Get('admin/stats')
-  getStats(@Req() req: Request) {
+  async getStats(@Req() req: Request) {
     admin(req);
-    return this.toolsService.getStats();
+    return successResponse(
+      HttpStatus.OK,
+      'Success',
+      await this.toolsService.getStats(),
+    );
   }
 }

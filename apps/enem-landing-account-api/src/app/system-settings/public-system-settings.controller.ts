@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { successResponse } from '@enem-landing/backend-utils';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { SystemSettingsService } from './system-settings.service.js';
 
 /**
@@ -13,6 +14,6 @@ export class PublicSystemSettingsController {
   @Get()
   async get() {
     const data = await this.systemSettingsService.getPublic();
-    return { statusCode: 200, message: 'Success', data };
+    return successResponse(HttpStatus.OK, 'Success', data);
   }
 }

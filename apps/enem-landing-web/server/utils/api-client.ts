@@ -8,7 +8,12 @@ import { createAxiosInstance } from '@enem-landing/shared-utils';
  */
 export const createApiClient = () => {
   const config = useRuntimeConfig();
-  return createAxiosInstance({ baseURL: config.apiHost as string });
+  return createAxiosInstance({
+    baseURL: config.apiHost as string,
+    // enem-landing-api wraps every payload in successResponse; BFF routes
+    // pass the bare data through to pages.
+    unwrapEnvelope: true,
+  });
 };
 
 export const handleApiError = (error: unknown): never => {
