@@ -168,6 +168,24 @@ test.describe('blog', () => {
     }
   });
 
+  test('sitemap.xml lists published posts', async ({ request }) => {
+    const seeded = await seedPost(request);
+
+    try {
+      const response = await request.get('/sitemap.xml');
+      expect(response.status()).toBe(200);
+      expect(response.headers()['content-type']).toContain('application/xml');
+      const xml = await response.text();
+      expect(xml).toContain('<loc>https://muzanella.com/</loc>');
+      expect(xml).toContain('<loc>https://muzanella.com/blog</loc>');
+      expect(xml).toContain(
+        `<loc>https://muzanella.com/blog/${seeded.slug}</loc>`,
+      );
+    } finally {
+      await cleanupPost(request, seeded);
+    }
+  });
+
   test('a missing slug 404s instead of erroring', async ({ page }) => {
     const missing = await page.goto('/blog/this-slug-does-not-exist');
     expect(missing?.status()).toBe(404);
