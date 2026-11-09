@@ -28,6 +28,13 @@
 #   - AUTH_COOKIE_NAME: dev shares prod's `.muzanella.com` cookie domain,
 #     so it needs its own cookie name - otherwise a dev signin overwrites
 #     the prod token (signed with a different JWT_SECRET) and vice versa.
+#   - REDIS_KEY_PREFIX: dev and prod use the same Redis instance, and both
+#     APIs write fixed key names (`cache:public:experiences`, ...). Without
+#     a prefix, whichever stack missed the cache first filled it for both:
+#     on 2026-11-09 prod served dev's experiences (dev project ids, no
+#     portfolio images) and the prod CMS answered "Experience not found"
+#     for every row. Pinned here (not only in the `development` secret) so
+#     dev can never fall back to prod's namespace.
 #
 # Stack name (`enem-landing-dev`) and deploy dir (`/opt/enem-landing-dev`)
 # are separated by infra/ansible/playbooks/deploy.yml, not here.
@@ -60,6 +67,7 @@ services:
     environment:
       <<: *node-tuning
       CORS_ORIGIN: https://dev-cms.muzanella.com,https://dev-account.muzanella.com
+      REDIS_KEY_PREFIX: dev # see header: Redis is shared with prod
     deploy:
       <<: *dev-deploy
       labels: !override
@@ -87,6 +95,7 @@ services:
     networks: !override [enem-landing-dev-network]
     environment:
       <<: *node-tuning
+      REDIS_KEY_PREFIX: dev # see header: Redis is shared with prod
     deploy:
       <<: *dev-deploy
       labels: !override
