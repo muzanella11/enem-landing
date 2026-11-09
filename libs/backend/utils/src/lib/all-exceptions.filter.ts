@@ -6,6 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { errorResponse } from './error-response.js';
 
 /**
  * Ported from mau-apps
@@ -29,12 +30,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       `HTTP ${status} on ${request.method} ${request.url}: ${this.describe(exception)}`,
     );
 
-    response.status(status).json({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message: this.toMessage(exception),
-    });
+    response.status(status).json(errorResponse(status, this.toMessage(exception), request.url));
   }
 
   private describe(exception: unknown): string {
