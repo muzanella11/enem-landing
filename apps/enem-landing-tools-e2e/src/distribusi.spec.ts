@@ -62,7 +62,9 @@ test.describe('SEO and distribution (Story 49)', () => {
     );
     expect(
       traffic.requests.filter((r) =>
-        /\/api\/tracking|googlesyndication|google-analytics|googletagmanager/.test(
+        // Match Google hosts, not path fragments: the dev server serves the
+        // GA plugin as /_nuxt/plugins/04.google-analytics.client.ts.
+        /\/api\/tracking|:\/\/[^/]*(googlesyndication|google-analytics|googletagmanager)\.com\//.test(
           r.url,
         ),
       ),

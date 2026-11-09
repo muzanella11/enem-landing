@@ -5,6 +5,12 @@ test.describe('background removal (Story 48)', () => {
   test.beforeEach(async ({ page }) => acceptConsent(page));
 
   test('model is self-hosted and long-cached', async ({ request }) => {
+    // The long cache comes from Nitro routeRules, which the dev server does
+    // not apply to static files; CI runs e2e against the production build.
+    test.skip(
+      !process.env['BASE_URL'],
+      'cache headers only exist in the production build',
+    );
     for (const file of [
       'selfie_segmentation.js',
       'selfie_segmentation.tflite',
