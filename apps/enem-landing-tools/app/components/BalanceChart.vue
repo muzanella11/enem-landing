@@ -86,7 +86,7 @@ const labelEvery = computed(() =>
           :width="Math.max(1, barWidth - 2)"
           :y="PAD.top + innerH * (1 - year.principal / maxPaid)"
           :height="innerH * (year.principal / maxPaid)"
-          class="fill-teal-600"
+          class="fill-primary"
         />
         <text
           v-if="index % labelEvery === 0"
@@ -107,7 +107,7 @@ const labelEvery = computed(() =>
     </svg>
     <figcaption class="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
       <span class="flex items-center gap-1"
-        ><span class="h-3 w-3 rounded-sm bg-teal-600" />Pokok dibayar per
+        ><span class="h-3 w-3 rounded-sm bg-primary" />Pokok dibayar per
         tahun</span
       >
       <span class="flex items-center gap-1"

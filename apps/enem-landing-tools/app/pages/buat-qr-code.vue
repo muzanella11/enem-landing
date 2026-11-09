@@ -112,7 +112,7 @@ const howTo = [
           ><input
             v-model="form.tersembunyi"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           Jaringan tersembunyi</label
         >

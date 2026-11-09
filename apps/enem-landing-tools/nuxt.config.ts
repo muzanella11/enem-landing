@@ -73,7 +73,25 @@ export default defineNuxtConfig({
   // request on the hub; inlining it into the SSR HTML removes that round
   // trip (same as enem-landing-web).
   features: { inlineStyles: true },
-  tailwindcss: { cssPath: false },
+  tailwindcss: {
+    cssPath: false,
+    config: {
+      theme: {
+        extend: {
+          colors: {
+            // Same brand teal as enem-landing-web (#0E7C6B, hover #0B6657),
+            // so the landing and tools read as one site.
+            primary: {
+              DEFAULT: '#0E7C6B',
+              dark: '#0B6657',
+              50: '#F1F7F6',
+              100: '#DBEBE9',
+            },
+          },
+        },
+      },
+    },
+  },
   vite: {
     resolve: { tsconfigPaths: true },
     worker: { format: 'es' },

@@ -111,7 +111,7 @@ const faqs = [
     </form>
     <section v-if="hasil" class="card space-y-2" aria-live="polite">
       <p class="text-sm text-slate-600">PBB per tahun</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.pbb) }}
       </p>
       <p class="tabular text-sm">

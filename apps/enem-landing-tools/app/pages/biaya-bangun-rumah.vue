@@ -100,7 +100,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Perkiraan total ({{ hasil.luas }} m²)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.total) }}
       </p>
       <p class="tabular text-sm">

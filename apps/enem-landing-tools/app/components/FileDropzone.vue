@@ -46,7 +46,7 @@ const onChange = (event: Event) => {
   <div
     class="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-10 text-center transition"
     :class="
-      dragging ? 'border-teal-600 bg-teal-50' : 'border-slate-300 bg-white'
+      dragging ? 'border-primary bg-primary-50' : 'border-slate-300 bg-white'
     "
     @dragover.prevent="dragging = true"
     @dragleave.prevent="dragging = false"
@@ -66,7 +66,7 @@ const onChange = (event: Event) => {
       @change="onChange"
     />
     <p v-if="hint" class="mt-3 text-xs text-slate-500">{{ hint }}</p>
-    <p class="mt-2 text-xs font-medium text-teal-800">
+    <p class="mt-2 text-xs font-medium text-primary">
       File kamu diproses di perangkat ini dan tidak pernah di-upload.
     </p>
   </div>

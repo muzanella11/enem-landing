@@ -203,7 +203,7 @@ const howTo = [
             ><input
               v-model="form.asuransiDiMuka"
               type="checkbox"
-              class="h-4 w-4 accent-teal-700"
+              class="h-4 w-4 accent-primary"
             />
             Asuransi dibayar di muka</label
           >
@@ -219,7 +219,7 @@ const howTo = [
         <p class="text-sm text-slate-500">
           Cicilan per bulan ({{ form.tenor }} bulan)
         </p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(utama.cicilan) }}
         </p>
         <div class="tabular">

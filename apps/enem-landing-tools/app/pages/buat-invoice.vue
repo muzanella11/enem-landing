@@ -461,7 +461,7 @@ const howTo = [
                 Invoice baru
               </button>
             </div>
-            <p v-if="message" class="text-sm text-teal-700">{{ message }}</p>
+            <p v-if="message" class="text-sm text-primary">{{ message }}</p>
           </form>
 
           <!-- Live preview (the PDF itself is drawn with pdf-lib on download) -->
@@ -473,7 +473,7 @@ const howTo = [
               class="flex items-start justify-between gap-4"
               :class="
                 store.profile.template === 'modern'
-                  ? 'border-t-4 border-teal-700 pt-3'
+                  ? 'border-t-4 border-primary pt-3'
                   : ''
               "
             >
@@ -497,7 +497,7 @@ const howTo = [
                 <p
                   class="text-xl font-bold"
                   :class="
-                    store.profile.template === 'modern' ? 'text-teal-700' : ''
+                    store.profile.template === 'modern' ? 'text-primary' : ''
                   "
                 >
                   INVOICE
@@ -505,7 +505,7 @@ const howTo = [
                 <p class="text-xs">{{ previewNumber }}</p>
                 <p
                   v-if="draft.status === 'lunas'"
-                  class="text-xs font-bold text-teal-700"
+                  class="text-xs font-bold text-primary"
                 >
                   LUNAS
                 </p>
@@ -519,7 +519,7 @@ const howTo = [
               <thead
                 :class="
                   store.profile.template === 'modern'
-                    ? 'bg-teal-700 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-slate-100'
                 "
               >

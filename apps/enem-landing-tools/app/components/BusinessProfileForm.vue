@@ -161,7 +161,7 @@ const pickImage = async (
       <input
         v-model="profile.showFooterCredit"
         type="checkbox"
-        class="h-4 w-4 accent-teal-700"
+        class="h-4 w-4 accent-primary"
       />
       Tampilkan "Dibuat dengan tools.muzanella.com" di PDF
     </label>

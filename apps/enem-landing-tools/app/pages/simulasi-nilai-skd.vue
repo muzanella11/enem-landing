@@ -134,7 +134,7 @@ const faqs = [
     <section v-if="hasil && skor" class="card space-y-3" aria-live="polite">
       <p
         class="text-3xl font-bold"
-        :class="hasil.lulus ? 'text-teal-800' : 'text-rose-800'"
+        :class="hasil.lulus ? 'text-primary' : 'text-rose-800'"
       >
         {{
           hasil.lulus ? 'Memenuhi ambang batas' : 'Belum memenuhi ambang batas'
@@ -157,7 +157,7 @@ const faqs = [
             </td>
             <td
               class="py-2 text-right font-semibold"
-              :class="c.lulus ? 'text-teal-700' : 'text-rose-700'"
+              :class="c.lulus ? 'text-primary' : 'text-rose-700'"
             >
               {{ c.selisih >= 0 ? `+${c.selisih}` : c.selisih }}
             </td>

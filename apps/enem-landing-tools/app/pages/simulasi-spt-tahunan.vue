@@ -122,7 +122,7 @@ const faqs = [
       <p
         class="tabular text-3xl font-bold"
         :class="
-          hasil.status === 'kurang-bayar' ? 'text-rose-800' : 'text-teal-800'
+          hasil.status === 'kurang-bayar' ? 'text-rose-800' : 'text-primary'
         "
       >
         {{

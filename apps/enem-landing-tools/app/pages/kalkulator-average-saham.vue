@@ -100,7 +100,7 @@ const faqs = [
     <ResultNote :text="DISCLAIMER_SAHAM" />
     <section v-if="rata" class="card space-y-3" aria-live="polite">
       <p class="text-sm text-slate-600">Harga rata-rata ({{ totalLot }} lot)</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(rata) }}
       </p>
       <div class="grid gap-3 sm:grid-cols-2">

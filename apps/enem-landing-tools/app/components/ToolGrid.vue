@@ -25,13 +25,13 @@ defineProps<{
         <li v-for="tool in group.tools" :key="tool.slug">
           <NuxtLink
             :to="`/${tool.slug}`"
-            class="card flex h-full flex-col transition hover:border-teal-600 hover:shadow-md"
+            class="card flex h-full flex-col transition hover:border-primary hover:shadow-md"
           >
             <span class="flex items-center gap-2">
               <span class="font-semibold text-slate-900">{{ tool.name }}</span>
               <span
                 v-if="tool.badge"
-                class="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium capitalize text-teal-800"
+                class="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium capitalize text-primary"
                 >{{ tool.badge }}</span
               >
             </span>

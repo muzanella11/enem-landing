@@ -174,7 +174,7 @@ const howTo = [
     <template v-if="submitted && form.plafon > 0">
       <section class="card space-y-3" aria-live="polite">
         <p class="text-sm text-slate-500">Cicilan per bulan</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(cicilan) }}
         </p>
         <div class="tabular">

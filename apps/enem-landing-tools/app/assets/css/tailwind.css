@@ -34,19 +34,19 @@ input[type='number']::-webkit-inner-spin-button {
     @apply mb-1 block text-sm font-medium text-slate-700;
   }
   .field-input {
-    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/30 disabled:bg-slate-100;
+    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:bg-slate-100;
   }
   .field-hint {
     @apply mt-1 text-xs text-slate-500;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2 font-semibold text-white shadow-sm hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-teal-600/30 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-link {
-    @apply font-medium text-teal-700 underline-offset-2 hover:underline;
+    @apply font-medium text-primary underline-offset-2 hover:underline;
   }
   .result-row {
     @apply flex items-baseline justify-between gap-4 border-b border-slate-100 py-2 text-sm last:border-0;
@@ -66,6 +66,6 @@ input[type='number']::-webkit-inner-spin-button {
      (role="tab" may not use aria-pressed: PageSpeed accessibility). */
   .seg > button[aria-pressed='true'],
   .seg > button[aria-selected='true'] {
-    @apply bg-teal-700 text-white;
+    @apply bg-primary text-white;
   }
 }

@@ -77,7 +77,7 @@ const howTo = [
           ><input
             v-model="withCurrency"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           Tambahkan "rupiah"</label
         >
@@ -85,7 +85,7 @@ const howTo = [
           ><input
             v-model="titleCase"
             type="checkbox"
-            class="h-4 w-4 accent-teal-700"
+            class="h-4 w-4 accent-primary"
           />
           Huruf Awal Kapital</label
         >

@@ -69,7 +69,7 @@ const faqs = [
         PNBP {{ layanan === 'baru' ? 'pembuatan' : 'perpanjangan' }} SIM
         {{ golongan }}
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(tarif[layanan]) }}
       </p>
     </section>

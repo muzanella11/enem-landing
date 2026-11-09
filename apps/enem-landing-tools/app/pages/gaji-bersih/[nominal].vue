@@ -53,7 +53,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Gaji bersih per bulan (TK/0, Januari-November)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(tk0.januari) }}
       </p>
       <table class="tabular mt-4 w-full text-sm">

@@ -118,7 +118,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Dana darurat ideal ({{ hasil.bulan }} bulan pengeluaran)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.target) }}
       </p>
       <p v-if="hasil.kurang > 0" class="tabular text-sm">
@@ -126,7 +126,7 @@ const faqs = [
         {{ formatRupiah(hasil.setoran) }} per bulan selama
         {{ form.bulanMenabung }} bulan.
       </p>
-      <p v-else class="text-sm text-teal-800">Dana darurat Anda sudah cukup.</p>
+      <p v-else class="text-sm text-primary">Dana darurat Anda sudah cukup.</p>
       <ShareButton :tool-id="SLUG" :state="form" title="Dana darurat ideal" />
     </section>
     <NuxtLink to="/kalkulator-tabungan" class="btn-link"

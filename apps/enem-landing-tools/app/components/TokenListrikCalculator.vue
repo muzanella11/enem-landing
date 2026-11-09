@@ -113,7 +113,7 @@ watch(
         <p class="text-sm text-slate-500">
           Token {{ formatRupiah(form.nominal) }} mendapat
         </p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ hasil.kwh.toLocaleString('id-ID') }} kWh
         </p>
         <div class="tabular mt-2 max-w-md text-sm">

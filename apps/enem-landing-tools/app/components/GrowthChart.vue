@@ -39,7 +39,7 @@ const last = computed(() => props.points[props.points.length - 1]);
     </svg>
     <figcaption class="flex gap-4 text-xs text-slate-600">
       <span
-        ><span class="inline-block h-0.5 w-4 bg-teal-700 align-middle" /> Nilai
+        ><span class="inline-block h-0.5 w-4 bg-primary align-middle" /> Nilai
         investasi</span
       >
       <span

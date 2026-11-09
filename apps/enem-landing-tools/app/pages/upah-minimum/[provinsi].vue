@@ -69,7 +69,7 @@ const faqs = [
       </div>
       <div>
         <p class="text-sm text-slate-500">UMP 2026</p>
-        <p class="tabular text-2xl font-bold text-teal-800">
+        <p class="tabular text-2xl font-bold text-primary">
           {{
             provinsi!.ump2026
               ? formatRupiah(provinsi!.ump2026)

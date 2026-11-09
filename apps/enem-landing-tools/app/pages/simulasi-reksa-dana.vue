@@ -148,7 +148,7 @@ const faqs = [
     >
       <template v-if="beli">
         <p class="text-sm text-slate-600">Unit yang didapat</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ angka(beli.unit) }} unit
         </p>
         <p class="tabular text-sm">

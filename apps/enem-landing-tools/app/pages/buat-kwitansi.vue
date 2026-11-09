@@ -229,7 +229,7 @@ const howTo = [
               v-model="selected"
               type="checkbox"
               :value="receipt.id"
-              class="h-4 w-4 accent-teal-700"
+              class="h-4 w-4 accent-primary"
               :aria-label="`Pilih ${receipt.number}`"
             />
             <span class="min-w-0 flex-1 truncate"

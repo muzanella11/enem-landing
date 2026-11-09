@@ -6,6 +6,7 @@ import type {
 } from '@enem-landing/shared-types';
 import BlogFilterModal from '../../components/BlogFilterModal.vue';
 import BlogPostCard from '../../components/BlogPostCard.vue';
+import { BLOG_PAGE_SIZE } from '../../utils/blog-page-size';
 
 definePageMeta({ layout: 'blog' });
 
@@ -24,7 +25,7 @@ const tag = computed(() => queryString('tag'));
 const { data: paginated } = await useFetch<PaginatedBlogPosts>(
   '/api/blog-posts',
   {
-    query: { page, q, category, tag },
+    query: { page, pageSize: BLOG_PAGE_SIZE, q, category, tag },
     watch: [page, q, category, tag],
   },
 );

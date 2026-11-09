@@ -205,7 +205,7 @@ const howTo = [
       <section class="card space-y-4" aria-live="polite">
         <div>
           <p class="text-sm text-slate-500">Total upah lembur</p>
-          <p class="tabular text-3xl font-bold text-teal-800">
+          <p class="tabular text-3xl font-bold text-primary">
             {{ formatRupiah(result.total) }}
           </p>
           <p class="mt-1 text-sm text-slate-600">

@@ -43,7 +43,7 @@ const copyLink = async () => {
 onBeforeUnmount(() => clearTimeout(copiedTimer));
 
 const round =
-  'inline-flex h-9 w-9 items-center justify-center rounded-full text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600';
+  'inline-flex h-9 w-9 items-center justify-center rounded-full text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 </script>
 
 <template>
@@ -111,7 +111,7 @@ const round =
     <button
       v-if="canNativeShare"
       type="button"
-      :class="[round, 'bg-teal-700']"
+      :class="[round, 'bg-primary']"
       title="Opsi lain"
       aria-label="Opsi bagikan lainnya"
       data-track="tool_share"
@@ -137,7 +137,7 @@ const round =
       </svg>
     </button>
     <span
-      class="text-xs font-medium text-teal-700 transition-opacity"
+      class="text-xs font-medium text-primary transition-opacity"
       :class="copied ? 'opacity-100' : 'opacity-0'"
       role="status"
       >{{ copied ? 'Link disalin' : '' }}</span

@@ -127,7 +127,7 @@ const faqs = [
       <p class="text-sm text-slate-600">
         Nilai akhir {{ adaKosong ? 'sementara (komponen terisi)' : '' }}
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">{{ angka(akhir) }}</p>
+      <p class="tabular text-3xl font-bold text-primary">{{ angka(akhir) }}</p>
       <p v-if="adaKosong && perlu !== null">
         <template v-if="perlu <= 0"
           >Target sudah tercapai berapa pun nilai komponen yang

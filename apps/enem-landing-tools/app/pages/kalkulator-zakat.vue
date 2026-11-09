@@ -349,7 +349,7 @@ const howTo = [
     >
       <template v-if="form.mode === 'penghasilan'">
         <p class="text-sm text-slate-500">Zakat penghasilan per bulan</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(penghasilan.perBulan) }}
         </p>
         <p class="text-sm text-slate-700">
@@ -368,7 +368,7 @@ const howTo = [
       </template>
       <template v-else-if="form.mode === 'maal'">
         <p class="text-sm text-slate-500">Zakat maal</p>
-        <p class="tabular text-3xl font-bold text-teal-800">
+        <p class="tabular text-3xl font-bold text-primary">
           {{ formatRupiah(maal.zakat) }}
         </p>
         <div class="tabular">
@@ -400,11 +400,11 @@ const howTo = [
         </p>
         <p
           v-if="fitrah.totalUang !== null"
-          class="tabular text-3xl font-bold text-teal-800"
+          class="tabular text-3xl font-bold text-primary"
         >
           {{ formatRupiah(fitrah.totalUang) }}
         </p>
-        <p v-else class="tabular text-3xl font-bold text-teal-800">
+        <p v-else class="tabular text-3xl font-bold text-primary">
           {{ formatThousands(fitrah.totalBerasKg ?? 0) }} kg beras
           <span class="block text-base font-normal text-slate-600"
             >atau sekitar

@@ -7,6 +7,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Top progress bar shown while navigating between pages (same brand teal as the landing). -->
+  <NuxtLoadingIndicator color="#0E7C6B" :height="3" />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

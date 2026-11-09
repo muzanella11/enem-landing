@@ -115,7 +115,7 @@ const faqs = [
       <p class="text-sm text-slate-600">Laba bersih per unit</p>
       <p
         class="tabular text-3xl font-bold"
-        :class="hasil.bersih.laba >= 0 ? 'text-teal-800' : 'text-rose-800'"
+        :class="hasil.bersih.laba >= 0 ? 'text-primary' : 'text-rose-800'"
       >
         {{ formatRupiah(hasil.bersih.laba) }}
       </p>

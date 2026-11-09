@@ -27,9 +27,9 @@ const faqs = [
       <li v-for="surat in DAFTAR_SURAT" :key="surat.slug">
         <NuxtLink
           :to="`/buat-surat/${surat.slug}`"
-          class="card block h-full hover:ring-2 hover:ring-teal-600"
+          class="card block h-full hover:ring-2 hover:ring-primary"
         >
-          <h2 class="font-semibold text-teal-800">{{ surat.nama }}</h2>
+          <h2 class="font-semibold text-primary">{{ surat.nama }}</h2>
           <p class="mt-1 text-sm text-slate-600">{{ surat.deskripsi }}</p>
         </NuxtLink>
       </li>

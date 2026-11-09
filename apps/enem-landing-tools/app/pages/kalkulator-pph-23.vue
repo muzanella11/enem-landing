@@ -64,7 +64,7 @@ const faqs = [
     </form>
     <section v-if="hasil" class="card space-y-2" aria-live="polite">
       <p class="text-sm text-slate-600">PPh 23 dipotong ({{ hasil.tarif }}%)</p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.pph) }}
       </p>
       <p class="tabular text-sm">

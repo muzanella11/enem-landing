@@ -123,7 +123,7 @@ const faqs = [
         Angsuran per bulan ({{ hasil.aturan.label }}, bunga {{ hasil.bunga }}%
         efektif)
       </p>
-      <p class="tabular text-3xl font-bold text-teal-800">
+      <p class="tabular text-3xl font-bold text-primary">
         {{ formatRupiah(hasil.angsuran) }}
       </p>
       <p class="tabular text-sm">
