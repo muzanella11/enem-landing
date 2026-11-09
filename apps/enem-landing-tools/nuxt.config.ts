@@ -48,9 +48,6 @@ export default defineNuxtConfig({
     apiHost: process.env['API_HOST'] || 'http://localhost:3001',
     public: {
       siteUrl: 'https://tools.muzanella.com',
-      // Build date (YYYY-MM-DD) for sitemap <lastmod>: content changes ship
-      // with a deploy, so the build date is an honest "last modified".
-      buildDate: new Date().toISOString().slice(0, 10),
       // GA4 measurement id (G-...), set at runtime via
       // NUXT_PUBLIC_GA_MEASUREMENT_ID. Empty = no Google Analytics. Only
       // loaded after consent, see app/plugins/04.google-analytics.client.ts.
