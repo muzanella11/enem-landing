@@ -82,6 +82,21 @@ export default defineNuxtConfig({
     worker: { format: 'es' },
   },
   nitro: {
+    // Bounded route cache. Nitro's default `cache` storage is an in-memory
+    // map with no size limit and no eviction, and `'/**': { swr: 600 }`
+    // stores the SSR HTML of every distinct URL (query strings included).
+    // A crawl of the ~1,200 sitemap URLs (~55 KB each) filled the 160 MB
+    // heap and crashed prod with "JavaScript heap out of memory" (exit 139).
+    // LRU keeps the hot pages cached and evicts the rest. 32 MB of
+    // serialized entries leaves room for V8's string overhead and the
+    // app's own ~50 MB baseline under --max-old-space-size=160.
+    storage: {
+      cache: {
+        driver: 'lru-cache',
+        max: 1000,
+        maxSize: 32 * 1024 * 1024,
+      },
+    },
     publicAssets: [
       {
         dir: fileURLToPath(
