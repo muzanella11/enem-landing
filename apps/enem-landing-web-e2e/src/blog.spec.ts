@@ -168,6 +168,32 @@ test.describe('blog', () => {
     }
   });
 
+  test('sitemap.xml lists published posts', async ({
+    request,
+    browserName,
+  }) => {
+    // An HTTP-only check, identical in every browser. Run it once: CI runs
+    // against production servers where /sitemap.xml is cached for an hour
+    // (`swr: 3600`), so a second browser would get the first one's copy
+    // without its own freshly seeded post.
+    test.skip(browserName !== 'chromium', 'browser-independent HTTP check');
+    const seeded = await seedPost(request);
+
+    try {
+      const response = await request.get('/sitemap.xml');
+      expect(response.status()).toBe(200);
+      expect(response.headers()['content-type']).toContain('application/xml');
+      const xml = await response.text();
+      expect(xml).toContain('<loc>https://muzanella.com/</loc>');
+      expect(xml).toContain('<loc>https://muzanella.com/blog</loc>');
+      expect(xml).toContain(
+        `<loc>https://muzanella.com/blog/${seeded.slug}</loc>`,
+      );
+    } finally {
+      await cleanupPost(request, seeded);
+    }
+  });
+
   test('a missing slug 404s instead of erroring', async ({ page }) => {
     const missing = await page.goto('/blog/this-slug-does-not-exist');
     expect(missing?.status()).toBe(404);

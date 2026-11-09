@@ -27,6 +27,17 @@ export default defineNuxtConfig({
   // serializes the Nuxt error page's payload). Removing the unused module
   // removes the code path entirely rather than patching around it.
   modules: ['@nuxtjs/tailwindcss'],
+  $production: {
+    nitro: {
+      routeRules: {
+        // Generated from the published posts (server/routes/sitemap.xml.ts);
+        // an hour of staleness is fine for crawlers and keeps the paginated
+        // API walk off every request. Production only, so the dev server
+        // (and e2e) always reflects posts published moments ago.
+        '/sitemap.xml': { swr: 3600 },
+      },
+    },
+  },
   devtools: { enabled: true },
   devServer: {
     host: 'localhost',
