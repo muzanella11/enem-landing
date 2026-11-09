@@ -168,7 +168,15 @@ test.describe('blog', () => {
     }
   });
 
-  test('sitemap.xml lists published posts', async ({ request }) => {
+  test('sitemap.xml lists published posts', async ({
+    request,
+    browserName,
+  }) => {
+    // An HTTP-only check, identical in every browser. Run it once: CI runs
+    // against production servers where /sitemap.xml is cached for an hour
+    // (`swr: 3600`), so a second browser would get the first one's copy
+    // without its own freshly seeded post.
+    test.skip(browserName !== 'chromium', 'browser-independent HTTP check');
     const seeded = await seedPost(request);
 
     try {
