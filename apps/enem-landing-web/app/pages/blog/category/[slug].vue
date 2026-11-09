@@ -5,6 +5,7 @@ import type {
   PaginatedBlogPosts,
 } from '@enem-landing/shared-types';
 import BlogPostCard from '../../../components/BlogPostCard.vue';
+import { BLOG_PAGE_SIZE } from '../../../utils/blog-page-size';
 
 definePageMeta({ layout: 'blog' });
 
@@ -14,7 +15,7 @@ const page = computed(() => Number(route.query['page']) || 1);
 
 const [{ data: paginated }, { data: categories }] = await Promise.all([
   useFetch<PaginatedBlogPosts>('/api/blog-posts', {
-    query: { category: slug, page },
+    query: { category: slug, page, pageSize: BLOG_PAGE_SIZE },
     watch: [page],
   }),
   useFetch<BlogCategory[]>('/api/blog-categories'),
