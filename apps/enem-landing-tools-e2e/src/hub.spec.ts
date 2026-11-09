@@ -36,6 +36,37 @@ test.describe('tools hub', () => {
     expect(sitemap).toContain('/buat-invoice</loc>');
   });
 
+  test('sitemap lastmod is the content date, not the build date', async ({
+    page,
+    request,
+  }) => {
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    const lastmod = (path: string) =>
+      new RegExp(`<loc>[^<]*${path}</loc><lastmod>([^<]+)</lastmod>`).exec(
+        sitemap,
+      )?.[1];
+    const todayWib = new Date(Date.now() + 7 * 3_600_000)
+      .toISOString()
+      .slice(0, 10);
+
+    // Daily content (today's prayer times) is dated today.
+    expect(lastmod('/jadwal-sholat/kota-bandung')).toBe(todayWib);
+    // Other pages carry a manifest date: a real day between launch and today.
+    const toolDate = lastmod('/kalkulator-gaji-bersih');
+    expect(toolDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(toolDate! >= '2026-11-07' && toolDate! <= todayWib).toBe(true);
+    // Answer pages share their tool's date.
+    expect(lastmod('/gaji-bersih/5000000')).toBe(toolDate);
+
+    // The homepage <loc> matches its canonical exactly (trailing slash).
+    await gotoReady(page, '/');
+    const canonical = await page
+      .locator('link[rel="canonical"]')
+      .getAttribute('href');
+    expect(canonical).toMatch(/\/$/);
+    expect(sitemap).toContain(`<loc>${canonical}</loc>`);
+  });
+
   test('tool pages have their own Open Graph image, Twitter card, and related tools', async ({
     page,
     request,
