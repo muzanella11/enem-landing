@@ -25,9 +25,17 @@ test.describe('home', () => {
       await expect(nav.getByRole('link', { name: label })).toBeVisible();
     }
 
-    await expect(page.getByRole('heading', { name: 'Experience', level: 2 })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Portfolio', level: 2 })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'About', level: 2 })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Contact Me', level: 2 })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Experience', level: 2 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Portfolio', level: 2 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'About', level: 2 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Contact Me', level: 2 }),
+    ).toBeVisible();
   });
 });

@@ -17,6 +17,10 @@ export interface GeoLookupResult {
   isp: string | null;
   org: string | null;
   asn: string | null;
+  /** Known proxy, VPN or Tor exit (ip-api.com `proxy`). */
+  isProxy: boolean | null;
+  /** Hosting/data-center address (ip-api.com `hosting`). */
+  isHosting: boolean | null;
 }
 
 const EMPTY_GEO: GeoLookupResult = {
@@ -28,10 +32,12 @@ const EMPTY_GEO: GeoLookupResult = {
   isp: null,
   org: null,
   asn: null,
+  isProxy: null,
+  isHosting: null,
 };
 
 const LOOKUP_TIMEOUT_MS = 3000;
-const FIELDS = 'status,country,region,city,lat,lon,isp,org,as';
+const FIELDS = 'status,country,region,city,lat,lon,isp,org,as,proxy,hosting';
 
 const PRIVATE_IP_PREFIXES = [
   '127.',
@@ -70,6 +76,8 @@ export async function lookupGeo(ip: string | null): Promise<GeoLookupResult> {
       isp?: string;
       org?: string;
       as?: string;
+      proxy?: boolean;
+      hosting?: boolean;
     };
     if (data.status !== 'success') return EMPTY_GEO;
 
@@ -82,6 +90,8 @@ export async function lookupGeo(ip: string | null): Promise<GeoLookupResult> {
       isp: data.isp ?? null,
       org: data.org ?? null,
       asn: data.as ?? null,
+      isProxy: data.proxy ?? null,
+      isHosting: data.hosting ?? null,
     };
   } catch {
     // Timeout, network error, bad JSON - never let a geo lookup break

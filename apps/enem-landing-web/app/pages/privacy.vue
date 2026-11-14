@@ -53,6 +53,20 @@ useHead({ link: [{ rel: 'canonical', href: `${SITE_URL}/privacy` }] });
       is never sold or shared.
     </p>
 
+    <h2>Contact form</h2>
+    <p>
+      When you send a message through the contact form, we store what you wrote
+      (name, email, phone number, message). To keep the form free of spam and
+      abuse we also record, with each message: your IP address and its
+      approximate location and network provider, your browser and device details
+      (browser, language, timezone, screen size), how the form was filled in
+      (time taken, whether text was typed or pasted), and the anonymous visit ID
+      from the statistics above. These details are only visible to the site
+      owner, are never emailed or shared, and are deleted after 90 days. The
+      form also asks you to solve a small slider puzzle; it is served from our
+      own server and sets no cookies.
+    </p>
+
     <h2>Google Analytics</h2>
     <p>
       We use Google Analytics to understand which pages and search queries bring

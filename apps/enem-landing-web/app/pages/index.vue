@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import type {
   Experience,
   Project,
   SeoMeta,
   SiteProfile,
 } from '@enem-landing/shared-types';
+import ContactForm from '../components/ContactForm.vue';
 import PortfolioModal from '../components/PortfolioModal.vue';
 import SectionDivider from '../components/SectionDivider.vue';
 
@@ -139,37 +140,6 @@ const FEATURED_TOOLS = [
 const businessCardShown = ref(false);
 const toggleBusinessCard = () => {
   businessCardShown.value = !businessCardShown.value;
-};
-
-const entryContact = reactive({
-  fullname: '',
-  email: '',
-  phoneNumber: '',
-  message: '',
-});
-const isSubmitting = ref(false);
-const isSubmitted = ref(false);
-const isError = ref(false);
-
-const submitContact = async () => {
-  isSubmitting.value = true;
-  isError.value = false;
-  isSubmitted.value = false;
-  try {
-    await $fetch('/api/contact-submissions', {
-      method: 'post',
-      body: entryContact,
-    });
-    isSubmitted.value = true;
-    entryContact.fullname = '';
-    entryContact.email = '';
-    entryContact.phoneNumber = '';
-    entryContact.message = '';
-  } catch {
-    isError.value = true;
-  } finally {
-    isSubmitting.value = false;
-  }
 };
 </script>
 
@@ -377,90 +347,10 @@ const submitContact = async () => {
         </h2>
         <SectionDivider />
 
-        <form
+        <ContactForm
           v-if="!businessCardShown"
-          class="space-y-4 mt-6"
-          @submit.prevent="submitContact"
-        >
-          <div>
-            <label for="fullname" class="block text-sm font-medium mb-1"
-              >Full name</label
-            >
-            <input
-              id="fullname"
-              v-model="entryContact.fullname"
-              type="text"
-              required
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
-            />
-          </div>
-
-          <div>
-            <label for="email" class="block text-sm font-medium mb-1"
-              >Email address</label
-            >
-            <input
-              id="email"
-              v-model="entryContact.email"
-              type="email"
-              required
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
-            />
-          </div>
-
-          <div>
-            <label for="phone" class="block text-sm font-medium mb-1"
-              >Phone number</label
-            >
-            <input
-              id="phone"
-              v-model="entryContact.phoneNumber"
-              type="tel"
-              required
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
-            />
-          </div>
-
-          <div>
-            <label for="message" class="block text-sm font-medium mb-1"
-              >Message</label
-            >
-            <textarea
-              id="message"
-              v-model="entryContact.message"
-              required
-              rows="5"
-              class="w-full px-3 py-2 border-b-2 border-slate-300 focus:outline-none focus:border-[#0E7C6B]"
-            />
-          </div>
-
-          <p
-            v-if="isSubmitted && !isError"
-            class="text-center font-semibold text-green-600"
-          >
-            Form submission successful!
-          </p>
-          <p v-if="isError" class="text-center text-red-600">
-            Error sending message!
-          </p>
-
-          <div class="flex justify-center gap-3">
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="px-6 py-3 rounded bg-[#0E7C6B] text-white font-bold disabled:opacity-50"
-            >
-              {{ isSubmitting ? 'Sending...' : 'Send' }}
-            </button>
-            <button
-              type="button"
-              class="px-6 py-3 rounded bg-[#2C3E50] text-white font-bold"
-              @click="toggleBusinessCard"
-            >
-              Get Business Card
-            </button>
-          </div>
-        </form>
+          @show-business-card="toggleBusinessCard"
+        />
 
         <div v-else class="text-center mt-6">
           <div class="border border-slate-200 rounded-lg p-6 mb-4 text-left">

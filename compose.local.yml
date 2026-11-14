@@ -93,6 +93,8 @@ services:
       INTERNAL_API_KEY: local-dev-only-not-a-real-secret
       # Local e2e runs fire many requests from one IP.
       RATE_LIMIT_MULTIPLIER: "100"
+      # Local e2e runs can't solve the contact form's slider puzzle.
+      CAPTCHA_ENABLED: "false"
     depends_on:
       mysql:
         condition: service_healthy

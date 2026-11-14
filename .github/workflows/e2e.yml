@@ -92,6 +92,8 @@ jobs:
       # Every request comes from one runner IP; the per-IP rate limit would
       # otherwise 429 the suites partway through.
       RATE_LIMIT_MULTIPLIER: "100"
+      # A browser test can't solve the contact form's slider puzzle.
+      CAPTCHA_ENABLED: "false"
 
     steps:
       - name: Checkout
