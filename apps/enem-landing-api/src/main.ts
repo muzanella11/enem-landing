@@ -11,19 +11,15 @@ async function bootstrap() {
   const port = process.env['PORT'] || 3001;
   const corsOrigin = process.env['CORS_ORIGIN'];
 
-  // Trust exactly one hop. This app is internal-only (traefik.enable=false
-  // in compose.yml, never hit by Traefik directly) - its one real hop is
-  // enem-landing-web/-cms's own BFF server route proxying the request over
-  // the internal Docker network, which forwards the visitor's real IP via
-  // an `X-Forwarded-For` header (see e.g. enem-landing-web's
-  // server/api/tracking/session.post.ts). Without both that header being
-  // sent AND this trust-proxy setting, `req.ip` here resolves to the
-  // calling BFF container's own Docker-network address instead of the
-  // visitor's - which is what happened before the header was added (every
-  // tracked session got the same non-routable `::ffff:10.x.x.x` IP).
-  // Affects both the tracking module and contact-submissions' existing
-  // per-IP rate limiter.
-  app.set('trust proxy', 1);
+  // This app is internal-only (traefik.enable=false in compose.yml): every
+  // request comes from a BFF server route over the internal Docker network,
+  // which forwards the visitor's real IP in `X-Forwarded-For` (resolved from
+  // Cloudflare's `CF-Connecting-IP`). Trusting only loopback/private hops
+  // means `req.ip` is that visitor, while a caller reaching this app from a
+  // public address (if it were ever exposed) can't spoof the header: its own
+  // socket address is used instead. The per-IP rate limiter
+  // (`@enem-landing/backend-rate-limit`) and tracking both key on `req.ip`.
+  app.set('trust proxy', 'loopback, uniquelocal');
 
   app.useGlobalPipes(
     new ValidationPipe({

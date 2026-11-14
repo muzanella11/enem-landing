@@ -5,7 +5,7 @@ import { stripPostContent } from '../../../utils/strip-post-content.js';
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug');
   try {
-    const posts = (await createApiClient().get(
+    const posts = (await createApiClient(event).get(
       `/blog-posts/${slug}/related`,
     )) as unknown as BlogPost[];
     return posts.map(stripPostContent);

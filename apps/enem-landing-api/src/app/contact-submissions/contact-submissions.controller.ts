@@ -1,3 +1,4 @@
+import { RateLimit } from '@enem-landing/backend-rate-limit';
 import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
@@ -23,12 +24,13 @@ export class ContactSubmissionsController {
     private readonly contactSubmissionsService: ContactSubmissionsService,
   ) {}
 
+  @RateLimit('contact')
   @Post()
-  async create(@Req() req: Request, @Body() dto: CreateContactSubmissionDto) {
+  async create(@Body() dto: CreateContactSubmissionDto) {
     return successResponse(
       HttpStatus.CREATED,
       'Success',
-      await this.contactSubmissionsService.create(dto, req.ip ?? 'unknown'),
+      await this.contactSubmissionsService.create(dto),
     );
   }
 

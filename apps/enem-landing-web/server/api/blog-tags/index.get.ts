@@ -4,7 +4,7 @@ import { createApiClient, handleApiError } from '../../utils/api-client.js';
 export default defineEventHandler(async (event) => {
   const { published } = getQuery(event);
   try {
-    return await createApiClient().get('/blog-tags', {
+    return await createApiClient(event).get('/blog-tags', {
       params: published === 'true' ? { published: 'true' } : {},
     });
   } catch (error) {

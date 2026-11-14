@@ -1,4 +1,5 @@
 import { createAxiosInstance } from '@enem-landing/shared-utils';
+import { getClientIp } from '../../utils/client-ip';
 
 /**
  * BFF proxy for `enem-landing-account-api`'s `POST /auth/signin` — mirrors
@@ -17,6 +18,11 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const client = createAxiosInstance({
     baseURL: config.accountApiHost as string,
+    // The account API rate-limits per visitor IP (sign-in is a
+    // brute-force target), so forward it instead of this container's.
+    forwardedFor: getClientIp(event),
+    onRetryAfter: (retryAfter) =>
+      event.node.res.setHeader('Retry-After', retryAfter),
   });
 
   try {

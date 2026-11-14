@@ -21,9 +21,9 @@ const SLOT_PATTERN = /^\d{6,20}$/;
  * load in blog articles once `articleSlot` is set. Never fails the page:
  * any API error or invalid id resolves to nulls.
  */
-export default defineEventHandler(async (): Promise<AdsenseAccount> => {
+export default defineEventHandler(async (event): Promise<AdsenseAccount> => {
   try {
-    const config = (await createApiClient().get(
+    const config = (await createApiClient(event).get(
       '/tools/config',
     )) as unknown as ToolsPublicConfig;
     const { settings } = config;

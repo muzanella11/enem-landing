@@ -7,7 +7,7 @@ import {
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   try {
-    return await createApiClient().post('/tracking/clicks', {
+    return await createApiClient(event).post('/tracking/clicks', {
       ...body,
       site: TOOLS_SITE,
     });

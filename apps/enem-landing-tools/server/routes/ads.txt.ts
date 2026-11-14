@@ -9,7 +9,7 @@ import { createApiClient } from '../utils/api-client';
 export default defineEventHandler(async (event) => {
   let body: string | null;
   try {
-    const config = (await createApiClient().get(
+    const config = (await createApiClient(event).get(
       '/tools/config',
     )) as unknown as ToolsPublicConfig;
     body = buildAdsTxt(config.settings.adsenseClientId);

@@ -1,5 +1,4 @@
-import { HttpException } from '@nestjs/common';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContactSubmissionsService } from './contact-submissions.service.js';
 
 describe('ContactSubmissionsService', () => {
@@ -23,10 +22,6 @@ describe('ContactSubmissionsService', () => {
     service = new ContactSubmissionsService(repo as never);
   });
 
-  afterEach(() => {
-    service.onModuleDestroy();
-  });
-
   const dto = {
     fullname: 'A',
     email: 'a@example.com',
@@ -35,28 +30,8 @@ describe('ContactSubmissionsService', () => {
   };
 
   it('creates a submission with readAt null', async () => {
-    await service.create(dto, '1.2.3.4');
+    await service.create(dto);
     expect(repo.create).toHaveBeenCalledWith({ ...dto, readAt: null });
-  });
-
-  it('allows up to 5 submissions per IP within the window', async () => {
-    for (let i = 0; i < 5; i += 1) {
-      await expect(service.create(dto, '1.2.3.4')).resolves.toBeDefined();
-    }
-  });
-
-  it('rejects the 6th submission from the same IP within the window', async () => {
-    for (let i = 0; i < 5; i += 1) {
-      await service.create(dto, '1.2.3.4');
-    }
-    await expect(service.create(dto, '1.2.3.4')).rejects.toThrow(HttpException);
-  });
-
-  it('tracks rate limits independently per IP', async () => {
-    for (let i = 0; i < 5; i += 1) {
-      await service.create(dto, '1.2.3.4');
-    }
-    await expect(service.create(dto, '5.6.7.8')).resolves.toBeDefined();
   });
 
   it('findAll orders by createdAt descending', async () => {

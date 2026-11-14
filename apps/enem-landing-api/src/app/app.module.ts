@@ -1,3 +1,4 @@
+import { RateLimitModule } from '@enem-landing/backend-rate-limit';
 import { RedisModule } from '@enem-landing/backend-redis';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -64,6 +65,7 @@ import { ToolsModule } from './tools/tools.module.js';
       synchronize: false,
     }),
     RedisModule,
+    RateLimitModule,
     HealthModule,
     CacheAdminModule,
     ExperiencesModule,

@@ -8,9 +8,9 @@ import { createApiClient } from '../../utils/api-client';
  * unreachable, so the hub never renders an empty page or an error.
  */
 export default defineEventHandler(
-  async (): Promise<ToolsPublicConfig & { fallback: boolean }> => {
+  async (event): Promise<ToolsPublicConfig & { fallback: boolean }> => {
     try {
-      const config = (await createApiClient().get(
+      const config = (await createApiClient(event).get(
         '/tools/config',
       )) as unknown as ToolsPublicConfig;
       return { ...config, fallback: false };

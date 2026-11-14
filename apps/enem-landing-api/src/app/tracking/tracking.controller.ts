@@ -1,3 +1,4 @@
+import { RateLimit } from '@enem-landing/backend-rate-limit';
 import { successResponse } from '@enem-landing/backend-utils';
 import { SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
@@ -43,6 +44,7 @@ export class TrackingController {
     private readonly trackingRecordingService: TrackingRecordingService,
   ) {}
 
+  @RateLimit('tracking')
   @Get('config')
   async getConfig(@Query() query: SiteQueryDto) {
     const settings = await this.trackingSettingsService.getOrCreate(query.site);
@@ -55,6 +57,7 @@ export class TrackingController {
     });
   }
 
+  @RateLimit('tracking')
   @Post('session')
   async createSession(@Req() req: Request, @Body() dto: CreateSessionDto) {
     return successResponse(
@@ -69,6 +72,7 @@ export class TrackingController {
     );
   }
 
+  @RateLimit('tracking')
   @Post('pageview')
   async recordPageviews(@Body() dto: CreatePageviewBatchDto) {
     return successResponse(
@@ -78,6 +82,7 @@ export class TrackingController {
     );
   }
 
+  @RateLimit('tracking')
   @Post('pageview/:id/duration')
   async recordPageviewDuration(
     @Param('id') id: string,
@@ -138,6 +143,7 @@ export class TrackingController {
     );
   }
 
+  @RateLimit('tracking')
   @Post('events')
   async recordEvents(@Body() dto: CreateEventBatchDto) {
     return successResponse(
@@ -206,6 +212,7 @@ export class TrackingController {
     );
   }
 
+  @RateLimit('tracking')
   @Post('clicks')
   async recordClicks(@Body() dto: CreateClickBatchDto) {
     return successResponse(
@@ -252,6 +259,7 @@ export class TrackingController {
     );
   }
 
+  @RateLimit('tracking')
   @Post('session-recording')
   async recordSessionChunk(@Body() dto: RecordSessionChunkDto) {
     return successResponse(

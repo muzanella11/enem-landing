@@ -1,4 +1,6 @@
 import { createAxiosInstance } from '@enem-landing/shared-utils';
+import type { H3Event } from 'h3';
+import { getClientIp } from './client-ip.js';
 
 /**
  * All routes this app calls on `enem-landing-api` are public (no auth
@@ -6,10 +8,15 @@ import { createAxiosInstance } from '@enem-landing/shared-utils';
  * the API host off the browser bundle and lets pages use Nuxt's SSR
  * `useFetch` idiom against a same-origin path.
  */
-export const createApiClient = () => {
+export const createApiClient = (event: H3Event) => {
   const config = useRuntimeConfig();
   return createAxiosInstance({
     baseURL: config.apiHost as string,
+    // Every call carries the visitor's IP: the API rate-limits per IP, and
+    // without it all visitors would share this container's single quota.
+    forwardedFor: getClientIp(event),
+    onRetryAfter: (retryAfter) =>
+      event.node.res.setHeader('Retry-After', retryAfter),
     // enem-landing-api wraps every payload in successResponse; BFF routes
     // pass the bare data through to pages.
     unwrapEnvelope: true,

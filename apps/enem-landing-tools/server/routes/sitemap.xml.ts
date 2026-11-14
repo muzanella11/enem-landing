@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   const today = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
   let tools = TOOLS_SNAPSHOT.tools;
   try {
-    const config = (await createApiClient().get(
+    const config = (await createApiClient(event).get(
       '/tools/config',
     )) as unknown as ToolsPublicConfig;
     tools = config.tools;

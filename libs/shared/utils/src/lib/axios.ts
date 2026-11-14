@@ -11,6 +11,16 @@ export interface CreateAxiosInstanceConfig {
    * payloads straight through to their own pages.
    */
   unwrapEnvelope?: boolean;
+  /**
+   * The visitor's IP, sent as `X-Forwarded-For` so the backend's per-IP rate
+   * limit and tracking count the real visitor instead of the BFF container.
+   */
+  forwardedFor?: string | null;
+  /**
+   * Called with the backend's `Retry-After` header when a request fails
+   * with it (429), so a BFF can pass it on to the browser.
+   */
+  onRetryAfter?: (retryAfter: string) => void;
 }
 
 interface ResponseEnvelope {
@@ -34,13 +44,21 @@ const isResponseEnvelope = (body: unknown): body is ResponseEnvelope =>
 export const createAxiosInstance = (
   config: CreateAxiosInstanceConfig,
 ): AxiosInstance => {
-  const { baseURL, token, customHeaders, unwrapEnvelope } = config;
+  const {
+    baseURL,
+    token,
+    customHeaders,
+    unwrapEnvelope,
+    forwardedFor,
+    onRetryAfter,
+  } = config;
 
   const instance = axios.create({
     baseURL,
     timeout: 10_000,
     headers: {
       'Content-Type': 'application/json',
+      ...(forwardedFor ? { 'X-Forwarded-For': forwardedFor } : {}),
       ...customHeaders,
     },
   });
@@ -57,7 +75,15 @@ export const createAxiosInstance = (
       unwrapEnvelope && isResponseEnvelope(response.data)
         ? response.data.data
         : response.data,
-    (error) => Promise.reject(error),
+    (error) => {
+      const retryAfter = (
+        error as { response?: { headers?: Record<string, unknown> } }
+      )?.response?.headers?.['retry-after'];
+      if (onRetryAfter && retryAfter !== undefined && retryAfter !== null) {
+        onRetryAfter(String(retryAfter));
+      }
+      return Promise.reject(error);
+    },
   );
 
   return instance;

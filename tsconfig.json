@@ -19,6 +19,9 @@
       "path": "./libs/backend/utils"
     },
     {
+      "path": "./libs/backend/rate-limit"
+    },
+    {
       "path": "./apps/enem-landing-account-api"
     },
     {

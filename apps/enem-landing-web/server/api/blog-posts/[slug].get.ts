@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug');
   try {
     const [post, settings] = await Promise.all([
-      createApiClient().get(
+      createApiClient(event).get(
         `/blog-posts/${slug}`,
       ) as unknown as Promise<BlogPost>,
       // CMS switch for resized CDN images; any error leaves it off.

@@ -5,7 +5,7 @@ import { stripPostContent } from '../../utils/strip-post-content.js';
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   try {
-    const page = (await createApiClient().get('/blog-posts', {
+    const page = (await createApiClient(event).get('/blog-posts', {
       params: query,
     })) as unknown as PaginatedBlogPosts;
     return { ...page, items: page.items.map(stripPostContent) };
