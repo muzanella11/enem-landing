@@ -1,6 +1,6 @@
 # Story 58: Perbaikan IP Pengunjung yang Bisa Dipalsukan (Cloudflare)
 
-**Status:** Draft (2026-11-14)
+**Status:** Done (2026-11-14). Catatan: helper bersama `resolveClientIp` ada di `libs/shared/utils`, dibungkus `getClientIp` di setiap BFF (`server/utils/client-ip.ts` di web, tools, cms, account-web). Origin dibatasi lewat middleware Traefik `cloudflare-only` (`ipAllowList`, file provider `traefik-dynamic.yml.j2`) pada kedua entrypoint, bukan UFW: port yang dipublish Docker (mode host) melewati rule UFW lewat iptables. Pembatasan ini baru aktif setelah `init-server.yml` dijalankan ulang di VPS, jadi AC port belum dicentang. Semua subdomain prod dan dev sudah dicek proxied lewat DNS. e2e lokal: web 31/31, cms 21/21, account-web 12/12; tools 322/327, 5 kegagalan di fitur PDF (Chromium) dan header cache yang hanya ada di build produksi, tidak menyentuh kode yang diubah.
 
 **Apps touched:** `enem-landing-web`, `enem-landing-tools`, `infra/ansible`
 
@@ -82,16 +82,16 @@ pengirim selalu IP asli dari Cloudflare dan tidak bisa diisi pengirim.
 
 ## Acceptance criteria
 
-- [ ] Ketiga route BFF di atas memakai `getClientIp`, tidak lagi
+- [x] Ketiga route BFF di atas memakai `getClientIp`, tidak lagi
       `getRequestIP(event, { xForwardedFor: true })`.
-- [ ] Request dengan header `X-Forwarded-For` palsu tetap tercatat dengan
+- [x] Request dengan header `X-Forwarded-For` palsu tetap tercatat dengan
       IP asli dan tetap kena rate limit.
-- [ ] Dev lokal tanpa Cloudflare tetap berjalan (IP dari socket).
+- [x] Dev lokal tanpa Cloudflare tetap berjalan (IP dari socket).
 - [ ] Port 80/443 VPS hanya menerima koneksi dari rentang IP Cloudflare;
       request langsung ke IP VPS ditolak.
-- [ ] Tes unit untuk `getClientIp` (ada `CF-Connecting-IP`, tidak ada,
+- [x] Tes unit untuk `getClientIp` (ada `CF-Connecting-IP`, tidak ada,
       dan ada `X-Forwarded-For` palsu).
-- [ ] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
+- [x] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
 
 ## Langkah manual setelah deploy
 

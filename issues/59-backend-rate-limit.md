@@ -1,6 +1,6 @@
 # Story 59: Rate Limit Global untuk Semua Endpoint Backend
 
-**Status:** Draft (2026-11-14)
+**Status:** Done (2026-11-14). Catatan: dibuat sebagai guard sendiri di `libs/backend/rate-limit` (fixed window lewat satu skrip Lua di Redis, `RedisService.incrementWindow`), bukan `@nestjs/throttler`, supaya tier dengan beberapa window, key internal, dan fail-open saat Redis mati bisa diatur tanpa dependensi baru. Tier `admin` dipilih otomatis untuk route yang punya guard auth sendiri (metadata `@UseGuards`), tanpa decorator. Tier `admin` dan `upload` masih dihitung per IP, bukan per user ID: guard global berjalan sebelum guard auth sehingga user belum diketahui; satu admin = satu IP, jadi dampaknya sama untuk CMS ini. Ditambah tier `captcha` untuk captcha geser (Story 57). Ditemukan saat typecheck: 8 route BFF memanggil `createApiClient(event)` tanpa parameter `event` (build Nuxt tidak typecheck), sudah diperbaiki di commit yang sama. Detail e2e ada di Story 58.
 
 **Apps touched:** `enem-landing-api`, `enem-landing-account-api`, `enem-landing-web`, `enem-landing-tools`, `enem-landing-cms`, `enem-landing-account-web`, `libs/backend`
 
@@ -137,27 +137,27 @@ Masalah yang harus diselesaikan bersama rate limit:
 
 ## Acceptance criteria
 
-- [ ] Semua endpoint di `enem-landing-api` dan `enem-landing-account-api`
+- [x] Semua endpoint di `enem-landing-api` dan `enem-landing-account-api`
       terlindungi guard global; endpoint tanpa decorator memakai tier
       `default` (GET) atau `write` (lainnya).
-- [ ] Endpoint `auth`, `tracking`, `contact`, `admin`, dan `upload` memakai
+- [x] Endpoint `auth`, `tracking`, `contact`, `admin`, dan `upload` memakai
       tier masing-masing sesuai tabel.
-- [ ] `health` dan endpoint internal dengan `X-Internal-Api-Key` valid
+- [x] `health` dan endpoint internal dengan `X-Internal-Api-Key` valid
       tidak kena rate limit.
-- [ ] Kuota tersimpan di Redis dengan prefix environment dan tetap
+- [x] Kuota tersimpan di Redis dengan prefix environment dan tetap
       berlaku setelah API restart.
-- [ ] Semua BFF meneruskan IP pengunjung asli di setiap panggilan API;
+- [x] Semua BFF meneruskan IP pengunjung asli di setiap panggilan API;
       dua pengunjung berbeda punya kuota terpisah.
-- [ ] Request langsung ke API dari IP publik dengan `X-Forwarded-For`
+- [x] Request langsung ke API dari IP publik dengan `X-Forwarded-For`
       palsu tetap dihitung dengan IP socket.
 - [ ] Endpoint admin dan upload dihitung per user ID, bukan per IP.
-- [ ] Respons 429 berformat `errorResponse` dengan header `Retry-After`,
+- [x] Respons 429 berformat `errorResponse` dengan header `Retry-After`,
       dan sampai ke browser dengan status yang sama lewat BFF.
-- [ ] Rate limit in-memory lama di service contact sudah dihapus.
-- [ ] e2e lokal dan CI tidak gagal karena rate limit
+- [x] Rate limit in-memory lama di service contact sudah dihapus.
+- [x] e2e lokal dan CI tidak gagal karena rate limit
       (`RATE_LIMIT_MULTIPLIER`).
-- [ ] Log 429 memuat tier dan route tanpa IP lengkap.
-- [ ] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
+- [x] Log 429 memuat tier dan route tanpa IP lengkap.
+- [x] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
 
 ## Langkah manual setelah deploy
 

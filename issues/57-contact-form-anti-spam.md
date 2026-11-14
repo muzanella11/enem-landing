@@ -1,6 +1,6 @@
 # Story 57: Anti-Spam, Validasi, dan Pencatatan Pengirim Form Contact Me
 
-**Status:** Draft (2026-11-14)
+**Status:** Done (2026-11-14). Catatan: atas permintaan user, captcha dipasang di fase 1 dan berupa **captcha geser puzzle buatan sendiri** (bukan Turnstile): `enem-landing-api` menggambar latar acak dan kepingan puzzle (PNG tanpa library gambar, `captcha/puzzle-renderer.ts`), memverifikasi posisi dan pola geseran, lalu memberi token sekali pakai yang wajib dibawa kiriman contact. `CAPTCHA_ENABLED=false` hanya untuk e2e. Cek waktu pengisian memakai `client.fillDurationMs` yang diukur browser (bukan `startedAt`) supaya tidak terpengaruh selisih jam klien dan server. Sinyal pengirim ditambah `hasTrackedVisit` (visitor punya sesi di tracker) dan `timezoneMismatch`. Domain email sekali pakai dari paket `mailchecker`. Lookup IP tetap ip-api.com (lisensi ditunda, lihat Catatan terbuka). Diverifikasi end-to-end lokal: captcha salah/tanpa token/token dipakai ulang ditolak, honeypot dan kiriman terlalu cepat tidak tersimpan, contoh spam kedua tertandai `phrases:...` tanpa email, data pengirim tercatat, dan geser captcha di browser sungguhan lolos. Honeypot belum punya e2e otomatis (diverifikasi manual lewat BFF dan database).
 
 **Apps touched:** `enem-landing-web`, `enem-landing-api`, `enem-landing-account-api`, `enem-landing-cms`, `enem-landing-web-e2e`, `libs/shared`
 
@@ -234,11 +234,15 @@ dari manusia.
    Key Redis memakai prefix environment yang sudah ada (lihat PR #20). IP
    berasal dari `CF-Connecting-IP` (Story 58).
 
-6. **Cloudflare Turnstile ditunda ke fase 2.** Dipasang hanya kalau
-   setelah fase 1 berjalan sekitar 1 minggu spam masih masuk ke inbox.
-   Mode invisible/managed, token diverifikasi di BFF ke
-   `https://challenges.cloudflare.com/turnstile/v0/siteverify`, site key
-   dan secret key disimpan di system settings CMS atau env.
+6. **Captcha geser puzzle di setiap submit** (diputuskan 2026-11-14,
+   menggantikan rencana Turnstile di fase 2). Server menggambar latar
+   acak dengan lubang berbentuk kepingan puzzle; pengunjung menggeser
+   kepingan sampai pas. Server memeriksa posisi akhir (toleransi 4 px),
+   durasi geser, dan pola gerakan (bukan satu lompatan atau sapuan yang
+   terlalu rata), satu percobaan per puzzle, lalu memberi token sekali
+   pakai (5 menit) yang wajib dibawa kiriman contact. Bisa dioperasikan
+   dengan keyboard (panah, Shift, Enter). Tidak memakai layanan luar dan
+   tidak memasang cookie.
 7. **CMS** menampilkan kiriman spam terpisah (tab atau filter "Spam"),
    dengan aksi "Bukan spam" yang menghapus tanda dan **tidak** mengirim
    ulang email apa pun.
@@ -323,8 +327,9 @@ dari manusia.
     dan `zod`; form contact memakai VeeValidate dengan skema Zod dari
     konstanta bersama;
   - error per field, pemetaan error 400 server ke field, pesan 429;
-  - field honeypot dan `startedAt`, pengecekan di BFF, sukses palsu untuk
-    bot;
+  - field honeypot dan durasi pengisian (`client.fillDurationMs`),
+    pengecekan di BFF, sukses palsu untuk bot;
+  - komponen captcha geser dan route BFF `/api/captcha/*`;
   - pengumpulan sinyal browser, perilaku form, dan ID tracker ke objek
     `client`;
   - BFF meneruskan header jaringan dan browser asli pengunjung;
@@ -353,7 +358,6 @@ dari manusia.
 
 ### Fase 2 (opsional)
 
-- Cloudflare Turnstile di form dan verifikasi di BFF.
 - Tombol "Blokir IP di Cloudflare" dari CMS lewat Cloudflare API
   (sementara di fase 1 cukup salin IP lalu blokir manual).
 
@@ -371,94 +375,104 @@ dari manusia.
 
 ### Celah relay
 
-- [ ] Email konfirmasi tidak lagi memuat isi `message`.
-- [ ] Nama di email konfirmasi dipotong maks 50 karakter dan kiriman
+- [x] Email konfirmasi tidak lagi memuat isi `message`.
+- [x] Nama di email konfirmasi dipotong maks 50 karakter dan kiriman
       dengan URL di `fullname` ditolak validasi.
-- [ ] Kiriman yang ditandai spam tidak memicu email notifikasi maupun
+- [x] Kiriman yang ditandai spam tidak memicu email notifikasi maupun
       email konfirmasi.
 
 ### Honeypot dan waktu pengisian
 
-- [ ] Field honeypot tidak terlihat dan tidak bisa difokus dengan Tab,
+- [x] Field honeypot tidak terlihat dan tidak bisa difokus dengan Tab,
       serta tidak terbaca screen reader.
-- [ ] Kiriman dengan honeypot terisi atau dikirim kurang dari 3 detik
+- [x] Kiriman dengan honeypot terisi atau dikirim kurang dari 3 detik
       setelah form tampil mendapat respons sukses yang sama bentuknya,
       tetapi tidak tersimpan dan tidak memicu email.
-- [ ] Field honeypot dan `startedAt` tidak diteruskan ke
-      `enem-landing-api`.
+- [x] Field honeypot dan durasi pengisian tidak diteruskan ke
+      `enem-landing-api` sebagai field form.
+
+### Captcha geser
+
+- [x] Kiriman tanpa token captcha, dengan token salah, atau dengan token
+      yang sudah dipakai ditolak (400) dan tidak tersimpan.
+- [x] Jawaban yang meleset dari lubang, terlalu cepat, atau geseran yang
+      terlalu rata ditolak; satu percobaan per puzzle.
+- [x] Posisi jawaban tidak pernah dikirim ke browser.
+- [x] Captcha bisa dipakai dengan mouse, sentuhan, dan keyboard, dan
+      tampil tanpa scroll horizontal di lebar 320 px.
 
 ### Validasi
 
-- [ ] Form contact memakai VeeValidate dengan skema Zod
+- [x] Form contact memakai VeeValidate dengan skema Zod
       (`@vee-validate/zod`).
-- [ ] Batas dan pola validasi berasal dari konstanta bersama di
+- [x] Batas dan pola validasi berasal dari konstanta bersama di
       `libs/shared` yang juga dipakai DTO backend.
-- [ ] Backend menolak (400) input yang melanggar aturan di tabel, dengan
+- [x] Backend menolak (400) input yang melanggar aturan di tabel, dengan
       pesan per field.
-- [ ] Frontend menampilkan error per field saat blur dan saat submit, dan
+- [x] Frontend menampilkan error per field saat blur dan saat submit, dan
       error 400 dari server tampil di field yang sesuai.
-- [ ] Input yang error punya `aria-invalid="true"` dan `aria-describedby`
+- [x] Input yang error punya `aria-invalid="true"` dan `aria-describedby`
       ke pesan error.
-- [ ] Respons 429 menampilkan pesan khusus rate limit.
-- [ ] Nilai di-trim (dan email di-lowercase) sebelum disimpan.
+- [x] Respons 429 menampilkan pesan khusus rate limit.
+- [x] Nilai di-trim (dan email di-lowercase) sebelum disimpan.
 
 ### Deteksi spam dan rate limit
 
-- [ ] Kiriman yang cocok aturan spam tersimpan dengan `isSpam = true`
+- [x] Kiriman yang cocok aturan spam tersimpan dengan `isSpam = true`
       dan `spamReason` terisi.
-- [ ] Contoh spam kedua (penawaran traffic) ditandai spam lewat skor
+- [x] Contoh spam kedua (penawaran traffic) ditandai spam lewat skor
       frasa, sedangkan pesan wajar seperti "Saya butuh bantuan SEO untuk
       website toko saya" **tidak** ditandai spam.
-- [ ] Kiriman dari IP data center/Tor tanpa `visitorId` ditandai spam
+- [x] Kiriman dari IP data center/Tor tanpa `visitorId` ditandai spam
       dengan `spamReason` berawalan `sender:`.
-- [ ] Kiriman dengan domain email sekali pakai atau tanpa MX record
+- [x] Kiriman dengan domain email sekali pakai atau tanpa MX record
       ditandai spam.
-- [ ] Endpoint contact memakai tier `contact` dari Story 59, dan batas
+- [x] Endpoint contact memakai tier `contact` dari Story 59, dan batas
       per email serta kuota global auto-reply berjalan di Redis dengan
       prefix environment.
 
 ### Data pengirim
 
-- [ ] Setiap kiriman yang tersimpan punya baris
+- [x] Setiap kiriman yang tersimpan punya baris
       `contact_submission_senders` dengan IP asli, negara, `cfRay`, user
       agent, `Accept-Language`, `Referer`, dan sinyal dari browser yang
       dikirim.
-- [ ] User agent dan `Accept-Language` yang tercatat adalah milik
+- [x] User agent dan `Accept-Language` yang tercatat adalah milik
       pengunjung, bukan milik BFF.
-- [ ] ASN/ISP/organisasi, `isProxy`, `isHosting`, `isTor`, hasil cek MX,
+- [x] ASN/ISP/organisasi, `isProxy`, `isHosting`, `isTor`, hasil cek MX,
       domain sekali pakai, dan negara/validitas telepon terisi setelah
       enrichment async (atau `null` bila lookup gagal).
-- [ ] Respons ke pengunjung tidak menunggu lookup eksternal.
-- [ ] Sinyal browser yang tidak valid (tipe salah, terlalu panjang, angka
+- [x] Respons ke pengunjung tidak menunggu lookup eksternal.
+- [x] Sinyal browser yang tidak valid (tipe salah, terlalu panjang, angka
       di luar rentang) ditolak atau diabaikan tanpa menggagalkan kiriman.
-- [ ] Baris data pengirim yang lebih tua dari 90 hari dihapus oleh job
+- [x] Baris data pengirim yang lebih tua dari 90 hari dihapus oleh job
       terjadwal, sedangkan kirimannya tetap.
-- [ ] Data pengirim tidak muncul di email notifikasi dan IP tidak ditulis
+- [x] Data pengirim tidak muncul di email notifikasi dan IP tidak ditulis
       ke log aplikasi.
-- [ ] Halaman `/privacy` menjelaskan data yang dicatat, tujuan, masa
+- [x] Halaman `/privacy` menjelaskan data yang dicatat, tujuan, masa
       simpan 90 hari, dan akses khusus admin.
 
 ### CMS
 
-- [ ] Halaman contact submissions bisa memfilter kiriman spam.
-- [ ] Aksi "Bukan spam" menghapus tanda tanpa mengirim email.
-- [ ] CMS menampilkan `spamReason` di detail kiriman spam.
-- [ ] Detail kiriman menampilkan data pengirim, badge peringatan, jumlah
+- [x] Halaman contact submissions bisa memfilter kiriman spam.
+- [x] Aksi "Bukan spam" menghapus tanda tanpa mengirim email.
+- [x] CMS menampilkan `spamReason` di detail kiriman spam.
+- [x] Detail kiriman menampilkan data pengirim, badge peringatan, jumlah
       kiriman lain dari IP dan `visitorId` yang sama, dan filter sumber
       yang sama.
-- [ ] Bila `sessionId` ada, tersedia tautan ke detail sesi tracker.
-- [ ] Ada tombol salin IP.
-- [ ] Endpoint data pengirim hanya bisa diakses admin.
+- [x] Bila `sessionId` ada, tersedia tautan ke detail sesi tracker.
+- [x] Ada tombol salin IP.
+- [x] Endpoint data pengirim hanya bisa diakses admin.
 
 ### Kualitas
 
-- [ ] Tes unit untuk skema/konstanta validasi, DTO, deteksi spam, rate
+- [x] Tes unit untuk skema/konstanta validasi, DTO, deteksi spam, rate
       limit, enrichment, dan job retensi.
-- [ ] Contoh spam 2026-11-14 (`aiunt` / `credo` / `venia`) dipakai
+- [x] Contoh spam 2026-11-14 (`aiunt` / `credo` / `venia`) dipakai
       sebagai kasus uji dan ditolak validasi backend.
 - [ ] Tes e2e: kiriman valid sukses, kiriman tidak valid menampilkan
       error per field, kiriman dengan honeypot terisi tidak muncul di CMS.
-- [ ] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
+- [x] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
 
 ## Catatan terbuka
 
@@ -479,7 +493,9 @@ dari manusia.
 3. Pantau inbox dan CMS sekitar 1 minggu. Catat berapa kiriman yang
    ditandai spam, berapa yang lolos ke inbox, dan apakah ada pesan asli
    yang salah tertandai (cek `spamReason`).
-4. Kalau spam masih lolos ke inbox, lanjut ke fase 2 (Turnstile).
+4. Kalau spam masih lolos ke inbox, perketat aturan di
+   `contact-spam-rules.ts` (frasa, kata kunci, TLD) berdasarkan `spamReason`
+   dan contoh yang lolos.
 5. Kalau ada spam beruntun dari IP atau `visitorId` yang sama, blokir IP
    tersebut di Cloudflare WAF.
 6. Cek reputasi domain pengirim (misalnya Google Postmaster Tools) untuk
