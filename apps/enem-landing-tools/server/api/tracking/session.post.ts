@@ -3,6 +3,7 @@ import {
   handleApiError,
   TOOLS_SITE,
 } from '../../utils/api-client';
+import { getClientIp } from '../../utils/client-ip';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
         headers: {
           'user-agent': getHeader(event, 'user-agent') ?? '',
           'accept-language': getHeader(event, 'accept-language') ?? '',
-          'x-forwarded-for': getRequestIP(event, { xForwardedFor: true }) ?? '',
+          'x-forwarded-for': getClientIp(event) ?? '',
         },
       },
     );

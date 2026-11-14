@@ -1,0 +1,19 @@
+# Konfigurasi dinamis Traefik (file provider), di-render oleh
+# init-server.yml ke /opt/enem-landing/traefik/dynamic.yml.
+#
+# `cloudflare-only`: origin hanya menerima koneksi dari range IP
+# Cloudflare. Tanpa ini, orang yang tahu IP VPS bisa menembak Traefik
+# langsung dan mengirim header `CF-Connecting-IP` palsu (forwardedheaders
+# Traefik hanya mengurus `X-Forwarded-*`), sehingga rate limit per IP dan
+# pencatatan IP pengirim bisa dipalsukan. Dipasang di entrypoint, bukan
+# lewat UFW, karena port yang dipublish Docker (mode host) melewati rule
+# UFW lewat iptables. Semua subdomain (prod dan dev) wajib proxied (orange
+# cloud) di Cloudflare, kalau tidak request-nya ditolak 403.
+http:
+  middlewares:
+    cloudflare-only:
+      ipAllowList:
+        sourceRange:
+{% for ip in cloudflare_trusted_ips %}
+          - "{{ ip }}"
+{% endfor %}

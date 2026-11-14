@@ -265,6 +265,18 @@
         modification_time: preserve
         access_time: preserve
 
+    - name: Buat direktori konfigurasi dinamis Traefik
+      ansible.builtin.file:
+        path: /opt/enem-landing/traefik
+        state: directory
+        mode: "0755"
+
+    - name: Render konfigurasi dinamis Traefik (allowlist IP Cloudflare)
+      ansible.builtin.template:
+        src: traefik-dynamic.yml.j2
+        dest: /opt/enem-landing/traefik/dynamic.yml
+        mode: "0644"
+
     - name: Render dan copy definisi stack Traefik ke server
       ansible.builtin.template:
         src: traefik-stack.yml.j2

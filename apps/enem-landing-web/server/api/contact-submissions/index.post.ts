@@ -1,4 +1,5 @@
 import { createApiClient, handleApiError } from '../../utils/api-client.js';
+import { getClientIp } from '../../utils/client-ip.js';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
     // within a minute 429'd everyone else too.
     return await createApiClient().post('/contact-submissions', body, {
       headers: {
-        'x-forwarded-for': getRequestIP(event, { xForwardedFor: true }) ?? '',
+        'x-forwarded-for': getClientIp(event) ?? '',
       },
     });
   } catch (error) {

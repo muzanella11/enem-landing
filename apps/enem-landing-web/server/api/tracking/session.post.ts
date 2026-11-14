@@ -1,4 +1,5 @@
 import { createApiClient, handleApiError } from '../../utils/api-client.js';
+import { getClientIp } from '../../utils/client-ip.js';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -17,9 +18,8 @@ export default defineEventHandler(async (event) => {
     // recorded session gets that same non-routable IP instead of the
     // visitor's - which also breaks the ip-api.com geolocation lookup
     // downstream (no country/region/city/lat-long for a private IP).
-    // `getRequestIP(..., { xForwardedFor: true })` reads the value Traefik
-    // already set correctly (it trusts Cloudflare's forwarded-for per
-    // traefik-stack.yml.j2).
+    // `getClientIp` reads Cloudflare's `CF-Connecting-IP`, never the
+    // request's own X-Forwarded-For (client-controlled).
     return await createApiClient().post(
       '/tracking/session',
       { ...body, site: 'landing' },
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
         headers: {
           'user-agent': getHeader(event, 'user-agent') ?? '',
           'accept-language': getHeader(event, 'accept-language') ?? '',
-          'x-forwarded-for': getRequestIP(event, { xForwardedFor: true }) ?? '',
+          'x-forwarded-for': getClientIp(event) ?? '',
         },
       },
     );

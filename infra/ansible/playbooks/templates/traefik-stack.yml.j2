@@ -30,6 +30,9 @@
 #   required for `CF-Connecting-IP`/`X-Forwarded-For` from the Cloudflare
 #   proxy to be trusted as the visitor's real IP. Only relevant/active once
 #   Cloudflare proxy mode (orange cloud) is actually ON for the domain.
+# - `cloudflare-only` middleware (traefik-dynamic.yml.j2) on both
+#   entrypoints - rejects any connection that didn't come through
+#   Cloudflare, so a spoofed `CF-Connecting-IP` can't reach the apps.
 
 services:
   traefik:
@@ -44,6 +47,9 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.forwardedheaders.trustedips={{ cloudflare_trusted_ips | join(',') }}
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.http.middlewares=cloudflare-only@file
+      - --entrypoints.websecure.http.middlewares=cloudflare-only@file
       - --certificatesresolvers.cloudflare.acme.dnschallenge=true
       - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
       - --certificatesresolvers.cloudflare.acme.email={{ acme_email }}
@@ -64,6 +70,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /opt/enem-landing/storage/traefik:/letsencrypt
+      - /opt/enem-landing/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
     deploy:
       placement:
         constraints:
