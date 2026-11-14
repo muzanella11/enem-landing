@@ -10,7 +10,7 @@ import { buildSitemap, collectPublishedPosts } from '../utils/build-sitemap';
  * and retries, instead of seeing every article disappear.
  */
 export default defineEventHandler(async (event) => {
-  const client = createApiClient();
+  const client = createApiClient(event);
   let posts;
   try {
     posts = await collectPublishedPosts(

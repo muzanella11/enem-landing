@@ -3,10 +3,18 @@ import { escapeHtml } from './html-escape.js';
 
 export interface ContactSubmissionConfirmationPayload {
   fullname: string;
-  message: string;
 }
 
-/** Auto-reply sent back to whoever submitted the contact form, confirming receipt. */
+/** Longest name the auto-reply greets with. */
+export const CONFIRMATION_NAME_MAX_LENGTH = 50;
+
+/**
+ * Auto-reply sent back to whoever submitted the contact form, confirming
+ * receipt. It never echoes the visitor's message: the address it goes to is
+ * whatever was typed into the form, so echoing the message let spammers use
+ * this form to deliver their text to third parties through our SMTP. The
+ * greeting name is also capped so it can't carry a sales pitch.
+ */
 export class ContactSubmissionConfirmationTemplate extends BaseEmailTemplate {
   constructor(private readonly payload: ContactSubmissionConfirmationPayload) {
     super('Pesan Anda Sudah Diterima - Nurfirliana Muzanella');
@@ -21,20 +29,18 @@ export class ContactSubmissionConfirmationTemplate extends BaseEmailTemplate {
   }
 
   get body(): string {
-    const safeName = escapeHtml(this.payload.fullname);
-    const safeMessage = escapeHtml(this.payload.message).replace(
-      /\n/g,
-      '<br />',
-    );
+    const name = this.payload.fullname.trim();
+    const shortName =
+      name.length > CONFIRMATION_NAME_MAX_LENGTH
+        ? `${name.slice(0, CONFIRMATION_NAME_MAX_LENGTH).trimEnd()}...`
+        : name;
+    const safeName = escapeHtml(shortName);
     return `
       ${this.renderIconBadge('&#10003;')}
       <p class="email-text-primary" style="margin:0 0 8px;color:#111827;font-size:20px;font-weight:700;text-align:center;">Terima kasih, ${safeName}!</p>
       <p class="email-text-muted" style="margin:0;color:#6b7280;font-size:14px;line-height:1.7;text-align:center;">
         Pesan Anda sudah kami terima. Kami akan meninjau dan membalas secepatnya.
       </p>
-      ${this.renderDivider()}
-      <p class="email-text-muted" style="margin:0 0 6px;color:#6b7280;font-size:13px;font-weight:600;">Pesan yang Anda kirim:</p>
-      <p class="email-text-primary" style="margin:0;color:#111827;font-size:14px;line-height:1.7;white-space:pre-wrap;">${safeMessage}</p>
     `;
   }
 }

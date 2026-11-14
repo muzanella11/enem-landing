@@ -1,3 +1,4 @@
+import { RateLimitModule } from '@enem-landing/backend-rate-limit';
 import { RedisModule } from '@enem-landing/backend-redis';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,6 +7,8 @@ import { BlogPostEntity } from './blog/blog-post.entity.js';
 import { BlogTagEntity } from './blog/blog-tag.entity.js';
 import { BlogModule } from './blog/blog.module.js';
 import { CacheAdminModule } from './cache/cache-admin.module.js';
+import { CaptchaModule } from './captcha/captcha.module.js';
+import { ContactSubmissionSenderEntity } from './contact-submissions/contact-submission-sender.entity.js';
 import { ContactSubmissionEntity } from './contact-submissions/contact-submission.entity.js';
 import { ContactSubmissionsModule } from './contact-submissions/contact-submissions.module.js';
 import { ExperienceEntity } from './experiences/experience.entity.js';
@@ -42,6 +45,7 @@ import { ToolsModule } from './tools/tools.module.js';
         ExperienceEntity,
         ProjectEntity,
         ContactSubmissionEntity,
+        ContactSubmissionSenderEntity,
         SiteProfileEntity,
         SeoMetaEntity,
         SkillEntity,
@@ -64,9 +68,11 @@ import { ToolsModule } from './tools/tools.module.js';
       synchronize: false,
     }),
     RedisModule,
+    RateLimitModule,
     HealthModule,
     CacheAdminModule,
     ExperiencesModule,
+    CaptchaModule,
     ContactSubmissionsModule,
     SiteProfileModule,
     SeoMetaModule,

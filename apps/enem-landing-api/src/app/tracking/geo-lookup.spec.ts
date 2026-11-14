@@ -25,6 +25,8 @@ describe('lookupGeo', () => {
       isp: null,
       org: null,
       asn: null,
+      isProxy: null,
+      isHosting: null,
     });
   });
 
@@ -55,6 +57,8 @@ describe('lookupGeo', () => {
           isp: 'Telkomsel',
           org: 'PT Telekomunikasi Selular',
           as: 'AS23693 PT Telekomunikasi Selular',
+          proxy: false,
+          hosting: false,
         }),
     }) as never;
 
@@ -69,6 +73,8 @@ describe('lookupGeo', () => {
       isp: 'Telkomsel',
       org: 'PT Telekomunikasi Selular',
       asn: 'AS23693 PT Telekomunikasi Selular',
+      isProxy: false,
+      isHosting: false,
     });
   });
 
@@ -105,6 +111,8 @@ describe('lookupGeo', () => {
       isp: null,
       org: null,
       asn: null,
+      isProxy: null,
+      isHosting: null,
     });
   });
 });

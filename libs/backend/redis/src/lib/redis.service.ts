@@ -85,4 +85,36 @@ export class RedisService implements OnModuleDestroy {
   async increment(key: string): Promise<number> {
     return this.client.incr(this.withPrefix(key));
   }
+
+  /**
+   * Fixed-window counter: atomically increments `key` and starts its expiry
+   * on the first hit of the window. Returns the new count and the window's
+   * remaining time. One round trip (Lua), so concurrent requests can't both
+   * read a stale count.
+   */
+  async incrementWindow(
+    key: string,
+    windowMs: number,
+  ): Promise<{ count: number; ttlMs: number }> {
+    const [count, ttlMs] = (await this.client.eval(
+      INCREMENT_WINDOW_SCRIPT,
+      1,
+      this.withPrefix(key),
+      String(windowMs),
+    )) as [number, number];
+    return { count, ttlMs: ttlMs > 0 ? ttlMs : windowMs };
+  }
+
+  /** Removes and returns a key's value in one step (single-use tokens). */
+  async takeValue(key: string): Promise<string | null> {
+    return this.client.getdel(this.withPrefix(key));
+  }
 }
+
+const INCREMENT_WINDOW_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+return { count, redis.call('PTTL', KEYS[1]) }
+`;

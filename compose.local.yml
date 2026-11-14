@@ -51,6 +51,8 @@ services:
       ALLOW_SIGNUP: "false"
       CORS_ORIGIN: http://localhost:4000,http://localhost:8000
       INTERNAL_API_KEY: local-dev-only-not-a-real-secret
+      # Local e2e runs fire many requests from one IP.
+      RATE_LIMIT_MULTIPLIER: "100"
     depends_on:
       mysql:
         condition: service_healthy
@@ -89,6 +91,10 @@ services:
       ACCOUNT_API_HOST: http://enem-landing-account-api:3000
       CORS_ORIGIN: http://localhost:4000,http://localhost:8001
       INTERNAL_API_KEY: local-dev-only-not-a-real-secret
+      # Local e2e runs fire many requests from one IP.
+      RATE_LIMIT_MULTIPLIER: "100"
+      # Local e2e runs can't solve the contact form's slider puzzle.
+      CAPTCHA_ENABLED: "false"
     depends_on:
       mysql:
         condition: service_healthy

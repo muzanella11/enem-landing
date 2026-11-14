@@ -1,3 +1,4 @@
+import { RateLimit } from '@enem-landing/backend-rate-limit';
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service.js';
@@ -12,12 +13,14 @@ import { UserEntity } from '../users/user.entity.js';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @RateLimit('auth')
   @Post('signup')
   signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
   }
 
   @UseGuards(LocalAuthGuard)
+  @RateLimit('auth')
   @Post('signin')
   signin(@Request() req: ExpressRequest) {
     return this.authService.signin(req.user as UserEntity);
@@ -36,6 +39,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @RateLimit('auth')
   @Post('change-password')
   changePassword(
     @Request() req: ExpressRequest,

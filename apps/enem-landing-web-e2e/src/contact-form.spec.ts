@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('contact form', () => {
-  test('submitting valid details shows a success message and clears the form', async ({ page }) => {
+  test('submitting valid details shows a success message and clears the form', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     // Same Nuxt hydration race documented in cms-e2e's site-profile.spec.ts:
@@ -13,18 +15,60 @@ test.describe('contact form', () => {
     // click handler ready to catch it.
     await expect(async () => {
       await page.getByLabel('Full name').fill('E2E Test User');
-      await page.getByLabel('Email address').fill(`e2e-${Date.now()}@example.com`);
+      await page
+        .getByLabel('Email address')
+        .fill(`e2e-${Date.now()}@example.com`);
       await page.getByLabel('Phone number').fill('081234567890');
       await page.getByLabel('Message').fill('Message sent by an e2e test.');
       await page.getByRole('button', { name: 'Send' }).click();
-      await expect(page.getByText('Form submission successful!')).toBeVisible({ timeout: 1_000 });
+      await expect(page.getByText('Form submission successful!')).toBeVisible({
+        timeout: 1_000,
+      });
     }).toPass({ timeout: 15_000 });
 
     await expect(page.getByLabel('Full name')).toHaveValue('');
     await expect(page.getByLabel('Message')).toHaveValue('');
   });
 
-  test('"Get Business Card" swaps the form for contact details', async ({ page }) => {
+  test('invalid details show an error under each field and nothing is sent', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    // Same hydration race as above: retry until Vue's submit handler runs.
+    await expect(async () => {
+      await page.getByLabel('Full name').fill('aiunt');
+      await page.getByLabel('Email address').fill('not-an-email');
+      await page.getByLabel('Phone number').fill('credo');
+      await page.getByLabel('Message').fill('venia');
+      await page.getByRole('button', { name: 'Send' }).click();
+      await expect(
+        page.getByText('Please enter a valid phone number (8 to 20 digits)'),
+      ).toBeVisible({
+        timeout: 1_000,
+      });
+    }).toPass({ timeout: 15_000 });
+
+    // Firefox reads an invalid value of a type="email" input as empty, so
+    // the exact message differs per browser; the field must be flagged.
+    await expect(page.getByLabel('Email address')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    await expect(page.locator('#email-error')).toBeVisible();
+    await expect(
+      page.getByText('Message must be at least 10 characters'),
+    ).toBeVisible();
+    await expect(page.getByLabel('Phone number')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    await expect(page.getByText('Form submission successful!')).toBeHidden();
+  });
+
+  test('"Get Business Card" swaps the form for contact details', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     // Same hydration race as the test above - a click landing before Vue's
@@ -33,18 +77,24 @@ test.describe('contact form', () => {
     // unit.
     await expect(async () => {
       await page.getByRole('button', { name: 'Get Business Card' }).click();
-      await expect(page.getByRole('heading', { name: 'Nurfirliana Muzanella', level: 3 })).toBeVisible({
+      await expect(
+        page.getByRole('heading', { name: 'Nurfirliana Muzanella', level: 3 }),
+      ).toBeVisible({
         timeout: 1_000,
       });
     }).toPass({ timeout: 15_000 });
     // `exact: true` - the footer's Copyright.vue also mentions the email
     // inline ("... // Email: muzanella11@gmail.com // ...") and is always
     // in the DOM, so a substring match would hit both.
-    await expect(page.getByText('muzanella11@gmail.com', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('muzanella11@gmail.com', { exact: true }),
+    ).toBeVisible();
 
     await expect(async () => {
       await page.getByRole('button', { name: 'Send Message' }).click();
-      await expect(page.getByLabel('Full name')).toBeVisible({ timeout: 1_000 });
+      await expect(page.getByLabel('Full name')).toBeVisible({
+        timeout: 1_000,
+      });
     }).toPass({ timeout: 15_000 });
   });
 });

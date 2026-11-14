@@ -98,14 +98,18 @@ export class EmailController {
             })(),
           ]
         : []),
-      (() => {
-        const template = new ContactSubmissionConfirmationTemplate(dto);
-        return this.emailService.sendMail(config, {
-          to: dto.email,
-          subject: template.subject,
-          html: template.generateHtml(),
-        });
-      })(),
+      ...(dto.sendConfirmation === false
+        ? []
+        : [
+            (() => {
+              const template = new ContactSubmissionConfirmationTemplate(dto);
+              return this.emailService.sendMail(config, {
+                to: dto.email,
+                subject: template.subject,
+                html: template.generateHtml(),
+              });
+            })(),
+          ]),
     ]);
 
     const failures = results.filter(

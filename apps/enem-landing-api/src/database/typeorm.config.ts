@@ -1,5 +1,6 @@
 import '../load-env.js';
 import type { DataSourceOptions } from 'typeorm';
+import { ContactSubmissionSenderEntity } from '../app/contact-submissions/contact-submission-sender.entity.js';
 import { ContactSubmissionEntity } from '../app/contact-submissions/contact-submission.entity.js';
 import { ExperienceEntity } from '../app/experiences/experience.entity.js';
 import { ProjectEntity } from '../app/experiences/project.entity.js';
@@ -27,6 +28,7 @@ export const config: DataSourceOptions = {
     ExperienceEntity,
     ProjectEntity,
     ContactSubmissionEntity,
+    ContactSubmissionSenderEntity,
     SiteProfileEntity,
     SeoMetaEntity,
     SkillEntity,

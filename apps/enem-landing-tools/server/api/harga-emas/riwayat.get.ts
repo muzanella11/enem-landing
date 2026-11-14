@@ -5,7 +5,7 @@ export default defineCachedEventHandler(
   async (event) => {
     const days = Number(getQuery(event)['hari'] ?? 365);
     try {
-      return (await createApiClient().get('/tools/gold-price/history', {
+      return (await createApiClient(event).get('/tools/gold-price/history', {
         params: { days: Number.isFinite(days) ? days : 365 },
       })) as unknown as { tanggal: string; pricePerGram: number }[];
     } catch {

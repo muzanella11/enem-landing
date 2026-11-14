@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
   const body = await readBody(event);
   try {
-    return await createApiClient().post(
+    return await createApiClient(event).post(
       `/tracking/pageview/${id}/duration`,
       body,
     );

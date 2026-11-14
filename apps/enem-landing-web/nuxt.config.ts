@@ -26,7 +26,8 @@ export default defineNuxtConfig({
   // throwing `obj.hasOwnProperty is not a function` while `devalue`
   // serializes the Nuxt error page's payload). Removing the unused module
   // removes the code path entirely rather than patching around it.
-  modules: ['@nuxtjs/tailwindcss'],
+  // VeeValidate powers the contact form's validation (Zod schema).
+  modules: ['@nuxtjs/tailwindcss', '@vee-validate/nuxt'],
   $production: {
     nitro: {
       routeRules: {

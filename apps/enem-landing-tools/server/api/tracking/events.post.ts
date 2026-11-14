@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     payload: sanitizeToolsEventPayload(item.payload) ?? undefined,
   }));
   try {
-    return await createApiClient().post('/tracking/events', { items });
+    return await createApiClient(event).post('/tracking/events', { items });
   } catch (error) {
     return handleApiError(error);
   }

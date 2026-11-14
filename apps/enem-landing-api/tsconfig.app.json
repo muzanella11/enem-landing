@@ -48,6 +48,9 @@
     },
     {
       "path": "../../libs/backend/cache/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/backend/rate-limit/tsconfig.lib.json"
     }
   ]
 }

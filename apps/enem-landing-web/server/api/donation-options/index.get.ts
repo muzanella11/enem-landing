@@ -9,15 +9,17 @@ type PublicDonationOption = ToolsPublicConfig['donationOptions'][number];
  * ones), so they are configured in one place. Never fails the page: any
  * API error resolves to an empty list and the article shows no box.
  */
-export default defineEventHandler(async (): Promise<PublicDonationOption[]> => {
-  try {
-    const config = (await createApiClient().get(
-      '/tools/config',
-    )) as unknown as ToolsPublicConfig;
-    return config.donationOptions.filter(
-      (option) => option.url || option.qrisImageUrl,
-    );
-  } catch {
-    return [];
-  }
-});
+export default defineEventHandler(
+  async (event): Promise<PublicDonationOption[]> => {
+    try {
+      const config = (await createApiClient(event).get(
+        '/tools/config',
+      )) as unknown as ToolsPublicConfig;
+      return config.donationOptions.filter(
+        (option) => option.url || option.qrisImageUrl,
+      );
+    } catch {
+      return [];
+    }
+  },
+);

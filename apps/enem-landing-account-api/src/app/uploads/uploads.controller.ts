@@ -1,3 +1,4 @@
+import { RateLimit } from '@enem-landing/backend-rate-limit';
 import {
   Body,
   Controller,
@@ -25,6 +26,7 @@ import { UploadsService } from './uploads.service.js';
 export class UploadsController {
   constructor(private readonly uploadsService: UploadsService) {}
 
+  @RateLimit('upload')
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {

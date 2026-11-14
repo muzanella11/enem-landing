@@ -10,14 +10,13 @@ export default defineEventHandler(async (event) => {
     // Forward the visitor's own UA/language/IP (see enem-landing-web's
     // session.post.ts for why), and pin the site server-side so a client
     // can't write sessions into another site's data.
-    return await createApiClient().post(
+    return await createApiClient(event).post(
       '/tracking/session',
       { ...body, site: TOOLS_SITE },
       {
         headers: {
           'user-agent': getHeader(event, 'user-agent') ?? '',
           'accept-language': getHeader(event, 'accept-language') ?? '',
-          'x-forwarded-for': getRequestIP(event, { xForwardedFor: true }) ?? '',
         },
       },
     );

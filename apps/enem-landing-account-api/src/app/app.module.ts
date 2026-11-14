@@ -1,3 +1,4 @@
+import { RateLimitModule } from '@enem-landing/backend-rate-limit';
 import { RedisModule } from '@enem-landing/backend-redis';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module.js';
       synchronize: false,
     }),
     RedisModule,
+    RateLimitModule,
     UsersModule,
     AuthModule,
     HealthModule,

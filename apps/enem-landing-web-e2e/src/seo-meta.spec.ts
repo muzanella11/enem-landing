@@ -22,7 +22,10 @@ const getExpectedSeo = async (request: APIRequestContext) => {
 };
 
 test.describe('seo-meta', () => {
-  test('renders title, description and og tags for the home page', async ({ page, request }) => {
+  test('renders title, description and og tags for the home page', async ({
+    page,
+    request,
+  }) => {
     const expected = await getExpectedSeo(request);
 
     await page.goto('/');

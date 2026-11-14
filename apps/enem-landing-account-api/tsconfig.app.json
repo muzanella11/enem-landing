@@ -43,6 +43,9 @@
     },
     {
       "path": "../../libs/backend/redis/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/backend/rate-limit/tsconfig.lib.json"
     }
   ]
 }

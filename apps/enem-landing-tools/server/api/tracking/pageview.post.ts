@@ -3,7 +3,7 @@ import { createApiClient, handleApiError } from '../../utils/api-client';
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   try {
-    return await createApiClient().post('/tracking/pageview', body);
+    return await createApiClient(event).post('/tracking/pageview', body);
   } catch (error) {
     return handleApiError(error);
   }

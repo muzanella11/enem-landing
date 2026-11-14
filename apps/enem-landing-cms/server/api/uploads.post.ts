@@ -1,4 +1,5 @@
 import { getAuthToken } from '../utils/api-client.js';
+import { getClientIp } from '../utils/client-ip';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_MIME = [
@@ -54,11 +55,16 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig();
   const token = getAuthToken(event);
+  const clientIp = getClientIp(event);
 
   try {
     return await $fetch(`${config.accountApiHost}/uploads`, {
       method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        // Uploads are rate-limited per admin IP.
+        ...(clientIp ? { 'X-Forwarded-For': clientIp } : {}),
+      },
       body,
     });
   } catch (error) {
