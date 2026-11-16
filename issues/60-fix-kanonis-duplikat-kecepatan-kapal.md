@@ -1,6 +1,6 @@
 # Story 60: Artikel Kecepatan Kapal Dianggap Duplikat oleh Google
 
-**Status:** Done (konten). Tinggal langkah manual setelah merge: update di CMS, minta pengindeksan, validasi perbaikan.
+**Status:** Done (konten dan CMS, 2026-11-16). Tinggal minta pengindeksan dan validasi perbaikan di Search Console.
 
 **Apps touched:** tidak ada (konten artikel di `articles/kecepatan-kapal-knot/`)
 
@@ -91,5 +91,5 @@ Google mengindeksnya sebagai halaman sendiri.
 - [x] Artikel kapal diperluas dan lolos checklist `write-article`
       (tanpa em dash, tanpa frasa filler).
 - [x] Angka di tabel dan contoh sesuai Referensi perhitungan.
-- [ ] Artikel diperbarui di CMS (manual, setelah merge).
+- [x] Artikel diperbarui di CMS (2026-11-16, langsung dari branch ini, sebelum merge).
 - [ ] Minta pengindeksan dan validasi perbaikan di Search Console.
