@@ -1,6 +1,6 @@
 # Story 60: Artikel Kecepatan Kapal Dianggap Duplikat oleh Google
 
-**Status:** Done (konten dan CMS, 2026-11-16). Tinggal minta pengindeksan dan validasi perbaikan di Search Console.
+**Status:** Done (2026-11-16). Konten diperbarui di CMS, pengindeksan diminta, validasi perbaikan dimulai 16/11/26. Tunggu hasil validasi Google (biasanya beberapa hari sampai dua minggu).
 
 **Apps touched:** tidak ada (konten artikel di `articles/kecepatan-kapal-knot/`)
 
@@ -92,4 +92,4 @@ Google mengindeksnya sebagai halaman sendiri.
       (tanpa em dash, tanpa frasa filler).
 - [x] Angka di tabel dan contoh sesuai Referensi perhitungan.
 - [x] Artikel diperbarui di CMS (2026-11-16, langsung dari branch ini, sebelum merge).
-- [ ] Minta pengindeksan dan validasi perbaikan di Search Console.
+- [x] Minta pengindeksan dan validasi perbaikan di Search Console (2026-11-16).
