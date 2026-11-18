@@ -23,7 +23,7 @@ app NestJS, `4xxx` untuk dashboard Vuetify, `8xxx` untuk app publik
 Tailwind — lihat `../issues/09-dev-tooling-scripts.md`.
 
 Infra: Ansible (provisioning server + Traefik reverse proxy), GitHub Actions
-(CI/CD, gantikan Drone), DB via Aiven (MySQL), Redis via Upstash — lihat
+(CI/CD, gantikan Drone), DB via Aiven (MySQL), Redis self-host di VPS (`infra/ansible/playbooks/deploy-redis.yml`) — lihat
 `../issues/10-infra-cicd.md`.
 
 ## Keputusan teknis (hasil risk spike Story 01)
