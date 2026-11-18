@@ -87,11 +87,30 @@ wiring, that lives directly in `compose.yml`).
 `NODE_OPTIONS=--max-old-space-size=60` - 600 MB total allocated
 (`enem-landing-tools` added in Story 20), same
 tuning approach mau-apps uses (see that file's header for the full
-reasoning). Unlike mau-apps, there's no self-hosted MySQL/Redis/RabbitMQ
-container to budget for here at all - Aiven/Upstash from day one - so this
-workspace never had mau-apps' original ~1.7-2 GB budget pressure. Actual
-server RAM hasn't been confirmed against this budget yet (no VPS
-provisioned this session).
+reasoning). MySQL is managed (Aiven). Redis is self-hosted on the VPS
+since 2026-11-18 (see below) and adds a 160M ceiling.
+
+## Shared Redis (`deploy-redis.yml`)
+
+Upstash's free tier (500k commands a month) ran out on 2026-11-18 and took
+both APIs down, so Redis now runs as its own `redis` stack on the VPS, the
+same way Traefik does. One instance serves prod and dev: dev keys carry the
+`dev` prefix (`REDIS_KEY_PREFIX`, see `compose.dev.yml`). It joins both env
+overlay networks and publishes no port. The password lives in a rendered
+`redis.conf` (mode 0600), and AOF data is kept in
+`/opt/enem-landing/storage/redis`.
+
+```bash
+cd infra/ansible
+ansible-playbook playbooks/deploy-redis.yml -i inventories/prod/hosts.ini \
+  -e "redis_password=<strong random value>"
+```
+
+Then set the same values in both GitHub environments (`production` and
+`development`): `REDIS_HOST=redis_redis`, `REDIS_PORT=6379`,
+`REDIS_USERNAME` empty, `REDIS_PASSWORD=<same value>`, `REDIS_DB=0`,
+`REDIS_TLS_ENABLED=false`, and redeploy both stacks. Keep the existing
+`REDIS_KEY_PREFIX` values.
 
 ## Not yet in this story (deferred to real infra)
 

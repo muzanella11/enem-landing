@@ -1,0 +1,43 @@
+# Self-hosted Redis stack, shared by the prod and dev app stacks on this
+# VPS. Replaces Upstash (free tier), whose 500k monthly request quota ran
+# out on 2026-11-18 and took both APIs down. Deployed by deploy-redis.yml.
+#
+# - One instance for both environments: dev keeps its keys apart with
+#   REDIS_KEY_PREFIX=dev (compose.dev.yml), prod uses no prefix.
+# - Joins every env overlay network (app_networks) so both stacks reach it
+#   as `redis_redis:6379`. No published port: it is never exposed on the
+#   host or the internet.
+# - Password and memory settings live in redis.conf (rendered from
+#   redis.conf.j2, mode 0600), not on the command line, so the password
+#   does not show up in `docker service inspect` or `ps`.
+# - Data (AOF) is bind-mounted to /opt/enem-landing/storage/redis so login
+#   sessions and the token blocklist survive a container restart.
+
+services:
+  redis:
+    image: redis:7.4.2-alpine
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+{% for net in app_networks %}
+      - {{ net }}
+{% endfor %}
+    volumes:
+      - /opt/enem-landing/storage/redis:/data
+      - /opt/enem-landing/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          # maxmemory in redis.conf is 96mb; the rest is headroom for the
+          # AOF rewrite fork and connection buffers.
+          memory: 160M
+
+networks:
+{% for net in app_networks %}
+  {{ net }}:
+    external: true
+{% endfor %}

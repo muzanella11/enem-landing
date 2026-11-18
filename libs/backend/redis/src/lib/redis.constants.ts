@@ -4,12 +4,12 @@ export const redisUsername = process.env['REDIS_USERNAME'] || '';
 export const redisPassword = process.env['REDIS_PASSWORD'] || '';
 export const redisDB = parseInt(process.env['REDIS_DB'] || '0', 10);
 
-/** Upstash (and most managed Redis) requires TLS; self-hosted dev usually doesn't. */
+/** Managed Redis usually requires TLS; the self-hosted VPS instance and local dev don't. */
 export const redisTLSEnabled = process.env['REDIS_TLS_ENABLED'] === 'true';
 
 /**
  * Optional key prefix for environment isolation when dev/prod share one
- * Redis instance (e.g. a free-tier Upstash database) — same pattern as
+ * Redis instance (the self-hosted VPS Redis: dev uses `dev`) — same pattern as
  * mau-apps (`libs/backend/redis/src/lib/redis.constants.ts`). Empty by
  * default (no prefix, single-environment self-hosted Redis).
  */

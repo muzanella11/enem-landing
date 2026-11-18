@@ -1,0 +1,23 @@
+# Rendered by deploy-redis.yml to /opt/enem-landing/redis/redis.conf (0600).
+# Holds the password, so it must never be committed with a real value.
+
+bind 0.0.0.0
+port 6379
+protected-mode yes
+requirepass {{ redis_password }}
+
+# Data set is tiny (cache entries, rate-limit windows, captcha challenges,
+# sessions). Keys with a TTL are evicted first when the cap is reached;
+# sessions and counters without a TTL are kept.
+maxmemory 96mb
+maxmemory-policy volatile-lru
+
+# Persist to /data so sessions survive restarts.
+appendonly yes
+appendfsync everysec
+save ""
+
+# Dangerous admin commands are not needed by the apps.
+rename-command FLUSHALL ""
+rename-command FLUSHDB ""
+rename-command DEBUG ""

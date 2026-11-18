@@ -3,8 +3,8 @@
 # (issues/09-dev-tooling-scripts.md). Ported dari
 # mau-apps/infra/ansible/playbooks/init-server.yml, dengan semua task
 # RabbitMQ (build image lokal, storage dir) DIHAPUS - enem-landing tidak
-# punya service self-host apapun (MySQL via Aiven, Redis via Upstash,
-# lihat issues/00-epic-overview.md keputusan #6), jadi tidak ada
+# punya service self-host saat provisioning (MySQL via Aiven; Redis
+# self-host di-deploy terpisah lewat deploy-redis.yml), jadi tidak ada
 # build-image-lokal yang perlu dilakukan playbook ini sama sekali.
 # Idempotent: aman dijalankan ulang untuk perbaikan config drift, bukan
 # cuma sekali pakai di awal.
@@ -177,8 +177,9 @@
         enabled: true
         state: started
 
-    # Firewall - MySQL/Redis sudah managed (Aiven/Upstash), jadi tidak ada
-    # port DB self-host yang perlu di-publish ke host sama sekali (beda
+    # Firewall - MySQL managed (Aiven) dan Redis self-host tidak publish
+    # port ke host (cuma lewat overlay network), jadi tidak ada port DB
+    # yang perlu dibuka sama sekali (beda
     # dari mau-apps yang masih co-locate RabbitMQ). Cuma SSH + HTTP/HTTPS
     # untuk Traefik yang perlu dibuka.
     # `ufw allow`/`ufw default`/`ufw enable` sudah idempotent sendiri (aman
@@ -242,9 +243,8 @@
         owner: "{{ deploy_user }}"
         group: "{{ deploy_user }}"
 
-    # Cuma traefik yang butuh storage bind-mount di sini - MySQL/Redis
-    # sudah managed (Aiven/Upstash), tidak ada container self-host untuk
-    # keduanya (beda dari mau-apps yang masih punya rabbitmq co-located).
+    # Cuma traefik yang butuh storage bind-mount di sini - MySQL managed
+    # (Aiven), dan storage Redis self-host dibuat oleh deploy-redis.yml.
     - name: Buat direktori storage bind mount (traefik)
       ansible.builtin.file:
         path: "/opt/enem-landing/storage/traefik"

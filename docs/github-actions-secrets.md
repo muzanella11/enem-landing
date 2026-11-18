@@ -30,13 +30,13 @@ nilai yang berbeda per environment.
 |---|---|---|
 | `DATABASE_URL_ACCOUNT_API` | DB `enem-landing-account-api` (`enem_landing_account_dev`/`_prod`) | Connection string Aiven MySQL - lihat `scripts/provision-db.sh` |
 | `DATABASE_URL_API` | DB `enem-landing-api` (`enem_landing_api_dev`/`_prod`) | Connection string Aiven MySQL (database ke-2) - lihat `scripts/provision-db.sh` |
-| `REDIS_HOST` | Upstash Redis | Dashboard Upstash |
-| `REDIS_PORT` | Upstash Redis | Dashboard Upstash |
-| `REDIS_USERNAME` | Upstash Redis | Dashboard Upstash |
-| `REDIS_PASSWORD` | Upstash Redis | Dashboard Upstash |
-| `REDIS_DB` | Upstash Redis | Dashboard Upstash |
-| `REDIS_TLS_ENABLED` | Upstash Redis (wajib `true` untuk Upstash) | Dashboard Upstash |
-| `REDIS_KEY_PREFIX` | Pemisah key kalau dev/prod berbagi satu instance Upstash free-tier | Ditentukan sendiri, mis. `dev:`/`prod:` |
+| `REDIS_HOST` | Redis self-host di VPS | `redis_redis` (nama service stack `redis`) |
+| `REDIS_PORT` | Redis self-host di VPS | `6379` |
+| `REDIS_USERNAME` | Redis self-host di VPS | Kosong |
+| `REDIS_PASSWORD` | Redis self-host di VPS | Password yang dipakai saat menjalankan `deploy-redis.yml`, sama untuk kedua environment |
+| `REDIS_DB` | Redis self-host di VPS | `0` |
+| `REDIS_TLS_ENABLED` | Redis self-host di VPS (lewat overlay network internal, tanpa TLS) | `false` |
+| `REDIS_KEY_PREFIX` | Pemisah key karena dev/prod berbagi satu instance Redis | `development`: `dev`, `production`: tetap seperti sekarang |
 | `JWT_SECRET` | Token signing sungguhan | String random kuat - bisa di-generate (`openssl rand -hex 32`) |
 | `R2_ACCESS_KEY_ID` | Fitur uploads `enem-landing-account-api` | Cloudflare R2 |
 | `R2_SECRET_ACCESS_KEY` | Fitur uploads | Cloudflare R2 |
@@ -57,10 +57,10 @@ placeholder dulu kalau fitur upload belum dipakai.
   `enem_landing_api_dev`, `enem_landing_api_prod`. Di-provision oleh
   `scripts/provision-db.sh`.
 
-## Yang belum diputuskan
-
-- Upstash Redis: satu instance free-tier dipakai bareng dev/prod (via
-  `REDIS_KEY_PREFIX` yang beda), atau 2 instance terpisah.
+- Redis: **satu instance self-host di VPS** dipakai bareng dev/prod,
+  dipisah lewat `REDIS_KEY_PREFIX`. Sebelumnya Upstash free-tier, tapi
+  kuota 500 ribu perintah per bulan habis pada 2026-11-18. Lihat bagian
+  "Shared Redis" di `infra/ansible/README.md`.
 
 ## Langkah terpisah yang bukan GitHub secret
 

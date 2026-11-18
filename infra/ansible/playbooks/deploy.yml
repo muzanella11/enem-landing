@@ -21,13 +21,14 @@
 #     # MySQL (Aiven) - 2 database terpisah (story 03/06), bukan shared-schema
 #     DATABASE_URL_ACCOUNT_API: "mysql://user:pass@host:port/enem_landing_account?ssl-mode=REQUIRED"
 #     DATABASE_URL_API: "mysql://user:pass@host:port/enem_landing_api?ssl-mode=REQUIRED"
-#     # Redis (Upstash) - dipakai enem-landing-account-api saja
-#     REDIS_HOST: "<value>"
-#     REDIS_PORT: "<value>"
-#     REDIS_USERNAME: "<value>"
+#     # Redis self-host di VPS (stack `redis`, lihat deploy-redis.yml),
+#     # dipakai bersama dev dan prod
+#     REDIS_HOST: "redis_redis"
+#     REDIS_PORT: "6379"
+#     REDIS_USERNAME: ""
 #     REDIS_PASSWORD: "<value>"
 #     REDIS_DB: "0"
-#     REDIS_TLS_ENABLED: "true"
+#     REDIS_TLS_ENABLED: "false"
 #     REDIS_KEY_PREFIX: ""
 #     # JWT (enem-landing-account-api - satu-satunya penerbit token, tidak
 #     # ada per-app JWT_SECRET_* seperti mau-apps karena cuma 1 identity

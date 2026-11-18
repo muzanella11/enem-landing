@@ -1,0 +1,68 @@
+---
+# Deploys the shared self-hosted Redis stack (prod + dev) to the VPS.
+# Idempotent: safe to re-run to change memory settings or rotate the
+# password (a changed redis.conf restarts the service).
+#
+# Usage (from infra/ansible):
+#   ansible-playbook playbooks/deploy-redis.yml -i inventories/prod/hosts.ini \
+#     -e "redis_password=$(openssl rand -hex 32)"
+#
+# The same password must then be stored as the REDIS_PASSWORD secret in
+# BOTH GitHub environments (production and development), together with
+# REDIS_HOST=redis_redis, REDIS_PORT=6379, REDIS_TLS_ENABLED=false,
+# REDIS_USERNAME empty and REDIS_DB=0 - see docs/github-actions-secrets.md.
+
+- name: Deploy shared Redis stack
+  hosts: all
+  become: true
+  tasks:
+    - name: Make sure redis_password is set
+      ansible.builtin.assert:
+        that:
+          - redis_password is defined
+          - redis_password | length >= 32
+        fail_msg: >-
+          Pass a strong password, e.g.
+          -e "redis_password=$(openssl rand -hex 32)"
+
+    # The alpine image runs redis as uid 999, which must own the data dir.
+    - name: Create the Redis data directory
+      ansible.builtin.file:
+        path: /opt/enem-landing/storage/redis
+        state: directory
+        owner: '999'
+        group: '999'
+        mode: '0700'
+
+    - name: Create the Redis config directory
+      ansible.builtin.file:
+        path: /opt/enem-landing/redis
+        state: directory
+        mode: '0755'
+
+    - name: Render redis.conf (holds the password)
+      ansible.builtin.template:
+        src: redis.conf.j2
+        dest: /opt/enem-landing/redis/redis.conf
+        owner: '999'
+        group: '999'
+        mode: '0600'
+      no_log: true
+      register: redis_conf
+
+    - name: Render the Redis stack definition
+      ansible.builtin.template:
+        src: redis-stack.yml.j2
+        dest: /opt/enem-landing/redis-stack.yml
+        mode: '0644'
+
+    - name: Deploy the Redis stack
+      ansible.builtin.command: docker stack deploy -c /opt/enem-landing/redis-stack.yml redis
+      changed_when: true
+
+    # A bind-mounted file change is invisible to `docker stack deploy`, so
+    # force a restart when redis.conf changed.
+    - name: Restart Redis when its config changed
+      ansible.builtin.command: docker service update --force redis_redis
+      when: redis_conf.changed
+      changed_when: true
