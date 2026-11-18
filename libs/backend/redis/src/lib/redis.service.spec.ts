@@ -38,8 +38,11 @@ describe('RedisService', () => {
 
     redisClientMock.set.mockResolvedValue('OK');
     await service.setValue('foo', 'bar', 60);
-    expect(redisClientMock.set).toHaveBeenCalledWith('foo', 'bar');
-    expect(redisClientMock.expire).toHaveBeenCalledWith('foo', 60);
+    expect(redisClientMock.set).toHaveBeenCalledWith('foo', 'bar', 'EX', 60);
+    expect(redisClientMock.expire).not.toHaveBeenCalled();
+
+    await service.setValue('foo', 'bar');
+    expect(redisClientMock.set).toHaveBeenLastCalledWith('foo', 'bar');
   });
 
   it('scopes keys to REDIS_KEY_PREFIX when set', async () => {

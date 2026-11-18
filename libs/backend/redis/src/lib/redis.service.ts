@@ -69,13 +69,11 @@ export class RedisService implements OnModuleDestroy {
     expiryAfterSeconds?: number,
   ): Promise<string | null> {
     const prefixedKey = this.withPrefix(key);
-    const result = await this.client.set(prefixedKey, value);
-
-    if (expiryAfterSeconds) {
-      await this.client.expire(prefixedKey, expiryAfterSeconds);
-    }
-
-    return result;
+    // One command (SET ... EX) instead of SET + EXPIRE: atomic, and every
+    // command counts against the Redis provider's request quota.
+    return expiryAfterSeconds
+      ? this.client.set(prefixedKey, value, 'EX', expiryAfterSeconds)
+      : this.client.set(prefixedKey, value);
   }
 
   async deleteValue(key: string): Promise<number> {

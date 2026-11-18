@@ -38,6 +38,16 @@ describe('CacheService', () => {
       expect(redisService.increment).toHaveBeenCalledWith('stats:miss:key');
     });
 
+    it('does not leave an unhandled rejection when the stat counter fails', async () => {
+      redisService.getValue.mockResolvedValue(JSON.stringify({ foo: 'bar' }));
+      const rejection = Promise.reject(new Error('max requests limit exceeded'));
+      const catchSpy = vi.spyOn(rejection, 'catch');
+      redisService.increment.mockReturnValue(rejection);
+
+      await expect(service.getCached('key')).resolves.toEqual({ foo: 'bar' });
+      expect(catchSpy).toHaveBeenCalled();
+    });
+
     it('swallows Redis errors and returns null instead of throwing', async () => {
       redisService.getValue.mockRejectedValue(new Error('connection reset'));
 

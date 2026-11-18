@@ -21,15 +21,25 @@ export class CacheService {
     try {
       const raw = await this.redisService.getValue(key);
       if (raw !== null) {
-        void this.redisService.increment(hitStatKey(key));
+        this.recordStat(hitStatKey(key));
         return JSON.parse(raw) as T;
       }
-      void this.redisService.increment(missStatKey(key));
+      this.recordStat(missStatKey(key));
       return null;
     } catch (error) {
       this.logger.warn(`Cache read failed for ${key}`, error);
       return null;
     }
+  }
+
+  /**
+   * Fire-and-forget counter bump. It must carry its own catch: a rejected
+   * promise nobody awaits is an unhandled rejection, which kills the Node
+   * process. That is how a Redis quota error (Upstash "max requests limit
+   * exceeded") took the whole API down in a restart loop.
+   */
+  private recordStat(statKey: string): void {
+    this.redisService.increment(statKey).catch(() => undefined);
   }
 
   async setCached(
