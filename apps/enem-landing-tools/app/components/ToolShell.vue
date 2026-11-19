@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { isNoindexPath } from '~~/shared/noindex-routes';
+
 export interface FaqItem {
   q: string;
   a: string;
@@ -49,14 +51,15 @@ const { config, findTool, isToolEnabled } = useToolsConfig();
 const enabled = computed(() => isToolEnabled(props.slug));
 const embed = useEmbed();
 const pageTitle = props.seoTitle ?? props.title;
+const pagePath = props.path ?? `/${props.slug}`;
 
 const { siteUrl, url: canonicalUrl } = usePageSeo({
   title: pageTitle,
   description: props.description,
-  path: props.path ?? `/${props.slug}`,
+  path: pagePath,
   ogKey: props.ogKey ?? props.slug,
   robots: () =>
-    enabled.value && !embed.value
+    enabled.value && !embed.value && !isNoindexPath(pagePath)
       ? 'index, follow, max-image-preview:large, max-snippet:-1'
       : 'noindex, follow',
 });

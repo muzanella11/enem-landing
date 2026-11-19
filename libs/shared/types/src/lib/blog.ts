@@ -32,6 +32,8 @@ export interface BlogPost {
   metaTitle: string;
   metaDescription: string;
   ogImageUrl: string;
+  /** Hidden from search engines: `noindex` robots meta, no sitemap entry. */
+  noindex: boolean;
   categories: BlogCategory[];
   tags: BlogTag[];
   createdAt: string;

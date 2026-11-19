@@ -115,6 +115,14 @@ useHead({
   script: [{ type: 'application/ld+json', innerHTML: articleJsonLd.value }],
 });
 
+// CMS "Hide from search engines" switch; the post is also left out of
+// sitemap.xml (see server/utils/build-sitemap.ts).
+useHead(() => ({
+  meta: post.value?.noindex
+    ? [{ name: 'robots', content: 'noindex, follow' }]
+    : [],
+}));
+
 const formatDate = (value: string | null | undefined) =>
   value
     ? new Date(value).toLocaleDateString('en-US', {

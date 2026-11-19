@@ -30,7 +30,10 @@ interface SeededPost {
  * `playwright.config.mts` starts `enem-landing-account-api` alongside the
  * usual two servers just for this real signin call.
  */
-const seedPost = async (request: APIRequestContext): Promise<SeededPost> => {
+const seedPost = async (
+  request: APIRequestContext,
+  extra: Record<string, unknown> = {},
+): Promise<SeededPost> => {
   const signin = await request.post(`${ACCOUNT_API}/auth/signin`, {
     data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
   });
@@ -79,6 +82,7 @@ const seedPost = async (request: APIRequestContext): Promise<SeededPost> => {
       metaDescription: META_DESCRIPTION,
       categoryIds: [categoryId],
       tagIds: [tagId],
+      ...extra,
     },
   });
   const {
@@ -197,6 +201,23 @@ test.describe('blog', () => {
       expect(xml).toContain(
         `<loc>https://muzanella.com/blog/${seeded.slug}</loc>`,
       );
+    } finally {
+      await cleanupPost(request, seeded);
+    }
+  });
+
+  test('a post marked noindex stays readable but carries a noindex robots tag', async ({
+    page,
+    request,
+  }) => {
+    const seeded = await seedPost(request, { noindex: true });
+
+    try {
+      await page.goto(`/blog/${seeded.slug}`);
+      await expect(page.getByText(BODY_TEXT)).toBeVisible();
+      await expect(
+        page.locator('meta[name="robots"][content*="noindex"]'),
+      ).toHaveCount(1);
     } finally {
       await cleanupPost(request, seeded);
     }

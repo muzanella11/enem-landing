@@ -66,7 +66,14 @@ useHead({
         <DonationCta placement="footer" variant="footer" />
         <p class="flex flex-wrap gap-x-4 gap-y-1">
           <NuxtLink to="/privasi" class="btn-link">Privasi dan cookie</NuxtLink>
-          <a href="https://muzanella.com" class="btn-link">Tentang pembuat</a>
+          <NuxtLink to="/syarat-ketentuan" class="btn-link"
+            >Syarat dan ketentuan</NuxtLink
+          >
+          <a href="https://muzanella.com/#about" class="btn-link"
+            >Tentang pembuat</a
+          >
+          <a href="https://muzanella.com/#contact" class="btn-link">Kontak</a>
+          <a href="https://muzanella.com/blog" class="btn-link">Blog</a>
         </p>
       </div>
     </footer>

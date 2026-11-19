@@ -55,8 +55,9 @@ test.describe('tools hub', () => {
     const toolDate = lastmod('/kalkulator-gaji-bersih');
     expect(toolDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(toolDate! >= '2026-11-07' && toolDate! <= todayWib).toBe(true);
-    // Answer pages share their tool's date.
-    expect(lastmod('/gaji-bersih/5000000')).toBe(toolDate);
+    // Per-item pages share their tool's date.
+    expect(lastmod('/upah-minimum/dki-jakarta')).toBe(lastmod('/upah-minimum'));
+    expect(lastmod('/upah-minimum/dki-jakarta')).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 
     // The homepage <loc> matches its canonical exactly (trailing slash).
     await gotoReady(page, '/');
@@ -102,6 +103,26 @@ test.describe('tools hub', () => {
         .getByRole('link')
         .first(),
     ).toBeVisible();
+  });
+
+  test('terms page is linked from the footer and listed in the sitemap', async ({
+    page,
+    request,
+  }) => {
+    await gotoReady(page, '/');
+    const footer = page.locator('footer');
+    await expect(footer.getByRole('link', { name: 'Kontak' })).toHaveAttribute(
+      'href',
+      'https://muzanella.com/#contact',
+    );
+    await footer.getByRole('link', { name: 'Syarat dan ketentuan' }).click();
+    await page.waitForURL(/\/syarat-ketentuan$/);
+    await expect(
+      page.getByRole('heading', { name: 'Syarat dan ketentuan', level: 1 }),
+    ).toBeVisible();
+
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).toContain('/syarat-ketentuan</loc>');
   });
 
   test('unknown pages return a noindex 404 in Indonesian', async ({ page }) => {

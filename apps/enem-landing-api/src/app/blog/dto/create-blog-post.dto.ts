@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsNotEmpty,
   IsObject,
@@ -50,6 +51,10 @@ export class CreateBlogPostDto {
   @IsOptional()
   @IsString()
   ogImageUrl?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  noindex?: boolean;
 
   @IsOptional()
   @IsArray()

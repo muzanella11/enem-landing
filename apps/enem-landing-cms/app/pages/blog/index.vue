@@ -128,6 +128,13 @@ const statusColor = (status: string) =>
           <v-chip :color="statusColor(item.status)" size="small">{{
             item.status
           }}</v-chip>
+          <v-chip
+            v-if="item.noindex"
+            size="small"
+            variant="outlined"
+            class="ml-1"
+            >noindex</v-chip
+          >
         </template>
         <template #item.updatedAt="{ item }">
           {{ new Date(item.updatedAt).toLocaleString() }}

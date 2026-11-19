@@ -6,9 +6,10 @@ export const SITE_URL = 'https://muzanella.com';
 export const SITEMAP_PAGE_SIZE = 100;
 
 /** Indexable pages that exist regardless of blog content. */
-const STATIC_PATHS = ['/', '/blog', '/privacy'];
+const STATIC_PATHS = ['/', '/blog', '/privacy', '/terms'];
 
-type SitemapPost = Pick<BlogPost, 'slug' | 'publishedAt' | 'updatedAt'>;
+type SitemapPost = Pick<BlogPost, 'slug' | 'publishedAt' | 'updatedAt'> &
+  Partial<Pick<BlogPost, 'noindex'>>;
 
 const escapeXml = (value: string): string =>
   value
@@ -33,16 +34,19 @@ const urlEntry = (path: string, lastmod: string | null): string => {
 /**
  * Builds the root-domain sitemap: the static pages plus every published
  * blog post, each post dated by its last update so Google re-crawls edits.
+ * Posts marked `noindex` in the CMS are left out.
  */
 export const buildSitemap = (posts: SitemapPost[]): string => {
   const entries = [
     ...STATIC_PATHS.map((path) => urlEntry(path, null)),
-    ...posts.map((post) =>
-      urlEntry(
-        `/blog/${encodeURIComponent(post.slug)}`,
-        toLastmod(post.updatedAt) ?? toLastmod(post.publishedAt),
+    ...posts
+      .filter((post) => !post.noindex)
+      .map((post) =>
+        urlEntry(
+          `/blog/${encodeURIComponent(post.slug)}`,
+          toLastmod(post.updatedAt) ?? toLastmod(post.publishedAt),
+        ),
       ),
-    ),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
