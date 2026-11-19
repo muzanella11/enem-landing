@@ -195,6 +195,7 @@ export class BlogPostsService {
       metaTitle: dto.metaTitle ?? '',
       metaDescription: dto.metaDescription ?? '',
       ogImageUrl: dto.ogImageUrl ?? '',
+      noindex: dto.noindex ?? false,
       categories: await this.loadCategories(dto.categoryIds),
       tags: await this.loadTags(dto.tagIds),
     });
@@ -220,6 +221,7 @@ export class BlogPostsService {
       post.metaDescription = dto.metaDescription;
     }
     if (dto.ogImageUrl !== undefined) post.ogImageUrl = dto.ogImageUrl;
+    if (dto.noindex !== undefined) post.noindex = dto.noindex;
     if (dto.categoryIds !== undefined) {
       post.categories = await this.loadCategories(dto.categoryIds);
     }

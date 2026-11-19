@@ -28,7 +28,9 @@ test.describe('blog', () => {
       await page.getByRole('button', { name: 'Add Category' }).click();
       await page.getByLabel('Name', { exact: true }).fill(CATEGORY_NAME);
       await page.getByRole('button', { name: 'Save' }).click();
-      await expect(page.getByText(CATEGORY_NAME)).toBeVisible({ timeout: 1_000 });
+      await expect(page.getByText(CATEGORY_NAME)).toBeVisible({
+        timeout: 1_000,
+      });
     }).toPass({ timeout: 15_000 });
 
     // Tag
@@ -80,6 +82,7 @@ test.describe('blog', () => {
     await page.getByRole('option', { name: TAG_NAME }).click();
     await page.keyboard.press('Escape');
 
+    await page.getByLabel('Hide from search engines (noindex)').check();
     await page.getByRole('button', { name: 'Published' }).click();
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('Post saved.')).toBeVisible();
@@ -87,11 +90,20 @@ test.describe('blog', () => {
     // Verify it actually persisted, not just that the toast fired.
     await page.reload();
     await page.waitForTimeout(2_000);
-    await expect(page.getByLabel('Excerpt')).toHaveValue('Written by an e2e test.');
-    await expect(page.locator('.ql-editor')).toContainText('Body content written by Playwright.');
+    await expect(page.getByLabel('Excerpt')).toHaveValue(
+      'Written by an e2e test.',
+    );
+    await expect(page.locator('.ql-editor')).toContainText(
+      'Body content written by Playwright.',
+    );
     await expect(page.getByText(CATEGORY_NAME)).toBeVisible();
     await expect(page.getByText(TAG_NAME)).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Published' })).toHaveClass(/v-btn--active/);
+    await expect(page.getByRole('button', { name: 'Published' })).toHaveClass(
+      /v-btn--active/,
+    );
+    await expect(
+      page.getByLabel('Hide from search engines (noindex)'),
+    ).toBeChecked();
 
     // Cleanup: post, then category and tag. Same hydration race documented
     // in `site-profile.spec.ts` - `goto` lands on an already-server-
@@ -102,17 +114,29 @@ test.describe('blog', () => {
     // retrying the click itself.
     await page.goto('/blog');
     await page.waitForTimeout(2_000);
-    await page.getByRole('row', { name: POST_TITLE }).getByRole('button').last().click();
+    await page
+      .getByRole('row', { name: POST_TITLE })
+      .getByRole('button')
+      .last()
+      .click();
     await expect(page.getByText(POST_TITLE)).toBeHidden();
 
     await page.goto('/blog/categories');
     await page.waitForTimeout(2_000);
-    await page.getByRole('row', { name: CATEGORY_NAME }).getByRole('button').last().click();
+    await page
+      .getByRole('row', { name: CATEGORY_NAME })
+      .getByRole('button')
+      .last()
+      .click();
     await expect(page.getByText(CATEGORY_NAME)).toBeHidden();
 
     await page.goto('/blog/tags');
     await page.waitForTimeout(2_000);
-    await page.getByRole('row', { name: TAG_NAME }).getByRole('button').last().click();
+    await page
+      .getByRole('row', { name: TAG_NAME })
+      .getByRole('button')
+      .last()
+      .click();
     await expect(page.getByText(TAG_NAME)).toBeHidden();
   });
 });

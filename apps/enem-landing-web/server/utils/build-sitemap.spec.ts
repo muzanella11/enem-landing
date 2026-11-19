@@ -21,13 +21,24 @@ describe('buildSitemap', () => {
     expect(xml).toContain('<loc>https://muzanella.com/</loc>');
     expect(xml).toContain('<loc>https://muzanella.com/blog</loc>');
     expect(xml).toContain('<loc>https://muzanella.com/privacy</loc>');
+    expect(xml).toContain('<loc>https://muzanella.com/terms</loc>');
     expect(xml).toContain(
       '<loc>https://muzanella.com/blog/cara-kompres-pdf</loc><lastmod>2026-10-05</lastmod>',
     );
     expect(xml).toContain(
       '<loc>https://muzanella.com/blog/simulasi-kpr</loc><lastmod>2026-11-01</lastmod>',
     );
-    expect(xml.match(/<url>/g)).toHaveLength(5);
+    expect(xml.match(/<url>/g)).toHaveLength(6);
+  });
+
+  it('leaves out posts marked noindex', () => {
+    const xml = buildSitemap([
+      post('indexed', '2026-10-05T08:30:00.000Z'),
+      { ...post('hidden', '2026-10-05T08:30:00.000Z'), noindex: true },
+    ]);
+
+    expect(xml).toContain('/blog/indexed</loc>');
+    expect(xml).not.toContain('/blog/hidden');
   });
 
   it('falls back to publishedAt and omits lastmod when no date parses', () => {

@@ -38,6 +38,7 @@ const form = ref({
   metaTitle: post.value?.metaTitle ?? '',
   metaDescription: post.value?.metaDescription ?? '',
   ogImageUrl: post.value?.ogImageUrl ?? '',
+  noindex: post.value?.noindex ?? false,
 });
 const categoryIds = ref<string[]>(
   post.value?.categories.map((category) => category.id) ?? [],
@@ -219,6 +220,7 @@ const save = async () => {
         metaTitle: form.value.metaTitle,
         metaDescription: form.value.metaDescription,
         ogImageUrl: form.value.ogImageUrl,
+        noindex: form.value.noindex,
         categoryIds: categoryIds.value,
         tagIds: tagIds.value,
       },
@@ -386,6 +388,14 @@ const save = async () => {
         variant="outlined"
         density="compact"
         hide-details="auto"
+        class="mb-4"
+      />
+      <v-switch
+        v-model="form.noindex"
+        label="Hide from search engines (noindex)"
+        color="primary"
+        hint="The article stays readable on the blog, but gets a noindex robots tag and is left out of sitemap.xml."
+        persistent-hint
       />
     </CContentCard>
 

@@ -5,12 +5,14 @@ import { DAFTAR_SURAT } from '../../app/data/surat';
 import { SATUAN_LOKAL } from '../../app/data/satuan';
 import { KOTA } from '../../app/data/sholat/kota';
 import { UMP_PROVINSI } from '../../app/data/upah-minimum';
+import { isNoindexPath } from '../../shared/noindex-routes';
 import { lastmodForPath } from '../../shared/sitemap-lastmod';
 import { TOOLS_SNAPSHOT } from '../../shared/tools-registry';
 import { createApiClient } from '../utils/api-client';
 
 /**
  * Only enabled tools are listed (Story 25); disabled ones are `noindex`.
+ * Template families in shared/noindex-routes.ts are left out as well.
  * `<lastmod>` is each page's last significant content change, see
  * shared/sitemap-lastmod.ts for when to bump it.
  */
@@ -66,7 +68,8 @@ export default defineEventHandler(async (event) => {
       : []),
     '/pasang-widget',
     '/privasi',
-  ];
+    '/syarat-ketentuan',
+  ].filter((path) => !isNoindexPath(path));
   const body = urls
     .map(
       (path) =>

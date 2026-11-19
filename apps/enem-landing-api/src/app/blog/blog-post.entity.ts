@@ -48,6 +48,10 @@ export class BlogPostEntity {
   @Column({ default: '' })
   ogImageUrl!: string;
 
+  /** Keeps a published post out of search results: `noindex` meta and no sitemap entry. */
+  @Column({ default: false })
+  noindex!: boolean;
+
   @ManyToMany(() => BlogCategoryEntity)
   @JoinTable({
     name: 'blog_post_categories',

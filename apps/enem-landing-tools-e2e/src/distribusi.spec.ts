@@ -80,10 +80,19 @@ test.describe('SEO and distribution (Story 49)', () => {
     expect((await page.goto('/embed/kalkulator-fiktif'))?.status()).toBe(404);
   });
 
-  test('sitemap lists answer pages', async ({ request }) => {
+  test('answer pages are noindex and left out of the sitemap', async ({
+    page,
+    request,
+  }) => {
     const xml = await (await request.get('/sitemap.xml')).text();
-    expect(xml).toContain('/gaji-bersih/5000000');
-    expect(xml).toContain('/thr/6000000');
+    expect(xml).not.toContain('/gaji-bersih/5000000');
+    expect(xml).not.toContain('/thr/6000000');
+    expect(xml).not.toContain('/token-listrik/');
     expect(xml).not.toContain('/embed/');
+    expect(xml).toContain('/kalkulator-gaji-bersih</loc>');
+    await gotoReady(page, '/thr/6000000');
+    await expect(
+      page.locator('meta[name="robots"][content*="noindex"]'),
+    ).toHaveCount(1);
   });
 });

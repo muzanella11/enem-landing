@@ -31,13 +31,22 @@ test.describe('ibadah tools (Story 36)', () => {
     await expect(page.getByText(/^29[45]\.\d°/)).toBeVisible();
   });
 
-  test('city pages are in the sitemap and unknown cities are 404', async ({
+  test('prayer city pages are in the sitemap, imsakiyah ones are noindex', async ({
     page,
     request,
   }) => {
     const sitemap = await (await request.get('/sitemap.xml')).text();
     expect(sitemap).toContain('/jadwal-sholat/kota-bandung</loc>');
-    expect(sitemap).toContain('/jadwal-imsakiyah/kota-bandung</loc>');
+    expect(sitemap).not.toContain('/jadwal-imsakiyah/kota-bandung</loc>');
+    expect(sitemap).toContain('/jadwal-imsakiyah</loc>');
+    await gotoReady(page, '/jadwal-imsakiyah/kota-bandung');
+    await expect(
+      page.locator('meta[name="robots"][content*="noindex"]'),
+    ).toHaveCount(1);
+    await gotoReady(page, '/jadwal-sholat/kota-bandung');
+    await expect(
+      page.locator('meta[name="robots"][content*="noindex"]'),
+    ).toHaveCount(0);
     const response = await page.goto('/jadwal-sholat/kota-fiktif');
     expect(response?.status()).toBe(404);
   });
