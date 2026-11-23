@@ -34,6 +34,41 @@ creates the `enem-landing-network` overlay network. Idempotent - safe to
 re-run for config-drift repair. Full detail in `scripts/provision-server.sh`
 and the playbook itself (story 09).
 
+## Log limits
+
+Set by `init-server.yml`, so a rebuilt VPS gets them too:
+
+| What | Limit | Where |
+|---|---|---|
+| Container logs (`json-file`) | `max-size: 10m`, `max-file: 3`, about 30 MB per container | `/etc/docker/daemon.json` |
+| journald | `SystemMaxUse=300M`, `SystemKeepFree=2G` | `/etc/systemd/journald.conf.d/size.conf` |
+| Stopped containers | kept for 72 hours | `deploy.yml` prune step |
+
+- `daemon.json` is merged, not overwritten: other keys already in it stay.
+  It is validated with `dockerd --validate` before it is written.
+- dockerd is restarted only when `daemon.json` actually changes, and that
+  restart restarts **every** container (prod and dev). Run `init-server.yml`
+  at a quiet hour. A second run changes nothing and restarts nothing.
+- The log options apply only to containers created after the restart.
+  Redeploy both stacks (or `docker service update --force <service>`) so
+  every container picks them up.
+- When the journald drop-in changes, journald is restarted (containers are
+  not affected) and `journalctl --vacuum-size=300M` runs once to shrink the
+  existing journal.
+- `deploy.yml` runs `docker container prune -f --filter "until=72h"`. Prune
+  is host-wide, so without the filter a dev deploy also deleted crashed prod
+  containers and their logs. Swarm keeps only the last 5 tasks per slot, so
+  the number of kept containers stays small.
+
+Check after a rollout:
+
+```bash
+docker inspect --format '{{.HostConfig.LogConfig}}' <container>   # map[max-file:3 max-size:10m]
+sudo journalctl --disk-usage                                      # under 300M
+docker service ls                                                 # all 1/1
+docker ps -a -f status=exited                                     # crashed tasks younger than 72h still listed
+```
+
 ## `enem-landing-account-api`: internal-only, not exposed publicly
 
 Decided (story 10), not left open: `enem-landing-account-api` gets
