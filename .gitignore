@@ -68,3 +68,6 @@ vitest.config.*.timestamp*
 *.env.staging
 *.env-me
 .vitest
+
+# Local Ansible secrets (deploy-mysql.yml, deploy.yml), never commit
+infra/ansible/*-vars.yml

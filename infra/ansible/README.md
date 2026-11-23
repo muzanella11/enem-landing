@@ -151,8 +151,8 @@ off, utf8mb4).
 
 ### Deploy
 
-Create a local `mysql-vars.yml` (never commit it, the full shape is in the
-playbook header), then:
+Put the secrets in `infra/ansible/mysql-vars.yml` (gitignored through
+`infra/ansible/*-vars.yml`; the full shape is in the playbook header), then:
 
 ```bash
 cd infra/ansible
