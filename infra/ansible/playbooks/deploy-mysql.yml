@@ -25,7 +25,9 @@
 #   mysql_backup_r2_endpoint: "https://<account id>.r2.cloudflarestorage.com"
 #   mysql_backup_r2_access_key_id: "<value>"
 #   mysql_backup_r2_secret_access_key: "<value>"
-#   # Where failure alerts go (Discord or Slack style webhook).
+#   # Where failure alerts go (Discord or Slack style webhook). Optional:
+#   # leave it out until the monitoring app has an alert endpoint; failures
+#   # still show in `journalctl -u mysql-backup.service`.
 #   mysql_backup_notify_webhook_url: "https://..."
 #
 # The apps then use, per GitHub environment (see

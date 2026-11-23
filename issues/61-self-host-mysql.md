@@ -245,7 +245,8 @@ Catatan implementasi:
   CDN". Sudah dicek: 403 di kedua domain, termasuk varian huruf besar dan
   URL-encoded. Rule ini wajib tetap aktif.
   Notifikasi gagal lewat webhook (format
-  Discord/Slack). Alur backup, restore ke database sementara, dan
+  Discord/Slack). Penerima webhook-nya akan dibuat di app monitoring
+  (dicatat di story 63), jadi untuk sementara URL-nya kosong. Alur backup, restore ke database sementara, dan
   notifikasi gagal sudah diuji lokal dengan server S3 tiruan; masih perlu
   diulang dengan R2 asli.
 - Keputusan #5 (key SSH khusus tunnel dengan `permitopen`) belum
