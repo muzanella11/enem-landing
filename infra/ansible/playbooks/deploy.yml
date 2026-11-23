@@ -69,9 +69,17 @@
 # maupun bergiliran, dan mau-apps sudah membuktikan pola ini regresi-aman
 # dari kegagalan nyata (lihat versi aslinya untuk detail insiden).
 #
-# Setiap run juga jalankan `docker container prune -f` + `docker image
-# prune -a -f` di akhir supaya container/image lama tidak menumpuk di disk
-# server - `-a` (bukan cuma dangling) WAJIB karena tiap node Swarm pull
+# Setiap run juga jalankan `docker container prune -f --filter
+# "until=72h"` + `docker image prune -a -f` di akhir supaya container/image
+# lama tidak menumpuk di disk server. Filter `until=72h` WAJIB: prune
+# berlaku untuk seluruh host, jadi tanpa filter deploy dev ikut menghapus
+# container prod yang baru crash beserta log-nya (bukti crash outage
+# Upstash 2026-11-18 hilang karena ini). Container yang berhenti kurang
+# dari 72 jam dibiarkan; jumlahnya tetap terbatas karena Swarm hanya
+# menyimpan 5 task terakhir per slot, dan log-nya dibatasi rotasi
+# json-file dari init-server.yml (sekitar 30 MB per container). Image yang
+# masih dipakai container berhenti tidak ikut dihapus `image prune`.
+# `-a` (bukan cuma dangling) WAJIB karena tiap node Swarm pull
 # per-digest lalu tetap nge-tag lokal sebagai `{{ env }}` tanpa melepas tag
 # dari image lama, jadi image lama TIDAK PERNAH jadi dangling murni (bug
 # nyata yang ditemukan mau-apps dari server produksinya, lihat versi
@@ -205,8 +213,8 @@
       ansible.builtin.command: docker logout ghcr.io
       changed_when: false
 
-    - name: Hapus container Swarm task lama yang sudah exited
-      ansible.builtin.command: docker container prune -f
+    - name: Hapus container Swarm task yang sudah exited lebih dari 72 jam
+      ansible.builtin.command: docker container prune -f --filter "until=72h"
       changed_when: "'Total reclaimed space: 0B' not in cleanup_containers_result.stdout"
       register: cleanup_containers_result
 

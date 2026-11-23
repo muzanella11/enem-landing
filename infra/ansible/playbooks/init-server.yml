@@ -177,6 +177,60 @@
         enabled: true
         state: started
 
+    # Rotasi log container (json-file): maks 10m x 3 file, sekitar 30 MB
+    # per container. Tanpa ini log container tumbuh tanpa batas, misalnya
+    # saat crash-loop. daemon.json yang sudah ada di-merge (key lain tetap),
+    # bukan ditimpa. Opsi ini hanya berlaku untuk container yang dibuat
+    # setelah dockerd restart; container lama ikut setelah deploy
+    # berikutnya atau `docker service update --force`. Restart dockerd
+    # me-restart semua container, jadi lewat handler yang hanya jalan bila
+    # file benar-benar berubah, dan jalankan playbook ini di jam sepi.
+    - name: Baca /etc/docker/daemon.json yang sudah ada
+      ansible.builtin.slurp:
+        src: /etc/docker/daemon.json
+      register: docker_daemon_json_raw
+      failed_when: false
+
+    - name: Pasang rotasi log Docker di /etc/docker/daemon.json (merge)
+      ansible.builtin.copy:
+        dest: /etc/docker/daemon.json
+        content: "{{ docker_daemon_config | to_nice_json(indent=2) }}\n"
+        mode: "0644"
+        validate: "dockerd --validate --config-file=%s"
+      vars:
+        docker_daemon_existing: >-
+          {{ (docker_daemon_json_raw.content | b64decode | from_json)
+             if docker_daemon_json_raw.content is defined else {} }}
+        docker_daemon_config: >-
+          {{ docker_daemon_existing | combine({
+               'log-driver': 'json-file',
+               'log-opts': {'max-size': '10m', 'max-file': '3'}
+             }, recursive=true) }}
+      notify: Restart docker
+
+    # Batas journal: default journald bisa makan sampai 10% filesystem
+    # (maks 4 GB); di VPS ini sempat 1 GB. Restart journald tidak
+    # mengganggu container. Vacuum sekali lewat handler supaya journal
+    # lama langsung mengecil, bukan menunggu rotasi berikutnya.
+    - name: Buat direktori drop-in journald
+      ansible.builtin.file:
+        path: /etc/systemd/journald.conf.d
+        state: directory
+        mode: "0755"
+
+    - name: Pasang batas ukuran journald
+      ansible.builtin.copy:
+        dest: /etc/systemd/journald.conf.d/size.conf
+        content: |
+          # Dikelola Ansible (infra/ansible/playbooks/init-server.yml)
+          [Journal]
+          SystemMaxUse=300M
+          SystemKeepFree=2G
+        mode: "0644"
+      notify:
+        - Restart journald
+        - Vacuum journal
+
     # Firewall - MySQL dan Redis self-host tidak publish port ke host
     # (cuma lewat overlay network; akses MySQL dari luar hanya lewat SSH
     # tunnel ke sidecar di 127.0.0.1:33300), jadi tidak ada port DB
@@ -292,3 +346,18 @@
         src: check-memory.sh
         dest: /opt/enem-landing/check-memory.sh
         mode: "0755"
+
+  handlers:
+    - name: Restart docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+
+    - name: Restart journald
+      ansible.builtin.systemd:
+        name: systemd-journald
+        state: restarted
+
+    - name: Vacuum journal
+      ansible.builtin.command: journalctl --vacuum-size=300M
+      changed_when: true
