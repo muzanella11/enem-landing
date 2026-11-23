@@ -66,6 +66,7 @@ jobs:
     secrets:
       DATABASE_URL_ACCOUNT_API: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
       DATABASE_URL_API: ${{ secrets.DATABASE_URL_API }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
     permissions:
       contents: read
 

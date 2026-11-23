@@ -18,9 +18,11 @@
 # internal, itu wiring compose.yml/Story 10):
 #   ghcr_pat: "<PAT dari GitHub Secrets GHCR_PAT>"
 #   app_env:
-#     # MySQL (Aiven) - 2 database terpisah (story 03/06), bukan shared-schema
-#     DATABASE_URL_ACCOUNT_API: "mysql://user:pass@host:port/enem_landing_account?ssl-mode=REQUIRED"
-#     DATABASE_URL_API: "mysql://user:pass@host:port/enem_landing_api?ssl-mode=REQUIRED"
+#     # MySQL self-host di VPS (stack `mysql`, lihat deploy-mysql.yml) -
+#     # 2 database terpisah, bukan shared-schema. Dev pakai
+#     # user enem_dev dan database *_dev.
+#     DATABASE_URL_ACCOUNT_API: "mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_account"
+#     DATABASE_URL_API: "mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_api"
 #     # Redis self-host di VPS (stack `redis`, lihat deploy-redis.yml),
 #     # dipakai bersama dev dan prod
 #     REDIS_HOST: "redis_redis"

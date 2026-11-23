@@ -1,6 +1,6 @@
 # Story 61: Self-host MySQL Private di VPS (Pindah dari Aiven)
 
-**Status:** Draft (2026-11-23)
+**Status:** Kode selesai, menunggu deploy dan migrasi data (2026-11-23)
 
 **Apps touched:** `infra/ansible`, `infra/mysql`, `.github/workflows`,
 `compose.yml`, `compose.prod.yml`, `compose.dev.yml`, `scripts`, `docs`
@@ -72,7 +72,7 @@ kehilangan data.
 apps (prod/dev) --overlay--> mysql_mysql:3306
 
 TablePlus / runner GitHub
-  --SSH:22--> VPS 127.0.0.1:13306 (sidecar socat)
+  --SSH:22--> VPS 127.0.0.1:33300 (sidecar socat)
   --overlay mysql_admin--> mysql_mysql:3306
 ```
 
@@ -90,33 +90,33 @@ TablePlus / runner GitHub
    - password dirender oleh Ansible dengan `no_log: true`.
 2. **Sidecar `socat` untuk jalur tunnel**:
    - container biasa (`docker run`, bukan service Swarm) dengan
-     `--restart unless-stopped`, publish `127.0.0.1:13306`, lalu meneruskan
+     `--restart unless-stopped`, publish `127.0.0.1:33300`, lalu meneruskan
      ke `mysql_mysql:3306`. `docker run` bisa bind ke `127.0.0.1`,
      sedangkan service Swarm tidak bisa;
    - bergabung hanya ke overlay khusus `mysql_admin` (`attachable: true`)
      yang juga diikuti service MySQL, bukan ke overlay app prod atau dev;
    - image `socat` di-pin versinya dan dikelola lewat `deploy-mysql.yml`;
-   - karena bind ke loopback, port 13306 tidak bisa dijangkau dari luar
+   - karena bind ke loopback, port 33300 tidak bisa dijangkau dari luar
      VPS, dan masalah Docker melewati UFW tidak berlaku.
 3. **Akses dari luar hanya lewat SSH tunnel**:
    - **TablePlus**: mode "Over SSH". Server SSH `enem-prod`
      (`43.133.149.209:22`), user `muzanella`, key
      `~/.ssh/id_ed25519_enem_prod`, lalu MySQL host `127.0.0.1` port
-     `13306`;
+     `33300`;
    - **CLI**: script helper `scripts/db-tunnel.sh` yang membuka
-     `ssh -L 13306:127.0.0.1:13306 enem-prod` di background, menampilkan
+     `ssh -L 33300:127.0.0.1:33300 enem-prod` di background, menampilkan
      status port, dan bisa menutup tunnel lagi;
    - **Runner GitHub (`migrate.yml`)**: tambah step yang membuka
-     `ssh -L 13306:127.0.0.1:13306` ke VPS memakai `DEPLOY_SSH_KEY` yang
-     sudah ada, lalu migrasi dan seed berjalan ke `127.0.0.1:13306`. Deploy
+     `ssh -L 33300:127.0.0.1:33300` ke VPS memakai `DEPLOY_SSH_KEY` yang
+     sudah ada, lalu migrasi dan seed berjalan ke `127.0.0.1:33300`. Deploy
      tetap tidak jalan kalau migrasi gagal.
 4. **Satu secret `DATABASE_URL_*`, host diganti di `migrate.yml`**
    (diputuskan 2026-11-23). App memakai `mysql_mysql:3306`, sedangkan
-   migrasi lewat tunnel butuh `127.0.0.1:13306`:
+   migrasi lewat tunnel butuh `127.0.0.1:33300`:
    - `DATABASE_URL_API` dan `DATABASE_URL_ACCOUNT_API` tetap satu secret
      per environment, berisi host `mysql_mysql:3306` (dipakai app apa
      adanya);
-   - `migrate.yml` mengganti `@mysql_mysql:3306` menjadi `@127.0.0.1:13306`
+   - `migrate.yml` mengganti `@mysql_mysql:3306` menjadi `@127.0.0.1:33300`
      di dalam step sebelum menjalankan migrasi dan seed. Hasilnya tidak
      di-echo ke log, dan nilai baru di-mask dengan `::add-mask::`;
    - kalau pola `@mysql_mysql:3306` tidak ditemukan di secret, step gagal
@@ -125,7 +125,7 @@ TablePlus / runner GitHub
    - tidak ada secret tambahan seperti `DATABASE_URL_*_MIGRATE`.
 5. **Opsional, least privilege untuk runner**: key SSH khusus tunnel
    (misalnya secret `DB_TUNNEL_SSH_KEY`) di `authorized_keys` dengan
-   `permitopen="127.0.0.1:13306",no-pty,no-agent-forwarding,no-X11-forwarding,command="/bin/false"`.
+   `permitopen="127.0.0.1:33300",no-pty,no-agent-forwarding,no-X11-forwarding,command="/bin/false"`.
    Key ini hanya bisa dipakai untuk forward ke MySQL dan tidak bisa membuka
    shell. Kalau tidak dikerjakan di story ini, runner memakai
    `DEPLOY_SSH_KEY` dan opsi ini dicatat untuk nanti.
@@ -190,27 +190,35 @@ TablePlus / runner GitHub
 
 ## Acceptance criteria
 
-- [ ] Playbook `infra/ansible/playbooks/deploy-mysql.yml` idempoten: bisa
+- [x] Playbook `infra/ansible/playbooks/deploy-mysql.yml` idempoten: bisa
       dijalankan ulang untuk mengubah config atau merotasi password.
-- [ ] MySQL berjalan sebagai stack `mysql` dengan limit memory, tidak
+      (Diuji lokal per bagian: SQL user diterapkan dua kali, rotasi password
+      membuat password lama ditolak, sidecar tidak dibuat ulang bila tidak
+      berubah. Belum dijalankan utuh di VPS.)
+- [x] MySQL berjalan sebagai stack `mysql` dengan limit memory, tidak
       mem-publish port, dan bisa dijangkau dari service prod dan dev lewat
-      `mysql_mysql:3306`.
-- [ ] Dari luar VPS, port 3306 dan 13306 tertutup.
-- [ ] Sidecar `socat` hanya listen di `127.0.0.1:13306`, hidup lagi setelah
-      VPS reboot, dan hanya terhubung ke overlay `mysql_admin`.
+      `mysql_mysql:3306`. (Diuji di Swarm docker-in-docker.)
+- [ ] Dari luar VPS, port 3306 dan 33300 tertutup.
+- [x] Sidecar `socat` hanya listen di `127.0.0.1:33300`, hidup lagi setelah
+      VPS reboot, dan hanya terhubung ke overlay `mysql_admin`. (Diuji
+      dengan restart daemon di docker-in-docker. Ditambah timer
+      `mysql-tunnel-ensure` sebagai cadangan. Ditemukan juga bahwa MySQL
+      dengan `restart_policy: on-failure` tidak hidup lagi setelah restart
+      daemon karena exit 0, jadi stack memakai `condition: any`.)
 - [ ] TablePlus bisa terhubung lewat mode "Over SSH" ke database prod dan
       dev.
-- [ ] `scripts/db-tunnel.sh` bisa membuka, mengecek, dan menutup tunnel.
+- [x] `scripts/db-tunnel.sh` bisa membuka, mengecek, dan menutup tunnel.
+      (Diuji ke container sshd lokal, termasuk bash 3.2 bawaan macOS.)
 - [ ] Migrasi dan seed di workflow prod dan dev berjalan lewat SSH tunnel,
       dan deploy tetap tidak jalan kalau migrasi gagal.
 - [ ] `migrate.yml` memakai `DATABASE_URL_*` yang sama dengan app, mengganti
-      host ke `127.0.0.1:13306`, gagal dengan jelas bila pola host tidak
+      host ke `127.0.0.1:33300`, gagal dengan jelas bila pola host tidak
       cocok, dan tidak membocorkan connection string ke log.
-- [ ] Slow query log aktif, tertulis di
+- [x] Slow query log aktif, tertulis di
       `/opt/enem-landing/storage/mysql-logs`, dan dirotasi.
-- [ ] User dev tidak bisa membaca atau menulis database prod, dan `root`
+- [x] User dev tidak bisa membaca atau menulis database prod, dan `root`
       tidak bisa login selain dari `localhost` (dites dengan query
-      langsung).
+      langsung, lokal. Ulangi di VPS setelah deploy).
 - [ ] Backup harian otomatis terupload ke storage di luar VPS, terenkripsi,
       dengan retensi sesuai keputusan di atas.
 - [ ] Restore dari backup sudah dites ke database sementara dan datanya
@@ -220,16 +228,30 @@ TablePlus / runner GitHub
       cocok.
 - [ ] `DATABASE_URL_*` di kedua GitHub environment sudah mengarah ke
       instance baru, dan Aiven tidak lagi dipakai.
-- [ ] `infra/ansible/README.md`, `docs/github-actions-secrets.md`, dan
+- [x] `infra/ansible/README.md`, `docs/github-actions-secrets.md`, dan
       komentar di `compose.yml` serta `migrate.yml` yang menyebut Aiven
       sudah diperbarui, termasuk cara akses lewat TablePlus.
 - [ ] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
+
+Catatan implementasi:
+
+- Backup: Cloudflare R2 (bucket private terpisah dari bucket uploads),
+  dienkripsi dengan `age`, notifikasi gagal lewat webhook (format
+  Discord/Slack). Alur backup, restore ke database sementara, dan
+  notifikasi gagal sudah diuji lokal dengan server S3 tiruan; masih perlu
+  diulang dengan R2 asli.
+- Keputusan #5 (key SSH khusus tunnel dengan `permitopen`) belum
+  dikerjakan. Runner memakai `DEPLOY_SSH_KEY`.
+- `scripts/provision-db.sh` (khusus Aiven) dihapus. Database dan user di
+  VPS dibuat oleh `deploy-mysql.yml` (`mysql-users.sql.j2`).
+- Root password dibuat di VPS saat run pertama dan tidak pernah keluar
+  dari VPS, jadi tidak ada secret root di GitHub.
 
 ## Langkah manual setelah deploy
 
 1. Jalankan `deploy-mysql.yml` di VPS (butuh `-e ansible_user=deploy` dan
    key deploy, sama seperti Redis).
-2. Dari luar VPS, pastikan port 3306 dan 13306 tertutup.
+2. Dari luar VPS, pastikan port 3306 dan 33300 tertutup.
 3. Buka tunnel dan coba connect dari TablePlus ke database dev.
 4. Migrasi data dev dari Aiven, update secret `development`, lalu redeploy
    dev. Cek CMS dev, blog, dan tools.

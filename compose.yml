@@ -8,17 +8,20 @@
 # supplied by compose.dev.yml/compose.prod.yml so image tag is the only
 # thing that differs between environments per service, same as mau-apps.)
 #
-# For a LOCAL LAPTOP dev workflow (no VPS, no registry image, no managed
-# Aiven/Upstash) use compose.local.yml instead - see its own header for why
+# For a LOCAL LAPTOP dev workflow (no VPS, no registry image, no shared
+# VPS MySQL/Redis) use compose.local.yml instead - see its own header for why
 # this is a separate file from compose.dev.yml rather than folding local
 # MySQL/Redis into it. `docker compose -f compose.yml -f compose.local.yml
 # up` is a plain (non-Swarm) compose invocation; the `deploy:` keys below
 # are simply ignored by the non-Swarm compose engine in that mode.
 #
-# Differences from mau-apps' compose.yml, all because enem-landing is a
-# 5-app project that went straight to managed MySQL/Redis (Aiven/Upstash)
-# from day one - no self-hosted MySQL/Redis/RabbitMQ ever existed here to
-# keep around as a commented rollback option like mau-apps does:
+# MySQL and Redis are NOT services in this stack. Each runs as its own
+# stack on the VPS (deploy-mysql.yml, deploy-redis.yml), shared by prod and
+# dev, and is reached over the overlay network as `mysql_mysql:3306` and
+# `redis_redis:6379` through the DATABASE_URL_*/REDIS_* secrets. They used
+# to be managed (Aiven/Upstash) and moved to the VPS in November 2026.
+#
+# Other differences from mau-apps' compose.yml:
 #   - No `x-database-env`/`x-redis-env` shared anchors - each app's real env
 #     var names differ (`DATABASE_URL` as one connection string, not
 #     decomposed HOST/PORT/USERNAME/PASSWORD/SSL_ENABLED like mau-apps),

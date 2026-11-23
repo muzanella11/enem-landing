@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# Daily MySQL backup to object storage outside the VPS. Installed by
+# deploy-mysql.yml to /opt/enem-landing/bin/mysql-backup.sh and run by
+# mysql-backup.timer (systemd). Settings come from
+# /opt/enem-landing/mysql/backup.env (EnvironmentFile of the unit).
+#
+# Per database: mysqldump (inside the mysql_mysql container, as root over
+# the socket) | gzip | age (public key only, the private key never lives on
+# the VPS) | rclone rcat to the bucket. Dumps are per single database
+# without CREATE DATABASE/USE, so a file can be restored into any database
+# name (handy for restore tests).
+#
+# Layout in the bucket:
+#   daily/<UTC timestamp>/<db>.sql.gz.age    kept 7 days
+#   weekly/<UTC timestamp>/<db>.sql.gz.age   Sunday copies, kept 28 days
+#
+# Any failure posts to BACKUP_NOTIFY_WEBHOOK_URL (JSON with both `content`
+# and `text`, so Discord and Slack style webhooks both work) and exits 1,
+# which also marks the systemd unit as failed.
+#
+# Usage:
+#   mysql-backup.sh              run a backup
+#   mysql-backup.sh --force-fail test the failure notification
+
+set -Eeuo pipefail
+
+: "${BACKUP_R2_ENDPOINT:?}" "${BACKUP_R2_ACCESS_KEY_ID:?}" "${BACKUP_R2_SECRET_ACCESS_KEY:?}"
+: "${BACKUP_R2_BUCKET:?}" "${BACKUP_AGE_RECIPIENT:?}" "${BACKUP_DATABASES:?}"
+
+BACKUP_DAILY_KEEP="${BACKUP_DAILY_KEEP:-7d}"
+BACKUP_WEEKLY_KEEP="${BACKUP_WEEKLY_KEEP:-28d}"
+HOST_LABEL="$(hostname)"
+
+notify() {
+  local message="$1"
+  echo "$message" >&2
+  if [[ -n "${BACKUP_NOTIFY_WEBHOOK_URL:-}" ]]; then
+    local payload
+    payload=$(printf '{"content":"%s","text":"%s"}' "$message" "$message")
+    curl -fsS -m 20 -X POST -H 'Content-Type: application/json' \
+      --data "$payload" "$BACKUP_NOTIFY_WEBHOOK_URL" >/dev/null ||
+      echo "Failure notification could not be sent" >&2
+  fi
+}
+
+on_error() {
+  local exit_code=$? line=$1
+  trap - ERR
+  notify "MySQL backup FAILED on ${HOST_LABEL} (line ${line}, exit ${exit_code}). Check: journalctl -u mysql-backup.service"
+  exit 1
+}
+trap 'on_error $LINENO' ERR
+
+if [[ "${1:-}" == "--force-fail" ]]; then
+  echo "Forcing a failure to test the notification"
+  false
+fi
+
+# rclone remote "backup", configured only through env vars (no config file).
+# Provider "Other" works with the older rclone in Ubuntu 22.04 as well.
+export RCLONE_CONFIG_BACKUP_TYPE=s3
+export RCLONE_CONFIG_BACKUP_PROVIDER=Other
+export RCLONE_CONFIG_BACKUP_ENDPOINT="$BACKUP_R2_ENDPOINT"
+export RCLONE_CONFIG_BACKUP_ACCESS_KEY_ID="$BACKUP_R2_ACCESS_KEY_ID"
+export RCLONE_CONFIG_BACKUP_SECRET_ACCESS_KEY="$BACKUP_R2_SECRET_ACCESS_KEY"
+export RCLONE_CONFIG_BACKUP_REGION=auto
+export RCLONE_CONFIG_BACKUP_NO_CHECK_BUCKET=true
+# Hides the "config file not found" notice; errors still show.
+export RCLONE_LOG_LEVEL=ERROR
+
+remote="backup:${BACKUP_R2_BUCKET}"
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+
+container="$(docker ps -q \
+  --filter label=com.docker.swarm.service.name=mysql_mysql \
+  --filter health=healthy | head -n1)"
+if [[ -z "$container" ]]; then
+  echo "No healthy mysql_mysql container found" >&2
+  false
+fi
+
+for db in $BACKUP_DATABASES; do
+  target="${remote}/daily/${stamp}/${db}.sql.gz.age"
+  echo "Dumping ${db} -> ${target}"
+  docker exec "$container" mysqldump \
+    --single-transaction --quick --routines --triggers --events \
+    --no-tablespaces --set-gtid-purged=OFF "$db" |
+    gzip -6 |
+    age -r "$BACKUP_AGE_RECIPIENT" |
+    rclone rcat "$target"
+
+  size="$(rclone size --json "$target" | sed -E 's/.*"bytes":([0-9]+).*/\1/')"
+  if [[ -z "$size" || "$size" -lt 100 ]]; then
+    echo "Backup of ${db} looks empty (${size:-?} bytes)" >&2
+    false
+  fi
+  echo "  ${size} bytes"
+done
+
+# Sunday (ISO day 7): keep a weekly copy (server-side copy, no re-upload).
+if [[ "$(date -u +%u)" == "7" ]]; then
+  echo "Copying to weekly/${stamp}"
+  rclone copy "${remote}/daily/${stamp}" "${remote}/weekly/${stamp}"
+fi
+
+echo "Applying retention (daily ${BACKUP_DAILY_KEEP}, weekly ${BACKUP_WEEKLY_KEEP})"
+rclone delete --min-age "$BACKUP_DAILY_KEEP" "${remote}/daily"
+rclone delete --min-age "$BACKUP_WEEKLY_KEEP" "${remote}/weekly"
+rclone rmdirs --leave-root "${remote}/daily" || true
+rclone rmdirs --leave-root "${remote}/weekly" || true
+
+echo "Backup ${stamp} done"

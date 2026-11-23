@@ -1,0 +1,66 @@
+# Self-hosted MySQL stack, shared by the prod and dev app stacks on this
+# VPS. Replaces Aiven (managed). Deployed by deploy-mysql.yml.
+#
+# - One instance for both environments, isolated by database and user
+#   (enem_prod owns enem_landing_api + enem_landing_account, enem_dev owns
+#   the *_dev databases), see mysql-users.sql.j2.
+# - Joins every env overlay network (app_networks), so both stacks reach it
+#   as `mysql_mysql:3306`, plus the `mysql_admin` overlay used only by the
+#   `mysql-tunnel` socat sidecar. No published port: it is never exposed on
+#   the host or the internet. Access from outside is SSH tunnel only:
+#   ssh -L 33300:127.0.0.1:33300 -> mysql-tunnel -> mysql_mysql:3306.
+# - root exists only as root@localhost (MYSQL_ROOT_HOST), so it can only be
+#   used through `docker exec`. Its password is generated on the VPS by
+#   deploy-mysql.yml and never leaves it; /root/.my.cnf inside the
+#   container holds it, so `docker exec <id> mysql` needs no password flag.
+
+services:
+  mysql:
+    image: {{ mysql_image }}
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/mysql-secrets/root-password
+      MYSQL_ROOT_HOST: localhost
+    networks:
+{% for net in app_networks %}
+      - {{ net }}
+{% endfor %}
+      - {{ mysql_admin_network }}
+    volumes:
+      - /opt/enem-landing/storage/mysql:/var/lib/mysql
+      - /opt/enem-landing/storage/mysql-logs:/var/log/mysql
+      - /opt/enem-landing/mysql/conf.d/enem.cnf:/etc/mysql/conf.d/enem.cnf:ro
+      - /opt/enem-landing/mysql/secrets/root-password:/run/mysql-secrets/root-password:ro
+      - /opt/enem-landing/mysql/secrets/root.cnf:/root/.my.cnf:ro
+    healthcheck:
+      # TCP ping: the temporary server the entrypoint starts on first init
+      # runs with --skip-networking, so this only passes once the real
+      # server is up. "Access denied" still counts as alive.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    # Give InnoDB time for a clean shutdown on redeploy or reboot.
+    stop_grace_period: 60s
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      # `any`, not `on-failure`: mysqld exits 0 on the SIGTERM of a reboot
+      # or daemon restart, and with `on-failure` Swarm then marks the task
+      # Complete and never starts it again (seen in testing).
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          memory: {{ mysql_memory_limit }}
+        reservations:
+          memory: {{ mysql_memory_reservation }}
+
+networks:
+{% for net in app_networks %}
+  {{ net }}:
+    external: true
+{% endfor %}
+  {{ mysql_admin_network }}:
+    external: true

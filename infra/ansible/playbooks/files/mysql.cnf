@@ -1,0 +1,39 @@
+# Copied by deploy-mysql.yml to /opt/enem-landing/mysql/conf.d/enem.cnf and
+# mounted into the container at /etc/mysql/conf.d/enem.cnf. Tuned for the
+# 3.6 GB VPS shared with 12 app containers, Redis and Traefik: the whole
+# mysqld process should stay around 400 to 500 MB, under the 640M container
+# limit in mysql-stack.yml.j2.
+
+[mysqld]
+# Memory
+innodb_buffer_pool_size = 256M
+innodb_redo_log_capacity = 64M
+innodb_log_buffer_size = 8M
+performance_schema = OFF
+max_connections = 60
+table_open_cache = 400
+table_definition_cache = 400
+tmp_table_size = 16M
+max_heap_table_size = 16M
+key_buffer_size = 8M
+
+# Only the classic protocol on 3306 is used. X Protocol (33060) is off.
+mysqlx = OFF
+
+# Security
+local_infile = OFF
+skip_name_resolve = ON
+host_cache_size = 0
+
+# Charset (same as the old Aiven databases and the app entities)
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Slow query log for the monitor Logs menu. /var/log/mysql is bind-mounted
+# to /opt/enem-landing/storage/mysql-logs on the host and rotated by
+# /etc/logrotate.d/enem-mysql. The error log stays on stderr (image
+# default), so it shows up in `docker service logs mysql_mysql`. The
+# general query log is deliberately not enabled.
+slow_query_log = ON
+long_query_time = 1
+slow_query_log_file = /var/log/mysql/slow.log

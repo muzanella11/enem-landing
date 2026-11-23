@@ -87,8 +87,9 @@ wiring, that lives directly in `compose.yml`).
 `NODE_OPTIONS=--max-old-space-size=60` - 600 MB total allocated
 (`enem-landing-tools` added in Story 20), same
 tuning approach mau-apps uses (see that file's header for the full
-reasoning). MySQL is managed (Aiven). Redis is self-hosted on the VPS
-since 2026-11-18 (see below) and adds a 160M ceiling.
+reasoning). Redis is self-hosted on the VPS since 2026-11-18 (see below)
+and adds a 160M ceiling. MySQL is self-hosted too (see below) and adds a
+640M ceiling (384M reserved), plus 32M for the `mysql-tunnel` sidecar.
 
 ## Shared Redis (`deploy-redis.yml`)
 
@@ -111,6 +112,152 @@ Then set the same values in both GitHub environments (`production` and
 `REDIS_USERNAME` empty, `REDIS_PASSWORD=<same value>`, `REDIS_DB=0`,
 `REDIS_TLS_ENABLED=false`, and redeploy both stacks. Keep the existing
 `REDIS_KEY_PREFIX` values.
+
+## Shared MySQL (`deploy-mysql.yml`)
+
+MySQL runs as its own `mysql` stack on the VPS (`mysql:8.4`), replacing
+Aiven. One instance serves prod and dev, isolated by database and user:
+
+| Env | User | Databases |
+|---|---|---|
+| prod | `enem_prod` | `enem_landing_api`, `enem_landing_account` |
+| dev | `enem_dev` | `enem_landing_api_dev`, `enem_landing_account_dev` |
+
+Each user only has privileges on its own databases (no `SUPER`, `FILE` or
+`GRANT OPTION`). `root` exists only as `root@localhost`, so it can only be
+used through `docker exec`; its password is generated on the VPS on the
+first run and stays in `/opt/enem-landing/mysql/secrets` (do not delete that
+directory, see the playbook header).
+
+**No port is published.** Apps reach it over the overlay network as
+`mysql_mysql:3306`. From outside, the only way in is an SSH tunnel: the
+`mysql-tunnel` container (socat, plain `docker run`, not a Swarm service)
+listens on the VPS loopback `127.0.0.1:33300` and forwards to
+`mysql_mysql:3306` over the dedicated `mysql_admin` overlay. Because it binds
+to loopback, the "Docker bypasses UFW" problem does not apply.
+
+```
+apps (prod/dev) --overlay--> mysql_mysql:3306
+
+TablePlus / GitHub runner
+  --SSH:22--> VPS 127.0.0.1:33300 (mysql-tunnel)
+  --overlay mysql_admin--> mysql_mysql:3306
+```
+
+Data lives in `/opt/enem-landing/storage/mysql`, the server config in
+`/opt/enem-landing/mysql/conf.d/enem.cnf` (from `playbooks/files/mysql.cnf`:
+256M buffer pool, `performance_schema` off, 60 connections, `local_infile`
+off, utf8mb4).
+
+### Deploy
+
+Create a local `mysql-vars.yml` (never commit it, the full shape is in the
+playbook header), then:
+
+```bash
+cd infra/ansible
+ansible-playbook playbooks/deploy-mysql.yml -i inventories/prod/hosts.ini \
+  -e ansible_user=deploy -e ansible_ssh_private_key_file=<deploy key> \
+  -e @mysql-vars.yml
+```
+
+Re-running is safe: users and grants are re-applied every time, so changing
+`mysql_prod_password`/`mysql_dev_password` and re-running rotates them
+(update the `DATABASE_URL_*` secrets and redeploy right after).
+
+Then set `DATABASE_URL_ACCOUNT_API` and `DATABASE_URL_API` in both GitHub
+environments (see `docs/github-actions-secrets.md`). The host must be
+`mysql_mysql:3306`: `migrate.yml` rewrites exactly that to the tunnel and
+refuses to run otherwise.
+
+### Access from a laptop
+
+**TablePlus**: new MySQL connection, enable "Over SSH":
+
+- SSH server `43.133.149.209`, port `22`, user `muzanella`, key
+  `~/.ssh/id_ed25519_enem_prod`;
+- MySQL host `127.0.0.1`, port `33300`;
+- user `enem_dev` (dev) or `enem_prod` (prod) with its password and
+  database.
+
+**CLI**: `scripts/db-tunnel.sh open` opens `ssh -L 33300:127.0.0.1:33300
+enem-prod` in the background (`status` and `close` too), then connect to
+`127.0.0.1:33300`.
+
+**Root/admin**: on the VPS,
+`docker exec -it $(docker ps -q -f name=mysql_mysql) mysql`.
+
+### Slow query log
+
+`slow_query_log` is on (`long_query_time=1`), written to
+`/opt/enem-landing/storage/mysql-logs/slow.log` and rotated weekly (4 kept)
+by `/etc/logrotate.d/enem-mysql`. The error log goes to the container
+output: `docker service logs mysql_mysql`.
+
+### Backup
+
+`mysql-backup.timer` runs `/opt/enem-landing/bin/mysql-backup.sh` daily at
+19:00 UTC (02:00 WIB). Each database is dumped with `mysqldump
+--single-transaction`, gzipped, encrypted with `age` to the public key in
+`mysql_backup_age_recipient`, and streamed to a private Cloudflare R2 bucket:
+`daily/` keeps 7 days, `weekly/` (Sunday copies) keeps 28 days. A failure
+posts to `mysql_backup_notify_webhook_url`.
+
+One-time setup:
+
+1. Create a private R2 bucket (e.g. `enem-landing-mysql-backup`) and an R2
+   API token with Object Read & Write on that bucket only.
+2. `age-keygen -o enem-mysql-backup.key` on your laptop. Put the public key
+   (`age1...`) in `mysql-vars.yml` and keep the key file in a password
+   manager. It is the only way to read the backups and must not be on the VPS.
+3. Fill in the `mysql_backup_*` settings and re-run the playbook.
+
+On the VPS:
+
+```bash
+sudo systemctl start mysql-backup.service        # run one now
+journalctl -u mysql-backup.service -n 50         # result
+systemctl list-timers mysql-backup.timer         # next run
+sudo bash -c 'set -a; . /opt/enem-landing/mysql/backup.env; \
+  /opt/enem-landing/bin/mysql-backup.sh --force-fail'   # test the alert
+```
+
+Restore test, from a laptop with `age` and an `rclone` remote (here `r2`)
+for the bucket. Dumps hold one database without `CREATE DATABASE`, so they
+load into any name. `root` is localhost-only, so the load runs through
+`docker exec` on the VPS:
+
+```bash
+M='docker exec -i $(docker ps -q -f name=mysql_mysql) mysql'
+ssh enem-prod "$M -e 'CREATE DATABASE restore_test'"
+rclone cat r2:enem-landing-mysql-backup/daily/<stamp>/enem_landing_api.sql.gz.age \
+  | age -d -i enem-mysql-backup.key | gunzip \
+  | ssh enem-prod "$M restore_test"
+# compare row counts with enem_landing_api, then:
+ssh enem-prod "$M -e 'DROP DATABASE restore_test'"
+```
+
+### Moving data from Aiven
+
+Dev first as a rehearsal, then prod at a quiet hour:
+
+1. Freeze writes: scale the env's `enem-landing-api` and
+   `enem-landing-account-api` to 0
+   (`docker service scale <stack>_enem-landing-api=0 ...`).
+2. Dump each database from Aiven:
+   `mysqldump --single-transaction --set-gtid-purged=OFF --no-tablespaces
+   --routines --triggers -h <aiven host> -P <port> -u <user> -p
+   --ssl-mode=REQUIRED <aiven db> > <db>.sql`. Aiven names are
+   `enem_landing_*_dev` and `enem_landing_*_prod`; the new prod names have
+   no `_prod` suffix.
+3. Import through the tunnel as the app user:
+   `mysql -h 127.0.0.1 -P 33300 -u enem_dev -p enem_landing_api_dev < <db>.sql`.
+4. Compare exact row counts per table on both sides
+   (`SELECT COUNT(*)` per table, not `information_schema.TABLES.TABLE_ROWS`,
+   which is an estimate).
+5. Update `DATABASE_URL_*` in the GitHub environment and redeploy (this also
+   scales the APIs back up).
+6. Keep Aiven for at least 7 days as a fallback before shutting it down.
 
 ## Not yet in this story (deferred to real infra)
 

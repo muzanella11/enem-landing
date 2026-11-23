@@ -28,8 +28,8 @@ nilai yang berbeda per environment.
 
 | Secret | Untuk | Sumber nilai |
 |---|---|---|
-| `DATABASE_URL_ACCOUNT_API` | DB `enem-landing-account-api` (`enem_landing_account_dev`/`_prod`) | Connection string Aiven MySQL - lihat `scripts/provision-db.sh` |
-| `DATABASE_URL_API` | DB `enem-landing-api` (`enem_landing_api_dev`/`_prod`) | Connection string Aiven MySQL (database ke-2) - lihat `scripts/provision-db.sh` |
+| `DATABASE_URL_ACCOUNT_API` | DB `enem-landing-account-api` | MySQL self-host di VPS. `production`: `mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_account`, `development`: `mysql://enem_dev:<pw>@mysql_mysql:3306/enem_landing_account_dev`. Password sama dengan `mysql_prod_password`/`mysql_dev_password` saat menjalankan `deploy-mysql.yml`. Host wajib `@mysql_mysql:3306/`, karena `migrate.yml` mengganti host itu ke SSH tunnel dan gagal kalau polanya tidak ada |
+| `DATABASE_URL_API` | DB `enem-landing-api` | Sama seperti di atas, database `enem_landing_api` (prod) atau `enem_landing_api_dev` (dev) |
 | `REDIS_HOST` | Redis self-host di VPS | `redis_redis` (nama service stack `redis`) |
 | `REDIS_PORT` | Redis self-host di VPS | `6379` |
 | `REDIS_USERNAME` | Redis self-host di VPS | Kosong |
@@ -44,7 +44,7 @@ nilai yang berbeda per environment.
 | `R2_BUCKET_NAME` | Fitur uploads | Cloudflare R2 |
 | `R2_PUBLIC_URL_BASE` | Fitur uploads | Cloudflare R2 |
 | `GHCR_PAT` | VPS `docker pull` image private dari GHCR (`GITHUB_TOKEN` otomatis cuma hidup di dalam Actions runner, tidak bisa dipakai VPS) | GitHub Personal Access Token (Settings -> Developer settings -> PATs), scope minimal `read:packages` |
-| `DEPLOY_SSH_KEY` | Akses SSH Ansible untuk deploy | Sudah di-generate sesi ini di `~/.ssh/id_ed25519_enem_landing_deploy` - ambil isinya sendiri lewat `cat ~/.ssh/id_ed25519_enem_landing_deploy`, jangan minta AI print private key ke chat |
+| `DEPLOY_SSH_KEY` | Akses SSH Ansible untuk deploy, dan SSH tunnel ke MySQL di `migrate.yml` | Sudah di-generate sesi ini di `~/.ssh/id_ed25519_enem_landing_deploy` - ambil isinya sendiri lewat `cat ~/.ssh/id_ed25519_enem_landing_deploy`, jangan minta AI print private key ke chat |
 
 Catatan `R2_*`: cuma fallback (source of truth sungguhan ada di tabel
 `system_settings`, dikelola lewat halaman settings CMS) - boleh diisi
@@ -52,10 +52,12 @@ placeholder dulu kalau fitur upload belum dipakai.
 
 ## Sudah diputuskan
 
-- Aiven MySQL: **satu instance**, 4 database (2 app x 2 environment) -
-  `enem_landing_account_dev`, `enem_landing_account_prod`,
-  `enem_landing_api_dev`, `enem_landing_api_prod`. Di-provision oleh
-  `scripts/provision-db.sh`.
+- MySQL: **satu instance self-host di VPS** (stack `mysql`), dipakai
+  bareng dev/prod, dipisah per database dan user: `enem_prod` hanya punya
+  akses ke `enem_landing_api` dan `enem_landing_account`, `enem_dev` hanya
+  ke `enem_landing_api_dev` dan `enem_landing_account_dev`. Tidak ada port
+  publik; akses dari luar hanya lewat SSH tunnel. Sebelumnya Aiven. Lihat
+  bagian "Shared MySQL" di `infra/ansible/README.md`.
 
 - Redis: **satu instance self-host di VPS** dipakai bareng dev/prod,
   dipisah lewat `REDIS_KEY_PREFIX`. Sebelumnya Upstash free-tier, tapi
