@@ -10,9 +10,17 @@
 # without CREATE DATABASE/USE, so a file can be restored into any database
 # name (handy for restore tests).
 #
-# Layout in the bucket:
-#   daily/<UTC timestamp>/<db>.sql.gz.age    kept 7 days
-#   weekly/<UTC timestamp>/<db>.sql.gz.age   Sunday copies, kept 28 days
+# BACKUP_TARGETS is a space separated list of <database>:<bucket>, so prod
+# databases go to the prod uploads bucket and dev databases to the develop
+# one. Everything lives under BACKUP_PREFIX, apart from the uploads, and
+# retention only ever deletes inside that prefix:
+#   <bucket>/<prefix>/daily/<stamp>/<db>_<stamp>.sql.gz.age    kept 7 days
+#   <bucket>/<prefix>/weekly/<stamp>/<db>_<stamp>.sql.gz.age   Sunday copies, kept 28 days
+# <stamp> is the UTC start time of the run, e.g. 20261123T190000Z.
+#
+# The prod bucket is public through its custom domain, so these files can be
+# fetched by anyone who knows the exact path. They are age-encrypted, which
+# is what keeps them safe; blocking the prefix at the CDN is extra defense.
 #
 # Any failure posts to BACKUP_NOTIFY_WEBHOOK_URL (JSON with both `content`
 # and `text`, so Discord and Slack style webhooks both work) and exits 1,
@@ -25,7 +33,7 @@
 set -Eeuo pipefail
 
 : "${BACKUP_R2_ENDPOINT:?}" "${BACKUP_R2_ACCESS_KEY_ID:?}" "${BACKUP_R2_SECRET_ACCESS_KEY:?}"
-: "${BACKUP_R2_BUCKET:?}" "${BACKUP_AGE_RECIPIENT:?}" "${BACKUP_DATABASES:?}"
+: "${BACKUP_TARGETS:?}" "${BACKUP_PREFIX:?}" "${BACKUP_AGE_RECIPIENT:?}"
 
 BACKUP_DAILY_KEEP="${BACKUP_DAILY_KEEP:-7d}"
 BACKUP_WEEKLY_KEEP="${BACKUP_WEEKLY_KEEP:-28d}"
@@ -68,8 +76,12 @@ export RCLONE_CONFIG_BACKUP_NO_CHECK_BUCKET=true
 # Hides the "config file not found" notice; errors still show.
 export RCLONE_LOG_LEVEL=ERROR
 
-remote="backup:${BACKUP_R2_BUCKET}"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+prefix="${BACKUP_PREFIX%/}"
+if [[ -z "$prefix" || "$prefix" == "/" ]]; then
+  echo "BACKUP_PREFIX must not be empty (retention would touch the uploads)" >&2
+  false
+fi
 
 container="$(docker ps -q \
   --filter label=com.docker.swarm.service.name=mysql_mysql \
@@ -79,8 +91,12 @@ if [[ -z "$container" ]]; then
   false
 fi
 
-for db in $BACKUP_DATABASES; do
-  target="${remote}/daily/${stamp}/${db}.sql.gz.age"
+buckets=()
+for item in $BACKUP_TARGETS; do
+  db="${item%%:*}"
+  bucket="${item#*:}"
+  base="backup:${bucket}/${prefix}"
+  target="${base}/daily/${stamp}/${db}_${stamp}.sql.gz.age"
   echo "Dumping ${db} -> ${target}"
   docker exec "$container" mysqldump \
     --single-transaction --quick --routines --triggers --events \
@@ -95,18 +111,27 @@ for db in $BACKUP_DATABASES; do
     false
   fi
   echo "  ${size} bytes"
+
+  case " ${buckets[*]-} " in
+    *" ${bucket} "*) ;;
+    *) buckets+=("$bucket") ;;
+  esac
 done
 
-# Sunday (ISO day 7): keep a weekly copy (server-side copy, no re-upload).
-if [[ "$(date -u +%u)" == "7" ]]; then
-  echo "Copying to weekly/${stamp}"
-  rclone copy "${remote}/daily/${stamp}" "${remote}/weekly/${stamp}"
-fi
+for bucket in "${buckets[@]}"; do
+  base="backup:${bucket}/${prefix}"
 
-echo "Applying retention (daily ${BACKUP_DAILY_KEEP}, weekly ${BACKUP_WEEKLY_KEEP})"
-rclone delete --min-age "$BACKUP_DAILY_KEEP" "${remote}/daily"
-rclone delete --min-age "$BACKUP_WEEKLY_KEEP" "${remote}/weekly"
-rclone rmdirs --leave-root "${remote}/daily" || true
-rclone rmdirs --leave-root "${remote}/weekly" || true
+  # Sunday (ISO day 7): keep a weekly copy (server-side copy, no re-upload).
+  if [[ "$(date -u +%u)" == "7" ]]; then
+    echo "Copying ${bucket} to weekly/${stamp}"
+    rclone copy "${base}/daily/${stamp}" "${base}/weekly/${stamp}"
+  fi
+
+  echo "Retention in ${bucket}/${prefix} (daily ${BACKUP_DAILY_KEEP}, weekly ${BACKUP_WEEKLY_KEEP})"
+  rclone delete --min-age "$BACKUP_DAILY_KEEP" "${base}/daily"
+  rclone delete --min-age "$BACKUP_WEEKLY_KEEP" "${base}/weekly"
+  rclone rmdirs --leave-root "${base}/daily" || true
+  rclone rmdirs --leave-root "${base}/weekly" || true
+done
 
 echo "Backup ${stamp} done"

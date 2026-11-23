@@ -235,8 +235,11 @@ TablePlus / runner GitHub
 
 Catatan implementasi:
 
-- Backup: Cloudflare R2 (bucket private terpisah dari bucket uploads),
-  dienkripsi dengan `age`, notifikasi gagal lewat webhook (format
+- Backup: Cloudflare R2, memakai bucket uploads yang sudah ada (`prod`
+  untuk database prod, `develop` untuk dev) di bawah prefix
+  `mysql-backup/` (diputuskan 2026-11-23). Bucket `prod` publik lewat
+  `cdn.muzanella.com`, jadi enkripsi `age` yang menjaga isinya.
+  Notifikasi gagal lewat webhook (format
   Discord/Slack). Alur backup, restore ke database sementara, dan
   notifikasi gagal sudah diuji lokal dengan server S3 tiruan; masih perlu
   diulang dengan R2 asli.

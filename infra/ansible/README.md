@@ -199,18 +199,26 @@ output: `docker service logs mysql_mysql`.
 `mysql-backup.timer` runs `/opt/enem-landing/bin/mysql-backup.sh` daily at
 19:00 UTC (02:00 WIB). Each database is dumped with `mysqldump
 --single-transaction`, gzipped, encrypted with `age` to the public key in
-`mysql_backup_age_recipient`, and streamed to a private Cloudflare R2 bucket:
-`daily/` keeps 7 days, `weekly/` (Sunday copies) keeps 28 days. A failure
-posts to `mysql_backup_notify_webhook_url`.
+`mysql_backup_age_recipient`, and streamed to the existing R2 uploads
+buckets under the `mysql-backup/` prefix: prod databases to `prod`, dev
+databases to `develop`. `daily/` keeps 7 days and `weekly/` (Sunday copies)
+keeps 28 days. Retention only deletes inside that prefix, never the uploads.
+A failure posts to `mysql_backup_notify_webhook_url`.
+
+The `prod` bucket is public through `cdn.muzanella.com`, so a backup file
+can be downloaded by anyone who knows its exact path. The `age` encryption
+is what protects it; a Cloudflare rule that blocks
+`cdn.muzanella.com/mysql-backup/*` adds a second layer.
 
 One-time setup:
 
-1. Create a private R2 bucket (e.g. `enem-landing-mysql-backup`) and an R2
-   API token with Object Read & Write on that bucket only.
+1. Create an R2 API token with Object Read & Write on the `prod` and
+   `develop` buckets (a separate token from the apps' upload one).
 2. `age-keygen -o enem-mysql-backup.key` on your laptop. Put the public key
    (`age1...`) in `mysql-vars.yml` and keep the key file in a password
    manager. It is the only way to read the backups and must not be on the VPS.
-3. Fill in the `mysql_backup_*` settings and re-run the playbook.
+3. Set `mysql_backup_enabled: true` and the other `mysql_backup_*` settings,
+   then re-run the playbook.
 
 On the VPS:
 
@@ -230,7 +238,7 @@ load into any name. `root` is localhost-only, so the load runs through
 ```bash
 M='docker exec -i $(docker ps -q -f name=mysql_mysql) mysql'
 ssh enem-prod "$M -e 'CREATE DATABASE restore_test'"
-rclone cat r2:enem-landing-mysql-backup/daily/<stamp>/enem_landing_api.sql.gz.age \
+rclone cat r2:prod/mysql-backup/daily/<stamp>/enem_landing_api_<stamp>.sql.gz.age \
   | age -d -i enem-mysql-backup.key | gunzip \
   | ssh enem-prod "$M restore_test"
 # compare row counts with enem_landing_api, then:
