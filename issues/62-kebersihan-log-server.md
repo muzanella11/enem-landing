@@ -1,6 +1,6 @@
 # Story 62: Kebersihan Log Server (Rotasi Docker, Batas journald, Simpan Container Crash)
 
-**Status:** Draft (2026-11-23)
+**Status:** Kode selesai, menunggu rollout di VPS (2026-11-23)
 
 **Apps touched:** `infra/ansible` (`init-server.yml`, `deploy.yml`)
 
@@ -103,9 +103,9 @@ terpasang kalau VPS dibuat ulang.
 
 ## Acceptance criteria
 
-- [ ] `init-server.yml` memasang `daemon.json` dengan `max-size: 10m` dan
+- [x] `init-server.yml` memasang `daemon.json` dengan `max-size: 10m` dan
       `max-file: 3`, idempoten, dan tidak menghapus key lain yang sudah ada.
-- [ ] `init-server.yml` memasang drop-in journald dengan
+- [x] `init-server.yml` memasang drop-in journald dengan
       `SystemMaxUse=300M` dan `SystemKeepFree=2G`.
 - [ ] Menjalankan playbook dua kali berturut-turut tidak me-restart
       dockerd pada run kedua.
@@ -115,7 +115,7 @@ terpasang kalau VPS dibuat ulang.
 - [ ] `deploy.yml` memakai `docker container prune -f --filter "until=72h"`.
       Container yang berhenti kurang dari 72 jam masih ada setelah deploy
       prod maupun dev (dites dengan container yang sengaja dihentikan).
-- [ ] `infra/ansible/README.md` menjelaskan batas log ini.
+- [x] `infra/ansible/README.md` menjelaskan batas log ini.
 
 ## Langkah manual setelah deploy
 

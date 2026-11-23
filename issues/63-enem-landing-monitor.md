@@ -1,6 +1,6 @@
 # Story 63: App Baru `enem-landing-monitor` dan `enem-landing-monitor-api`
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** app baru `enem-landing-monitor` (Nuxt),
 `enem-landing-monitor-api` (NestJS), dan `enem-landing-monitor-e2e`,
@@ -9,7 +9,7 @@
 
 **Depends on:** Story 10 (infra/CI-CD), Story 04 (account-web SSO)
 
-**Dikerjakan sebelum:** Story 64 (menu Logs di monitor)
+**Dikerjakan sebelum:** Story 64 (menu Server, DB, Redis, Apps di monitor)
 
 ## Background
 
@@ -65,14 +65,16 @@ browser -> monitor.muzanella.com (Traefik, cloudflare-only)
      dengan pola sama seperti `apps/enem-landing-cms/server/utils/api-client.ts`.
      Host-nya runtimeConfig server-only (`NUXT_MONITOR_API_HOST`), tidak
      pernah `public`;
-   - port internal **4001** (CMS 4000, account-web 8000, web 8001, tools
-     8002). Dicek ulang saat implementasi.
+   - port internal **4003**, mengikuti pola port mau-apps: satu indeks
+     per produk di semua lapisan (API `300N`, web admin `400N`, landing
+     `800N`). Indeks 2 sudah dipakai tools (`8002`), jadi monitor memakai
+     indeks 3: monitor `4003` berpasangan dengan monitor-api `3003`.
 2. **Backend `enem-landing-monitor-api` (NestJS)** dengan pola yang sama
    seperti `enem-landing-api`:
    - **internal-only**: `traefik.enable=false`, tidak mem-publish port,
      hanya dipanggil oleh BFF monitor lewat overlay network;
-   - port internal **3002** (account-api 3000, api 3001). Dicek ulang saat
-     implementasi;
+   - port internal **3003** (indeks 3, lihat frontend di atas), sepasang dengan
+     monitor `4003`;
    - semua controller memakai `SsoAuthGuard` dari `@enem-landing/backend-sso`
      (`ACCOUNT_API_HOST=http://enem-landing-account-api:3000`) ditambah
      **`assertSuperAdminRole`**. Helper ini sebaiknya diletakkan di lib
@@ -108,8 +110,8 @@ browser -> monitor.muzanella.com (Traefik, cloudflare-only)
    - security header ketat: `X-Frame-Options: DENY` (atau CSP
      `frame-ancestors 'none'`), `Referrer-Policy: no-referrer`.
 5. **Halaman awal**: `/` berisi Ringkasan dari `GET /overview` dan sidebar
-   dengan menu yang diisi story berikutnya. Menu **Logs** ditambahkan di
-   Story 64.
+   dengan menu yang diisi story berikutnya. Menu **Server**, **DB**,
+   **Redis**, dan **Apps** ditambahkan di Story 64.
 6. **Deploy dan infra**:
    - service `enem-landing-monitor` dan `enem-landing-monitor-api` di
      `compose.yml`. Frontend dengan label Traefik
@@ -143,11 +145,19 @@ override di `compose.dev.yml`untuk`dev-monitor.muzanella.com`;
 
 ## Di luar scope
 
-- Fitur monitoring apa pun (Logs ada di Story 64).
+- Fitur monitoring apa pun (menu Server, DB, Redis, Apps ada di Story 64).
 - Database untuk monitor-api.
 - Memindahkan halaman Cache dari CMS ke monitor. Bisa jadi story
   berikutnya.
 - Alerting, uptime check, dan dashboard metrik.
+- Endpoint webhook penerima alert (pola seperti webhook mau-apps: URL dan
+  key per webhook, log setiap request, lalu kirim notifikasi ke admin).
+  Diputuskan 2026-11-23 untuk dibuat di app monitoring di story
+  berikutnya. Pengguna pertamanya adalah backup harian MySQL
+  (`mysql-backup.sh` mengirim POST JSON `{"content": ..., "text": ...}` ke
+  `mysql_backup_notify_webhook_url` saat gagal). Sampai endpoint itu ada,
+  URL tersebut dibiarkan kosong dan kegagalan backup hanya terlihat di
+  `journalctl -u mysql-backup.service`.
 
 ## Acceptance criteria
 

@@ -108,6 +108,7 @@ jobs:
     secrets:
       DATABASE_URL_ACCOUNT_API: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
       DATABASE_URL_API: ${{ secrets.DATABASE_URL_API }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
     permissions:
       contents: read
 
@@ -195,6 +196,9 @@ jobs:
             R2_ENDPOINT: "${{ secrets.R2_ENDPOINT }}"
             R2_BUCKET_NAME: "${{ secrets.R2_BUCKET_NAME }}"
             R2_PUBLIC_URL_BASE: "${{ secrets.R2_PUBLIC_URL_BASE }}"
+            LOG_READER_TOKEN: "${{ secrets.LOG_READER_TOKEN }}"
+            ALERT_WEBHOOKS: "${{ secrets.ALERT_WEBHOOKS }}"
+            DATABASE_URL_MONITOR: "${{ secrets.DATABASE_URL_MONITOR }}"
           YAML_EOF
 
       - name: Run deploy.yml

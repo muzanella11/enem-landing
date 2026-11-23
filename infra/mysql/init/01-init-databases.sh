@@ -1,13 +1,16 @@
 #!/bin/bash
 set -e
 
-# Run automatically by the MySQL entrypoint only on first init (empty data
-# dir). Creates one database per app and grants access to the MYSQL_USER
-# the entrypoint already created from MYSQL_USER/MYSQL_PASSWORD. Ported
-# from mau-apps/infra/mysql/init/01-init-databases.sh - same idempotent
-# logic as scripts/provision-db.sh (story 09), duplicated here because this
-# needs to run inside MySQL's own first-boot init hook, not as a separate
-# step after `docker compose up`.
+# LOCAL ONLY (compose.local.yml). Run automatically by the MySQL entrypoint
+# only on first init (empty data dir). Creates one database per app and
+# grants access to the MYSQL_USER the entrypoint already created from
+# MYSQL_USER/MYSQL_PASSWORD. Ported from
+# mau-apps/infra/mysql/init/01-init-databases.sh.
+#
+# The VPS instance does not use this: its databases, the separate prod and
+# dev users and their grants come from
+# infra/ansible/playbooks/templates/mysql-users.sql.j2, applied on every
+# run of deploy-mysql.yml.
 
 DATABASES="enem_landing_account enem_landing_api"
 

@@ -1,5 +1,5 @@
 import { RateLimit } from '@enem-landing/backend-rate-limit';
-import { SsoAuthGuard } from '@enem-landing/backend-sso';
+import { assertAdminRole, SsoAuthGuard } from '@enem-landing/backend-sso';
 import { successResponse } from '@enem-landing/backend-utils';
 import type { User } from '@enem-landing/shared-types';
 import {
@@ -15,7 +15,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { assertAdminRole } from '../common/assert-admin-role.js';
 import { ContactSubmissionsService } from './contact-submissions.service.js';
 import { CreateContactSubmissionDto } from './dto/create-contact-submission.dto.js';
 import {

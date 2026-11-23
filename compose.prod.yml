@@ -15,6 +15,9 @@
 #   prod: 5 apps @ 256M (heap 160) + CMS @ 384M (heap 256) = 1664M
 #   dev:  5 apps @ 192M (heap 120) + CMS @ 256M (heap 160) = 1216M
 #   Traefik 64M -> ~2.9 GB of ceilings on a 3.6 GB host (+2 GB swap).
+#   Monitor (added 2026-11-23): monitor + monitor-api @ 192M (heap 120)
+#   here and @ 160M (heap 100) in dev, plus the shared log-reader at 96M.
+#   Starting values; check `docker stats` after a few days.
 # These are ceilings, not reservations: actual use was ~0.7 GB in total.
 # Re-check with `free -h` and `docker stats` before raising them further.
 #
@@ -110,3 +113,19 @@ services:
       resources:
         limits:
           memory: 256M
+  enem-landing-monitor-api:
+    image: ghcr.io/muzanella11/enem-landing-monitor-api:prod
+    environment:
+      NODE_OPTIONS: --max-old-space-size=120
+    deploy:
+      resources:
+        limits:
+          memory: 192M
+  enem-landing-monitor:
+    image: ghcr.io/muzanella11/enem-landing-monitor:prod
+    environment:
+      NODE_OPTIONS: --max-old-space-size=120
+    deploy:
+      resources:
+        limits:
+          memory: 192M

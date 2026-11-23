@@ -18,9 +18,11 @@
 # internal, itu wiring compose.yml/Story 10):
 #   ghcr_pat: "<PAT dari GitHub Secrets GHCR_PAT>"
 #   app_env:
-#     # MySQL (Aiven) - 2 database terpisah (story 03/06), bukan shared-schema
-#     DATABASE_URL_ACCOUNT_API: "mysql://user:pass@host:port/enem_landing_account?ssl-mode=REQUIRED"
-#     DATABASE_URL_API: "mysql://user:pass@host:port/enem_landing_api?ssl-mode=REQUIRED"
+#     # MySQL self-host di VPS (stack `mysql`, lihat deploy-mysql.yml) -
+#     # 2 database terpisah, bukan shared-schema. Dev pakai
+#     # user enem_dev dan database *_dev.
+#     DATABASE_URL_ACCOUNT_API: "mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_account"
+#     DATABASE_URL_API: "mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_api"
 #     # Redis self-host di VPS (stack `redis`, lihat deploy-redis.yml),
 #     # dipakai bersama dev dan prod
 #     REDIS_HOST: "redis_redis"
@@ -45,6 +47,17 @@
 #     R2_ENDPOINT: "<value>"
 #     R2_BUCKET_NAME: "<value>"
 #     R2_PUBLIC_URL_BASE: "<value>"
+#     # Token enem-landing-monitor-api ke log-reader (deploy-log-reader.yml),
+#     # beda untuk prod dan dev, minimal 32 karakter. Kosong = menu log
+#     # monitor nonaktif.
+#     LOG_READER_TOKEN: "<value>"
+#     # Webhook alert monitor, format `id:key` (mysql-backup:<openssl rand
+#     # -hex 32>). Hanya prod yang perlu; kosong = webhook nonaktif.
+#     ALERT_WEBHOOKS: "<value>"
+#     # User MySQL enem_monitor (deploy-mysql.yml, hanya PROCESS):
+#     # mysql://enem_monitor:<pw>@mysql_mysql:3306. Kosong = statistik
+#     # MySQL di menu DB monitor nonaktif.
+#     DATABASE_URL_MONITOR: "<value>"
 #
 # Var non-secret (CORS_ORIGIN, ACCOUNT_API_HOST, API_HOST, ACCOUNT_WEB_HOST,
 # SHARED_COOKIE_DOMAIN, ALLOW_SIGNUP) SENGAJA TIDAK di sini - itu wiring
@@ -67,9 +80,17 @@
 # maupun bergiliran, dan mau-apps sudah membuktikan pola ini regresi-aman
 # dari kegagalan nyata (lihat versi aslinya untuk detail insiden).
 #
-# Setiap run juga jalankan `docker container prune -f` + `docker image
-# prune -a -f` di akhir supaya container/image lama tidak menumpuk di disk
-# server - `-a` (bukan cuma dangling) WAJIB karena tiap node Swarm pull
+# Setiap run juga jalankan `docker container prune -f --filter
+# "until=72h"` + `docker image prune -a -f` di akhir supaya container/image
+# lama tidak menumpuk di disk server. Filter `until=72h` WAJIB: prune
+# berlaku untuk seluruh host, jadi tanpa filter deploy dev ikut menghapus
+# container prod yang baru crash beserta log-nya (bukti crash outage
+# Upstash 2026-11-18 hilang karena ini). Container yang berhenti kurang
+# dari 72 jam dibiarkan; jumlahnya tetap terbatas karena Swarm hanya
+# menyimpan 5 task terakhir per slot, dan log-nya dibatasi rotasi
+# json-file dari init-server.yml (sekitar 30 MB per container). Image yang
+# masih dipakai container berhenti tidak ikut dihapus `image prune`.
+# `-a` (bukan cuma dangling) WAJIB karena tiap node Swarm pull
 # per-digest lalu tetap nge-tag lokal sebagai `{{ env }}` tanpa melepas tag
 # dari image lama, jadi image lama TIDAK PERNAH jadi dangling murni (bug
 # nyata yang ditemukan mau-apps dari server produksinya, lihat versi
@@ -199,12 +220,28 @@
         path: "{{ deploy_dir }}/.deploy-stack.sh"
         state: absent
 
+    # Log-reader adalah stack bersama prod dan dev (deploy-log-reader.yml),
+    # bukan bagian compose.yml. Release prod ikut memperbarui image-nya
+    # kalau stack itu sudah ada, supaya tidak tertinggal versi.
+    - name: Update image log-reader ke :prod (hanya env prod)
+      ansible.builtin.shell: |
+        if docker service inspect log-reader_log-reader >/dev/null 2>&1; then
+          docker service update --with-registry-auth --quiet \
+            --image ghcr.io/muzanella11/enem-landing-log-reader:prod \
+            log-reader_log-reader && echo updated
+        else
+          echo "log-reader belum dideploy (deploy-log-reader.yml), dilewati"
+        fi
+      when: env == "prod"
+      register: log_reader_update
+      changed_when: "'updated' in log_reader_update.stdout"
+
     - name: Logout dari GHCR (jangan tinggalkan kredensial di server)
       ansible.builtin.command: docker logout ghcr.io
       changed_when: false
 
-    - name: Hapus container Swarm task lama yang sudah exited
-      ansible.builtin.command: docker container prune -f
+    - name: Hapus container Swarm task yang sudah exited lebih dari 72 jam
+      ansible.builtin.command: docker container prune -f --filter "until=72h"
       changed_when: "'Total reclaimed space: 0B' not in cleanup_containers_result.stdout"
       register: cleanup_containers_result
 

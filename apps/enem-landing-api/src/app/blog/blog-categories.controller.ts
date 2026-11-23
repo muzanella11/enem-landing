@@ -1,5 +1,5 @@
 import { successResponse } from '@enem-landing/backend-utils';
-import { SsoAuthGuard } from '@enem-landing/backend-sso';
+import { assertAdminRole, SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
   Body,
@@ -15,7 +15,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { assertAdminRole } from '../common/assert-admin-role.js';
 import { BlogCategoriesService } from './blog-categories.service.js';
 import { CreateBlogCategoryDto } from './dto/create-blog-category.dto.js';
 import { UpdateBlogCategoryDto } from './dto/update-blog-category.dto.js';

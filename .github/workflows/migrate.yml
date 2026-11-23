@@ -1,6 +1,6 @@
 # Reusable workflow (workflow_call). Called from enem-landing-dev.yml/
 # enem-landing-prod.yml with `needs: build-push`, runs BEFORE the `deploy`
-# job - keeps the Aiven schema consistent with the app version about to be
+# job - keeps the schema consistent with the app version about to be
 # deployed. Ported from mau-apps/.github/workflows/migrate.yml.
 #
 # Deviations from mau-apps, both verified against this workspace's real
@@ -18,11 +18,17 @@
 #     once real content exists - typed in by hand or edited via the CMS -
 #     re-running this step is a no-op for it, never a clobber.
 #
-# Connection runner -> Aiven: direct to the real hostname (same operator
-# decision mau-apps made - Aiven firewall allow-all, auth+TLS as the only
-# protection). PREREQUISITE (manual, cannot be done from here - no Aiven
-# API token in secrets): the Aiven console's Allowed IP addresses must
-# include 0.0.0.0/0 before this job can succeed.
+# Connection runner -> MySQL: MySQL is self-hosted on the VPS with no
+# published port (stack `mysql`, infra/ansible/playbooks/deploy-mysql.yml).
+# The runner opens `ssh -L 33300:127.0.0.1:33300` to the VPS with the same
+# DEPLOY_SSH_KEY the deploy job uses, reaching the `mysql-tunnel` socat
+# sidecar that only listens on the VPS loopback. The DATABASE_URL_* secrets
+# are the ones the apps use (host `mysql_mysql:3306`, only resolvable
+# inside the overlay network), so this workflow rewrites the host to
+# `127.0.0.1:33300` in memory before migrating. It fails loudly when the
+# secret does not contain `@mysql_mysql:3306`, so a migration never runs
+# silently against the wrong host. If migration fails, `deploy` does not
+# run (it `needs: migrate`).
 on:
   workflow_call:
     inputs:
@@ -34,6 +40,8 @@ on:
       DATABASE_URL_ACCOUNT_API:
         required: true
       DATABASE_URL_API:
+        required: true
+      DEPLOY_SSH_KEY:
         required: true
 
 jobs:
@@ -54,22 +62,79 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      # Same host as the deploy job: the first host line of the env's
+      # inventory (dev and prod currently share one VPS).
+      - name: Open SSH tunnel to MySQL
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          INVENTORY: infra/ansible/inventories/${{ inputs.environment }}/hosts.ini
+        run: |
+          host="$(awk '/^[0-9]/ { print $1; exit }' "$INVENTORY")"
+          if [ -z "$host" ]; then
+            echo "::error::No host found in $INVENTORY"
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=accept-new \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -f -N -M -S /tmp/db-tunnel.sock \
+            -L 127.0.0.1:33300:127.0.0.1:33300 \
+            "deploy@$host"
+          for _ in $(seq 1 15); do
+            nc -z 127.0.0.1 33300 && exit 0
+            sleep 1
+          done
+          echo "::error::SSH tunnel opened but 127.0.0.1:33300 is not reachable"
+          exit 1
+
+      # The secrets hold the app host (mysql_mysql:3306); rewrite it to the
+      # tunnel. The result is masked and never echoed.
+      - name: Point DATABASE_URL_* at the tunnel
+        env:
+          URL_ACCOUNT_API: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+          URL_API: ${{ secrets.DATABASE_URL_API }}
+        run: |
+          for name in ACCOUNT_API API; do
+            var="URL_$name"
+            url="${!var}"
+            case "$url" in
+              *@mysql_mysql:3306/*) ;;
+              *)
+                echo "::error::DATABASE_URL_$name does not contain @mysql_mysql:3306/ - refusing to migrate against an unexpected host"
+                exit 1
+                ;;
+            esac
+            tunneled="${url/@mysql_mysql:3306\//@127.0.0.1:33300/}"
+            echo "::add-mask::$tunneled"
+            echo "TUNNEL_DATABASE_URL_$name=$tunneled" >> "$GITHUB_ENV"
+          done
+
       - name: Migration - enem-landing-account-api
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+          DATABASE_URL: ${{ env.TUNNEL_DATABASE_URL_ACCOUNT_API }}
         run: yarn nx run enem-landing-account-api:migration:run
 
       - name: Migration - enem-landing-api
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_API }}
+          DATABASE_URL: ${{ env.TUNNEL_DATABASE_URL_API }}
         run: yarn nx run enem-landing-api:migration:run
 
       - name: Seed - enem-landing-account-api
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_ACCOUNT_API }}
+          DATABASE_URL: ${{ env.TUNNEL_DATABASE_URL_ACCOUNT_API }}
         run: yarn nx run enem-landing-account-api:seed
 
       - name: Seed - enem-landing-api
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_API }}
+          DATABASE_URL: ${{ env.TUNNEL_DATABASE_URL_API }}
         run: yarn nx run enem-landing-api:seed
+
+      - name: Close SSH tunnel
+        if: always()
+        run: |
+          ssh -S /tmp/db-tunnel.sock -O exit tunnel >/dev/null 2>&1 || true
+          rm -f ~/.ssh/deploy_key

@@ -1,0 +1,12 @@
+{
+  "name": "enem-landing-monitor-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "enem-landing-monitor",
+      "enem-landing-monitor-api",
+      "enem-landing-log-reader"
+    ]
+  }
+}

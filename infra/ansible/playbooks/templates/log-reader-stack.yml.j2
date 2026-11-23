@@ -1,0 +1,56 @@
+# Shared log-reader stack (prod + dev), deployed by deploy-log-reader.yml.
+# Serves host logs read-only to enem-landing-monitor-api over the overlay
+# networks, as `log-reader_log-reader:3004`.
+#
+# Locked down on purpose, it can read files other services can't:
+# - every host mount is read-only, and the root filesystem too;
+# - all capabilities dropped except DAC_READ_SEARCH (read files owned by
+#   root/adm without being able to write anything);
+# - no Docker socket: containers are found by reading
+#   /var/lib/docker/containers/*/config.v2.json;
+# - host /proc is the container's own /proc (no lxcfs), which already shows
+#   host memory, load and CPU;
+# - no published port: only reachable from the env overlay networks, and
+#   every request needs one of the tokens in the 0400 tokens file.
+
+services:
+  log-reader:
+    image: ghcr.io/muzanella11/enem-landing-log-reader:{{ log_reader_image_tag }}
+    environment:
+      PORT: "3004"
+      LOG_READER_TOKENS_FILE: /run/log-reader/tokens
+    networks:
+{% for net in app_networks %}
+      - {{ net }}
+{% endfor %}
+    volumes:
+      - /var/log:/host/var/log:ro
+      - /var/lib/docker/containers:/host/docker/containers:ro
+      - /opt/enem-landing/storage/mysql-logs:/host/mysql-logs:ro
+      - /etc/passwd:/host/etc/passwd:ro
+      # Per-container memory/CPU from the host's cgroup v2 tree.
+      - /sys/fs/cgroup:/host/cgroup:ro
+      # Database/table sizes (names and sizes only, never opened).
+      # Same filesystem as /opt/enem-landing/storage, so also its disk usage.
+      - /opt/enem-landing/storage/mysql:/host/mysql-data:ro
+      - /opt/enem-landing/log-reader/tokens:/run/log-reader/tokens:ro
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_READ_SEARCH
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 96M
+
+networks:
+{% for net in app_networks %}
+  {{ net }}:
+    external: true
+{% endfor %}

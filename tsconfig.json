@@ -62,6 +62,18 @@
     },
     {
       "path": "./apps/enem-landing-tools"
+    },
+    {
+      "path": "./apps/enem-landing-log-reader"
+    },
+    {
+      "path": "./apps/enem-landing-monitor-api"
+    },
+    {
+      "path": "./apps/enem-landing-monitor"
+    },
+    {
+      "path": "./apps/enem-landing-monitor-e2e"
     }
   ],
   "compilerOptions": {}

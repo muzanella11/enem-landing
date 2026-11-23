@@ -57,7 +57,7 @@ jobs:
           HEAD_SHA: ${{ github.sha }}
           REF_TYPE: ${{ github.ref_type }}
         run: |
-          APPS_LIST="enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web enem-landing-tools"
+          APPS_LIST="enem-landing-account-api enem-landing-account-web enem-landing-api enem-landing-cms enem-landing-web enem-landing-tools enem-landing-monitor enem-landing-monitor-api enem-landing-log-reader"
           if [[ "$REF_TYPE" == "tag" ]]; then
             # Tag push (prod release) - always build every app regardless
             # of what changed, same reasoning as mau-apps: a release should
@@ -122,6 +122,7 @@ jobs:
           npx nuxi prepare apps/enem-landing-cms
           npx nuxi prepare apps/enem-landing-web
           npx nuxi prepare apps/enem-landing-tools
+          npx nuxi prepare apps/enem-landing-monitor
 
       # Deviation from mau-apps: the 2 NestJS apps here need `prune` (not
       # plain `build`) to produce `dist/package.json` + `dist/yarn.lock` +
@@ -135,9 +136,11 @@ jobs:
       - name: Build ${{ matrix.app }} via Nx
         run: |
           case "${{ matrix.app }}" in
-            enem-landing-account-api|enem-landing-api)
+            enem-landing-account-api|enem-landing-api|enem-landing-monitor-api)
               ./node_modules/.bin/nx run ${{ matrix.app }}:prune
               ;;
+            # enem-landing-log-reader has no npm runtime deps: a plain
+            # build (dist/main.js) is all its image needs.
             *)
               ./node_modules/.bin/nx build ${{ matrix.app }}
               ;;
@@ -170,6 +173,27 @@ jobs:
             echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
+      # OCI labels read by the monitor's Deploy menu (copied from the image
+      # to every container's config.v2.json): which commit and version runs
+      # where, without a registry or GitHub API call.
+      - name: Determine image labels
+        id: labels
+        run: |
+          if [[ "${{ inputs.environment }}" == "prod" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="dev-$(echo "${{ github.sha }}" | cut -c1-7)"
+          fi
+          {
+            echo "labels<<EOF"
+            echo "org.opencontainers.image.revision=${{ github.sha }}"
+            echo "org.opencontainers.image.version=$VERSION"
+            echo "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}"
+            echo "org.opencontainers.image.title=${{ matrix.app }}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build and push image
         uses: docker/build-push-action@v7
         with:
@@ -180,5 +204,6 @@ jobs:
           # ghcr.io/<owner-lowercase>/<app-name>, matches compose.prod.yml's
           # image references.
           tags: ${{ steps.tags.outputs.tags }}
+          labels: ${{ steps.labels.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}

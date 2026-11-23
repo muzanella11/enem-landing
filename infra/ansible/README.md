@@ -34,6 +34,41 @@ creates the `enem-landing-network` overlay network. Idempotent - safe to
 re-run for config-drift repair. Full detail in `scripts/provision-server.sh`
 and the playbook itself (story 09).
 
+## Log limits
+
+Set by `init-server.yml`, so a rebuilt VPS gets them too:
+
+| What | Limit | Where |
+|---|---|---|
+| Container logs (`json-file`) | `max-size: 10m`, `max-file: 3`, about 30 MB per container | `/etc/docker/daemon.json` |
+| journald | `SystemMaxUse=300M`, `SystemKeepFree=2G` | `/etc/systemd/journald.conf.d/size.conf` |
+| Stopped containers | kept for 72 hours | `deploy.yml` prune step |
+
+- `daemon.json` is merged, not overwritten: other keys already in it stay.
+  It is validated with `dockerd --validate` before it is written.
+- dockerd is restarted only when `daemon.json` actually changes, and that
+  restart restarts **every** container (prod and dev). Run `init-server.yml`
+  at a quiet hour. A second run changes nothing and restarts nothing.
+- The log options apply only to containers created after the restart.
+  Redeploy both stacks (or `docker service update --force <service>`) so
+  every container picks them up.
+- When the journald drop-in changes, journald is restarted (containers are
+  not affected) and `journalctl --vacuum-size=300M` runs once to shrink the
+  existing journal.
+- `deploy.yml` runs `docker container prune -f --filter "until=72h"`. Prune
+  is host-wide, so without the filter a dev deploy also deleted crashed prod
+  containers and their logs. Swarm keeps only the last 5 tasks per slot, so
+  the number of kept containers stays small.
+
+Check after a rollout:
+
+```bash
+docker inspect --format '{{.HostConfig.LogConfig}}' <container>   # map[max-file:3 max-size:10m]
+sudo journalctl --disk-usage                                      # under 300M
+docker service ls                                                 # all 1/1
+docker ps -a -f status=exited                                     # crashed tasks younger than 72h still listed
+```
+
 ## `enem-landing-account-api`: internal-only, not exposed publicly
 
 Decided (story 10), not left open: `enem-landing-account-api` gets
@@ -66,7 +101,13 @@ record plus a Traefik router label in compose.
 | enem-landing-account-web | `account.muzanella.com` | `dev-account.muzanella.com` |
 | enem-landing-cms | `cms.muzanella.com` | `dev-cms.muzanella.com` |
 | enem-landing-tools | `tools.muzanella.com` | `dev-tools.muzanella.com` |
-| enem-landing-api, enem-landing-account-api | internal only | internal only |
+| enem-landing-monitor | `monitor.muzanella.com` | `dev-monitor.muzanella.com` |
+| enem-landing-api, enem-landing-account-api, enem-landing-monitor-api | internal only | internal only |
+| enem-landing-log-reader (stack `log-reader`) | internal only, shared | internal only, shared |
+
+DNS records `monitor` and `dev-monitor` (proxied) must be added in
+Cloudflare before the first monitor deploy; the `cloudflare-only`
+middleware rejects anything that doesn't come through the proxy.
 
 DNS records `tools` and `dev-tools` were added in Cloudflare by the user on
 2026-11-06 (verified resolving through the Cloudflare proxy the same day).
@@ -87,8 +128,91 @@ wiring, that lives directly in `compose.yml`).
 `NODE_OPTIONS=--max-old-space-size=60` - 600 MB total allocated
 (`enem-landing-tools` added in Story 20), same
 tuning approach mau-apps uses (see that file's header for the full
-reasoning). MySQL is managed (Aiven). Redis is self-hosted on the VPS
-since 2026-11-18 (see below) and adds a 160M ceiling.
+reasoning). Redis is self-hosted on the VPS since 2026-11-18 (see below)
+and adds a 160M ceiling. MySQL is self-hosted too (see below) and adds a
+640M ceiling (384M reserved), plus 32M for the `mysql-tunnel` sidecar.
+
+## Monitor and log-reader (`deploy-log-reader.yml`)
+
+`enem-landing-monitor` (Nuxt, port 4003) and `enem-landing-monitor-api`
+(NestJS, port 3003, internal-only, no database) are normal services of the
+app stacks and deploy with `deploy.yml`. Ports follow the mau-apps
+pattern: one index per product across layers (API `300N`, admin web
+`400N`, landing `800N`); index 2 is taken by tools (`8002`), so the
+monitor uses index 3. Only `SUPER_ADMIN` gets in: the frontend middleware
+redirects everyone else to `/unauthorized`, and monitor-api enforces it on
+every route with a global guard (only `GET /health` is public). The site
+sends `X-Robots-Tag: noindex, nofollow`, `X-Frame-Options: DENY` and
+`Referrer-Policy: no-referrer`, and `robots.txt` disallows everything.
+
+Host logs are read by `enem-landing-log-reader` (plain Node, port 3004),
+one stack named `log-reader` shared by prod and dev and joined to both
+overlay networks. It mounts `/var/log`, `/var/lib/docker/containers`,
+`/opt/enem-landing/storage/mysql-logs` and `/etc/passwd` read-only, runs
+with a read-only root filesystem, `cap_drop: ALL` + `cap_add:
+DAC_READ_SEARCH`, no Docker socket and no published port, 96M limit.
+Clients only send allowlisted source ids, scanned container ids and file
+indexes, never paths. Every log read is written to monitor-api's own log
+as an audit line (`[Audit] user=... GET /logs/...`).
+
+First deploy:
+
+```bash
+# 1. DNS: add `monitor` and `dev-monitor` (proxied) in Cloudflare.
+# 2. One token per environment, stored as LOG_READER_TOKEN in the GitHub
+#    environments `production` and `development`:
+PROD_TOKEN=$(openssl rand -hex 32); DEV_TOKEN=$(openssl rand -hex 32)
+# 3. Deploy the reader (needs the image, so after the first CI build):
+ansible-playbook playbooks/deploy-log-reader.yml -i inventories/prod/hosts.ini \
+  -e "log_reader_token_prod=$PROD_TOKEN" -e "log_reader_token_dev=$DEV_TOKEN" \
+  -e "ghcr_pat=<PAT read:packages>"
+# 4. Redeploy dev and prod so monitor-api gets LOG_READER_TOKEN.
+```
+
+The tokens live in `/opt/enem-landing/log-reader/tokens` (root, 0400), not
+in the service env, so they don't show up in `docker service inspect`.
+Every prod release (`deploy.yml` with `env=prod`) updates the reader to the
+`:prod` image if the stack exists. Re-run the playbook only to rotate
+tokens. To turn log reading off for one environment, set `LOGS_ENABLED:
+"false"` for its monitor-api in compose.
+
+### Alerts, metrics, uptime, deploy history
+
+monitor-api runs one job a minute: it evaluates the alert rules (container
+crash/OOM, kernel OOM, MySQL/Redis down, failed-login spike, memory, disk,
+swap, load, site/API down, TLS expiry, backup, SSH logins, MySQL
+connections, Redis memory/evictions/AOF), checks uptime, and works through
+the email outbox. Everything is kept in Redis with TTLs and caps (history
+500 entries/30 days, outbox 200 items, samples 2 to 8 days), no extra
+database or queue. Emails go through account-api's
+`POST /email/internal/monitor-alert` (SMTP and recipient from CMS
+Settings, switch "Email alert monitor"); only prod sends them
+(`ALERTS_EMAIL_ENABLED`). Prod is also the primary (`MONITOR_PRIMARY`) that
+samples host metrics and records deploy history for both monitors.
+
+The log-reader additionally mounts `/sys/fs/cgroup` (container memory and
+CPU) and `/opt/enem-landing/storage/mysql` (database and table file sizes,
+never opened), both read-only. After pulling these changes:
+
+```bash
+# Check the cgroup path (systemd driver: system.slice/docker-<id>.scope).
+ssh deploy@<vps> 'ls /sys/fs/cgroup/system.slice | grep docker | head -3'
+# Re-run the reader playbook for the new mounts.
+ansible-playbook playbooks/deploy-log-reader.yml -i inventories/prod/hosts.ini \
+  -e "log_reader_token_prod=<same>" -e "log_reader_token_dev=<same>" -e "ghcr_pat=<PAT>"
+# MySQL monitor user (PROCESS only): add mysql_monitor_password to
+# mysql-vars.yml, re-run deploy-mysql.yml, then store
+# DATABASE_URL_MONITOR=mysql://enem_monitor:<pw>@mysql_mysql:3306 in both
+# GitHub environments.
+# Backup failure webhook: mysql_backup_notify_webhook_url =
+# https://monitor.muzanella.com/api/hooks/mysql-backup and
+# mysql_backup_notify_webhook_key = <key>, plus ALERT_WEBHOOKS =
+# mysql-backup:<key> in the `production` environment.
+```
+
+Optional, recommended: put Cloudflare Access (Zero Trust, free up to 50
+users) in front of both monitor hostnames so the login page itself isn't
+reachable without an email check. Not set up yet.
 
 ## Shared Redis (`deploy-redis.yml`)
 
@@ -111,6 +235,165 @@ Then set the same values in both GitHub environments (`production` and
 `REDIS_USERNAME` empty, `REDIS_PASSWORD=<same value>`, `REDIS_DB=0`,
 `REDIS_TLS_ENABLED=false`, and redeploy both stacks. Keep the existing
 `REDIS_KEY_PREFIX` values.
+
+## Shared MySQL (`deploy-mysql.yml`)
+
+MySQL runs as its own `mysql` stack on the VPS (`mysql:8.4`), replacing
+Aiven. One instance serves prod and dev, isolated by database and user:
+
+| Env | User | Databases |
+|---|---|---|
+| prod | `enem_prod` | `enem_landing_api`, `enem_landing_account` |
+| dev | `enem_dev` | `enem_landing_api_dev`, `enem_landing_account_dev` |
+
+Each user only has privileges on its own databases (no `SUPER`, `FILE` or
+`GRANT OPTION`). `root` exists only as `root@localhost`, so it can only be
+used through `docker exec`; its password is generated on the VPS on the
+first run and stays in `/opt/enem-landing/mysql/secrets` (do not delete that
+directory, see the playbook header).
+
+**No port is published.** Apps reach it over the overlay network as
+`mysql_mysql:3306`. From outside, the only way in is an SSH tunnel: the
+`mysql-tunnel` container (socat, plain `docker run`, not a Swarm service)
+listens on the VPS loopback `127.0.0.1:33300` and forwards to
+`mysql_mysql:3306` over the dedicated `mysql_admin` overlay. Because it binds
+to loopback, the "Docker bypasses UFW" problem does not apply.
+
+```
+apps (prod/dev) --overlay--> mysql_mysql:3306
+
+TablePlus / GitHub runner
+  --SSH:22--> VPS 127.0.0.1:33300 (mysql-tunnel)
+  --overlay mysql_admin--> mysql_mysql:3306
+```
+
+Data lives in `/opt/enem-landing/storage/mysql`, the server config in
+`/opt/enem-landing/mysql/conf.d/enem.cnf` (from `playbooks/files/mysql.cnf`:
+256M buffer pool, `performance_schema` off, 60 connections, `local_infile`
+off, utf8mb4).
+
+### Deploy
+
+Put the secrets in `infra/ansible/mysql-vars.yml` (gitignored through
+`infra/ansible/*-vars.yml`; the full shape is in the playbook header), then:
+
+```bash
+cd infra/ansible
+ansible-playbook playbooks/deploy-mysql.yml -i inventories/prod/hosts.ini \
+  -e ansible_user=deploy -e ansible_ssh_private_key_file=<deploy key> \
+  -e @mysql-vars.yml
+```
+
+Re-running is safe: users and grants are re-applied every time, so changing
+`mysql_prod_password`/`mysql_dev_password` and re-running rotates them
+(update the `DATABASE_URL_*` secrets and redeploy right after).
+
+Then set `DATABASE_URL_ACCOUNT_API` and `DATABASE_URL_API` in both GitHub
+environments (see `docs/github-actions-secrets.md`). The host must be
+`mysql_mysql:3306`: `migrate.yml` rewrites exactly that to the tunnel and
+refuses to run otherwise.
+
+### Access from a laptop
+
+**TablePlus**: new MySQL connection, enable "Over SSH":
+
+- SSH server `43.133.149.209`, port `22`, user `muzanella`, key
+  `~/.ssh/id_ed25519_enem_prod`;
+- MySQL host `127.0.0.1`, port `33300`;
+- user `enem_dev` (dev) or `enem_prod` (prod) with its password and
+  database.
+
+**CLI**: `scripts/db-tunnel.sh open` opens `ssh -L 33300:127.0.0.1:33300
+enem-prod` in the background (`status` and `close` too), then connect to
+`127.0.0.1:33300`.
+
+**Root/admin**: on the VPS,
+`docker exec -it $(docker ps -q -f name=mysql_mysql) mysql`.
+
+### Slow query log
+
+`slow_query_log` is on (`long_query_time=1`), written to
+`/opt/enem-landing/storage/mysql-logs/slow.log` and rotated weekly (4 kept)
+by `/etc/logrotate.d/enem-mysql`. The error log goes to the container
+output: `docker service logs mysql_mysql`.
+
+### Backup
+
+`mysql-backup.timer` runs `/opt/enem-landing/bin/mysql-backup.sh` daily at
+19:00 UTC (02:00 WIB). Each database is dumped with `mysqldump
+--single-transaction`, gzipped (not encrypted) and streamed to the existing R2 uploads
+buckets under the `mysql-backup/` prefix: prod databases to `prod`, dev
+databases to `develop`. `daily/` keeps 7 days and `weekly/` (Sunday copies)
+keeps 28 days. Retention only deletes inside that prefix, never the uploads.
+A failure posts to `mysql_backup_notify_webhook_url`.
+
+Both buckets are public (`prod` through `cdn.muzanella.com`, `develop`
+through `cdn-dev.muzanella.com`) and the dumps are plain SQL, so a
+Cloudflare WAF custom rule on the `muzanella.com` zone ("Block MySQL backups
+on CDN", added 2026-11-23) blocks every request whose URL-decoded,
+lowercased path contains `/mysql-backup` on those two hosts:
+
+```
+(http.host in {"cdn.muzanella.com" "cdn-dev.muzanella.com"}
+ and lower(url_decode(http.request.uri.path)) contains "/mysql-backup")
+```
+
+**Do not remove or disable it**: without it a dump (password hashes, contact form messages, tracking data) could be
+downloaded by guessing its path. Download backups from the R2 dashboard or
+through the S3 API instead; the rule does not affect those.
+
+One-time setup:
+
+1. Create an R2 API token with Object Read & Write on the `prod` and
+   `develop` buckets (a separate token from the apps' upload one).
+2. Set `mysql_backup_enabled: true` and the other `mysql_backup_*` settings,
+   then re-run the playbook.
+
+On the VPS:
+
+```bash
+sudo systemctl start mysql-backup.service        # run one now
+journalctl -u mysql-backup.service -n 50         # result
+systemctl list-timers mysql-backup.timer         # next run
+sudo bash -c 'set -a; . /opt/enem-landing/mysql/backup.env; \
+  /opt/enem-landing/bin/mysql-backup.sh --force-fail'   # test the alert
+```
+
+Restore test, from a laptop with an `rclone` remote (here `r2`) for the
+bucket, or a file downloaded from the R2 dashboard. Dumps hold one database without `CREATE DATABASE`, so they
+load into any name. `root` is localhost-only, so the load runs through
+`docker exec` on the VPS:
+
+```bash
+M='docker exec -i $(docker ps -q -f name=mysql_mysql) mysql'
+ssh enem-prod "$M -e 'CREATE DATABASE restore_test'"
+rclone cat r2:prod/mysql-backup/daily/<stamp>/enem_landing_api_<stamp>.sql.gz \
+  | gunzip | ssh enem-prod "$M restore_test"
+# compare row counts with enem_landing_api, then:
+ssh enem-prod "$M -e 'DROP DATABASE restore_test'"
+```
+
+### Moving data from Aiven
+
+Dev first as a rehearsal, then prod at a quiet hour:
+
+1. Freeze writes: scale the env's `enem-landing-api` and
+   `enem-landing-account-api` to 0
+   (`docker service scale <stack>_enem-landing-api=0 ...`).
+2. Dump each database from Aiven:
+   `mysqldump --single-transaction --set-gtid-purged=OFF --no-tablespaces
+   --routines --triggers -h <aiven host> -P <port> -u <user> -p
+   --ssl-mode=REQUIRED <aiven db> > <db>.sql`. Aiven names are
+   `enem_landing_*_dev` and `enem_landing_*_prod`; the new prod names have
+   no `_prod` suffix.
+3. Import through the tunnel as the app user:
+   `mysql -h 127.0.0.1 -P 33300 -u enem_dev -p enem_landing_api_dev < <db>.sql`.
+4. Compare exact row counts per table on both sides
+   (`SELECT COUNT(*)` per table, not `information_schema.TABLES.TABLE_ROWS`,
+   which is an estimate).
+5. Update `DATABASE_URL_*` in the GitHub environment and redeploy (this also
+   scales the APIs back up).
+6. Keep Aiven for at least 7 days as a fallback before shutting it down.
 
 ## Not yet in this story (deferred to real infra)
 

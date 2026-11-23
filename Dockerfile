@@ -44,6 +44,9 @@
 #   enem-landing-account-web: 8000 (NITRO_PORT)
 #   enem-landing-web:         8001 (NITRO_PORT)
 #   enem-landing-tools:       8002 (NITRO_PORT)
+#   enem-landing-monitor-api: 3003 (PORT env var, apps/enem-landing-monitor-api/src/main.ts)
+#   enem-landing-log-reader:  3004 (PORT env var, apps/enem-landing-log-reader/src/config.ts)
+#   enem-landing-monitor:     4003 (NITRO_PORT)
 #
 # Node 26 (this workspace's `engines.node`, package.json) - mau-apps uses
 # node:20-alpine, not carried over since this workspace targets a newer
@@ -109,3 +112,32 @@ COPY ./apps/enem-landing-tools/.output ./
 ENV NITRO_PORT=8002
 EXPOSE 8002
 CMD [ "node", "/web/server/index.mjs" ]
+
+# --- Monitoring (monitor.muzanella.com) ---
+FROM base AS enem-landing-monitor-api
+COPY ./apps/enem-landing-monitor-api/dist/package.json ./apps/enem-landing-monitor-api/dist/yarn.lock ./
+COPY ./apps/enem-landing-monitor-api/dist/workspace_modules ./workspace_modules
+RUN yarn install --production && yarn cache clean
+COPY ./apps/enem-landing-monitor-api/dist ./
+EXPOSE 3003
+CMD [ "node", "/api/main.js" ]
+
+FROM base-web AS enem-landing-monitor
+COPY ./apps/enem-landing-monitor/.output ./
+ENV NITRO_PORT=4003
+EXPOSE 4003
+CMD [ "node", "/web/server/index.mjs" ]
+
+# Reads host logs from read-only mounts (log-reader-stack.yml.j2). Debian,
+# not Alpine: it needs `journalctl` to read the host's journal files
+# (`journalctl --directory`), and Alpine has no systemd. dist/main.js has
+# no npm dependencies, so there is no install step.
+FROM node:26-trixie-slim AS enem-landing-log-reader
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends systemd \
+  && rm -rf /var/lib/apt/lists/*
+WORKDIR /reader
+COPY ./apps/enem-landing-log-reader/dist/main.js ./main.js
+ENV PORT=3004
+EXPOSE 3004
+CMD [ "node", "/reader/main.js" ]

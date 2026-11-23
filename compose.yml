@@ -8,17 +8,20 @@
 # supplied by compose.dev.yml/compose.prod.yml so image tag is the only
 # thing that differs between environments per service, same as mau-apps.)
 #
-# For a LOCAL LAPTOP dev workflow (no VPS, no registry image, no managed
-# Aiven/Upstash) use compose.local.yml instead - see its own header for why
+# For a LOCAL LAPTOP dev workflow (no VPS, no registry image, no shared
+# VPS MySQL/Redis) use compose.local.yml instead - see its own header for why
 # this is a separate file from compose.dev.yml rather than folding local
 # MySQL/Redis into it. `docker compose -f compose.yml -f compose.local.yml
 # up` is a plain (non-Swarm) compose invocation; the `deploy:` keys below
 # are simply ignored by the non-Swarm compose engine in that mode.
 #
-# Differences from mau-apps' compose.yml, all because enem-landing is a
-# 5-app project that went straight to managed MySQL/Redis (Aiven/Upstash)
-# from day one - no self-hosted MySQL/Redis/RabbitMQ ever existed here to
-# keep around as a commented rollback option like mau-apps does:
+# MySQL and Redis are NOT services in this stack. Each runs as its own
+# stack on the VPS (deploy-mysql.yml, deploy-redis.yml), shared by prod and
+# dev, and is reached over the overlay network as `mysql_mysql:3306` and
+# `redis_redis:6379` through the DATABASE_URL_*/REDIS_* secrets. They used
+# to be managed (Aiven/Upstash) and moved to the VPS in November 2026.
+#
+# Other differences from mau-apps' compose.yml:
 #   - No `x-database-env`/`x-redis-env` shared anchors - each app's real env
 #     var names differ (`DATABASE_URL` as one connection string, not
 #     decomposed HOST/PORT/USERNAME/PASSWORD/SSL_ENABLED like mau-apps),
@@ -107,7 +110,7 @@ services:
       # session-recording chunk uploads authenticate with this instead of a
       # user JWT (there's no logged-in user for a server-to-server call).
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-      CORS_ORIGIN: https://cms.muzanella.com,https://account.muzanella.com
+      CORS_ORIGIN: https://cms.muzanella.com,https://account.muzanella.com,https://monitor.muzanella.com
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
       R2_ENDPOINT: ${R2_ENDPOINT}
@@ -232,3 +235,62 @@ services:
         - traefik.http.routers.enem-landing-tools.tls=true
         - traefik.http.routers.enem-landing-tools.tls.certresolver=cloudflare
         - traefik.http.services.enem-landing-tools.loadbalancer.server.port=8002
+
+  # --- Monitoring (monitor.muzanella.com) ---
+  # Separate from the CMS on purpose: logs are the most sensitive data here
+  # (IPs, usernames, queries), so they live in their own app with its own
+  # backend, SuperAdmin-only. The API is internal-only like the other two.
+  enem-landing-monitor-api:
+    networks: [enem-landing-network]
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_TLS_ENABLED: ${REDIS_TLS_ENABLED}
+      # Own namespace for its rate-limit keys (dev overrides to dev:monitor).
+      REDIS_KEY_PREFIX: monitor
+      ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      # Cache tab (Redis menu) and the uptime check of this env's API.
+      API_HOST: http://enem-landing-api:3001
+      MONITOR_ENV: prod
+      # Shared log-reader stack (deploy-log-reader.yml), joined to both env
+      # networks. Each env has its own token; empty token = logs off.
+      LOG_READER_HOST: http://log-reader_log-reader:3004
+      LOG_READER_TOKEN: ${LOG_READER_TOKEN}
+      LOGS_ENABLED: "true"
+      # Alerts: email goes through account-api's internal
+      # endpoint (same as the contact form), so the same INTERNAL_API_KEY.
+      # Only prod emails; dev overrides it to false. Prod is also the
+      # "primary" that samples host data shared by both monitors.
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      ALERTS_EMAIL_ENABLED: "true"
+      MONITOR_PRIMARY: "true"
+      MONITOR_PUBLIC_URL: https://monitor.muzanella.com
+      # `id:key` for POST /api/hooks/<id> (mysql-backup.sh). Empty = no hook.
+      ALERT_WEBHOOKS: ${ALERT_WEBHOOKS}
+      # enem_monitor MySQL user (PROCESS only) for the DB menu. Empty = off.
+      DATABASE_URL_MONITOR: ${DATABASE_URL_MONITOR}
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=false # internal-only - only the monitor BFF calls it
+
+  enem-landing-monitor:
+    networks: [enem-landing-network]
+    environment:
+      NUXT_MONITOR_API_HOST: http://enem-landing-monitor-api:3003
+      NUXT_ACCOUNT_API_HOST: http://enem-landing-account-api:3000
+      NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://account.muzanella.com
+      NUXT_PUBLIC_SHARED_COOKIE_DOMAIN: .muzanella.com
+      NUXT_PUBLIC_CMS_HOST: https://cms.muzanella.com
+    deploy:
+      <<: *deploy-defaults
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.enem-landing-monitor.rule=Host(`monitor.muzanella.com`)
+        - traefik.http.routers.enem-landing-monitor.entrypoints=websecure
+        - traefik.http.routers.enem-landing-monitor.tls=true
+        - traefik.http.routers.enem-landing-monitor.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-monitor.loadbalancer.server.port=4003
