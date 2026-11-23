@@ -44,6 +44,8 @@ nilai yang berbeda per environment.
 | `R2_BUCKET_NAME` | Fitur uploads | Cloudflare R2 |
 | `R2_PUBLIC_URL_BASE` | Fitur uploads | Cloudflare R2 |
 | `LOG_READER_TOKEN` | `enem-landing-monitor-api` membaca log lewat `enem-landing-log-reader` | String random minimal 32 karakter (`openssl rand -hex 32`), **beda** untuk `production` dan `development`. Nilai yang sama dipakai sebagai `log_reader_token_prod`/`log_reader_token_dev` saat menjalankan `deploy-log-reader.yml`. Kosong = menu Server/DB/Redis/Apps di monitor nonaktif |
+| `ALERT_WEBHOOKS` | Webhook alert monitor (`POST https://monitor.muzanella.com/api/hooks/<id>`), dipakai `mysql-backup.sh` saat backup gagal | Format `id:key`, dipisah koma. Untuk backup: `mysql-backup:<openssl rand -hex 32>` di `production`. Key yang sama diisi sebagai `mysql_backup_notify_webhook_key` di `mysql-vars.yml`. Kosong = webhook nonaktif |
+| `DATABASE_URL_MONITOR` | Statistik MySQL di menu DB monitor (koneksi, `SHOW PROCESSLIST`) | `mysql://enem_monitor:<mysql_monitor_password>@mysql_mysql:3306`, sama di kedua environment. User dibuat `deploy-mysql.yml`, hanya punya hak `PROCESS` (tidak bisa `SELECT` tabel app). Kosong = statistik MySQL nonaktif |
 | `GHCR_PAT` | VPS `docker pull` image private dari GHCR (`GITHUB_TOKEN` otomatis cuma hidup di dalam Actions runner, tidak bisa dipakai VPS) | GitHub Personal Access Token (Settings -> Developer settings -> PATs), scope minimal `read:packages` |
 | `DEPLOY_SSH_KEY` | Akses SSH Ansible untuk deploy, dan SSH tunnel ke MySQL di `migrate.yml` | Sudah di-generate sesi ini di `~/.ssh/id_ed25519_enem_landing_deploy` - ambil isinya sendiri lewat `cat ~/.ssh/id_ed25519_enem_landing_deploy`, jangan minta AI print private key ke chat |
 
@@ -71,6 +73,12 @@ placeholder dulu kalau fitur upload belum dipakai.
   `log-reader` bersama prod dan dev; tiap environment punya
   `LOG_READER_TOKEN` sendiri. Lihat bagian "Monitor" di
   `infra/ansible/README.md`.
+
+- Alert monitor dikirim lewat email admin dengan jalur yang sama seperti
+  contact form: monitor-api memanggil `POST /email/internal/monitor-alert`
+  di account-api dengan `INTERNAL_API_KEY` yang sudah ada. SMTP, penerima,
+  dan saklar "Email alert monitor" diatur di CMS Settings. Hanya prod yang
+  mengirim email. Tidak ada secret email baru.
 
 ## Langkah terpisah yang bukan GitHub secret
 

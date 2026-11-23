@@ -14,7 +14,6 @@ const links = [
   { title: 'Site Profile', icon: 'mdi-account-outline', url: '/site-profile' },
   { title: 'SEO Meta', icon: 'mdi-magnify', url: '/seo-meta' },
   { title: 'Skills', icon: 'mdi-star-outline', url: '/skills' },
-  { title: 'Cache', icon: 'mdi-memory', url: '/cache' },
   {
     title: 'Activity Tracking',
     icon: 'mdi-chart-line',

@@ -1,6 +1,6 @@
 # Story 67: Uptime dan Kesehatan Layanan di Monitor
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-monitor-api`, `enem-landing-monitor`,
 `enem-landing-log-reader`
@@ -61,6 +61,16 @@ terakhir, dengan alert email saat ada yang bermasalah.
    - bagian **TLS** dan **Backup** di menu yang sama;
    - dashboard: card **Uptime** (jumlah target naik/turun, target dengan
      latency tertinggi, sisa hari sertifikat, backup terakhir).
+
+## Catatan implementasi
+
+- `mysql-backup.sh` mengunggah langsung ke R2 dan tidak menyimpan file di
+  VPS, jadi status backup dibaca hanya dari journal
+  `mysql-backup.service` (baris `Backup <stamp> done` dan baris gagal),
+  tanpa mount folder backup.
+- Cek MySQL di Uptime memakai koneksi user `enem_monitor` (Story 69).
+  Kalau `DATABASE_URL_MONITOR` belum diisi, target MySQL ditandai "tidak
+  dicek".
 
 ## Di luar scope
 

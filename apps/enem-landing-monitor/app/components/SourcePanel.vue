@@ -1,21 +1,41 @@
 <script lang="ts" setup>
 import type { LogSourceInfo } from '@enem-landing/shared-types';
 import { computed, ref, watch } from 'vue';
-import { formatBytes, formatDateTime } from '../utils/log-format';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  cleanQuery,
+  formatBytes,
+  formatDateTime,
+  VIEWER_QUERY_KEYS,
+} from '../utils/log-format';
 
 /** List of host log sources on the left, the matching viewer on the right. */
 const props = defineProps<{ sources: LogSourceInfo[] }>();
 
-const selectedId = ref<string | null>(null);
+const route = useRoute();
+const router = useRouter();
+// `?source=<id>` (deep link) selects a source.
+const selectedId = ref<string | null>(
+  typeof route.query.source === 'string' ? route.query.source : null,
+);
 watch(
   () => props.sources,
   (sources) => {
+    if (!sources.length) return;
     if (!sources.some((source) => source.id === selectedId.value)) {
       selectedId.value = sources[0]?.id ?? null;
     }
   },
   { immediate: true },
 );
+const select = (id: string) => {
+  if (id === selectedId.value) return;
+  selectedId.value = id;
+  // A different source starts from its newest lines.
+  router.replace({
+    query: { ...cleanQuery(route.query, VIEWER_QUERY_KEYS), source: id },
+  });
+};
 
 const selected = computed(() =>
   props.sources.find((source) => source.id === selectedId.value),
@@ -34,7 +54,7 @@ const latest = (source: LogSourceInfo) => source.files[0];
           color="primary"
           rounded="lg"
           :data-testid="`source-${source.id}`"
-          @click="selectedId = source.id"
+          @click="select(source.id)"
         >
           <v-list-item-title>{{ source.label }}</v-list-item-title>
           <v-list-item-subtitle>
@@ -72,6 +92,16 @@ const latest = (source: LogSourceInfo) => source.files[0];
           :files="selected.files"
           :kind="selected.format === 'mysql-slow' ? 'mysql-slow' : 'text'"
           :title="selected.id"
+          :follow-endpoint="
+            selected.format === 'text'
+              ? `sources/${selected.id}/follow`
+              : undefined
+          "
+          :seek-endpoint="
+            selected.format === 'text'
+              ? `sources/${selected.id}/seek`
+              : undefined
+          "
         />
       </template>
     </v-col>

@@ -17,6 +17,10 @@
 #   # (openssl rand -hex 24). Prod and dev get different passwords.
 #   mysql_prod_password: "<value>"
 #   mysql_dev_password: "<value>"
+#   # Monitor user (optional, same rules): PROCESS only, no database access.
+#   # Both GitHub environments get DATABASE_URL_MONITOR =
+#   #   mysql://enem_monitor:<pw>@mysql_mysql:3306
+#   mysql_monitor_password: "<value>"
 #   # Backup (optional: without mysql_backup_enabled: true the backup part
 #   # is skipped). Goes to the existing uploads buckets, prod databases to
 #   # `prod` and dev databases to `develop`, under the `mysql-backup/`
@@ -25,10 +29,12 @@
 #   mysql_backup_r2_endpoint: "https://<account id>.r2.cloudflarestorage.com"
 #   mysql_backup_r2_access_key_id: "<value>"
 #   mysql_backup_r2_secret_access_key: "<value>"
-#   # Where failure alerts go (Discord or Slack style webhook). Optional:
-#   # leave it out until the monitoring app has an alert endpoint; failures
-#   # still show in `journalctl -u mysql-backup.service`.
-#   mysql_backup_notify_webhook_url: "https://..."
+#   # Where failure alerts go: the monitor's webhook
+#   # (https://monitor.muzanella.com/api/hooks/mysql-backup) with its key,
+#   # the same value as `mysql-backup:<key>` in the ALERT_WEBHOOKS secret.
+#   # Optional: failures still show in `journalctl -u mysql-backup.service`.
+#   mysql_backup_notify_webhook_url: "https://monitor.muzanella.com/api/hooks/mysql-backup"
+#   mysql_backup_notify_webhook_key: "<openssl rand -hex 32>"
 #
 # The apps then use, per GitHub environment (see
 # docs/github-actions-secrets.md):
@@ -75,6 +81,8 @@
           - mysql_prod_password is match('^[A-Za-z0-9]{32,}$')
           - mysql_dev_password is match('^[A-Za-z0-9]{32,}$')
           - mysql_prod_password != mysql_dev_password
+          - (mysql_monitor_password | default('')) == '' or mysql_monitor_password is match('^[A-Za-z0-9]{32,}$')
+          - (mysql_monitor_password | default('')) not in [mysql_prod_password, mysql_dev_password]
         fail_msg: >-
           Pass two different strong passwords (letters and digits only, so
           they are safe inside SQL and a DATABASE_URL), e.g.

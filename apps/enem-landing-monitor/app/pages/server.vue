@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { LogsSummary, LogSourceGroup } from '@enem-landing/shared-types';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useContainers } from '../composables/use-containers';
 import { errorMessage, logsFetch } from '../composables/use-logs-api';
 import { formatBytes, formatDateTime } from '../utils/log-format';
@@ -8,7 +9,26 @@ import { formatBytes, formatDateTime } from '../utils/log-format';
 definePageMeta({ layout: 'dashboard' });
 useHead({ title: 'Server' });
 
-const tab = ref('summary');
+const TABS = [
+  'metrics',
+  'summary',
+  'security',
+  'analysis',
+  'system',
+  'packages',
+  'setup',
+  'infra',
+];
+const route = useRoute();
+const router = useRouter();
+const tab = ref(
+  TABS.includes(String(route.query.tab)) ? String(route.query.tab) : 'metrics',
+);
+// The tab is part of the URL so alert emails can link straight to it.
+watch(tab, (value) => {
+  if (route.query.tab !== value)
+    router.replace({ query: { ...route.query, tab: value } });
+});
 const summary = ref<LogsSummary | null>(null);
 const error = ref('');
 const { list: containers } = useContainers();
@@ -50,7 +70,7 @@ const summaryRows = computed(() =>
   <div class="c-form-page">
     <CPageHeader
       title="Server"
-      subtitle="Log host VPS (read-only): keamanan, sistem, paket, setup, dan container infra."
+      subtitle="Metrik dan log host VPS (read-only): keamanan, sistem, paket, setup, dan container infra."
     />
     <v-alert v-if="error" type="error" variant="tonal" class="mb-4">
       {{ error }}
@@ -58,15 +78,25 @@ const summaryRows = computed(() =>
 
     <v-card rounded="lg" elevation="0" class="c-content-card">
       <v-tabs v-model="tab" color="primary" show-arrows>
+        <v-tab value="metrics">Metrik</v-tab>
         <v-tab value="summary">Ringkasan</v-tab>
-        <v-tab v-for="group in GROUPS" :key="group.value" :value="group.value">
-          {{ group.title }}
-        </v-tab>
+        <template v-for="group in GROUPS" :key="group.value">
+          <v-tab :value="group.value">{{ group.title }}</v-tab>
+          <v-tab v-if="group.value === 'security'" value="analysis"
+            >Analisis Keamanan</v-tab
+          >
+        </template>
         <v-tab value="infra">Infra</v-tab>
       </v-tabs>
       <v-divider />
 
       <v-window v-model="tab">
+        <v-window-item value="metrics">
+          <MetricsPanel v-if="tab === 'metrics'" />
+        </v-window-item>
+        <v-window-item value="analysis">
+          <SecurityPanel v-if="tab === 'analysis'" />
+        </v-window-item>
         <v-window-item value="summary">
           <div class="d-flex flex-wrap ga-8 pa-4">
             <StatLine

@@ -7,6 +7,12 @@ export interface ReaderConfig {
   containersDir: string;
   mysqlLogsDir: string;
   passwdFile: string;
+  /** Host `/proc` (memory, load, CPU, uptime). Inside the container it already shows host numbers. */
+  procDir: string;
+  /** Host cgroup v2 root, mounted read-only (per-container memory and CPU). */
+  cgroupDir: string;
+  /** MySQL data directory, mounted read-only: only file names and sizes are read. */
+  mysqlDataDir: string;
   journalctlBin: string;
   tokens: string[];
 }
@@ -52,6 +58,9 @@ export const loadConfig = (
       env['LOG_READER_CONTAINERS_DIR'] || '/host/docker/containers',
     mysqlLogsDir: env['LOG_READER_MYSQL_LOGS_DIR'] || '/host/mysql-logs',
     passwdFile: env['LOG_READER_PASSWD_FILE'] || '/host/etc/passwd',
+    procDir: env['LOG_READER_PROC_DIR'] || '/proc',
+    cgroupDir: env['LOG_READER_CGROUP_DIR'] || '/host/cgroup',
+    mysqlDataDir: env['LOG_READER_MYSQL_DATA_DIR'] || '/host/mysql-data',
     journalctlBin: env['JOURNALCTL_BIN'] || 'journalctl',
     tokens: [...fileTokens, ...parseTokens(env['LOG_READER_TOKENS'])],
   };

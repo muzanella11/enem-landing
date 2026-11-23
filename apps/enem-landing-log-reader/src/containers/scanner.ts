@@ -16,6 +16,8 @@ const MAX_CONFIG_BYTES = 2 * 1024 * 1024;
 
 interface DockerConfig {
   Name?: string;
+  Image?: string;
+  Created?: string;
   RestartCount?: number;
   State?: {
     Running?: boolean;
@@ -25,8 +27,10 @@ interface DockerConfig {
     OOMKilled?: boolean;
     Error?: string;
   };
-  Config?: { Labels?: Record<string, string> };
+  Config?: { Image?: string; Labels?: Record<string, string> };
 }
+
+const OCI = 'org.opencontainers.image.';
 
 export interface ScannedContainer extends ContainerInfo {
   logFiles: ResolvedFile[];
@@ -146,6 +150,13 @@ export const parseContainer = (
     crashed: isCrash(running, exitCode, oomKilled),
     recentCrash: false,
     files: logFiles.map(toPublicFile),
+    image: config.Config?.Image ?? '',
+    imageId: config.Image ?? '',
+    createdAt: time(config.Created),
+    version: labels[`${OCI}version`] ?? null,
+    revision: labels[`${OCI}revision`] ?? null,
+    source: labels[`${OCI}source`] ?? null,
+    imageCreated: labels[`${OCI}created`] ?? null,
     logFiles,
   };
 };
@@ -237,6 +248,12 @@ export class ContainerScanner {
       stopped: stopped.map(strip),
       scannedAt: new Date(at).toISOString(),
     };
+  }
+
+  /** Every scanned container (running and stopped), with its log files. */
+  async all(): Promise<ScannedContainer[]> {
+    const { running, stopped } = await this.scan();
+    return [...running, ...stopped];
   }
 
   /** Only ids found by the scan are readable; the id is never used as a raw path. */

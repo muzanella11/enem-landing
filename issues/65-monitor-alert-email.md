@@ -1,6 +1,6 @@
 # Story 65: Alert Monitor dan Notifikasi Email
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-monitor`, `enem-landing-monitor-api`,
 `enem-landing-cms` (Settings: email alert monitor),
@@ -146,6 +146,22 @@ riwayat alert bisa dilihat di monitor.
      Settings untuk itu;
    - dashboard: card **Alerts** berisi jumlah alert 24 jam terakhir dan
      alert terakhir, dengan badge merah kalau ada alert yang belum pulih.
+
+## Catatan implementasi
+
+- Retry email: percobaan pertama, lalu dicoba ulang setelah 1, 5, 15, dan
+  60 menit (total 5 percobaan). Status "gagal" dicatat setelah percobaan
+  ulang keempat gagal.
+- Pengiriman dianggap at-least-once: kalau monitor-api mati tepat setelah
+  SMTP sukses tapi sebelum item dihapus dari `alert-processing`, email itu
+  bisa terkirim sekali lagi setelah restart. Pengambilan item tetap atomik
+  (`LMOVE`), jadi dua proses tidak pernah mengirim item yang sama.
+- Crash dan OOM container hanya dilaporkan kalau berhenti kurang dari 30
+  menit lalu, supaya deploy pertama tidak mengirim alert untuk container
+  lama (riwayat 72 jam).
+- Endpoint uji di account-api: `POST /email/monitor-alert/test` (dipanggil
+  tombol "Kirim email alert tes" di CMS Settings), tetap mengirim walau
+  saklar mati dan menyebut status saklarnya.
 
 ## Di luar scope
 

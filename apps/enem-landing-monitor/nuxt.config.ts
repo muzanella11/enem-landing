@@ -72,6 +72,8 @@ export default defineNuxtConfig({
     public: {
       accountWebHost:
         process.env['ACCOUNT_WEB_HOST'] || 'http://localhost:8000',
+      // Alerts page links to CMS Settings, where alert email is configured.
+      cmsHost: process.env['CMS_HOST'] || 'http://localhost:4000',
       sharedCookieDomain: process.env['SHARED_COOKIE_DOMAIN'] || '',
       authCookieName: process.env['AUTH_COOKIE_NAME'] || '',
     },

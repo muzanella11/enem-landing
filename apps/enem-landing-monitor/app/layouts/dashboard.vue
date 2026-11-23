@@ -18,6 +18,10 @@ const NAV_ITEMS: NavItem[] = [
   { title: 'DB', icon: 'mdi-database-outline', url: '/db' },
   { title: 'Redis', icon: 'mdi-memory', url: '/redis' },
   { title: 'Apps', icon: 'mdi-application-brackets-outline', url: '/apps' },
+  { title: 'Alerts', icon: 'mdi-bell-outline', url: '/alerts' },
+  { title: 'Uptime', icon: 'mdi-heart-pulse', url: '/uptime' },
+  { title: 'Deploy', icon: 'mdi-rocket-launch-outline', url: '/deploy' },
+  { title: 'Timeline', icon: 'mdi-timeline-clock-outline', url: '/timeline' },
 ];
 
 const { authUser, removeAccessToken } = useAuthentication();

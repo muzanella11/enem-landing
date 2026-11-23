@@ -1,6 +1,6 @@
 # Story 68: Analisis Keamanan Login di Monitor
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-log-reader`, `enem-landing-monitor-api`,
 `enem-landing-monitor`

@@ -125,7 +125,7 @@ const collectControllers = (
 };
 
 describe('public routes in AppModule', () => {
-  it('only exposes GET /health without the SuperAdmin guard', () => {
+  it('only exposes GET /health and the alert webhook without the SuperAdmin guard', () => {
     const publicRoutes: string[] = [];
     for (const controller of collectControllers(AppModule)) {
       const classPublic =
@@ -143,6 +143,10 @@ describe('public routes in AppModule', () => {
       }
     }
     expect(collectControllers(AppModule)).toContain(HealthController);
-    expect(publicRoutes).toEqual(['HealthController.check']);
+    // The webhook checks its own per-hook key (X-Webhook-Key) instead.
+    expect(publicRoutes.sort()).toEqual([
+      'HealthController.check',
+      'HooksController.receive',
+    ]);
   });
 });

@@ -1,6 +1,6 @@
 # Story 71: Viewer Log Lebih Nyaman (Live Tail, Korelasi Waktu, Deep Link)
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-monitor`, `enem-landing-monitor-api`,
 `enem-landing-log-reader`

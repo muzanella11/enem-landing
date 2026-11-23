@@ -7,7 +7,17 @@ test.describe('monitor menus', () => {
   }) => {
     await loginAsSuperAdmin(page);
     const nav = page.locator('nav');
-    for (const title of ['Dashboard', 'Server', 'DB', 'Redis', 'Apps']) {
+    for (const title of [
+      'Dashboard',
+      'Server',
+      'DB',
+      'Redis',
+      'Apps',
+      'Alerts',
+      'Uptime',
+      'Deploy',
+      'Timeline',
+    ]) {
       await expect(nav.getByText(title, { exact: true })).toBeVisible();
     }
     await expect(nav.getByText('Logs', { exact: true })).toHaveCount(0);
@@ -18,7 +28,15 @@ test.describe('monitor menus', () => {
   }) => {
     await loginAsSuperAdmin(page);
     await expect(page.getByTestId('overview-environment')).toHaveText('e2e');
-    for (const card of ['server', 'apps', 'db', 'redis']) {
+    for (const card of [
+      'server',
+      'apps',
+      'db',
+      'redis',
+      'alerts',
+      'uptime',
+      'deploy',
+    ]) {
       await expect(page.getByTestId(`card-${card}`)).toBeVisible();
     }
     await expect(page.getByTestId('card-apps')).toContainText(
@@ -29,8 +47,12 @@ test.describe('monitor menus', () => {
 
   test('Server reads auth.log with search', async ({ page }) => {
     await loginAsSuperAdmin(page, '/server');
+    await expect(page.getByTestId('metrics-panel')).toBeVisible();
+    await page.getByRole('tab', { name: 'Ringkasan' }).click();
     await expect(page.getByTestId('source-summary')).toContainText('Auth');
-    await page.getByRole('tab', { name: 'Keamanan dan Akses' }).click();
+    await page
+      .getByRole('tab', { name: 'Keamanan dan Akses', exact: true })
+      .click();
     await page.getByTestId('source-auth').click();
     const lines = page.getByTestId('log-lines');
     await expect(lines).toContainText('Accepted publickey for muzanella');
@@ -68,20 +90,24 @@ test.describe('monitor menus', () => {
     await loginAsSuperAdmin(page, '/db');
     // Client-fetched content: the page is hydrated once it shows up, so the
     // tab click below isn't lost (WebKit clicked before hydration).
-    await expect(
-      page.getByText(
-        'Container MySQL (stack mysql) tidak ditemukan di server.',
-      ),
-    ).toBeVisible();
-    await page.getByRole('tab', { name: 'Slow query' }).click();
+    await expect(page.getByTestId('mysql-stats')).toContainText(
+      'DATABASE_URL_MONITOR',
+    );
+    await page.getByRole('tab', { name: 'Slow query', exact: true }).click();
     await expect(page.getByTestId('log-lines')).toContainText(
       'SELECT COUNT(*) FROM e2e_slow_table;',
     );
   });
 
-  test('Redis page opens with its container tab', async ({ page }) => {
+  test('Redis page opens with stats and its container tab', async ({
+    page,
+  }) => {
     await loginAsSuperAdmin(page, '/redis');
     await expect(page.getByRole('heading', { name: 'Redis' })).toBeVisible();
+    await expect(page.getByTestId('redis-stats')).toContainText(
+      'Key per prefix',
+    );
+    await page.getByRole('tab', { name: 'Container Redis' }).click();
     await expect(
       page.getByText(
         'Container Redis (stack redis) tidak ditemukan di server.',

@@ -50,3 +50,27 @@ export const toQuery = (dto: object): Record<string, string | undefined> =>
       value === undefined ? undefined : String(value),
     ]),
   );
+
+const ISO =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})?$/;
+
+export class TimelineQuery {
+  @Matches(ISO) around!: string;
+  @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(10) window?: number;
+  @IsOptional()
+  @Matches(
+    /^(apps-prod|apps-dev|db|redis|infra)(,(apps-prod|apps-dev|db|redis|infra))*$/,
+  )
+  categories?: string;
+  @IsOptional() @Matches(/^[A-Za-z0-9_.-]{1,128}$/) service?: string;
+}
+
+export class SeekQuery {
+  @IsOptional() @Type(() => Number) @IsInt() @Min(0) @Max(99) file?: number;
+  @Matches(ISO) time!: string;
+}
+
+export class FollowQuery {
+  @IsOptional() @IsString() @MaxLength(200) q?: string;
+  @IsOptional() @IsIn(['stdout', 'stderr']) stream?: 'stdout' | 'stderr';
+}

@@ -132,3 +132,82 @@ export const JOURNAL_PRIORITIES = [
   { value: 6, title: '6 info' },
   { value: 7, title: '7 debug' },
 ];
+
+export const formatPercent = (value: number | null | undefined): string =>
+  value === null || value === undefined
+    ? '-'
+    : `${Math.round(value * 10) / 10}%`;
+
+/** `3 hari 4 jam`, `12 menit`, `40 dtk`. */
+export const formatDuration = (seconds: number | null | undefined): string => {
+  if (seconds === null || seconds === undefined) return '-';
+  if (seconds < 60) return `${Math.round(seconds)} dtk`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} menit`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 48) return `${hours} jam ${minutes % 60} menit`;
+  return `${Math.floor(hours / 24)} hari ${hours % 24} jam`;
+};
+
+/** Bar/value color for a usage percentage. */
+export const usageTone = (
+  percent: number | null | undefined,
+  warning = 70,
+  error = 85,
+): 'error' | 'warning' | 'success' | undefined => {
+  if (percent === null || percent === undefined) return undefined;
+  if (percent > error) return 'error';
+  if (percent > warning) return 'warning';
+  return 'success';
+};
+
+/** Service name without its stack prefix (`enem-landing_enem-landing-api` -> `enem-landing-api`). */
+export const shortServiceName = (service: string, stack: string): string =>
+  stack && service.startsWith(`${stack}_`)
+    ? service.slice(stack.length + 1)
+    : service;
+
+export type DisplayZone = 'local' | 'UTC' | 'Asia/Jakarta';
+
+/** Like formatDateTime, in a chosen time zone (log viewer setting). */
+export const formatInZone = (
+  iso: string | null | undefined,
+  zone: DisplayZone,
+): string => {
+  if (!iso) return '-';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    ...(zone === 'local' ? {} : { timeZone: zone }),
+  });
+};
+
+/** Viewer state keys in the URL (deep links). */
+export const VIEWER_QUERY_KEYS = [
+  'file',
+  'before',
+  'hl',
+  'q',
+  'stream',
+  'limit',
+];
+
+/** A route query without `keys` and without empty values. */
+export const cleanQuery = (
+  query: Record<string, unknown>,
+  keys: string[] = [],
+): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(query).filter(
+      (entry): entry is [string, string] =>
+        !keys.includes(entry[0]) &&
+        typeof entry[1] === 'string' &&
+        entry[1] !== '',
+    ),
+  );

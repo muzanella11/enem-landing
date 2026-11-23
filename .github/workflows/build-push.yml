@@ -173,6 +173,27 @@ jobs:
             echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
+      # OCI labels read by the monitor's Deploy menu (copied from the image
+      # to every container's config.v2.json): which commit and version runs
+      # where, without a registry or GitHub API call.
+      - name: Determine image labels
+        id: labels
+        run: |
+          if [[ "${{ inputs.environment }}" == "prod" ]]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="dev-$(echo "${{ github.sha }}" | cut -c1-7)"
+          fi
+          {
+            echo "labels<<EOF"
+            echo "org.opencontainers.image.revision=${{ github.sha }}"
+            echo "org.opencontainers.image.version=$VERSION"
+            echo "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}"
+            echo "org.opencontainers.image.title=${{ matrix.app }}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build and push image
         uses: docker/build-push-action@v7
         with:
@@ -183,5 +204,6 @@ jobs:
           # ghcr.io/<owner-lowercase>/<app-name>, matches compose.prod.yml's
           # image references.
           tags: ${{ steps.tags.outputs.tags }}
+          labels: ${{ steps.labels.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}

@@ -8,6 +8,8 @@
 #   root/adm without being able to write anything);
 # - no Docker socket: containers are found by reading
 #   /var/lib/docker/containers/*/config.v2.json;
+# - host /proc is the container's own /proc (no lxcfs), which already shows
+#   host memory, load and CPU;
 # - no published port: only reachable from the env overlay networks, and
 #   every request needs one of the tokens in the 0400 tokens file.
 
@@ -26,6 +28,11 @@ services:
       - /var/lib/docker/containers:/host/docker/containers:ro
       - /opt/enem-landing/storage/mysql-logs:/host/mysql-logs:ro
       - /etc/passwd:/host/etc/passwd:ro
+      # Per-container memory/CPU from the host's cgroup v2 tree.
+      - /sys/fs/cgroup:/host/cgroup:ro
+      # Database/table sizes (names and sizes only, never opened).
+      # Same filesystem as /opt/enem-landing/storage, so also its disk usage.
+      - /opt/enem-landing/storage/mysql:/host/mysql-data:ro
       - /opt/enem-landing/log-reader/tokens:/run/log-reader/tokens:ro
     read_only: true
     cap_drop:

@@ -39,6 +39,20 @@ export class RedisService implements OnModuleDestroy {
     return this.client.ping();
   }
 
+  /**
+   * The underlying ioredis client, for callers that need commands this
+   * service doesn't wrap (lists, hashes, INFO). Keys passed to it are NOT
+   * prefixed: use `prefixedKey()` for environment-scoped keys.
+   */
+  getClient(): Redis {
+    return this.client;
+  }
+
+  /** `key` with this environment's REDIS_KEY_PREFIX, as stored in Redis. */
+  prefixedKey(key: string): string {
+    return this.withPrefix(key);
+  }
+
   private withPrefix(key: string): string {
     return redisKeyPrefix ? `${redisKeyPrefix}:${key}` : key;
   }

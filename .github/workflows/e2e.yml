@@ -98,6 +98,7 @@ jobs:
       # enem-landing-monitor-api talks to it with this test-only token
       # (same values as apps/enem-landing-monitor-e2e/playwright.config.mts).
       E2E_LOG_READER_TOKEN: e2e-log-reader-token-0123456789abcdef
+      E2E_WEBHOOK_KEY: e2e-webhook-key-0123456789abcdef0123456789
       E2E_HOST_FIXTURES: apps/enem-landing-monitor-e2e/fixtures/host
 
     steps:
@@ -246,6 +247,9 @@ jobs:
             LOG_READER_CONTAINERS_DIR="$PWD/$E2E_HOST_FIXTURES/docker/containers" \
             LOG_READER_MYSQL_LOGS_DIR="$PWD/$E2E_HOST_FIXTURES/mysql-logs" \
             LOG_READER_PASSWD_FILE="$PWD/$E2E_HOST_FIXTURES/etc/passwd" \
+            LOG_READER_PROC_DIR="$PWD/$E2E_HOST_FIXTURES/proc" \
+            LOG_READER_CGROUP_DIR="$PWD/$E2E_HOST_FIXTURES/cgroup" \
+            LOG_READER_MYSQL_DATA_DIR="$PWD/$E2E_HOST_FIXTURES/mysql-data" \
             node apps/enem-landing-log-reader/dist/main.js \
             > /tmp/log-reader.log 2>&1 &
           echo "enem-landing-log-reader started (PID: $!)"
@@ -254,6 +258,7 @@ jobs:
             LOG_READER_HOST=http://localhost:3004 \
             LOG_READER_TOKEN="$E2E_LOG_READER_TOKEN" \
             REDIS_KEY_PREFIX=e2e:monitor \
+            ALERT_WEBHOOKS="mysql-backup:$E2E_WEBHOOK_KEY" \
             node apps/enem-landing-monitor-api/dist/main.js \
             > /tmp/monitor-api.log 2>&1 &
           echo "enem-landing-monitor-api started (PID: $!)"

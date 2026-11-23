@@ -101,6 +101,7 @@
   "dependencies": {
     "@enem-landing/backend-rate-limit": "0.0.1",
     "@enem-landing/backend-redis": "0.0.1",
+    "@enem-landing/backend-scheduler": "0.0.1",
     "@enem-landing/backend-sso": "0.0.1",
     "@enem-landing/backend-utils": "0.0.1",
     "@enem-landing/shared-definitions": "0.0.1",
@@ -108,9 +109,13 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/schedule": "^12.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "cron": "^4.4.0",
     "dotenv": "^16.6.1",
+    "ioredis": "^6.0.0",
+    "mysql2": "^3.24.2",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0"

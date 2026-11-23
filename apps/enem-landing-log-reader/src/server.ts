@@ -58,6 +58,76 @@ export const buildRoutes = (handlers: Handlers): Route[] => [
     pattern: /^\/summary$/,
     handle: (_match, _params, deadline) => handlers.summary(deadline),
   },
+  // metrics
+  { pattern: /^\/metrics\/host$/, handle: () => handlers.hostMetrics() },
+  {
+    pattern: /^\/metrics\/containers$/,
+    handle: () => handlers.containerMetrics(),
+  },
+  // backup runs from the journal
+  {
+    pattern: /^\/backup\/status$/,
+    handle: (_match, _params, deadline) => handlers.backupStatus(deadline),
+  },
+  // login analysis
+  {
+    pattern: /^\/security\/summary$/,
+    handle: (_match, params, deadline) =>
+      handlers.securitySummary(params, deadline),
+  },
+  {
+    pattern: /^\/security\/logins$/,
+    handle: (_match, params, deadline) =>
+      handlers.securityLogins(params, deadline),
+  },
+  {
+    pattern: /^\/security\/failed-count$/,
+    handle: (_match, params, deadline) =>
+      handlers.failedCount(params, deadline),
+  },
+  // MySQL file sizes and slow query patterns
+  { pattern: /^\/mysql\/sizes$/, handle: () => handlers.mysqlSizes() },
+  {
+    pattern: /^\/mysql\/slow-patterns$/,
+    handle: (_match, _params, deadline) => handlers.mysqlSlowPatterns(deadline),
+  },
+  // timeline and jump to time
+  {
+    pattern: /^\/timeline$/,
+    handle: (_match, params, deadline) => handlers.timeline(params, deadline),
+  },
+  {
+    pattern: /^\/sources\/([a-z0-9-]{1,40})\/seek$/,
+    handle: (match, params) => handlers.sourceSeek(match[1], params),
+  },
+  {
+    pattern: /^\/containers\/([a-f0-9]{64})\/seek$/,
+    handle: (match, params) => handlers.containerSeek(match[1], params),
+  },
+];
+
+type StreamRoute = {
+  pattern: RegExp;
+  handle: (
+    match: RegExpExecArray,
+    params: URLSearchParams,
+    req: IncomingMessage,
+    res: ServerResponse,
+  ) => Promise<void>;
+};
+
+/** Live tails (Server-Sent Events): the handler owns the response. */
+export const buildStreamRoutes = (handlers: Handlers): StreamRoute[] => [
+  {
+    pattern: /^\/sources\/([a-z0-9-]{1,40})\/follow$/,
+    handle: (match, params, req, res) =>
+      handlers.followSource(match[1], params, req, res),
+  },
+  {
+    pattern: /^\/containers\/([a-f0-9]{64})\/follow$/,
+    handle: (match, params, req, res) =>
+      handlers.followContainer(match[1], params, req, res),
+  },
 ];
 
 /**
@@ -69,6 +139,7 @@ export const createReaderServer = (
   handlers = new Handlers(config),
 ): Server => {
   const routes = buildRoutes(handlers);
+  const streamRoutes = buildStreamRoutes(handlers);
 
   return createServer(async (req: IncomingMessage, res: ServerResponse) => {
     try {
@@ -87,6 +158,13 @@ export const createReaderServer = (
         throw new HttpError(401, 'Invalid or missing token');
       }
 
+      for (const route of streamRoutes) {
+        const match = route.pattern.exec(url.pathname);
+        if (match) {
+          await route.handle(match, url.searchParams, req, res);
+          return;
+        }
+      }
       for (const route of routes) {
         const match = route.pattern.exec(url.pathname);
         if (match) {
@@ -97,6 +175,10 @@ export const createReaderServer = (
       }
       throw new HttpError(404, 'Not found');
     } catch (error) {
+      if (res.headersSent) {
+        res.end();
+        return;
+      }
       if (error instanceof HttpError) {
         send(res, error.status, { message: error.message });
         return;

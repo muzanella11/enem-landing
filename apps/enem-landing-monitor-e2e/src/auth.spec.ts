@@ -26,6 +26,19 @@ test.describe('access', () => {
     expect(response.status()).toBe(401);
     const logs = await request.get('http://localhost:3003/logs/containers');
     expect(logs.status()).toBe(401);
+    for (const path of [
+      '/alerts',
+      '/metrics/host',
+      '/uptime',
+      '/deploy',
+      '/cache',
+    ]) {
+      expect((await request.get(`http://localhost:3003${path}`)).status()).toBe(
+        401,
+      );
+    }
+    // The BFF proxy refuses paths outside its allowlist.
+    expect((await request.get('/api/monitor/health')).status()).toBe(404);
   });
 });
 

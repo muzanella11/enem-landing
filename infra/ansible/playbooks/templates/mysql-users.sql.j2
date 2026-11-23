@@ -7,6 +7,10 @@
 -- database-level privileges on its own databases, so no global SUPER,
 -- FILE, PROCESS or GRANT OPTION. `_` is escaped in GRANT because it is a
 -- wildcard there.
+--
+-- The one exception is `enem_monitor` (enem-landing-monitor's DB menu): only
+-- the global PROCESS privilege (SHOW PROCESSLIST, SHOW GLOBAL STATUS) and no
+-- privilege on any database, so it cannot SELECT application tables.
 
 {% for db in mysql_databases %}
 CREATE DATABASE IF NOT EXISTS `{{ db.name }}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -20,6 +24,13 @@ REVOKE ALL PRIVILEGES, GRANT OPTION FROM '{{ user.name }}'@'%';
 GRANT ALL PRIVILEGES ON `{{ db.name | replace('_', '\\_') }}`.* TO '{{ user.name }}'@'%';
 {% endfor %}
 {% endfor %}
+
+{% if mysql_monitor_password | default('') | length > 0 %}
+CREATE USER IF NOT EXISTS 'enem_monitor'@'%' IDENTIFIED BY '{{ mysql_monitor_password }}';
+ALTER USER 'enem_monitor'@'%' IDENTIFIED BY '{{ mysql_monitor_password }}' WITH MAX_USER_CONNECTIONS 4;
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'enem_monitor'@'%';
+GRANT PROCESS ON *.* TO 'enem_monitor'@'%';
+{% endif %}
 
 -- root may only log in from inside the container (socket, `docker exec`).
 -- MYSQL_ROOT_HOST=localhost already prevents root@'%' on first init; this

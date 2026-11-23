@@ -18,7 +18,13 @@ const LOG_READER_ENV = {
   LOG_READER_CONTAINERS_DIR: join(fixtures, 'docker/containers'),
   LOG_READER_MYSQL_LOGS_DIR: join(fixtures, 'mysql-logs'),
   LOG_READER_PASSWD_FILE: join(fixtures, 'etc/passwd'),
+  LOG_READER_PROC_DIR: join(fixtures, 'proc'),
+  LOG_READER_CGROUP_DIR: join(fixtures, 'cgroup'),
+  LOG_READER_MYSQL_DATA_DIR: join(fixtures, 'mysql-data'),
 };
+
+/** Test-only webhook key, same value in e2e.yml and src/helpers/constants.ts. */
+const E2E_WEBHOOK_KEY = 'e2e-webhook-key-0123456789abcdef0123456789';
 
 const MONITOR_API_ENV = {
   PORT: '3003',
@@ -27,6 +33,7 @@ const MONITOR_API_ENV = {
   LOG_READER_TOKEN: E2E_LOG_READER_TOKEN,
   LOGS_ENABLED: 'true',
   REDIS_KEY_PREFIX: 'e2e:monitor',
+  ALERT_WEBHOOKS: `mysql-backup:${E2E_WEBHOOK_KEY}`,
 };
 
 // For CI, BASE_URL is set and e2e.yml starts every server by hand.

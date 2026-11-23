@@ -36,6 +36,50 @@ export const createHost = (): { root: string; config: ReaderConfig } => {
   mkdirSync(join(containers, CONTAINER_ID), { recursive: true });
   mkdirSync(join(containers, STOPPED_ID), { recursive: true });
   mkdirSync(mysqlLogs, { recursive: true });
+  const proc = join(root, 'proc');
+  const cgroup = join(root, 'cgroup');
+  const mysqlData = join(root, 'mysql-data');
+  mkdirSync(proc, { recursive: true });
+  mkdirSync(join(cgroup, 'system.slice', `docker-${CONTAINER_ID}.scope`), {
+    recursive: true,
+  });
+  mkdirSync(join(mysqlData, 'enem_landing_api'), { recursive: true });
+  mkdirSync(join(mysqlData, 'mysql'), { recursive: true });
+  writeFileSync(
+    join(proc, 'meminfo'),
+    [
+      'MemTotal:        3800000 kB',
+      'MemFree:          200000 kB',
+      'MemAvailable:    1900000 kB',
+      'SwapTotal:       2000000 kB',
+      'SwapFree:        1500000 kB',
+    ].join('\n') + '\n',
+  );
+  writeFileSync(join(proc, 'loadavg'), '0.50 1.25 0.75 2/345 6789\n');
+  writeFileSync(
+    join(proc, 'stat'),
+    'cpu  100 0 100 700 100 0 0 0 0 0\ncpu0 50 0 50 350 50 0 0 0 0 0\ncpu1 50 0 50 350 50 0 0 0 0 0\n',
+  );
+  writeFileSync(join(proc, 'uptime'), '86400.50 160000.00\n');
+  const scope = join(cgroup, 'system.slice', `docker-${CONTAINER_ID}.scope`);
+  writeFileSync(join(scope, 'memory.current'), `${150 * 1024 * 1024}\n`);
+  writeFileSync(join(scope, 'memory.max'), `${200 * 1024 * 1024}\n`);
+  writeFileSync(join(scope, 'memory.peak'), `${190 * 1024 * 1024}\n`);
+  writeFileSync(
+    join(scope, 'memory.events'),
+    'low 0\nhigh 0\nmax 3\noom 1\noom_kill 1\n',
+  );
+  writeFileSync(join(scope, 'cpu.stat'), 'usage_usec 5000000\nuser_usec 1\n');
+  writeFileSync(
+    join(mysqlData, 'enem_landing_api', 'blog_posts.ibd'),
+    Buffer.alloc(4096),
+  );
+  writeFileSync(
+    join(mysqlData, 'enem_landing_api', 'tracking_sessions.ibd'),
+    Buffer.alloc(8192),
+  );
+  writeFileSync(join(mysqlData, 'mysql', 'user.ibd'), Buffer.alloc(1024));
+  writeFileSync(join(mysqlData, 'ibdata1'), Buffer.alloc(2048));
 
   writeFileSync(
     join(varLog, 'auth.log'),
@@ -65,9 +109,21 @@ export const createHost = (): { root: string; config: ReaderConfig } => {
     ]),
   );
   writeFileSync(
+    join(varLog, 'wtmp'),
+    utmpRecord({
+      type: 7,
+      user: 'muzanella',
+      host: '198.51.100.20',
+      ip: [198, 51, 100, 20],
+      seconds: now - 1800,
+    }),
+  );
+  writeFileSync(
     join(containers, CONTAINER_ID, 'config.v2.json'),
     JSON.stringify({
       Name: '/enem-landing_enem-landing-api.1.abc',
+      Image: 'sha256:1111',
+      Created: '2026-11-23T09:59:00Z',
       RestartCount: 0,
       State: {
         Running: true,
@@ -76,9 +132,14 @@ export const createHost = (): { root: string; config: ReaderConfig } => {
         ExitCode: 0,
       },
       Config: {
+        Image: 'ghcr.io/muzanella11/enem-landing-api:prod',
         Labels: {
           'com.docker.stack.namespace': 'enem-landing',
           'com.docker.swarm.service.name': 'enem-landing_enem-landing-api',
+          'org.opencontainers.image.version': 'v1.2.3',
+          'org.opencontainers.image.revision': 'abcdef1234567890',
+          'org.opencontainers.image.source':
+            'https://github.com/muzanella11/enem-landing',
         },
       },
     }),
@@ -150,6 +211,9 @@ export const createHost = (): { root: string; config: ReaderConfig } => {
       containersDir: containers,
       mysqlLogsDir: mysqlLogs,
       passwdFile: join(root, 'passwd'),
+      procDir: proc,
+      cgroupDir: cgroup,
+      mysqlDataDir: mysqlData,
       journalctlBin: 'journalctl-does-not-exist',
       tokens: [TOKEN],
     },

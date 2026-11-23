@@ -13,7 +13,21 @@ export const signIn = async (page: Page, email: string, targetPath = '/') => {
   await page.getByRole('button', { name: 'Sign in' }).click();
 };
 
+/** Vue has mounted (hydrated) the page, so clicks are handled. */
+export const waitForHydration = (page: Page) =>
+  page.waitForFunction(() =>
+    Boolean(
+      (document.querySelector('#__nuxt') as { __vue_app__?: unknown } | null)
+        ?.__vue_app__,
+    ),
+  );
+
 export const loginAsSuperAdmin = async (page: Page, targetPath = '/') => {
   await signIn(page, SUPER_ADMIN_EMAIL, targetPath);
-  await page.waitForURL(new RegExp(`localhost:4003${targetPath}$`));
+  // Deep links carry a query string the page may normalize: match the path.
+  const path = targetPath.split('?')[0];
+  await page.waitForURL(
+    (url) => url.host === 'localhost:4003' && url.pathname === path,
+  );
+  await waitForHydration(page);
 };

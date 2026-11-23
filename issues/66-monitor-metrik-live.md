@@ -1,6 +1,6 @@
 # Story 66: Metrik Live Server dan Container di Monitor
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-log-reader`, `enem-landing-monitor-api`,
 `enem-landing-monitor`, `infra/ansible` (`log-reader-stack.yml.j2`)
@@ -67,6 +67,14 @@ grafik 24 jam dan alert email sebelum container kena OOM.
    "resolved".
 6. Library grafik ringan di monitor saja (misalnya `chart.js`), tidak
    ditambahkan ke app lain.
+
+## Catatan implementasi
+
+- Grafik memakai komponen SVG kecil buatan sendiri, bukan `chart.js`,
+  supaya tidak ada dependency baru.
+- Sampel disimpan dengan `APPEND "menit,nilai;"` ke satu key per metrik
+  per hari (sekitar 10 byte per sampel), bukan hash, supaya hemat memory
+  Redis.
 
 ## Di luar scope
 

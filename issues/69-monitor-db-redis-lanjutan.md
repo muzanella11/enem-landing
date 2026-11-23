@@ -1,6 +1,6 @@
 # Story 69: Statistik MySQL dan Redis Lebih Dalam, Pindah Halaman Cache
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-monitor-api`, `enem-landing-monitor`,
 `enem-landing-log-reader`, `enem-landing-cms` (hapus halaman Cache),

@@ -25,6 +25,12 @@ export interface TailOptions<T> {
   transform: LineTransform<T>;
   deadline: number;
   maxScanBytes?: number;
+  /**
+   * Checked on every line (newest first) before `transform`. Returning
+   * `true` ends the page there without marking it truncated, e.g. once
+   * lines are older than a time window.
+   */
+  stop?: (line: string) => boolean;
 }
 
 export interface TailResult<T> {
@@ -66,13 +72,20 @@ class PageCollector<T> {
 
   push(line: RawLine): void {
     if (this.done) return;
-    this.earliestStart = line.start;
     if (line.bytes.length > 0) {
-      const entry = this.options.transform(decodeLine(line.bytes));
+      const text = decodeLine(line.bytes);
+      if (this.options.stop?.(text)) {
+        this.done = true;
+        return;
+      }
+      this.earliestStart = line.start;
+      const entry = this.options.transform(text);
       if (entry !== null) {
         this.entries.push(entry);
         this.bytes += line.bytes.length;
       }
+    } else {
+      this.earliestStart = line.start;
     }
     if (this.entries.length >= this.options.limit) {
       this.done = true;

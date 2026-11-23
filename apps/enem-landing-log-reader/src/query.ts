@@ -62,3 +62,43 @@ export const patternParam = (
     throw new HttpError(400, `${name} has an invalid format`);
   return raw;
 };
+
+/** ISO 8601 instant, e.g. `2026-11-23T10:00:00.000Z` or `2026-11-23T17:00+07:00`. */
+export const ISO_TIME =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})?$/;
+
+export const timeParam = (params: URLSearchParams, name: string): number => {
+  const raw = params.get(name);
+  if (!raw || !ISO_TIME.test(raw))
+    throw new HttpError(400, `${name} must be an ISO 8601 time`);
+  const value = Date.parse(/(Z|[+-]\d{2}:\d{2})$/.test(raw) ? raw : `${raw}Z`);
+  if (Number.isNaN(value))
+    throw new HttpError(400, `${name} is not a valid time`);
+  return value;
+};
+
+/** Container categories the timeline can be limited to (comma separated). */
+export const CATEGORIES = [
+  'apps-prod',
+  'apps-dev',
+  'db',
+  'redis',
+  'infra',
+] as const;
+
+export const categoriesParam = (
+  params: URLSearchParams,
+): Set<string> | null => {
+  const raw = params.get('categories');
+  if (!raw) return null;
+  const values = raw.split(',').filter(Boolean);
+  for (const value of values) {
+    if (!(CATEGORIES as readonly string[]).includes(value))
+      throw new HttpError(400, 'categories has an unknown value');
+  }
+  return new Set(values);
+};
+
+/** Swarm service name (`enem-landing_enem-landing-api`). */
+export const serviceParam = (params: URLSearchParams): string | undefined =>
+  patternParam(params, 'service', /^[A-Za-z0-9_.-]{1,128}$/);
