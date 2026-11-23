@@ -1,12 +1,13 @@
-# Story 63: Menu Logs di CMS (Server, DB, Redis, Apps)
+# Story 64: Menu Logs di Monitor (Server, DB, Redis, Apps)
 
 **Status:** Draft (2026-11-23)
 
-**Apps touched:** `enem-landing-cms`, `enem-landing-api`, app baru
-`enem-landing-log-reader`, `infra/ansible`, `.github/workflows`,
+**Apps touched:** `enem-landing-monitor`, `enem-landing-monitor-api`, app
+baru `enem-landing-log-reader`, `infra/ansible`, `.github/workflows`,
 `compose.yml`, `compose.prod.yml`, `compose.dev.yml`
 
-**Depends on:** Story 62 (kebersihan log server), Story 10 (infra/CI-CD)
+**Depends on:** Story 63 (app monitor dan monitor-api), Story 62
+(kebersihan log server), Story 10 (infra/CI-CD)
 
 **Terkait:** Story 61 (self-host MySQL). Sub-menu **DB** baru berisi data
 setelah MySQL pindah ke VPS. Sebelum itu, sub-menu DB menampilkan pesan
@@ -82,11 +83,12 @@ Service yang jalan saat ini:
 | `redis`             | `redis_redis`                                                                       | Redis          |
 | `mysql` (Story 61)  | `mysql_mysql`                                                                       | DB             |
 | `traefik`           | `traefik_traefik`                                                                   | Server (infra) |
+| `enem-landing`      | `enem-landing-monitor`, `enem-landing-monitor-api` (Story 63)                       | Apps           |
 | `log-reader` (baru) | `enem-landing-log-reader`                                                           | Server (infra) |
 
 ## Goal
 
-SuperAdmin bisa membaca log dari CMS di satu menu **Logs** dengan sub-menu
+SuperAdmin bisa membaca log dari monitor (`monitor.muzanella.com`) di satu menu **Logs** dengan sub-menu
 **Server**, **DB**, **Redis**, dan **Apps**. Untuk container, yang
 ditampilkan adalah log dari masing-masing container yang sedang aktif.
 Semua log dibaca langsung dari file di VPS (read-only), tanpa SSH dan tanpa
@@ -95,9 +97,9 @@ layanan log pihak ketiga.
 ## Arsitektur
 
 ```
-CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
-  -> BFF CMS (server/api/logs/...)
-  -> enem-landing-api (modul logs, SsoAuthGuard + SuperAdmin)
+monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
+  -> BFF monitor (server/api/logs/...)
+  -> enem-landing-monitor-api (modul logs, SsoAuthGuard + SuperAdmin global)
   -> enem-landing-log-reader (internal, overlay, token)
   -> file host read-only:
        /var/log                          -> /host/var/log:ro
@@ -108,13 +110,14 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
 ## Keputusan awal
 
 1. **Service pembaca terpisah: `enem-landing-log-reader`** (app Nx baru,
-   Node tanpa framework berat), bukan di dalam `enem-landing-api`.
+   Node tanpa framework berat), bukan di dalam `enem-landing-monitor-api`.
    - Membaca file host butuh hak baca file milik `root` dan grup `adm`.
-     Hak ini tidak boleh diberikan ke `enem-landing-api` yang menerima
-     traffic publik.
+     Hak ini sengaja dipisah dari monitor-api, yang punya akses jaringan,
+     Redis, dan validasi SSO. Log-reader hanya bisa membaca file dan
+     menjawab request, jadi kalau salah satu bobol, dampaknya terbatas.
    - Service ini tidak mem-publish port, hanya bergabung ke overlay network,
-     dan hanya menerima request dari `enem-landing-api` yang membawa header
-     token rahasia (`LOG_READER_TOKEN`).
+     dan hanya menerima request dari `enem-landing-monitor-api` yang
+     membawa header token rahasia (`LOG_READER_TOKEN`).
    - Container dibuat seketat mungkin: semua mount `:ro`, `read_only: true`
      pada root filesystem, `cap_drop: ALL` lalu hanya
      `cap_add: DAC_READ_SEARCH` (didukung Swarm, Docker di VPS versi
@@ -122,8 +125,8 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
      96M).
 2. **Hanya `SuperAdmin`** yang bisa membuka menu Logs, bukan semua `Admin`.
    Log berisi IP, username, query, dan detail sistem.
-   - Guard di `enem-landing-api` (helper baru, misalnya
-     `assertSuperAdminRole`) dan menu CMS disembunyikan untuk role lain.
+   - Sudah ditangani guard SuperAdmin global di monitor-api dan middleware
+     monitor (Story 63).
 3. **Allowlist sumber log, bukan path bebas.**
    - API dan log-reader hanya menerima **id sumber** (misalnya `auth`,
      `btmp`, `mysql-slow`) atau **id container** yang ada di daftar
@@ -134,12 +137,15 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
      path.
    - File rotasi (`.1`, `.2.gz`) dipilih lewat parameter `rotation` dengan
      angka yang divalidasi.
-4. **Penemuan container aktif tanpa Docker socket.**
+4. **Penemuan container tanpa Docker socket.**
    - Log-reader memindai `/host/docker/containers/*/config.v2.json` dan
      mengambil: id, nama container, `State.Running`, `State.StartedAt`,
-     `RestartCount`, label `com.docker.stack.namespace`, dan
+     `State.FinishedAt`, `State.ExitCode`, `State.OOMKilled`,
+     `State.Error`, `RestartCount`, label `com.docker.stack.namespace`, dan
      `com.docker.swarm.service.name`.
-   - **Hanya container dengan `State.Running = true`** yang ditampilkan.
+   - Tampilan utama hanya container dengan **`State.Running = true`**.
+   - Container yang sudah berhenti tampil di bagian **Container
+     sebelumnya** (keputusan 6).
    - Container dikelompokkan ke sub-menu berdasarkan stack (tabel di
      Background). Stack yang tidak dikenal masuk ke Server bagian infra,
      supaya tidak ada container yang tersembunyi.
@@ -170,15 +176,29 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
      - log container `redis_redis` (Redis menulis ke stdout karena
        `logfile ""`): startup, persistence AOF, peringatan memory,
        koneksi;
-     - **opsional**: `SLOWLOG GET` lewat `RedisService` yang sudah ada di
-       `enem-landing-api`. Ini bukan file, karena Redis menyimpan
+     - **opsional**: `SLOWLOG GET` dari `enem-landing-monitor-api` lewat
+       `@enem-landing/backend-redis`. Ini bukan file, karena Redis menyimpan
        slowlog di memory. Kalau dikerjakan, tampil di tab terpisah dan
        read-only.
    - **Apps**: dua grup, **Prod** dan **Dev**, masing-masing berisi
-     container aktif dari keenam service. Setiap container menampilkan
+     container aktif dari kedelapan service (enam app ditambah monitor dan
+     monitor-api). Setiap container menampilkan
      waktu start, jumlah restart, dan tanda bila baru start kurang dari 5
      menit (indikasi crash-loop atau deploy baru).
-6. **Cara membaca per format**:
+6. **Container sebelumnya** di sub-menu Apps, DB, Redis, dan tab Infra:
+   - Daftar container yang sudah berhenti per service, terbaru di atas,
+     dengan: waktu berhenti, exit code beserta artinya (misalnya `0` berhenti
+     normal karena deploy, `1` error app, `137` di-kill), tanda
+     **OOMKilled**, dan pesan `State.Error` dari Docker.
+   - Log container tersebut dibuka dengan viewer yang sama.
+   - Container yang crash (exit code bukan `0`, atau OOMKilled) diberi tanda
+     merah, dan service yang punya container crash dalam 24 jam terakhir
+     diberi badge di daftar container aktif, supaya langsung terlihat.
+   - Container berhenti tersimpan sampai 72 jam karena prune di `deploy.yml`
+     diubah oleh Story 62. Jumlahnya dibatasi Swarm, maksimal 5 task per
+     slot.
+
+7. **Cara membaca per format**:
    - **Teks**: dibaca dari **akhir file** per potongan (tail), bukan
      memuat seluruh file. Pagination mundur memakai offset byte.
    - **`.gz`**: didekompresi secara streaming dengan batas ukuran hasil
@@ -201,39 +221,42 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
      (waktu, durasi, rows examined, query).
    - **`.xz`** (misalnya `apt/eipp.log.xz`): di luar scope, cukup
      ditampilkan sebagai "format tidak didukung".
-7. **Batas per request**: maksimal sekitar 1.000 baris atau 1 MB per
+8. **Batas per request**: maksimal sekitar 1.000 baris atau 1 MB per
    response, timeout baca, dan rate limit memakai mekanisme rate limit
    global yang sudah ada.
-8. **Menu Logs di CMS** (sidebar `layouts/dashboard.vue`, icon misalnya
+9. **Menu Logs di monitor** (sidebar layout dashboard monitor, icon misalnya
    `mdi-text-box-search-outline`) dengan sub-menu **Server**, **DB**,
    **Redis**, dan **Apps** (`/logs/server`, `/logs/db`, `/logs/redis`,
    `/logs/apps`).
-9. **Fitur viewer** (komponen bersama untuk semua log teks dan container):
-   - pilih file rotasi;
-   - jumlah baris (100, 500, 1.000) dan tombol "muat lebih lama";
-   - pencarian teks sederhana (case-insensitive) yang dijalankan di
-     log-reader, bukan di browser;
-   - auto refresh opsional (misalnya tiap 10 detik) untuk file aktif;
-   - font monospace, wrap bisa dimatikan, highlight kata seperti `error`,
-     `failed`, `oom`, `killed`;
-   - tombol unduh potongan yang sedang tampil.
-     Log biner (`btmp`, `wtmp`, `lastlog`, `faillog`) dan journal tampil
-     sebagai tabel dengan filter.
-10. **Satu log-reader untuk prod dan dev**. Log host, DB, dan Redis memang
+10. **Fitur viewer** (komponen bersama untuk semua log teks dan container):
+
+- pilih file rotasi;
+- jumlah baris (100, 500, 1.000) dan tombol "muat lebih lama";
+- pencarian teks sederhana (case-insensitive) yang dijalankan di
+  log-reader, bukan di browser;
+- auto refresh opsional (misalnya tiap 10 detik) untuk file aktif;
+- font monospace, wrap bisa dimatikan, highlight kata seperti `error`,
+  `failed`, `oom`, `killed`;
+- tombol unduh potongan yang sedang tampil.
+  Log biner (`btmp`, `wtmp`, `lastlog`, `faillog`) dan journal tampil
+  sebagai tabel dengan filter.
+
+11. **Satu log-reader untuk prod dan dev**. Log host, DB, dan Redis memang
     sama untuk kedua environment karena berjalan di VPS yang sama.
     Log-reader dideploy sebagai stack sendiri (seperti Redis) yang
     bergabung ke overlay prod dan dev, dan masing-masing environment punya
     `LOG_READER_TOKEN` sendiri. Fitur bisa dimatikan per environment lewat
     `LOGS_ENABLED`.
-11. **Audit akses**: setiap request baca log dicatat di log
-    `enem-landing-api` (user, sumber log atau container, waktu), supaya
+12. **Audit akses**: setiap request baca log dicatat di log
+    `enem-landing-monitor-api` (user, sumber log atau container, waktu), supaya
     akses ke data sensitif bisa ditelusuri.
 
 ## Di luar scope
 
-- Menulis, menghapus, atau merotasi log dari CMS. Semua akses read-only.
-- Log container yang sudah berhenti (riwayat task Swarm). Hanya container
-  aktif yang ditampilkan.
+- Menulis, menghapus, atau merotasi log dari monitor. Semua akses read-only.
+- Log container yang berhenti lebih dari 72 jam lalu, atau yang sudah
+  keluar dari riwayat 5 task Swarm. Arsip log jangka panjang butuh log
+  terpusat.
 - Log MySQL di Aiven (sebelum Story 61 selesai).
 - General query log MySQL.
 - Streaming realtime (WebSocket atau SSE). Cukup auto refresh berkala.
@@ -247,12 +270,12 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
       publik, root filesystem read-only, semua mount host `:ro`, tanpa
       Docker socket, dan hanya punya capability `DAC_READ_SEARCH`.
 - [ ] Log-reader menolak request tanpa `LOG_READER_TOKEN` yang benar.
-- [ ] Hanya id sumber dari allowlist dan id container aktif yang diterima;
-      percobaan path traversal (`../`, path absolut, id tidak dikenal, id
-      container yang tidak aktif) ditolak dan ada tes unitnya.
-- [ ] Endpoint di `enem-landing-api` hanya bisa diakses `SuperAdmin`;
-      `Admin` biasa mendapat 403, dan menu Logs tidak tampil untuknya.
-- [ ] Menu Logs tampil di sidebar CMS dengan sub-menu Server, DB, Redis,
+- [ ] Hanya id sumber dari allowlist dan id container hasil pemindaian
+      yang diterima; percobaan path traversal (`../`, path absolut, id
+      tidak dikenal) ditolak dan ada tes unitnya.
+- [ ] Endpoint logs di `enem-landing-monitor-api` hanya bisa diakses
+      `SuperAdmin`; `Admin` biasa mendapat 403.
+- [ ] Menu Logs tampil di sidebar monitor dengan sub-menu Server, DB, Redis,
       dan Apps.
 - [ ] **Server**: semua log host di tabel Background bisa dibaca, termasuk
       file rotasi `.1` dan `.gz`; tab Infra menampilkan log container
@@ -260,9 +283,16 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
 - [ ] `btmp`, `wtmp`, `lastlog`, dan `faillog` tampil sebagai tabel yang
       isinya cocok dengan `lastb`, `last`, `lastlog`, dan `faillog` di VPS.
 - [ ] Journal bisa difilter berdasarkan unit, prioritas, dan waktu.
-- [ ] **Apps**: menampilkan semua container aktif prod dan dev (12 saat
-      ini), dikelompokkan per environment, lengkap dengan waktu start dan
-      jumlah restart. Container yang sudah berhenti tidak tampil.
+- [ ] **Apps**: menampilkan semua container aktif prod dan dev (16 setelah
+      Story 63), dikelompokkan per environment, lengkap dengan waktu start dan
+      jumlah restart. Container yang sudah berhenti tidak tercampur di
+      daftar ini.
+- [ ] **Container sebelumnya**: container berhenti tampil per service
+      dengan waktu berhenti, exit code, tanda OOMKilled, dan pesan error,
+      dan log-nya bisa dibuka. Dites dengan container yang sengaja
+      di-crash (misalnya `exit 1`) dan yang kena OOM.
+- [ ] Service yang punya container crash dalam 24 jam terakhir diberi
+      badge di daftar container aktif.
 - [ ] **Redis**: log container `redis_redis` bisa dibaca.
 - [ ] **DB**: log container `mysql_mysql` dan slow query log bisa dibaca
       setelah Story 61 selesai; sebelum itu tampil pesan bahwa MySQL masih
@@ -273,7 +303,7 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
       limit.
 - [ ] Pencarian teks, pilihan jumlah baris, "muat lebih lama", auto
       refresh, dan unduh berjalan.
-- [ ] Setiap akses baca log tercatat di log `enem-landing-api`.
+- [ ] Setiap akses baca log tercatat di log `enem-landing-monitor-api`.
 - [ ] Deploy log-reader lewat Ansible dan workflow CI (build dan push
       image) terdokumentasi di `infra/ansible/README.md` dan
       `docs/github-actions-secrets.md`.
@@ -283,13 +313,14 @@ CMS page (/logs/server, /logs/db, /logs/redis, /logs/apps)
 
 1. Buat `LOG_READER_TOKEN` acak (minimal 32 karakter) untuk prod dan dev,
    simpan di GitHub environment masing-masing.
-2. Deploy stack log-reader, lalu redeploy API prod dan dev.
-3. Login CMS sebagai `SuperAdmin`, buka setiap sub-menu Logs, dan cocokkan
+2. Deploy stack log-reader, lalu redeploy monitor-api prod dan dev.
+3. Login monitor sebagai `SuperAdmin`, buka setiap sub-menu Logs, dan cocokkan
    beberapa baris dengan isi file di VPS serta `docker service logs`.
 4. Pastikan jumlah container di Apps sama dengan `docker ps` untuk stack
-   `enem-landing` dan `enem-landing-dev`.
-5. Login sebagai `Admin` biasa dan pastikan menu Logs tidak tampil serta
-   endpoint-nya 403.
+   `enem-landing` dan `enem-landing-dev`, dan Container sebelumnya sama
+   dengan `docker ps -a -f status=exited`.
+5. Pastikan endpoint logs monitor-api mengembalikan 403 untuk `Admin`
+   biasa.
 6. Buka `btmp` (sekitar 100 MB) dan pantau `docker stats` log-reader.
 
 ## Referensi

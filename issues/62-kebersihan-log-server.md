@@ -1,13 +1,13 @@
-# Story 62: Kebersihan Log Server (Rotasi Docker dan Batas journald)
+# Story 62: Kebersihan Log Server (Rotasi Docker, Batas journald, Simpan Container Crash)
 
 **Status:** Draft (2026-11-23)
 
-**Apps touched:** `infra/ansible`
+**Apps touched:** `infra/ansible` (`init-server.yml`, `deploy.yml`)
 
 **Depends on:** Story 10 (infra/CI-CD)
 
-**Dikerjakan sebelum:** Story 63 (menu Logs di CMS), supaya pembaca log
-di CMS langsung menangani file rotasi Docker (`*-json.log.1`, `.2`).
+**Dikerjakan sebelum:** Story 64 (menu Logs di monitor), supaya pembaca log
+di monitor langsung menangani file rotasi Docker (`*-json.log.1`, `.2`).
 
 ## Background
 
@@ -23,11 +23,30 @@ Disk masih lega, tapi tidak ada yang mencegah log container atau journal
 memenuhi disk diam-diam, misalnya kalau ada container yang crash-loop dan
 menulis stack trace terus-menerus seperti saat outage Upstash 2026-11-18.
 
+### Log container yang crash ikut terhapus saat deploy
+
+Ditemukan saat brainstorm Story 64 (2026-11-23):
+
+- Di VPS ada 14 container jalan dan **0 container yang sudah berhenti**.
+- `docker service ps enem-landing_enem-landing-api` masih mencatat dua task
+  `Failed 5 days ago` dengan error "task: non-zero exit (1)" dari outage
+  Upstash, tapi container dan log-nya sudah tidak ada.
+- Penyebabnya `docker container prune -f` di akhir
+  `infra/ansible/playbooks/deploy.yml` (task "Hapus container Swarm task
+  lama yang sudah exited"). Perintah ini menghapus **semua** container yang
+  berhenti di seluruh host, jadi **deploy dev juga menghapus container prod
+  yang crash**, dan deploy dev terjadi setiap merge ke `develop`.
+
+Akibatnya, log penyebab crash hanya bertahan sampai deploy berikutnya.
+Setelah outage Upstash, deploy perbaikannya justru menghapus bukti
+crash-nya.
+
 ## Goal
 
-Log container Docker dan journald punya batas ukuran yang jelas, diatur
-lewat Ansible sehingga tercatat di repo dan ikut terpasang kalau VPS dibuat
-ulang.
+Log container Docker dan journald punya batas ukuran yang jelas, dan
+container yang crash tetap tersimpan beberapa hari supaya log-nya bisa
+diperiksa. Semua diatur lewat Ansible sehingga tercatat di repo dan ikut
+terpasang kalau VPS dibuat ulang.
 
 ## Keputusan awal
 
@@ -58,11 +77,25 @@ ulang.
    yang sudah 1 GB.
 3. **Semua diatur di `init-server.yml`**, dengan task idempoten dan
    handler restart, tidak diubah manual di server.
+4. **Prune container yang sudah berumur saja** di `deploy.yml`:
+   ```
+   docker container prune -f --filter "until=72h"
+   ```
+   - Container yang berhenti kurang dari 72 jam tidak dihapus, termasuk
+     container crash dari environment lain di host yang sama.
+   - Jumlahnya tetap terbatas karena Swarm hanya menyimpan 5 task terakhir
+     per slot (`TaskHistoryRetentionLimit=5`, dicek 2026-11-23), dan log
+     per container dibatasi sekitar 30 MB oleh keputusan 1.
+   - Kondisi `changed_when` pada task tersebut tetap berfungsi.
+   - `docker image prune -a -f` tidak diubah. Image yang masih dipakai
+     container berhenti tidak ikut terhapus oleh Docker, jadi tidak
+     bentrok.
+   - Komentar di header `deploy.yml` yang menjelaskan prune diperbarui.
 
 ## Di luar scope
 
 - Duplikasi journal ke `syslog`, `auth.log`, dan `kern.log` lewat rsyslog.
-  Biarkan apa adanya karena Story 63 membaca file teks tersebut.
+  Biarkan apa adanya karena Story 64 membaca file teks tersebut.
 - Rotasi `btmp`. Sudah dirotasi bulanan oleh logrotate bawaan; ukurannya
   besar karena brute force SSH dan akan mengecil setelah hardening SSH
   (story terpisah).
@@ -79,6 +112,9 @@ ulang.
 - [ ] Setelah rollout, `docker inspect` container baru menunjukkan
       `LogConfig` dengan `max-size` dan `max-file`.
 - [ ] `journalctl --disk-usage` di bawah 300 MB.
+- [ ] `deploy.yml` memakai `docker container prune -f --filter "until=72h"`.
+      Container yang berhenti kurang dari 72 jam masih ada setelah deploy
+      prod maupun dev (dites dengan container yang sengaja dihentikan).
 - [ ] `infra/ansible/README.md` menjelaskan batas log ini.
 
 ## Langkah manual setelah deploy
@@ -91,6 +127,8 @@ ulang.
    satu container app.
 4. Cek `sudo journalctl --disk-usage`.
 5. Pastikan semua service kembali `1/1` di `docker service ls`.
+6. Setelah deploy berikutnya, cek `docker ps -a -f status=exited`: container
+   task lama yang berumur kurang dari 72 jam masih ada.
 
 ## Referensi
 
@@ -98,5 +136,7 @@ ulang.
   https://docs.docker.com/engine/logging/drivers/json-file/
 - Docker, konfigurasi daemon (`daemon.json`):
   https://docs.docker.com/engine/daemon/
+- Docker, `container prune --filter until`:
+  https://docs.docker.com/reference/cli/docker/container/prune/
 - systemd, `journald.conf` (`SystemMaxUse`, `SystemKeepFree`):
   https://www.freedesktop.org/software/systemd/man/latest/journald.conf.html

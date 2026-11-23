@@ -147,7 +147,7 @@ TablePlus / runner GitHub
    - `character-set-server=utf8mb4`, `collation-server=utf8mb4_unicode_ci`
    - limit memory container 640M, reservation 384M.
      Angka final disesuaikan setelah melihat ukuran data Aiven saat ini.
-   - **Slow query log** untuk sub-menu DB di menu Logs CMS (Story 63):
+   - **Slow query log** untuk sub-menu DB di menu Logs monitor (Story 64):
      `slow_query_log=ON`, `long_query_time=1`, file
      `/var/log/mysql/slow.log` di dalam container yang di-bind mount ke
      `/opt/enem-landing/storage/mysql-logs` di host. Rotasi lewat logrotate
