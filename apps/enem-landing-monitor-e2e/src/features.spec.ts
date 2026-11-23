@@ -1,7 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loginAsSuperAdmin, waitForHydration } from './helpers/auth.js';
+import {
+  loginAsSuperAdmin,
+  waitForHydration,
+  selectTab,
+} from './helpers/auth.js';
 import { E2E_WEBHOOK_KEY, PROD_API_CONTAINER } from './helpers/constants.js';
 
 const containerLog = join(
@@ -26,7 +30,7 @@ test.describe('metrics', () => {
     await expect(page.getByTestId('memory-enem-landing-api')).toContainText(
       '75%',
     );
-    await page.getByRole('tab', { name: 'Memory' }).click();
+    await selectTab(page, 'Memory');
     await expect(page.getByTestId('memory-table')).toContainText(
       'enem-landing-api',
     );
@@ -44,11 +48,11 @@ test.describe('DB and Redis', () => {
   test('DB shows table sizes and slow query patterns', async ({ page }) => {
     await loginAsSuperAdmin(page, '/db');
     await expect(page.getByTestId('mysql-stats')).toBeVisible();
-    await page.getByRole('tab', { name: 'Ukuran' }).click();
+    await selectTab(page, 'Ukuran');
     await expect(page.getByTestId('mysql-sizes')).toContainText(
       'e2e_big_table',
     );
-    await page.getByRole('tab', { name: 'Pola slow query' }).click();
+    await selectTab(page, 'Pola slow query');
     await expect(page.getByTestId('slow-patterns')).toContainText(
       'SELECT COUNT(*) FROM e2e_slow_table',
     );
@@ -57,7 +61,7 @@ test.describe('DB and Redis', () => {
   test('Cache moved from the CMS to the Redis menu', async ({ page }) => {
     await loginAsSuperAdmin(page, '/redis');
     await expect(page.getByTestId('redis-stats')).toBeVisible();
-    await page.getByRole('tab', { name: 'Cache' }).click();
+    await selectTab(page, 'Cache');
     await expect(page.getByTestId('cache-panel')).toBeVisible();
   });
 });
@@ -89,7 +93,7 @@ test.describe('alerts', () => {
     const history = page.getByTestId('alert-history');
     await expect(history).toContainText('Backup MySQL gagal');
     await expect(history).toContainText('tidak dikirim (bukan prod)');
-    await page.getByRole('tab', { name: 'Aturan' }).click();
+    await selectTab(page, 'Aturan');
     await expect(page.getByTestId('alert-rules')).toContainText(
       'Container crash',
     );

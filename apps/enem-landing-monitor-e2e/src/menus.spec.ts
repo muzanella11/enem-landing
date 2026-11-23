@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loginAsSuperAdmin } from './helpers/auth.js';
+import { loginAsSuperAdmin, selectTab } from './helpers/auth.js';
 
 test.describe('monitor menus', () => {
   test('sidebar has Server, DB, Redis and Apps as top-level menus', async ({
@@ -48,11 +48,9 @@ test.describe('monitor menus', () => {
   test('Server reads auth.log with search', async ({ page }) => {
     await loginAsSuperAdmin(page, '/server');
     await expect(page.getByTestId('metrics-panel')).toBeVisible();
-    await page.getByRole('tab', { name: 'Ringkasan' }).click();
+    await selectTab(page, 'Ringkasan');
     await expect(page.getByTestId('source-summary')).toContainText('Auth');
-    await page
-      .getByRole('tab', { name: 'Keamanan dan Akses', exact: true })
-      .click();
+    await selectTab(page, 'Keamanan dan Akses', { exact: true });
     await page.getByTestId('source-auth').click();
     const lines = page.getByTestId('log-lines');
     await expect(lines).toContainText('Accepted publickey for muzanella');
@@ -80,7 +78,7 @@ test.describe('monitor menus', () => {
     await page.getByText('OOMKilled: melewati limit memory').click();
     await expect(lines).toContainText('JavaScript heap out of memory');
 
-    await page.getByRole('tab', { name: 'Dev' }).click();
+    await selectTab(page, 'Dev');
     await expect(
       page.getByText('Tidak ada container di stack ini.'),
     ).toBeVisible();
@@ -93,7 +91,7 @@ test.describe('monitor menus', () => {
     await expect(page.getByTestId('mysql-stats')).toContainText(
       'DATABASE_URL_MONITOR',
     );
-    await page.getByRole('tab', { name: 'Slow query', exact: true }).click();
+    await selectTab(page, 'Slow query', { exact: true });
     await expect(page.getByTestId('log-lines')).toContainText(
       'SELECT COUNT(*) FROM e2e_slow_table;',
     );
@@ -107,7 +105,7 @@ test.describe('monitor menus', () => {
     await expect(page.getByTestId('redis-stats')).toContainText(
       'Key per prefix',
     );
-    await page.getByRole('tab', { name: 'Container Redis' }).click();
+    await selectTab(page, 'Container Redis');
     await expect(
       page.getByText(
         'Container Redis (stack redis) tidak ditemukan di server.',

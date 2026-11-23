@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 export const SUPER_ADMIN_EMAIL = 'superadmin@muzanella.com';
 export const USER_EMAIL = 'user@muzanella.com';
@@ -21,6 +21,25 @@ export const waitForHydration = (page: Page) =>
         ?.__vue_app__,
     ),
   );
+
+/**
+ * Clicks a tab until it is actually selected. `waitForHydration` only
+ * proves the Vue app exists; a page's tabs can still be mid-hydration, and
+ * Chromium/WebKit sometimes click before then and the click is lost.
+ */
+export const selectTab = async (
+  page: Page,
+  name: string,
+  options: { exact?: boolean } = {},
+) => {
+  const tab = page.getByRole('tab', { name, ...options });
+  await expect(async () => {
+    await tab.click();
+    await expect(tab).toHaveAttribute('aria-selected', 'true', {
+      timeout: 1_000,
+    });
+  }).toPass();
+};
 
 export const loginAsSuperAdmin = async (page: Page, targetPath = '/') => {
   await signIn(page, SUPER_ADMIN_EMAIL, targetPath);
