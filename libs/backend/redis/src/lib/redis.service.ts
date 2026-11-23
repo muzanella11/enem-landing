@@ -103,6 +103,18 @@ export class RedisService implements OnModuleDestroy {
     return { count, ttlMs: ttlMs > 0 ? ttlMs : windowMs };
   }
 
+  /**
+   * Raw `SLOWLOG GET <count>` (newest first). Server-wide, not scoped by
+   * the key prefix: the slow log belongs to the Redis instance.
+   */
+  async getSlowlog(count: number): Promise<unknown[]> {
+    return (await this.client.call(
+      'SLOWLOG',
+      'GET',
+      String(count),
+    )) as unknown[];
+  }
+
   /** Removes and returns a key's value in one step (single-use tokens). */
   async takeValue(key: string): Promise<string | null> {
     return this.client.getdel(this.withPrefix(key));

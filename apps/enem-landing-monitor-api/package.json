@@ -1,0 +1,122 @@
+{
+  "name": "enem-landing-monitor-api",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "webpack-cli build",
+          "env": {
+            "NODE_ENV": "production"
+          },
+          "cwd": "apps/enem-landing-monitor-api"
+        },
+        "configurations": {
+          "development": {
+            "env": {
+              "NODE_ENV": "development"
+            }
+          }
+        }
+      },
+      "prune-lockfile": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "executor": "@nx/js:prune-lockfile",
+        "outputs": [
+          "{workspaceRoot}/apps/enem-landing-monitor-api/dist/package.json",
+          "{workspaceRoot}/apps/enem-landing-monitor-api/dist/yarn.lock"
+        ],
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "copy-workspace-modules": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "outputs": [
+          "{workspaceRoot}/apps/enem-landing-monitor-api/dist/workspace_modules"
+        ],
+        "executor": "@nx/js:copy-workspace-modules",
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "prune": {
+        "dependsOn": [
+          "prune-lockfile",
+          "copy-workspace-modules"
+        ],
+        "executor": "nx:noop"
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "enem-landing-monitor-api:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "enem-landing-monitor-api:build:development"
+          },
+          "production": {
+            "buildTarget": "enem-landing-monitor-api:build:production"
+          }
+        }
+      },
+      "test": {
+        "options": {
+          "passWithNoTests": true
+        }
+      },
+      "lint:format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --check 'apps/enem-landing-monitor-api/src/**/*.ts'"
+          ]
+        }
+      },
+      "lint:format:fix": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --write 'apps/enem-landing-monitor-api/src/**/*.ts'"
+          ]
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@enem-landing/backend-rate-limit": "0.0.1",
+    "@enem-landing/backend-redis": "0.0.1",
+    "@enem-landing/backend-sso": "0.0.1",
+    "@enem-landing/backend-utils": "0.0.1",
+    "@enem-landing/shared-definitions": "0.0.1",
+    "@enem-landing/shared-types": "0.0.1",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "dotenv": "^16.6.1",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.0",
+    "@types/express": "^5.0.6"
+  }
+}

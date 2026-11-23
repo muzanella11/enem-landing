@@ -141,6 +141,7 @@ jobs:
             R2_ENDPOINT: "${{ secrets.R2_ENDPOINT }}"
             R2_BUCKET_NAME: "${{ secrets.R2_BUCKET_NAME }}"
             R2_PUBLIC_URL_BASE: "${{ secrets.R2_PUBLIC_URL_BASE }}"
+            LOG_READER_TOKEN: "${{ secrets.LOG_READER_TOKEN }}"
           YAML_EOF
 
       - name: Run deploy.yml

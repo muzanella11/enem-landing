@@ -1,0 +1,70 @@
+{
+  "name": "enem-landing-log-reader",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "webpack-cli build",
+          "env": {
+            "NODE_ENV": "production"
+          },
+          "cwd": "apps/enem-landing-log-reader"
+        },
+        "configurations": {
+          "development": {
+            "env": {
+              "NODE_ENV": "development"
+            }
+          }
+        }
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "enem-landing-log-reader:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "enem-landing-log-reader:build:development"
+          },
+          "production": {
+            "buildTarget": "enem-landing-log-reader:build:production"
+          }
+        }
+      },
+      "test": {
+        "options": {
+          "passWithNoTests": true
+        }
+      },
+      "lint:format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --check 'apps/enem-landing-log-reader/src/**/*.ts'"
+          ]
+        }
+      },
+      "lint:format:fix": {
+        "executor": "nx:run-commands",
+        "options": {
+          "commands": [
+            "prettier --write 'apps/enem-landing-log-reader/src/**/*.ts'"
+          ]
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@enem-landing/shared-types": "0.0.1"
+  }
+}

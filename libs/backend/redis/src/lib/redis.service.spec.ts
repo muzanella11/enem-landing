@@ -10,6 +10,7 @@ const redisClientMock = {
   quit: vi.fn(),
   eval: vi.fn(),
   getdel: vi.fn(),
+  call: vi.fn(),
 };
 
 vi.mock('ioredis', () => ({
@@ -95,5 +96,15 @@ describe('RedisService', () => {
     redisClientMock.getdel.mockResolvedValue('token');
     await expect(service.takeValue('captcha:1')).resolves.toBe('token');
     expect(redisClientMock.getdel).toHaveBeenCalledWith('captcha:1');
+  });
+
+  it('reads the server-wide slow log without the key prefix', async () => {
+    process.env['REDIS_KEY_PREFIX'] = 'dev';
+    const { RedisService } = await import('./redis.service.js');
+    const service = new RedisService();
+
+    redisClientMock.call.mockResolvedValue([]);
+    await expect(service.getSlowlog(50)).resolves.toEqual([]);
+    expect(redisClientMock.call).toHaveBeenCalledWith('SLOWLOG', 'GET', '50');
   });
 });

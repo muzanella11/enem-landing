@@ -1,6 +1,6 @@
-# Story 64: Menu Logs di Monitor (Server, DB, Redis, Apps)
+# Story 64: Menu Server, DB, Redis, dan Apps di Monitor
 
-**Status:** Draft (2026-11-23)
+**Status:** Done (2026-11-23)
 
 **Apps touched:** `enem-landing-monitor`, `enem-landing-monitor-api`, app
 baru `enem-landing-log-reader`, `infra/ansible`, `.github/workflows`,
@@ -88,16 +88,24 @@ Service yang jalan saat ini:
 
 ## Goal
 
-SuperAdmin bisa membaca log dari monitor (`monitor.muzanella.com`) di satu menu **Logs** dengan sub-menu
-**Server**, **DB**, **Redis**, dan **Apps**. Untuk container, yang
+SuperAdmin bisa membaca log dari monitor (`monitor.muzanella.com`) lewat
+menu utama **Server**, **DB**, **Redis**, dan **Apps** di sidebar. Karena
+monitor adalah app tersendiri, setiap bagian yang dimonitor menjadi menu
+sendiri, tidak dikelompokkan di bawah menu "Logs". Untuk container, yang
 ditampilkan adalah log dari masing-masing container yang sedang aktif.
 Semua log dibaca langsung dari file di VPS (read-only), tanpa SSH dan tanpa
 layanan log pihak ketiga.
 
+Halaman dashboard monitor (`/`) menampilkan card ringkasan dari setiap
+menu, berisi angka yang paling penting dan krusial (misalnya login gagal 24
+jam terakhir, event OOM, container crash 24 jam terakhir, container
+aktif prod dan dev, status MySQL dan Redis), masing-masing dengan tautan ke
+menunya.
+
 ## Arsitektur
 
 ```
-monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
+monitor page (/server, /db, /redis, /apps, dashboard /)
   -> BFF monitor (server/api/logs/...)
   -> enem-landing-monitor-api (modul logs, SsoAuthGuard + SuperAdmin global)
   -> enem-landing-log-reader (internal, overlay, token)
@@ -115,6 +123,8 @@ monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
      Hak ini sengaja dipisah dari monitor-api, yang punya akses jaringan,
      Redis, dan validasi SSO. Log-reader hanya bisa membaca file dan
      menjawab request, jadi kalau salah satu bobol, dampaknya terbatas.
+   - Port internal **3004** (indeks 4, backend tanpa frontend sendiri,
+     mengikuti pola port satu indeks per service).
    - Service ini tidak mem-publish port, hanya bergabung ke overlay network,
      dan hanya menerima request dari `enem-landing-monitor-api` yang
      membawa header token rahasia (`LOG_READER_TOKEN`).
@@ -123,7 +133,7 @@ monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
      `cap_add: DAC_READ_SEARCH` (didukung Swarm, Docker di VPS versi
      29.9.2), tanpa akses ke Docker socket, limit memory kecil (misalnya
      96M).
-2. **Hanya `SuperAdmin`** yang bisa membuka menu Logs, bukan semua `Admin`.
+2. **Hanya `SuperAdmin`** yang bisa membuka menu Server, DB, Redis, dan Apps, bukan semua `Admin`.
    Log berisi IP, username, query, dan detail sistem.
    - Sudah ditangani guard SuperAdmin global di monitor-api dan middleware
      monitor (Story 63).
@@ -224,10 +234,10 @@ monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
 8. **Batas per request**: maksimal sekitar 1.000 baris atau 1 MB per
    response, timeout baca, dan rate limit memakai mekanisme rate limit
    global yang sudah ada.
-9. **Menu Logs di monitor** (sidebar layout dashboard monitor, icon misalnya
-   `mdi-text-box-search-outline`) dengan sub-menu **Server**, **DB**,
-   **Redis**, dan **Apps** (`/logs/server`, `/logs/db`, `/logs/redis`,
-   `/logs/apps`).
+9. **Menu di monitor**: **Server**, **DB**, **Redis**, dan **Apps** sebagai
+   menu utama di sidebar (`/server`, `/db`, `/redis`, `/apps`), tidak di
+   bawah menu "Logs". Dashboard (`/`) menampilkan card ringkasan krusial
+   dari setiap menu, lengkap dengan tautan ke menunya.
 10. **Fitur viewer** (komponen bersama untuk semua log teks dan container):
 
 - pilih file rotasi;
@@ -275,8 +285,9 @@ monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
       tidak dikenal) ditolak dan ada tes unitnya.
 - [ ] Endpoint logs di `enem-landing-monitor-api` hanya bisa diakses
       `SuperAdmin`; `Admin` biasa mendapat 403.
-- [ ] Menu Logs tampil di sidebar monitor dengan sub-menu Server, DB, Redis,
-      dan Apps.
+- [ ] Menu Server, DB, Redis, dan Apps tampil sebagai menu utama di sidebar
+      monitor (tidak di bawah menu "Logs").
+- [ ] Dashboard menampilkan card ringkasan krusial dari setiap menu.
 - [ ] **Server**: semua log host di tabel Background bisa dibaca, termasuk
       file rotasi `.1` dan `.gz`; tab Infra menampilkan log container
       Traefik dan log-reader.
@@ -314,7 +325,7 @@ monitor page (/logs/server, /logs/db, /logs/redis, /logs/apps)
 1. Buat `LOG_READER_TOKEN` acak (minimal 32 karakter) untuk prod dan dev,
    simpan di GitHub environment masing-masing.
 2. Deploy stack log-reader, lalu redeploy monitor-api prod dan dev.
-3. Login monitor sebagai `SuperAdmin`, buka setiap sub-menu Logs, dan cocokkan
+3. Login monitor sebagai `SuperAdmin`, buka setiap menu (Server, DB, Redis, Apps), dan cocokkan
    beberapa baris dengan isi file di VPS serta `docker service logs`.
 4. Pastikan jumlah container di Apps sama dengan `docker ps` untuk stack
    `enem-landing` dan `enem-landing-dev`, dan Container sebelumnya sama

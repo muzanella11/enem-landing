@@ -66,7 +66,7 @@ services:
     networks: !override [enem-landing-dev-network]
     environment:
       <<: *node-tuning
-      CORS_ORIGIN: https://dev-cms.muzanella.com,https://dev-account.muzanella.com
+      CORS_ORIGIN: https://dev-cms.muzanella.com,https://dev-account.muzanella.com,https://dev-monitor.muzanella.com
       REDIS_KEY_PREFIX: dev # see header: Redis is shared with prod
     deploy:
       <<: *dev-deploy
@@ -166,3 +166,37 @@ services:
         - traefik.http.routers.enem-landing-dev-tools.tls=true
         - traefik.http.routers.enem-landing-dev-tools.tls.certresolver=cloudflare
         - traefik.http.services.enem-landing-dev-tools.loadbalancer.server.port=8002
+
+  enem-landing-monitor-api:
+    image: ghcr.io/muzanella11/enem-landing-monitor-api:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      NODE_OPTIONS: --max-old-space-size=100
+      REDIS_KEY_PREFIX: dev:monitor # see header: Redis is shared with prod
+      MONITOR_ENV: dev
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+      labels: !override
+        - traefik.enable=false # internal-only, see compose.yml header
+
+  enem-landing-monitor:
+    image: ghcr.io/muzanella11/enem-landing-monitor:dev
+    networks: !override [enem-landing-dev-network]
+    environment:
+      NODE_OPTIONS: --max-old-space-size=100
+      NUXT_PUBLIC_ACCOUNT_WEB_HOST: https://dev-account.muzanella.com
+      NUXT_PUBLIC_AUTH_COOKIE_NAME: ENEM_LANDING_DEV_AUTH_TOKEN
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+      labels: !override
+        - traefik.enable=true
+        - traefik.swarm.network=enem-landing-dev-network
+        - traefik.http.routers.enem-landing-dev-monitor.rule=Host(`dev-monitor.muzanella.com`)
+        - traefik.http.routers.enem-landing-dev-monitor.entrypoints=websecure
+        - traefik.http.routers.enem-landing-dev-monitor.tls=true
+        - traefik.http.routers.enem-landing-dev-monitor.tls.certresolver=cloudflare
+        - traefik.http.services.enem-landing-dev-monitor.loadbalancer.server.port=4003

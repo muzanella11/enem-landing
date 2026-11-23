@@ -1,0 +1,1 @@
+{"Name":"/enem-landing_enem-landing-api.1.e2eold","RestartCount":0,"State":{"Running":false,"StartedAt":"2026-11-20T07:00:00.000000000Z","FinishedAt":"2026-11-20T07:59:00.000000000Z","ExitCode":137,"OOMKilled":true,"Error":""},"Config":{"Labels":{"com.docker.stack.namespace":"enem-landing","com.docker.swarm.service.name":"enem-landing_enem-landing-api"}}}

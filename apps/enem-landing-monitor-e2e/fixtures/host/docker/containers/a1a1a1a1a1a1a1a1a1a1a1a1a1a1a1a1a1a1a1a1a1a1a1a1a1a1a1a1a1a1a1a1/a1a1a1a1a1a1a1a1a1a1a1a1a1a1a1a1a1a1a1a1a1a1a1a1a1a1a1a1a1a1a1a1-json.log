@@ -1,0 +1,3 @@
+{"log":"[Nest] 1  - LOG [NestApplication] Nest application successfully started\n","stream":"stdout","time":"2026-11-20T08:00:05.000000000Z"}
+{"log":"{\"level\":\"info\",\"msg\":\"e2e structured line\"}\n","stream":"stdout","time":"2026-11-20T08:00:06.000000000Z"}
+{"log":"Error: e2e stderr failure\n","stream":"stderr","time":"2026-11-20T08:00:07.000000000Z"}
