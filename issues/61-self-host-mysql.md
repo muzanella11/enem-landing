@@ -147,6 +147,13 @@ TablePlus / runner GitHub
    - `character-set-server=utf8mb4`, `collation-server=utf8mb4_unicode_ci`
    - limit memory container 640M, reservation 384M.
      Angka final disesuaikan setelah melihat ukuran data Aiven saat ini.
+   - **Slow query log** untuk sub-menu DB di menu Logs CMS (Story 63):
+     `slow_query_log=ON`, `long_query_time=1`, file
+     `/var/log/mysql/slow.log` di dalam container yang di-bind mount ke
+     `/opt/enem-landing/storage/mysql-logs` di host. Rotasi lewat logrotate
+     host (mingguan, simpan 4, `copytruncate` atau `FLUSH SLOW LOGS`).
+     Error log tetap ke stderr (bawaan image) sehingga terbaca lewat log
+     container. General query log tidak diaktifkan.
 8. **Backup harian terenkripsi ke luar VPS**:
    - `mysqldump --single-transaction --routines --triggers` per database,
      dikompres (gzip atau zstd) dan dienkripsi (age atau gpg) sebelum
@@ -199,6 +206,8 @@ TablePlus / runner GitHub
 - [ ] `migrate.yml` memakai `DATABASE_URL_*` yang sama dengan app, mengganti
       host ke `127.0.0.1:13306`, gagal dengan jelas bila pola host tidak
       cocok, dan tidak membocorkan connection string ke log.
+- [ ] Slow query log aktif, tertulis di
+      `/opt/enem-landing/storage/mysql-logs`, dan dirotasi.
 - [ ] User dev tidak bisa membaca atau menulis database prod, dan `root`
       tidak bisa login selain dari `localhost` (dites dengan query
       langsung).

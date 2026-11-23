@@ -6,7 +6,7 @@
 
 **Depends on:** Story 10 (infra/CI-CD)
 
-**Dikerjakan sebelum:** Story 63 (log server di CMS), supaya pembaca log
+**Dikerjakan sebelum:** Story 63 (menu Logs di CMS), supaya pembaca log
 di CMS langsung menangani file rotasi Docker (`*-json.log.1`, `.2`).
 
 ## Background
