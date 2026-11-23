@@ -1,7 +1,7 @@
 ---
 # Deploys the shared self-hosted MySQL stack (prod + dev) to the VPS, the
 # `mysql-tunnel` socat sidecar used for SSH tunnel access, slow log
-# rotation, and the daily encrypted off-VPS backup. Replaces Aiven.
+# rotation, and the daily off-VPS backup to R2. Replaces Aiven.
 #
 # Idempotent: safe to re-run to change the config or rotate the app user
 # passwords (users and grants are re-applied on every run).
@@ -25,9 +25,6 @@
 #   mysql_backup_r2_endpoint: "https://<account id>.r2.cloudflarestorage.com"
 #   mysql_backup_r2_access_key_id: "<value>"
 #   mysql_backup_r2_secret_access_key: "<value>"
-#   # Public key from `age-keygen`. Keep the private key off the VPS
-#   # (password manager), it is only needed to restore.
-#   mysql_backup_age_recipient: "age1..."
 #   # Where failure alerts go (Discord or Slack style webhook).
 #   mysql_backup_notify_webhook_url: "https://..."
 #
@@ -88,8 +85,6 @@
           - mysql_backup_r2_endpoint is defined
           - mysql_backup_r2_access_key_id is defined
           - mysql_backup_r2_secret_access_key is defined
-          - mysql_backup_age_recipient is defined
-          - mysql_backup_age_recipient is match('^age1')
         fail_msg: See the mysql-vars.yml example at the top of this playbook.
       when: mysql_backup_enabled | bool
       no_log: true
@@ -289,7 +284,7 @@
     # -------------------------------------------------------------- backup
     - name: Install backup tools
       ansible.builtin.apt:
-        name: [age, rclone, gzip, curl]
+        name: [rclone, gzip, curl]
         state: present
         update_cache: true
         cache_valid_time: 3600
@@ -322,7 +317,7 @@
         - name: mysql-backup.service
           content: |
             [Unit]
-            Description=Encrypted MySQL backup to object storage
+            Description=MySQL backup to object storage
             After=docker.service network-online.target
             Wants=network-online.target
 

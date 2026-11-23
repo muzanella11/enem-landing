@@ -238,7 +238,12 @@ Catatan implementasi:
 - Backup: Cloudflare R2, memakai bucket uploads yang sudah ada (`prod`
   untuk database prod, `develop` untuk dev) di bawah prefix
   `mysql-backup/` (diputuskan 2026-11-23). Bucket `prod` publik lewat
-  `cdn.muzanella.com`, jadi enkripsi `age` yang menjaga isinya.
+  `cdn.muzanella.com`. Backup akhirnya tidak dienkripsi (diputuskan
+  2026-11-23, supaya mudah dibuka), jadi path `/mysql-backup` di
+  `cdn.muzanella.com` dan `cdn-dev.muzanella.com` (bucket `develop` juga
+  publik) diblokir lewat WAF custom rule Cloudflare "Block MySQL backups on
+  CDN". Sudah dicek: 403 di kedua domain, termasuk varian huruf besar dan
+  URL-encoded. Rule ini wajib tetap aktif.
   Notifikasi gagal lewat webhook (format
   Discord/Slack). Alur backup, restore ke database sementara, dan
   notifikasi gagal sudah diuji lokal dengan server S3 tiruan; masih perlu

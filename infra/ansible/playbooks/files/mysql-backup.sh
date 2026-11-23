@@ -5,8 +5,8 @@
 # /opt/enem-landing/mysql/backup.env (EnvironmentFile of the unit).
 #
 # Per database: mysqldump (inside the mysql_mysql container, as root over
-# the socket) | gzip | age (public key only, the private key never lives on
-# the VPS) | rclone rcat to the bucket. Dumps are per single database
+# the socket) | gzip | rclone rcat to the bucket. Not encrypted (decided
+# 2026-11-23), so the files open with plain gunzip. Dumps are per single database
 # without CREATE DATABASE/USE, so a file can be restored into any database
 # name (handy for restore tests).
 #
@@ -14,13 +14,15 @@
 # databases go to the prod uploads bucket and dev databases to the develop
 # one. Everything lives under BACKUP_PREFIX, apart from the uploads, and
 # retention only ever deletes inside that prefix:
-#   <bucket>/<prefix>/daily/<stamp>/<db>_<stamp>.sql.gz.age    kept 7 days
-#   <bucket>/<prefix>/weekly/<stamp>/<db>_<stamp>.sql.gz.age   Sunday copies, kept 28 days
+#   <bucket>/<prefix>/daily/<stamp>/<db>_<stamp>.sql.gz    kept 7 days
+#   <bucket>/<prefix>/weekly/<stamp>/<db>_<stamp>.sql.gz   Sunday copies, kept 28 days
 # <stamp> is the UTC start time of the run, e.g. 20261123T190000Z.
 #
-# The prod bucket is public through its custom domain, so these files can be
-# fetched by anyone who knows the exact path. They are age-encrypted, which
-# is what keeps them safe; blocking the prefix at the CDN is extra defense.
+# Both buckets are public through custom domains (cdn.muzanella.com and
+# cdn-dev.muzanella.com). Because the dumps are plain, a Cloudflare WAF rule
+# blocks every request to /mysql-backup on those domains. Keep that rule in place: without it a
+# dump could be downloaded by guessing its path. Backups are fetched from
+# the R2 dashboard or the S3 API instead, which the rule does not affect.
 #
 # Any failure posts to BACKUP_NOTIFY_WEBHOOK_URL (JSON with both `content`
 # and `text`, so Discord and Slack style webhooks both work) and exits 1,
@@ -33,7 +35,7 @@
 set -Eeuo pipefail
 
 : "${BACKUP_R2_ENDPOINT:?}" "${BACKUP_R2_ACCESS_KEY_ID:?}" "${BACKUP_R2_SECRET_ACCESS_KEY:?}"
-: "${BACKUP_TARGETS:?}" "${BACKUP_PREFIX:?}" "${BACKUP_AGE_RECIPIENT:?}"
+: "${BACKUP_TARGETS:?}" "${BACKUP_PREFIX:?}"
 
 BACKUP_DAILY_KEEP="${BACKUP_DAILY_KEEP:-7d}"
 BACKUP_WEEKLY_KEEP="${BACKUP_WEEKLY_KEEP:-28d}"
@@ -96,13 +98,12 @@ for item in $BACKUP_TARGETS; do
   db="${item%%:*}"
   bucket="${item#*:}"
   base="backup:${bucket}/${prefix}"
-  target="${base}/daily/${stamp}/${db}_${stamp}.sql.gz.age"
+  target="${base}/daily/${stamp}/${db}_${stamp}.sql.gz"
   echo "Dumping ${db} -> ${target}"
   docker exec "$container" mysqldump \
     --single-transaction --quick --routines --triggers --events \
     --no-tablespaces --set-gtid-purged=OFF "$db" |
     gzip -6 |
-    age -r "$BACKUP_AGE_RECIPIENT" |
     rclone rcat "$target"
 
   size="$(rclone size --json "$target" | sed -E 's/.*"bytes":([0-9]+).*/\1/')"
