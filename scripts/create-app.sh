@@ -174,7 +174,7 @@ case "$kind" in
 PORT=$port
 CORS_ORIGIN=
 
-# Aiven MySQL (or local MySQL in dev) - see issues/10-infra-cicd.md.
+# MySQL: self-hosted on the VPS in prod/dev (deploy-mysql.yml), local MySQL here.
 # Leave unset if this app has no database of its own.
 DATABASE_URL=mysql://user:user@localhost:3306/${appName//-/_}
 

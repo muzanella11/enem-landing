@@ -148,6 +148,14 @@ override di `compose.dev.yml`untuk`dev-monitor.muzanella.com`;
 - Memindahkan halaman Cache dari CMS ke monitor. Bisa jadi story
   berikutnya.
 - Alerting, uptime check, dan dashboard metrik.
+- Endpoint webhook penerima alert (pola seperti webhook mau-apps: URL dan
+  key per webhook, log setiap request, lalu kirim notifikasi ke admin).
+  Diputuskan 2026-11-23 untuk dibuat di app monitoring di story
+  berikutnya. Pengguna pertamanya adalah backup harian MySQL
+  (`mysql-backup.sh` mengirim POST JSON `{"content": ..., "text": ...}` ke
+  `mysql_backup_notify_webhook_url` saat gagal). Sampai endpoint itu ada,
+  URL tersebut dibiarkan kosong dan kegagalan backup hanya terlihat di
+  `journalctl -u mysql-backup.service`.
 
 ## Acceptance criteria
 

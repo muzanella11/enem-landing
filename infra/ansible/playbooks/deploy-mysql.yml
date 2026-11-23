@@ -1,0 +1,360 @@
+---
+# Deploys the shared self-hosted MySQL stack (prod + dev) to the VPS, the
+# `mysql-tunnel` socat sidecar used for SSH tunnel access, slow log
+# rotation, and the daily off-VPS backup to R2. Replaces Aiven.
+#
+# Idempotent: safe to re-run to change the config or rotate the app user
+# passwords (users and grants are re-applied on every run).
+#
+# Usage (from infra/ansible), with a local vars file that is NEVER
+# committed:
+#   ansible-playbook playbooks/deploy-mysql.yml -i inventories/prod/hosts.ini \
+#     -e ansible_user=deploy -e ansible_ssh_private_key_file=<deploy key> \
+#     -e @mysql-vars.yml
+#
+# mysql-vars.yml:
+#   # App users, letters and digits only, at least 32 chars
+#   # (openssl rand -hex 24). Prod and dev get different passwords.
+#   mysql_prod_password: "<value>"
+#   mysql_dev_password: "<value>"
+#   # Backup (optional: without mysql_backup_enabled: true the backup part
+#   # is skipped). Goes to the existing uploads buckets, prod databases to
+#   # `prod` and dev databases to `develop`, under the `mysql-backup/`
+#   # prefix. The R2 API token needs Object Read & Write on both buckets.
+#   mysql_backup_enabled: true
+#   mysql_backup_r2_endpoint: "https://<account id>.r2.cloudflarestorage.com"
+#   mysql_backup_r2_access_key_id: "<value>"
+#   mysql_backup_r2_secret_access_key: "<value>"
+#   # Where failure alerts go (Discord or Slack style webhook). Optional:
+#   # leave it out until the monitoring app has an alert endpoint; failures
+#   # still show in `journalctl -u mysql-backup.service`.
+#   mysql_backup_notify_webhook_url: "https://..."
+#
+# The apps then use, per GitHub environment (see
+# docs/github-actions-secrets.md):
+#   production:  mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_api
+#                mysql://enem_prod:<pw>@mysql_mysql:3306/enem_landing_account
+#   development: mysql://enem_dev:<pw>@mysql_mysql:3306/enem_landing_api_dev
+#                mysql://enem_dev:<pw>@mysql_mysql:3306/enem_landing_account_dev
+#
+# The root password is generated on the VPS on the first run and never
+# leaves it (/opt/enem-landing/mysql/secrets). Do not delete that directory
+# once the data directory is initialized: MySQL only reads the root
+# password on first init, so a new file would no longer match.
+
+- name: Deploy shared MySQL stack
+  hosts: all
+  become: true
+  vars:
+    mysql_image: mysql:8.4.13
+    mysql_tunnel_image: alpine/socat:1.8.0.3
+    mysql_admin_network: mysql_admin
+    mysql_tunnel_bind: 127.0.0.1:33300
+    mysql_memory_limit: 640M
+    mysql_memory_reservation: 384M
+    mysql_databases:
+      - { name: enem_landing_api, user: enem_prod, env: prod }
+      - { name: enem_landing_account, user: enem_prod, env: prod }
+      - { name: enem_landing_api_dev, user: enem_dev, env: dev }
+      - { name: enem_landing_account_dev, user: enem_dev, env: dev }
+    mysql_users:
+      - { name: enem_prod, password: "{{ mysql_prod_password }}" }
+      - { name: enem_dev, password: "{{ mysql_dev_password }}" }
+    mysql_backup_enabled: false
+    # Existing uploads buckets; backups stay under their own prefix.
+    mysql_backup_r2_buckets:
+      prod: prod
+      dev: develop
+    mysql_backup_r2_prefix: mysql-backup
+  tasks:
+    - name: Make sure the app user passwords are set
+      ansible.builtin.assert:
+        that:
+          - mysql_prod_password is defined
+          - mysql_dev_password is defined
+          - mysql_prod_password is match('^[A-Za-z0-9]{32,}$')
+          - mysql_dev_password is match('^[A-Za-z0-9]{32,}$')
+          - mysql_prod_password != mysql_dev_password
+        fail_msg: >-
+          Pass two different strong passwords (letters and digits only, so
+          they are safe inside SQL and a DATABASE_URL), e.g.
+          openssl rand -hex 24
+      no_log: true
+
+    - name: Make sure the backup settings are complete
+      ansible.builtin.assert:
+        that:
+          - mysql_backup_r2_endpoint is defined
+          - mysql_backup_r2_access_key_id is defined
+          - mysql_backup_r2_secret_access_key is defined
+        fail_msg: See the mysql-vars.yml example at the top of this playbook.
+      when: mysql_backup_enabled | bool
+      no_log: true
+
+    # ---------------------------------------------------------------- dirs
+    # The image runs mysqld as uid 999, which must own the data and log dirs.
+    - name: Create the MySQL data and log directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: '999'
+        group: '999'
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /opt/enem-landing/storage/mysql, mode: '0700' }
+        - { path: /opt/enem-landing/storage/mysql-logs, mode: '0750' }
+
+    - name: Create the MySQL config directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: /opt/enem-landing/mysql, mode: '0755' }
+        - { path: /opt/enem-landing/mysql/conf.d, mode: '0755' }
+        - { path: /opt/enem-landing/mysql/secrets, mode: '0700' }
+        - { path: /opt/enem-landing/bin, mode: '0755' }
+
+    - name: Copy the MySQL server config
+      ansible.builtin.copy:
+        src: mysql.cnf
+        dest: /opt/enem-landing/mysql/conf.d/enem.cnf
+        mode: '0644'
+      register: mysql_conf
+
+    # ------------------------------------------------------- root password
+    - name: Generate the root password (first run only)
+      ansible.builtin.shell: |
+        set -eu
+        umask 077
+        pw="$(openssl rand -hex 32)"
+        printf '%s' "$pw" > /opt/enem-landing/mysql/secrets/root-password
+        printf '[client]\nuser=root\npassword=%s\n' "$pw" > /opt/enem-landing/mysql/secrets/root.cnf
+      args:
+        creates: /opt/enem-landing/mysql/secrets/root-password
+      no_log: true
+
+    # The entrypoint reads root-password as the mysql user (uid 999);
+    # root.cnf is read by `docker exec` (root) as /root/.my.cnf.
+    - name: Set ownership of the root password files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        owner: "{{ item.owner }}"
+        group: "{{ item.owner }}"
+        mode: '0400'
+      loop:
+        - { path: /opt/enem-landing/mysql/secrets/root-password, owner: '999' }
+        - { path: /opt/enem-landing/mysql/secrets/root.cnf, owner: '0' }
+
+    # ------------------------------------------------------------- network
+    - name: Create the mysql_admin overlay network
+      ansible.builtin.shell: |
+        if docker network inspect {{ mysql_admin_network }} >/dev/null 2>&1; then
+          echo exists
+        else
+          docker network create --driver overlay --attachable {{ mysql_admin_network }}
+        fi
+      register: mysql_admin_net
+      changed_when: "'exists' not in mysql_admin_net.stdout"
+
+    # --------------------------------------------------------------- stack
+    - name: Render the MySQL stack definition
+      ansible.builtin.template:
+        src: mysql-stack.yml.j2
+        dest: /opt/enem-landing/mysql-stack.yml
+        mode: '0644'
+
+    - name: Deploy the MySQL stack
+      ansible.builtin.command: >-
+        docker stack deploy --detach=false
+        -c /opt/enem-landing/mysql-stack.yml mysql
+      changed_when: true
+
+    # A bind-mounted file change is invisible to `docker stack deploy`, so
+    # force a restart when the server config changed.
+    - name: Restart MySQL when its config changed
+      ansible.builtin.command: docker service update --force --detach=false mysql_mysql
+      when: mysql_conf.changed
+      changed_when: true
+
+    - name: Wait for a healthy MySQL container
+      ansible.builtin.shell: |
+        set -eu
+        cid="$(docker ps -q \
+          --filter label=com.docker.swarm.service.name=mysql_mysql \
+          --filter health=healthy | head -n1)"
+        test -n "$cid"
+        docker exec "$cid" mysql -N -e 'SELECT 1' >/dev/null
+        echo "$cid"
+      register: mysql_container
+      until: mysql_container.rc == 0
+      retries: 40
+      delay: 5
+      changed_when: false
+
+    # ------------------------------------------------------ users, grants
+    - name: Apply databases, users and grants
+      ansible.builtin.command:
+        cmd: docker exec -i {{ mysql_container.stdout_lines[-1] }} mysql
+        stdin: "{{ lookup('ansible.builtin.template', 'mysql-users.sql.j2') }}"
+      no_log: true
+      changed_when: true
+
+    # ------------------------------------------------------ tunnel sidecar
+    # A plain container, not a Swarm service: only `docker run` can publish
+    # on 127.0.0.1, so 33300 is reachable from the VPS itself (and through
+    # `ssh -L`) but never from outside, regardless of UFW. It only joins
+    # mysql_admin, not the app networks. Recreated only when the image or
+    # bind address changes (tracked in the enem.spec label).
+    - name: Run the mysql-tunnel socat sidecar
+      ansible.builtin.shell: |
+        set -eu
+        spec="{{ mysql_tunnel_image }} {{ mysql_tunnel_bind }}"
+        current="$(docker inspect -f '{% raw %}{{ index .Config.Labels "enem.spec" }}{% endraw %}' mysql-tunnel 2>/dev/null || true)"
+        if [ "$current" = "$spec" ]; then
+          docker start mysql-tunnel >/dev/null
+          echo unchanged
+          exit 0
+        fi
+        docker rm -f mysql-tunnel >/dev/null 2>&1 || true
+        docker run -d --name mysql-tunnel \
+          --restart unless-stopped \
+          --network {{ mysql_admin_network }} \
+          -p {{ mysql_tunnel_bind }}:3306 \
+          --memory 32m \
+          --label "enem.spec=$spec" \
+          {{ mysql_tunnel_image }} \
+          TCP-LISTEN:3306,fork,reuseaddr TCP:mysql_mysql:3306
+      register: mysql_tunnel
+      changed_when: "'unchanged' not in mysql_tunnel.stdout"
+
+    # A standalone container on a Swarm overlay can fail to come back after
+    # a reboot when Docker restarts it before Swarm networking is ready.
+    # This timer keeps retrying `docker start` until it is up again.
+    - name: Install the mysql-tunnel keepalive units
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ item.name }}"
+        mode: '0644'
+        content: "{{ item.content }}"
+      loop:
+        - name: mysql-tunnel-ensure.service
+          content: |
+            [Unit]
+            Description=Make sure the mysql-tunnel socat sidecar is running
+            After=docker.service
+            Requires=docker.service
+
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/bin/docker start mysql-tunnel
+        - name: mysql-tunnel-ensure.timer
+          content: |
+            [Unit]
+            Description=Keep the mysql-tunnel socat sidecar running
+
+            [Timer]
+            OnBootSec=1min
+            OnUnitActiveSec=2min
+
+            [Install]
+            WantedBy=timers.target
+      register: mysql_tunnel_units
+
+    - name: Enable the mysql-tunnel keepalive timer
+      ansible.builtin.systemd:
+        name: mysql-tunnel-ensure.timer
+        enabled: true
+        state: started
+        daemon_reload: "{{ mysql_tunnel_units.changed }}"
+
+    # ------------------------------------------------------------ slow log
+    - name: Rotate the slow query log weekly
+      ansible.builtin.copy:
+        dest: /etc/logrotate.d/enem-mysql
+        mode: '0644'
+        content: |
+          /opt/enem-landing/storage/mysql-logs/*.log {
+              weekly
+              rotate 4
+              missingok
+              notifempty
+              compress
+              delaycompress
+              copytruncate
+          }
+
+    # -------------------------------------------------------------- backup
+    - name: Install backup tools
+      ansible.builtin.apt:
+        name: [rclone, gzip, curl]
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      when: mysql_backup_enabled | bool
+
+    - name: Install the backup script
+      ansible.builtin.copy:
+        src: mysql-backup.sh
+        dest: /opt/enem-landing/bin/mysql-backup.sh
+        mode: '0750'
+      when: mysql_backup_enabled | bool
+
+    - name: Render the backup settings (holds bucket credentials)
+      ansible.builtin.template:
+        src: mysql-backup.env.j2
+        dest: /opt/enem-landing/mysql/backup.env
+        owner: root
+        group: root
+        mode: '0600'
+      no_log: true
+      when: mysql_backup_enabled | bool
+
+    # 19:00 UTC is 02:00 WIB, the quietest time for the sites.
+    - name: Install the backup systemd units
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ item.name }}"
+        mode: '0644'
+        content: "{{ item.content }}"
+      loop:
+        - name: mysql-backup.service
+          content: |
+            [Unit]
+            Description=MySQL backup to object storage
+            After=docker.service network-online.target
+            Wants=network-online.target
+
+            [Service]
+            Type=oneshot
+            EnvironmentFile=/opt/enem-landing/mysql/backup.env
+            ExecStart=/opt/enem-landing/bin/mysql-backup.sh
+            Nice=10
+            IOSchedulingClass=idle
+        - name: mysql-backup.timer
+          content: |
+            [Unit]
+            Description=Daily MySQL backup
+
+            [Timer]
+            OnCalendar=*-*-* 19:00:00 UTC
+            RandomizedDelaySec=10min
+            Persistent=true
+
+            [Install]
+            WantedBy=timers.target
+      register: mysql_backup_units
+      when: mysql_backup_enabled | bool
+
+    - name: Enable the daily backup timer
+      ansible.builtin.systemd:
+        name: mysql-backup.timer
+        enabled: true
+        state: started
+        daemon_reload: "{{ mysql_backup_units.changed }}"
+      when: mysql_backup_enabled | bool
+
+    - name: Note that backups are not configured
+      ansible.builtin.debug:
+        msg: >-
+          mysql_backup_enabled is not true, so the daily backup was NOT
+          installed. Add the backup settings to mysql-vars.yml and re-run.
+      when: not (mysql_backup_enabled | bool)
