@@ -6,15 +6,22 @@
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "references": [
     {
       "path": "../../shared/utils/tsconfig.lib.json"
     },
     {
       "path": "../../shared/types/tsconfig.lib.json"
+    },
+    {
+      "path": "../../shared/definitions/tsconfig.lib.json"
     }
   ],
   "exclude": [

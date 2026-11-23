@@ -1,5 +1,5 @@
 import { successResponse } from '@enem-landing/backend-utils';
-import { SsoAuthGuard } from '@enem-landing/backend-sso';
+import { assertAdminRole, SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
   Body,
@@ -14,7 +14,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { assertAdminRole } from '../common/assert-admin-role.js';
 import { CreateExperienceDto } from './dto/create-experience.dto.js';
 import { CreateProjectDto } from './dto/create-project.dto.js';
 import { UpdateExperienceDto } from './dto/update-experience.dto.js';

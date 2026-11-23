@@ -26,7 +26,11 @@
 #
 # Any failure posts to BACKUP_NOTIFY_WEBHOOK_URL (JSON with both `content`
 # and `text`, so Discord and Slack style webhooks both work) and exits 1,
-# which also marks the systemd unit as failed.
+# which also marks the systemd unit as failed. For the monitor's webhook
+# (https://monitor.muzanella.com/api/hooks/mysql-backup) the key goes in the
+# X-Webhook-Key header from BACKUP_NOTIFY_WEBHOOK_KEY, never in the URL. The
+# call goes through Cloudflare (public domain), because Traefik only accepts
+# Cloudflare's IPs.
 #
 # Usage:
 #   mysql-backup.sh              run a backup
@@ -47,7 +51,11 @@ notify() {
   if [[ -n "${BACKUP_NOTIFY_WEBHOOK_URL:-}" ]]; then
     local payload
     payload=$(printf '{"content":"%s","text":"%s"}' "$message" "$message")
-    curl -fsS -m 20 -X POST -H 'Content-Type: application/json' \
+    local headers=(-H 'Content-Type: application/json')
+    if [[ -n "${BACKUP_NOTIFY_WEBHOOK_KEY:-}" ]]; then
+      headers+=(-H "X-Webhook-Key: ${BACKUP_NOTIFY_WEBHOOK_KEY}")
+    fi
+    curl -fsS -m 20 -X POST "${headers[@]}" \
       --data "$payload" "$BACKUP_NOTIFY_WEBHOOK_URL" >/dev/null ||
       echo "Failure notification could not be sent" >&2
   fi

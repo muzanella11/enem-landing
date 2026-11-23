@@ -16,7 +16,10 @@ print_done() { echo "✔  $1"; }
 PORTS=(
   "3000:enem-landing-account-api"
   "3001:enem-landing-api"
+  "3003:enem-landing-monitor-api"
+  "3004:enem-landing-log-reader"
   "4000:enem-landing-cms"
+  "4003:enem-landing-monitor"
   "8000:enem-landing-account-web"
   "8001:enem-landing-web"
   "8002:enem-landing-tools"

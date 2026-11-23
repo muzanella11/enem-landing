@@ -1,6 +1,6 @@
 import { RateLimit } from '@enem-landing/backend-rate-limit';
 import { successResponse } from '@enem-landing/backend-utils';
-import { SsoAuthGuard } from '@enem-landing/backend-sso';
+import { assertAdminRole, SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
   Body,
@@ -16,7 +16,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { assertAdminRole } from '../common/assert-admin-role.js';
 import { CreateClickBatchDto } from './dto/create-click-batch.dto.js';
 import { CreateEventBatchDto } from './dto/create-event-batch.dto.js';
 import { CreateFunnelDto } from './dto/create-funnel.dto.js';

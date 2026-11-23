@@ -18,6 +18,7 @@
     "name": "backend-sso"
   },
   "dependencies": {
+    "@enem-landing/shared-definitions": "0.0.1",
     "@enem-landing/shared-types": "0.0.1",
     "@enem-landing/shared-utils": "0.0.1",
     "@nestjs/common": "^11.0.0",

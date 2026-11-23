@@ -1,0 +1,92 @@
+---
+# Deploys the shared log-reader stack used by the monitor (prod + dev).
+# Idempotent: re-run to rotate tokens or change the image tag.
+#
+# Usage (from infra/ansible):
+#   ansible-playbook playbooks/deploy-log-reader.yml -i inventories/prod/hosts.ini \
+#     -e "log_reader_token_prod=$(openssl rand -hex 32)" \
+#     -e "log_reader_token_dev=$(openssl rand -hex 32)" \
+#     -e "ghcr_pat=<PAT with read:packages>"
+#
+# Store the same two values as the LOG_READER_TOKEN secret of the GitHub
+# environments `production` and `development`, then redeploy both app
+# stacks so enem-landing-monitor-api picks them up. Later prod releases
+# update the image automatically (deploy.yml, env=prod), so this playbook
+# only needs to run again for token or mount changes.
+
+- name: Deploy shared log-reader stack
+  hosts: all
+  become: true
+  vars:
+    log_reader_image_tag: prod
+  tasks:
+    - name: Make sure both tokens are set
+      ansible.builtin.assert:
+        that:
+          - log_reader_token_prod is defined
+          - log_reader_token_dev is defined
+          - log_reader_token_prod | length >= 32
+          - log_reader_token_dev | length >= 32
+          - log_reader_token_prod != log_reader_token_dev
+          - ghcr_pat is defined
+        fail_msg: >-
+          Pass two different tokens of at least 32 characters, e.g.
+          -e "log_reader_token_prod=$(openssl rand -hex 32)"
+          -e "log_reader_token_dev=$(openssl rand -hex 32)", plus ghcr_pat
+
+    - name: Create the log-reader config directory
+      ansible.builtin.file:
+        path: /opt/enem-landing/log-reader
+        state: directory
+        owner: root
+        group: root
+        mode: '0700'
+
+    # Read through DAC_READ_SEARCH inside the container; nobody else on the
+    # host needs it.
+    - name: Write the tokens file (one token per line)
+      ansible.builtin.copy:
+        dest: /opt/enem-landing/log-reader/tokens
+        content: |
+          {{ log_reader_token_prod }}
+          {{ log_reader_token_dev }}
+        owner: root
+        group: root
+        mode: '0400'
+      no_log: true
+      register: log_reader_tokens
+
+    - name: Make sure the MySQL logs directory exists (mounted read-only)
+      ansible.builtin.file:
+        path: /opt/enem-landing/storage/mysql-logs
+        state: directory
+
+    - name: Render the log-reader stack definition
+      ansible.builtin.template:
+        src: log-reader-stack.yml.j2
+        dest: /opt/enem-landing/log-reader-stack.yml
+        mode: '0644'
+
+    - name: Login to GHCR
+      no_log: true
+      ansible.builtin.command: >
+        docker login ghcr.io -u {{ ghcr_username | default('muzanella11') }} --password-stdin
+      args:
+        stdin: "{{ ghcr_pat }}"
+      changed_when: false
+
+    - name: Deploy the log-reader stack
+      ansible.builtin.command: >
+        docker stack deploy --with-registry-auth
+        -c /opt/enem-landing/log-reader-stack.yml log-reader
+      changed_when: true
+
+    # A bind-mounted file change is invisible to `docker stack deploy`.
+    - name: Restart the log-reader when the tokens changed
+      ansible.builtin.command: docker service update --force log-reader_log-reader
+      when: log_reader_tokens.changed
+      changed_when: true
+
+    - name: Logout from GHCR
+      ansible.builtin.command: docker logout ghcr.io
+      changed_when: false

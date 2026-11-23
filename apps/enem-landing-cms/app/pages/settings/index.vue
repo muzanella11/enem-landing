@@ -20,6 +20,7 @@ interface SystemSettings {
   SMTP_FROM_EMAIL: string;
   ADMIN_NOTIFICATION_EMAIL: string;
   IMAGE_TRANSFORMS_ENABLED: string;
+  MONITOR_ALERT_EMAIL_ENABLED: string;
 }
 
 const { data: settingsResponse } = await useFetch<{ data: SystemSettings }>(
@@ -52,6 +53,8 @@ const form = ref({
     settingsResponse.value?.data?.ADMIN_NOTIFICATION_EMAIL ?? '',
   IMAGE_TRANSFORMS_ENABLED:
     settingsResponse.value?.data?.IMAGE_TRANSFORMS_ENABLED === 'true',
+  MONITOR_ALERT_EMAIL_ENABLED:
+    settingsResponse.value?.data?.MONITOR_ALERT_EMAIL_ENABLED === 'true',
 });
 
 const save = async () => {
@@ -61,6 +64,9 @@ const save = async () => {
       ...form.value,
       SMTP_SECURE: String(form.value.SMTP_SECURE),
       IMAGE_TRANSFORMS_ENABLED: String(form.value.IMAGE_TRANSFORMS_ENABLED),
+      MONITOR_ALERT_EMAIL_ENABLED: String(
+        form.value.MONITOR_ALERT_EMAIL_ENABLED,
+      ),
     };
     if (body.R2_SECRET_ACCESS_KEY === MASK) delete body.R2_SECRET_ACCESS_KEY;
     if (body.SMTP_PASSWORD === MASK) delete body.SMTP_PASSWORD;
@@ -88,6 +94,23 @@ const sendTestEmail = async () => {
     snackbar.error(err);
   } finally {
     isSendingTestEmail.value = false;
+  }
+};
+
+const isSendingMonitorAlertTest = ref(false);
+
+const sendMonitorAlertTest = async () => {
+  isSendingMonitorAlertTest.value = true;
+  try {
+    const response = await $fetch<{ message: string }>(
+      '/api/email/monitor-alert-test',
+      { method: 'post' },
+    );
+    snackbar.success(response.message);
+  } catch (err) {
+    snackbar.error(err);
+  } finally {
+    isSendingMonitorAlertTest.value = false;
   }
 };
 </script>
@@ -256,6 +279,27 @@ const sendTestEmail = async () => {
           :loading="isSendingTestEmail"
           @click="sendTestEmail"
           >Kirim Email Test</v-btn
+        >
+      </div>
+    </CContentCard>
+
+    <CContentCard title="Email alert monitor">
+      <v-switch
+        v-model="form.MONITOR_ALERT_EMAIL_ENABLED"
+        label="Kirim email alert dari monitor.muzanella.com"
+        color="primary"
+        hint="Crash, OOM, MySQL/Redis mati, backup gagal, situs down, dan alert lain dari monitor dikirim ke Admin Notification Email di atas lewat SMTP yang sama. Hanya prod yang mengirim. Saat mati, alert tetap tercatat di menu Alerts monitor. Berlaku tanpa deploy."
+        persistent-hint
+        data-testid="monitor-alert-switch"
+      />
+      <div class="d-flex mt-4">
+        <v-btn
+          color="secondary"
+          variant="tonal"
+          prepend-icon="mdi-bell-ring-outline"
+          :loading="isSendingMonitorAlertTest"
+          @click="sendMonitorAlertTest"
+          >Kirim email alert tes</v-btn
         >
       </div>
     </CContentCard>

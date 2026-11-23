@@ -47,6 +47,17 @@
 #     R2_ENDPOINT: "<value>"
 #     R2_BUCKET_NAME: "<value>"
 #     R2_PUBLIC_URL_BASE: "<value>"
+#     # Token enem-landing-monitor-api ke log-reader (deploy-log-reader.yml),
+#     # beda untuk prod dan dev, minimal 32 karakter. Kosong = menu log
+#     # monitor nonaktif.
+#     LOG_READER_TOKEN: "<value>"
+#     # Webhook alert monitor, format `id:key` (mysql-backup:<openssl rand
+#     # -hex 32>). Hanya prod yang perlu; kosong = webhook nonaktif.
+#     ALERT_WEBHOOKS: "<value>"
+#     # User MySQL enem_monitor (deploy-mysql.yml, hanya PROCESS):
+#     # mysql://enem_monitor:<pw>@mysql_mysql:3306. Kosong = statistik
+#     # MySQL di menu DB monitor nonaktif.
+#     DATABASE_URL_MONITOR: "<value>"
 #
 # Var non-secret (CORS_ORIGIN, ACCOUNT_API_HOST, API_HOST, ACCOUNT_WEB_HOST,
 # SHARED_COOKIE_DOMAIN, ALLOW_SIGNUP) SENGAJA TIDAK di sini - itu wiring
@@ -208,6 +219,22 @@
       ansible.builtin.file:
         path: "{{ deploy_dir }}/.deploy-stack.sh"
         state: absent
+
+    # Log-reader adalah stack bersama prod dan dev (deploy-log-reader.yml),
+    # bukan bagian compose.yml. Release prod ikut memperbarui image-nya
+    # kalau stack itu sudah ada, supaya tidak tertinggal versi.
+    - name: Update image log-reader ke :prod (hanya env prod)
+      ansible.builtin.shell: |
+        if docker service inspect log-reader_log-reader >/dev/null 2>&1; then
+          docker service update --with-registry-auth --quiet \
+            --image ghcr.io/muzanella11/enem-landing-log-reader:prod \
+            log-reader_log-reader && echo updated
+        else
+          echo "log-reader belum dideploy (deploy-log-reader.yml), dilewati"
+        fi
+      when: env == "prod"
+      register: log_reader_update
+      changed_when: "'updated' in log_reader_update.stdout"
 
     - name: Logout dari GHCR (jangan tinggalkan kredensial di server)
       ansible.builtin.command: docker logout ghcr.io

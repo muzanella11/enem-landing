@@ -1,7 +1,7 @@
 import { successResponse } from '@enem-landing/backend-utils';
 import { RedisService } from '@enem-landing/backend-redis';
 import { CacheService } from '@enem-landing/backend-cache';
-import { SsoAuthGuard } from '@enem-landing/backend-sso';
+import { assertSuperAdminRole, SsoAuthGuard } from '@enem-landing/backend-sso';
 import type { User } from '@enem-landing/shared-types';
 import {
   BadRequestException,
@@ -14,11 +14,15 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { assertAdminRole } from '../common/assert-admin-role.js';
 import { CACHE_KEYS, type CacheKey } from './cache.constants.js';
 
 const ALL_KEYS = Object.values(CACHE_KEYS) as CacheKey[];
 
+/**
+ * Operational, so SuperAdmin-only: called by enem-landing-monitor-api (the
+ * monitor's Redis > Cache tab) with the SuperAdmin's own token. The CMS no
+ * longer has a Cache page.
+ */
 @Controller('cache')
 @UseGuards(SsoAuthGuard)
 export class CacheController {
@@ -29,7 +33,7 @@ export class CacheController {
 
   @Get()
   async list(@Req() req: Request) {
-    assertAdminRole((req as Request & { user: User }).user);
+    assertSuperAdminRole((req as Request & { user: User }).user);
 
     try {
       await this.redisService.ping();
@@ -48,7 +52,7 @@ export class CacheController {
 
   @Delete()
   async flush(@Req() req: Request, @Query('key') key?: string) {
-    assertAdminRole((req as Request & { user: User }).user);
+    assertSuperAdminRole((req as Request & { user: User }).user);
 
     if (key === 'all') {
       await this.cacheService.invalidate(...ALL_KEYS);

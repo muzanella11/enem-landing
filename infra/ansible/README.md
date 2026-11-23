@@ -101,7 +101,13 @@ record plus a Traefik router label in compose.
 | enem-landing-account-web | `account.muzanella.com` | `dev-account.muzanella.com` |
 | enem-landing-cms | `cms.muzanella.com` | `dev-cms.muzanella.com` |
 | enem-landing-tools | `tools.muzanella.com` | `dev-tools.muzanella.com` |
-| enem-landing-api, enem-landing-account-api | internal only | internal only |
+| enem-landing-monitor | `monitor.muzanella.com` | `dev-monitor.muzanella.com` |
+| enem-landing-api, enem-landing-account-api, enem-landing-monitor-api | internal only | internal only |
+| enem-landing-log-reader (stack `log-reader`) | internal only, shared | internal only, shared |
+
+DNS records `monitor` and `dev-monitor` (proxied) must be added in
+Cloudflare before the first monitor deploy; the `cloudflare-only`
+middleware rejects anything that doesn't come through the proxy.
 
 DNS records `tools` and `dev-tools` were added in Cloudflare by the user on
 2026-11-06 (verified resolving through the Cloudflare proxy the same day).
@@ -125,6 +131,88 @@ tuning approach mau-apps uses (see that file's header for the full
 reasoning). Redis is self-hosted on the VPS since 2026-11-18 (see below)
 and adds a 160M ceiling. MySQL is self-hosted too (see below) and adds a
 640M ceiling (384M reserved), plus 32M for the `mysql-tunnel` sidecar.
+
+## Monitor and log-reader (`deploy-log-reader.yml`)
+
+`enem-landing-monitor` (Nuxt, port 4003) and `enem-landing-monitor-api`
+(NestJS, port 3003, internal-only, no database) are normal services of the
+app stacks and deploy with `deploy.yml`. Ports follow the mau-apps
+pattern: one index per product across layers (API `300N`, admin web
+`400N`, landing `800N`); index 2 is taken by tools (`8002`), so the
+monitor uses index 3. Only `SUPER_ADMIN` gets in: the frontend middleware
+redirects everyone else to `/unauthorized`, and monitor-api enforces it on
+every route with a global guard (only `GET /health` is public). The site
+sends `X-Robots-Tag: noindex, nofollow`, `X-Frame-Options: DENY` and
+`Referrer-Policy: no-referrer`, and `robots.txt` disallows everything.
+
+Host logs are read by `enem-landing-log-reader` (plain Node, port 3004),
+one stack named `log-reader` shared by prod and dev and joined to both
+overlay networks. It mounts `/var/log`, `/var/lib/docker/containers`,
+`/opt/enem-landing/storage/mysql-logs` and `/etc/passwd` read-only, runs
+with a read-only root filesystem, `cap_drop: ALL` + `cap_add:
+DAC_READ_SEARCH`, no Docker socket and no published port, 96M limit.
+Clients only send allowlisted source ids, scanned container ids and file
+indexes, never paths. Every log read is written to monitor-api's own log
+as an audit line (`[Audit] user=... GET /logs/...`).
+
+First deploy:
+
+```bash
+# 1. DNS: add `monitor` and `dev-monitor` (proxied) in Cloudflare.
+# 2. One token per environment, stored as LOG_READER_TOKEN in the GitHub
+#    environments `production` and `development`:
+PROD_TOKEN=$(openssl rand -hex 32); DEV_TOKEN=$(openssl rand -hex 32)
+# 3. Deploy the reader (needs the image, so after the first CI build):
+ansible-playbook playbooks/deploy-log-reader.yml -i inventories/prod/hosts.ini \
+  -e "log_reader_token_prod=$PROD_TOKEN" -e "log_reader_token_dev=$DEV_TOKEN" \
+  -e "ghcr_pat=<PAT read:packages>"
+# 4. Redeploy dev and prod so monitor-api gets LOG_READER_TOKEN.
+```
+
+The tokens live in `/opt/enem-landing/log-reader/tokens` (root, 0400), not
+in the service env, so they don't show up in `docker service inspect`.
+Every prod release (`deploy.yml` with `env=prod`) updates the reader to the
+`:prod` image if the stack exists. Re-run the playbook only to rotate
+tokens. To turn log reading off for one environment, set `LOGS_ENABLED:
+"false"` for its monitor-api in compose.
+
+### Alerts, metrics, uptime, deploy history
+
+monitor-api runs one job a minute: it evaluates the alert rules (container
+crash/OOM, kernel OOM, MySQL/Redis down, failed-login spike, memory, disk,
+swap, load, site/API down, TLS expiry, backup, SSH logins, MySQL
+connections, Redis memory/evictions/AOF), checks uptime, and works through
+the email outbox. Everything is kept in Redis with TTLs and caps (history
+500 entries/30 days, outbox 200 items, samples 2 to 8 days), no extra
+database or queue. Emails go through account-api's
+`POST /email/internal/monitor-alert` (SMTP and recipient from CMS
+Settings, switch "Email alert monitor"); only prod sends them
+(`ALERTS_EMAIL_ENABLED`). Prod is also the primary (`MONITOR_PRIMARY`) that
+samples host metrics and records deploy history for both monitors.
+
+The log-reader additionally mounts `/sys/fs/cgroup` (container memory and
+CPU) and `/opt/enem-landing/storage/mysql` (database and table file sizes,
+never opened), both read-only. After pulling these changes:
+
+```bash
+# Check the cgroup path (systemd driver: system.slice/docker-<id>.scope).
+ssh deploy@<vps> 'ls /sys/fs/cgroup/system.slice | grep docker | head -3'
+# Re-run the reader playbook for the new mounts.
+ansible-playbook playbooks/deploy-log-reader.yml -i inventories/prod/hosts.ini \
+  -e "log_reader_token_prod=<same>" -e "log_reader_token_dev=<same>" -e "ghcr_pat=<PAT>"
+# MySQL monitor user (PROCESS only): add mysql_monitor_password to
+# mysql-vars.yml, re-run deploy-mysql.yml, then store
+# DATABASE_URL_MONITOR=mysql://enem_monitor:<pw>@mysql_mysql:3306 in both
+# GitHub environments.
+# Backup failure webhook: mysql_backup_notify_webhook_url =
+# https://monitor.muzanella.com/api/hooks/mysql-backup and
+# mysql_backup_notify_webhook_key = <key>, plus ALERT_WEBHOOKS =
+# mysql-backup:<key> in the `production` environment.
+```
+
+Optional, recommended: put Cloudflare Access (Zero Trust, free up to 50
+users) in front of both monitor hostnames so the login page itself isn't
+reachable without an email check. Not set up yet.
 
 ## Shared Redis (`deploy-redis.yml`)
 

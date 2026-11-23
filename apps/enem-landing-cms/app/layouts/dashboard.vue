@@ -22,7 +22,6 @@ const NAV_ITEMS: NavItem[] = [
   { title: 'SEO Meta', icon: 'mdi-magnify', url: '/seo-meta' },
   { title: 'Skills', icon: 'mdi-star-outline', url: '/skills' },
   { title: 'Blog', icon: 'mdi-post-outline', url: '/blog' },
-  { title: 'Cache', icon: 'mdi-memory', url: '/cache' },
   { title: 'Tools', icon: 'mdi-toolbox-outline', url: '/tools' },
   {
     title: 'Activity Tracking',
