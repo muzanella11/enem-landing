@@ -114,7 +114,32 @@ riwayat alert bisa dilihat di monitor.
    dilewati karena cooldown, dinonaktifkan di dev, email dimatikan di CMS).
 6. **Pengaturan aturan** di Redis (`monitor:alert-rules`), dengan default
    di kode. Kalau Redis kosong, default yang dipakai.
-7. **Monitor**:
+7. **Antrean dan retry pakai Redis, tanpa RabbitMQ** (diputuskan
+   2026-11-23):
+   - alert yang perlu email tidak dikirim langsung saat terdeteksi, tapi
+     dimasukkan ke **outbox** Redis per environment
+     (`monitor:alert-outbox`), lalu diproses scheduler tiap menit. Alert
+     tidak hilang kalau monitor-api restart di tengah jalan, dan request
+     user tidak pernah menunggu SMTP;
+   - kalau pengiriman gagal (account-api tidak bisa dijangkau, SMTP error,
+     atau `ADMIN_NOTIFICATION_EMAIL` kosong), item dicoba lagi dengan jeda
+     bertahap **1, 5, 15, 60 menit**. Setelah 4 kali gagal, item dibuang
+     dari outbox dan riwayat alert mencatat status "gagal" beserta pesan
+     error terakhir;
+   - outbox dibatasi 200 item. Kalau penuh, item tertua dibuang dan
+     riwayat mencatat "dibuang, outbox penuh", supaya Redis (`maxmemory
+96mb`, dipakai bersama) tidak terisi oleh antrean yang macet;
+   - pengambilan item memakai operasi atomik (`LMOVE` ke list
+     `monitor:alert-processing`), jadi tidak ada email dobel kalau suatu
+     saat monitor-api jalan lebih dari satu replika;
+   - **alasan tidak memakai RabbitMQ**: hanya ada satu pengirim
+     (monitor-api) dan satu penerima (account-api), volumenya paling
+     banyak puluhan email per hari karena ada cooldown, dan Redis sudah
+     tersedia. RabbitMQ butuh sekitar 150 sampai 250 MB RAM dan satu
+     service lagi untuk dideploy, di-backup, dan dipantau di VPS 3.6 GB
+     yang sudah padat. Ini sejalan dengan Story 10 ("Di luar scope": RabbitMQ
+     tidak relevan untuk enem-landing).
+8. **Monitor**:
    - menu baru **Alerts**: riwayat (filter aturan, severity, status
      email) dan halaman aturan (aktif/nonaktif, ambang, cooldown). Tidak
      ada pengaturan email di monitor; halaman ini menautkan ke CMS
@@ -128,6 +153,10 @@ riwayat alert bisa dilihat di monitor.
 - Penerima berbeda per aturan. Semua ke `ADMIN_NOTIFICATION_EMAIL`.
 - Eskalasi dan jadwal piket.
 - Database untuk riwayat alert jangka panjang.
+- **RabbitMQ atau message queue lain** (lihat keputusan 7). Dipertimbangkan
+  ulang kalau banyak app lain juga perlu mengirim notifikasi lewat satu
+  layanan, ada kanal tambahan dengan konsumen terpisah (Telegram,
+  WhatsApp), atau volumenya mencapai ratusan pesan per jam.
 
 ## Acceptance criteria
 
@@ -151,6 +180,13 @@ riwayat alert bisa dilihat di monitor.
       tes; saat saklar mati, alert tetap tercatat di riwayat dengan status
       "email dimatikan di CMS".
 - [ ] Dev tidak pernah mengirim email.
+- [ ] Saat account-api dimatikan, alert tetap masuk outbox, dicoba ulang
+      dengan jeda 1, 5, 15, 60 menit, dan terkirim begitu account-api
+      jalan lagi. Setelah 4 kali gagal, riwayat mencatat "gagal" dengan
+      pesan error.
+- [ ] Restart monitor-api saat outbox berisi tidak menghilangkan alert dan
+      tidak mengirim email dobel (tes unit untuk pengambilan atomik).
+- [ ] Outbox tidak pernah lebih dari 200 item.
 - [ ] Lint, format, test, build, dan e2e lulus lokal sebelum PR.
 
 ## Langkah manual setelah deploy
